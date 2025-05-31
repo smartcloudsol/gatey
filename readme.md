@@ -20,7 +20,7 @@ This repository contains the complete source code and frontend modules for the f
 ### Prerequisites
 - Node.js (>= 16.x)
 - Yarn or NPM
-- PHP >= 8.0
+- PHP >= 8.2
 - Composer
 - Git
 
