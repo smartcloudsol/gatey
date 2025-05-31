@@ -151,7 +151,7 @@ All references to “Amazon Cognito” are made purely to describe this plugin�
 == Source & Build ==
 
 **Public (free) source code:**  
-All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/wpsuite-gatey
+All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/gatey
 
 **Premium-only features:**
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
