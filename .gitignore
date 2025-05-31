@@ -1,0 +1,5 @@
+*.zip
+/gatey*/node_modules
+/**/paid-features/
+/**/scripts/
+/**/publish

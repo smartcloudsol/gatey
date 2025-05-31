@@ -1,0 +1,20 @@
+{
+  "name": "wpsuite/gatey",
+  "description": "Dependencies for Gatey",
+  "type": "wordpress-plugin",
+  "require": {
+    "guzzlehttp/guzzle": "^7.9",
+    "web-token/jwt-framework": "^4.0"
+  },
+  "license": "gpl",
+  "authors": [
+    {
+      "name": "Smart Cloud Solutions Inc.",
+      "email": "info@smart-cloud-solutions.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/smartcloudsol/wpsuite-gatey/issues",
+    "source": "https://github.com/smartcloudsol/wpsuite-gatey/"
+  }
+}

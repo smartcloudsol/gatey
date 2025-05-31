@@ -1,0 +1,46 @@
+{
+  "name": "@smart-cloud/gatey-main",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsup --minify",
+    "lint": "eslint 'src/**/*.ts' --report-unused-disable-directives --max-warnings 0",
+    "build-wp": "wp-scripts build --config=webpack.config.cjs --webpack-copy-php --output-path",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js",
+    "packages-update": "wp-scripts packages-update",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "start": "wp-scripts start --webpack-copy-php --output-path",
+    "check-licenses": "wp-scripts check-licenses --prod"
+  },
+  "publishConfig": {
+    "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
+  },
+  "dependencies": {
+    "@smart-cloud/gatey-core": "^1.0.0",
+    "@wordpress/data": "^10.23.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@types/jquery": "^3.5.32",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "@wordpress/scripts": "^30.16.0",
+    "ajv": "^8.17.1",
+    "aws-amplify": "^6.14.4",
+    "buffer-browserify": "^0.2.5",
+    "crypto-browserify": "^3.12.1",
+    "esbuild": "0.25.4",
+    "eslint": "^9.26.0",
+    "jquery": "^3.7.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vm-browserify": "^1.1.2"
+  }
+}

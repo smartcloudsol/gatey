@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "gatey/account-attribute",
+  "version": "1.0.0",
+  "title": "Account Attribute",
+  "category": "gatey-category",
+  "description": "Account Attribute for Gatey Authenticator - display an attribute of the current user",
+  "attributes": {
+    "attribute": {
+      "type": "string"
+    },
+    "custom": {
+      "type": "string"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./index.css",
+  "render": "file:./render.php"
+}

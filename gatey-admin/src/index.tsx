@@ -1,0 +1,53 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { store, type Account, type Store } from "@smart-cloud/gatey-core";
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import Main from "./main";
+
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+const production = process.env?.NODE_ENV === "production";
+if (!production) {
+  import("./index.css");
+}
+declare global {
+  const wp: {
+    data: {
+      select: (store: Store) => {
+        getConfig: () => string | undefined;
+        getSalt: () => number;
+        getAccount: () => Account | undefined;
+      };
+    };
+  };
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: false,
+      retryDelay: 0,
+    },
+  },
+});
+
+store.then((store) => {
+  const root = createRoot(document.getElementById("gatey-admin")!);
+  root.render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider>
+          <Notifications position="top-right" zIndex={100000} />
+          <ModalsProvider>
+            <Main store={store} {...Gatey} />
+          </ModalsProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </StrictMode>
+  );
+});

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "gatey/authenticator",
+  "version": "1.0.0",
+  "title": "Authenticator",
+  "category": "gatey-category",
+  "description": "Gatey Authenticator",
+  "attributes": {
+    "screen": {
+      "type": "string"
+    },
+    "variation": {
+      "type": "string"
+    },
+    "colorMode": {
+      "type": "string"
+    }
+  },
+  "supports": {
+    "inserter": true
+  },
+  "allowedBlocks": [
+    "gatey/custom-block"
+  ],
+  "textdomain": "auth-with-amazon-cognito",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./view.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

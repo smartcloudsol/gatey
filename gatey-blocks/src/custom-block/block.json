@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "gatey/custom-block",
+  "version": "1.0.0",
+  "title": "Custom Block",
+  "category": "gatey-category",
+  "description": "Custom Block for Gatey Authenticator",
+  "attributes": {
+    "anchor": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "part": {
+      "type": "string"
+    }
+  },
+  "editorScript": "file:./index.tsx",
+  "editorStyle": "file:./index.css",
+  "style": "file:./index.css",
+  "render": "file:./render.php"
+}

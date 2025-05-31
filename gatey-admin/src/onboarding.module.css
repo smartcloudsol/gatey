@@ -1,0 +1,7 @@
+.listItemIcon {
+  display: flex !important;
+  align-content: center;
+}
+.listItemLabelDone {
+  text-decoration: line-through;
+}
