@@ -8,29 +8,25 @@ use InvalidArgumentException;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\KeyManagement\JWKSource\JWKSource as JWKSourceInterface;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
 use LogicException;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use function array_key_exists;
 use function count;
-use function sprintf;
 
-final class JWKSource implements Source
+class JWKSource implements Source
 {
     /**
      * @var JWKSourceInterface[]|null
      */
     private ?array $jwkSources = null;
 
-    #[Override]
     public function name(): string
     {
         return 'keys';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         $sources = $this->getJWKSources();
@@ -46,7 +42,6 @@ final class JWKSource implements Source
         }
     }
 
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         $sourceNodeBuilder = $node
@@ -68,7 +63,6 @@ final class JWKSource implements Source
         }
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         return [];

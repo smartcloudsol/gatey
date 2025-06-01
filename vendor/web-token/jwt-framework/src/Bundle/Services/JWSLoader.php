@@ -12,7 +12,6 @@ use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\JWSLoader as BaseJWSLoader;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
-use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -27,7 +26,6 @@ final class JWSLoader extends BaseJWSLoader
         parent::__construct($serializerManager, $jwsVerifier, $headerCheckerManager);
     }
 
-    #[Override]
     public function loadAndVerifyWithKeySet(
         string $token,
         JWKSet $keyset,

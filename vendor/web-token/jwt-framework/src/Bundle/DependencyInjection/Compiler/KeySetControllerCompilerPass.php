@@ -6,14 +6,11 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Compiler;
 
 use InvalidArgumentException;
 use Jose\Bundle\JoseFramework\Routing\JWKSetLoader;
-use Override;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use function sprintf;
 
-final readonly class KeySetControllerCompilerPass implements CompilerPassInterface
+final class KeySetControllerCompilerPass implements CompilerPassInterface
 {
-    #[Override]
     public function process(ContainerBuilder $container): void
     {
         if (! $container->hasDefinition(JWKSetLoader::class)) {

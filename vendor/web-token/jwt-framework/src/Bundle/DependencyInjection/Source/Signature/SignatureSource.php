@@ -13,7 +13,6 @@ use Jose\Component\Signature\Algorithm\HMAC;
 use Jose\Component\Signature\Algorithm\HS1;
 use Jose\Component\Signature\Algorithm\None;
 use Jose\Component\Signature\Algorithm\RSAPSS;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -23,7 +22,7 @@ use function array_key_exists;
 use function count;
 use function extension_loaded;
 
-final readonly class SignatureSource implements SourceWithCompilerPasses
+class SignatureSource implements SourceWithCompilerPasses
 {
     /**
      * @var Source[]
@@ -35,13 +34,11 @@ final readonly class SignatureSource implements SourceWithCompilerPasses
         $this->sources = [new JWSBuilder(), new JWSVerifier(), new JWSSerializer(), new JWSLoader()];
     }
 
-    #[Override]
     public function name(): string
     {
         return 'jws';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         $container->registerForAutoconfiguration(\Jose\Component\Signature\Serializer\JWSSerializer::class)->addTag(
@@ -65,7 +62,6 @@ final readonly class SignatureSource implements SourceWithCompilerPasses
         }
     }
 
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         $childNode = $node->children()
@@ -79,7 +75,6 @@ final readonly class SignatureSource implements SourceWithCompilerPasses
         }
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         $result = [];
@@ -96,7 +91,6 @@ final readonly class SignatureSource implements SourceWithCompilerPasses
     /**
      * @return CompilerPassInterface[]
      */
-    #[Override]
     public function getCompilerPasses(): array
     {
         return [new SignatureSerializerCompilerPass()];

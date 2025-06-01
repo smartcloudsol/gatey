@@ -12,7 +12,6 @@ use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\JWSLoader;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
-use Override;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +19,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Throwable;
 
-final class JWSCollector implements Collector, EventSubscriberInterface
+class JWSCollector implements Collector, EventSubscriberInterface
 {
     /**
      * @var array<JWSBuilder>
@@ -65,7 +64,6 @@ final class JWSCollector implements Collector, EventSubscriberInterface
     /**
      * @param array<string, mixed> $data
      */
-    #[Override]
     public function collect(array &$data, Request $request, Response $response, ?Throwable $exception = null): void
     {
         $this->collectSupportedJWSSerializations($data);
@@ -90,7 +88,6 @@ final class JWSCollector implements Collector, EventSubscriberInterface
         $this->jwsLoaders[$id] = $jwsLoader;
     }
 
-    #[Override]
     public static function getSubscribedEvents(): array
     {
         return [

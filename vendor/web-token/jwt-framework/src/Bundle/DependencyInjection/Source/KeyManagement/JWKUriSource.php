@@ -7,22 +7,18 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\KeyManagement;
 use Jose\Bundle\JoseFramework\Controller\JWKSetController;
 use Jose\Bundle\JoseFramework\Controller\JWKSetControllerFactory;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use function sprintf;
 
-final readonly class JWKUriSource implements Source
+class JWKUriSource implements Source
 {
-    #[Override]
     public function name(): string
     {
         return 'jwk_uris';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         foreach ($configs[$this->name()] as $name => $itemConfig) {
@@ -43,7 +39,6 @@ final readonly class JWKUriSource implements Source
         }
     }
 
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         $node->children()
@@ -79,7 +74,6 @@ final readonly class JWKUriSource implements Source
             ->end();
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         return [];

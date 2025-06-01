@@ -6,10 +6,10 @@ namespace Jose\Bundle\JoseFramework\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 
-final readonly class JWKSetController
+class JWKSetController
 {
     public function __construct(
-        private string $jwkset
+        private readonly string $jwkset
     ) {
     }
 

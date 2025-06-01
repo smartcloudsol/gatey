@@ -7,7 +7,6 @@ namespace Jose\Bundle\JoseFramework\Services;
 use Jose\Bundle\JoseFramework\Event\ClaimCheckedFailureEvent;
 use Jose\Bundle\JoseFramework\Event\ClaimCheckedSuccessEvent;
 use Jose\Component\Checker\ClaimCheckerManager as BaseClaimCheckerManager;
-use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -20,7 +19,6 @@ final class ClaimCheckerManager extends BaseClaimCheckerManager
         parent::__construct($checkers);
     }
 
-    #[Override]
     public function check(array $claims, array $mandatoryClaims = []): array
     {
         try {

@@ -5,7 +5,7 @@
  * Description:       Easily integrate Amazon Cognito for secure authentication, SSO, and advanced user management in WordPress or static sites generated from WordPress.
  * Requires at least: 6.7
  * Tested up to:      6.8
- * Requires PHP:      8.2
+ * Requires PHP:      8.1
  * Version:           1.0.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
@@ -24,10 +24,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (version_compare(PHP_VERSION, '8.2', '<')) {
+if (version_compare(PHP_VERSION, '8.1', '<')) {
     deactivate_plugins(plugin_basename(__FILE__));
     wp_die(
-        esc_html__('Gatey requires PHP 8.2 or higher.', 'gatey'),
+        esc_html__('Gatey requires PHP 8.1 or higher.', 'gatey'),
         esc_html__('Plugin dependency check', 'gatey'),
         array('back_link' => true)
     );

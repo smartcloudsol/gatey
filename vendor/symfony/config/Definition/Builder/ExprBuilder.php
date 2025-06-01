@@ -26,13 +26,15 @@ class ExprBuilder
     public const TYPE_NULL = 'null';
     public const TYPE_ARRAY = 'array';
 
-    public string $allowedTypes;
-    public ?\Closure $ifPart = null;
-    public ?\Closure $thenPart = null;
+    protected $node;
 
-    public function __construct(
-        protected NodeDefinition $node,
-    ) {
+    public $allowedTypes;
+    public $ifPart;
+    public $thenPart;
+
+    public function __construct(NodeDefinition $node)
+    {
+        $this->node = $node;
     }
 
     /**
@@ -62,21 +64,6 @@ class ExprBuilder
     public function ifTrue(?\Closure $closure = null): static
     {
         $this->ifPart = $closure ?? static fn ($v) => true === $v;
-        $this->allowedTypes = self::TYPE_ANY;
-
-        return $this;
-    }
-
-    /**
-     * Sets a closure to use as tests.
-     *
-     * The default one tests if the value is false.
-     *
-     * @return $this
-     */
-    public function ifFalse(?\Closure $closure = null): static
-    {
-        $this->ifPart = $closure ? static fn ($v) => !$closure($v) : static fn ($v) => false === $v;
         $this->allowedTypes = self::TYPE_ANY;
 
         return $this;
@@ -115,7 +102,7 @@ class ExprBuilder
      */
     public function ifEmpty(): static
     {
-        $this->ifPart = static fn ($v) => !$v;
+        $this->ifPart = static fn ($v) => empty($v);
         $this->allowedTypes = self::TYPE_ANY;
 
         return $this;
@@ -209,7 +196,7 @@ class ExprBuilder
      */
     public function thenInvalid(string $message): static
     {
-        $this->thenPart = static fn ($v) => throw new \InvalidArgumentException(\sprintf($message, json_encode($v)));
+        $this->thenPart = static fn ($v) => throw new \InvalidArgumentException(sprintf($message, json_encode($v)));
 
         return $this;
     }

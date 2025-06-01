@@ -18,13 +18,14 @@ namespace Symfony\Component\Config\Definition\Builder;
  */
 class NormalizationBuilder
 {
-    public array $before = [];
-    public array $declaredTypes = [];
-    public array $remappings = [];
+    protected $node;
+    public $before = [];
+    public $declaredTypes = [];
+    public $remappings = [];
 
-    public function __construct(
-        protected NodeDefinition $node,
-    ) {
+    public function __construct(NodeDefinition $node)
+    {
+        $this->node = $node;
     }
 
     /**

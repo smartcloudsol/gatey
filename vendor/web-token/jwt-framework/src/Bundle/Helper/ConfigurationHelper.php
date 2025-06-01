@@ -7,7 +7,7 @@ namespace Jose\Bundle\JoseFramework\Helper;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use function is_array;
 
-final readonly class ConfigurationHelper
+class ConfigurationHelper
 {
     final public const BUNDLE_ALIAS = 'jose';
 
@@ -127,6 +127,8 @@ final readonly class ConfigurationHelper
     /**
      * @param string[] $jweSerializers
      * @param string[] $encryptionAlgorithms
+     * @param null|string[] $contentEncryptionAlgorithms
+     * @param null|string[] $compressionMethods
      * @param string[] $jweHeaderCheckers
      * @param string[] $jwsSerializers
      * @param string[] $signatureAlgorithms
@@ -137,6 +139,8 @@ final readonly class ConfigurationHelper
         string $name,
         array $jweSerializers,
         array $encryptionAlgorithms,
+        null|array $contentEncryptionAlgorithms,
+        null|array $compressionMethods,
         array $jweHeaderCheckers,
         array $jwsSerializers,
         array $signatureAlgorithms,
@@ -144,6 +148,9 @@ final readonly class ConfigurationHelper
         bool $isPublic = true,
         array $tags = []
     ): void {
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithms = array_merge($encryptionAlgorithms, $contentEncryptionAlgorithms);
+        }
         $config = [
             self::BUNDLE_ALIAS => [
                 'nested_token' => [
@@ -151,7 +158,9 @@ final readonly class ConfigurationHelper
                         $name => [
                             'is_public' => $isPublic,
                             'jwe_serializers' => $jweSerializers,
-                            'encryption_algorithms' => $encryptionAlgorithms,
+                            'key_encryption_algorithms' => $encryptionAlgorithms,
+                            'content_encryption_algorithms' => null,
+                            'compression_methods' => $compressionMethods,
                             'jwe_header_checkers' => $jweHeaderCheckers,
                             'jws_serializers' => $jwsSerializers,
                             'signature_algorithms' => $signatureAlgorithms,
@@ -169,6 +178,8 @@ final readonly class ConfigurationHelper
     /**
      * @param string[] $jweSerializers
      * @param string[] $encryptionAlgorithms
+     * @param null|string[] $contentEncryptionAlgorithms
+     * @param null|string[] $compressionMethods
      * @param string[] $jwsSerializers
      * @param string[] $signatureAlgorithms
      */
@@ -177,11 +188,16 @@ final readonly class ConfigurationHelper
         string $name,
         array $jweSerializers,
         array $encryptionAlgorithms,
+        null|array $contentEncryptionAlgorithms,
+        null|array $compressionMethods,
         array $jwsSerializers,
         array $signatureAlgorithms,
         bool $isPublic = true,
         array $tags = []
     ): void {
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithms = array_merge($encryptionAlgorithms, $contentEncryptionAlgorithms);
+        }
         $config = [
             self::BUNDLE_ALIAS => [
                 'nested_token' => [
@@ -189,7 +205,9 @@ final readonly class ConfigurationHelper
                         $name => [
                             'is_public' => $isPublic,
                             'jwe_serializers' => $jweSerializers,
-                            'encryption_algorithms' => $encryptionAlgorithms,
+                            'key_encryption_algorithms' => $encryptionAlgorithms,
+                            'content_encryption_algorithms' => null,
+                            'compression_methods' => $compressionMethods,
                             'jws_serializers' => $jwsSerializers,
                             'signature_algorithms' => $signatureAlgorithms,
                             'tags' => $tags,
@@ -232,6 +250,8 @@ final readonly class ConfigurationHelper
     /**
      * @param string[] $serializers
      * @param string[] $encryptionAlgorithms
+     * @param null|string[] $contentEncryptionAlgorithms
+     * @param null|string[] $compressionMethods
      * @param string[] $header_checkers
      */
     public static function addJWELoader(
@@ -239,10 +259,15 @@ final readonly class ConfigurationHelper
         string $name,
         array $serializers,
         array $encryptionAlgorithms,
+        null|array $contentEncryptionAlgorithms,
+        null|array $compressionMethods,
         array $header_checkers,
         bool $isPublic = true,
         array $tags = []
     ): void {
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithms = array_merge($encryptionAlgorithms, $contentEncryptionAlgorithms);
+        }
         $config = [
             self::BUNDLE_ALIAS => [
                 'jwe' => [
@@ -250,7 +275,9 @@ final readonly class ConfigurationHelper
                         $name => [
                             'is_public' => $isPublic,
                             'serializers' => $serializers,
-                            'encryption_algorithms' => $encryptionAlgorithms,
+                            'key_encryption_algorithms' => $encryptionAlgorithms,
+                            'content_encryption_algorithms' => null,
+                            'compression_methods' => $compressionMethods,
                             'header_checkers' => $header_checkers,
                             'tags' => $tags,
                         ],
@@ -386,16 +413,24 @@ final readonly class ConfigurationHelper
         ContainerBuilder $container,
         string $name,
         array $encryptionAlgorithm,
+        null|array $contentEncryptionAlgorithms = null,
+        null|array $compressionMethods = null,
         bool $isPublic = true,
         array $tags = []
     ): void {
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithm = array_merge($encryptionAlgorithm, $contentEncryptionAlgorithms);
+        }
+
         $config = [
             self::BUNDLE_ALIAS => [
                 'jwe' => [
                     'builders' => [
                         $name => [
                             'is_public' => $isPublic,
-                            'encryption_algorithms' => $encryptionAlgorithm,
+                            'key_encryption_algorithms' => $encryptionAlgorithm,
+                            'content_encryption_algorithms' => null,
+                            'compression_methods' => $compressionMethods,
                             'tags' => $tags,
                         ],
                     ],
@@ -410,16 +445,24 @@ final readonly class ConfigurationHelper
         ContainerBuilder $container,
         string $name,
         array $encryptionAlgorithm,
+        null|array $contentEncryptionAlgorithms,
+        null|array $compressionMethods = null,
         bool $isPublic = true,
         array $tags = []
     ): void {
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithm = array_merge($encryptionAlgorithm, $contentEncryptionAlgorithms);
+        }
+
         $config = [
             self::BUNDLE_ALIAS => [
                 'jwe' => [
                     'decrypters' => [
                         $name => [
                             'is_public' => $isPublic,
-                            'encryption_algorithms' => $encryptionAlgorithm,
+                            'key_encryption_algorithms' => $encryptionAlgorithm,
+                            'content_encryption_algorithms' => null,
+                            'compression_methods' => $compressionMethods,
                             'tags' => $tags,
                         ],
                     ],

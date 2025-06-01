@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\Signature;
 
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-abstract readonly class AbstractSignatureSource implements Source
+abstract class AbstractSignatureSource implements Source
 {
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         $node
@@ -46,7 +44,6 @@ abstract readonly class AbstractSignatureSource implements Source
             ->end();
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         return [];

@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Jose\Component\Core\Util;
 
-use InvalidArgumentException;
-use RangeException;
-use function strlen;
-
 /**
  *  Copyright (c) 2016 - 2022 Paragon Initiative Enterprises.
  *  Copyright (c) 2014 Steve "Sc00bz" Thomas (steve at tobtu dot com)
@@ -31,7 +27,12 @@ use function strlen;
  *  SOFTWARE.
  */
 
-final readonly class Base64UrlSafe
+use RangeException;
+
+/**
+ * @readonly
+ */
+final class Base64UrlSafe
 {
     public static function encode(string $binString): string
     {
@@ -206,7 +207,7 @@ final readonly class Base64UrlSafe
 
     private static function safeStrlen(string $str): int
     {
-        return strlen($str);
+        return mb_strlen($str, '8bit');
     }
 
     private static function safeSubstr(string $str, int $start = 0, $length = null): string
@@ -214,6 +215,6 @@ final readonly class Base64UrlSafe
         if ($length === 0) {
             return '';
         }
-        return substr($str, $start, $length);
+        return mb_substr($str, $start, $length, '8bit');
     }
 }

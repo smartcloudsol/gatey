@@ -7,7 +7,6 @@ namespace Jose\Component\Console;
 use InvalidArgumentException;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
-use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +20,10 @@ use function is_string;
 )]
 final class PublicKeysetCommand extends ObjectOutputCommand
 {
-    #[Override]
+    protected static $defaultName = 'keyset:convert:public';
+
+    protected static $defaultDescription = 'Convert private keys in a key set into public keys. Symmetric keys (shared keys) are not changed.';
+
     protected function configure(): void
     {
         parent::configure();
@@ -29,7 +31,6 @@ final class PublicKeysetCommand extends ObjectOutputCommand
             ->addArgument('jwkset', InputArgument::REQUIRED, 'The JWKSet object');
     }
 
-    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $jwkset = $this->getKeyset($input);

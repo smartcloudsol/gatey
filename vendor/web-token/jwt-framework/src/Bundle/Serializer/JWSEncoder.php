@@ -9,16 +9,15 @@ use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use LogicException;
-use Override;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\NormalizationAwareInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use function in_array;
 use function is_int;
-use function sprintf;
+use function mb_strtolower;
 
-final readonly class JWSEncoder implements EncoderInterface, DecoderInterface, NormalizationAwareInterface
+final class JWSEncoder implements EncoderInterface, DecoderInterface, NormalizationAwareInterface
 {
     private readonly JWSSerializerManager $serializerManager;
 
@@ -32,19 +31,16 @@ final readonly class JWSEncoder implements EncoderInterface, DecoderInterface, N
         $this->serializerManager = $serializerManager;
     }
 
-    #[Override]
     public function supportsEncoding(string $format, array $context = []): bool
     {
         return class_exists(JWSSerializerManager::class) && $this->formatSupported($format);
     }
 
-    #[Override]
     public function supportsDecoding(string $format, array $context = []): bool
     {
         return class_exists(JWSSerializerManager::class) && $this->formatSupported($format);
     }
 
-    #[Override]
     public function encode($data, $format, array $context = []): string
     {
         if ($data instanceof JWS === false) {
@@ -53,7 +49,7 @@ final readonly class JWSEncoder implements EncoderInterface, DecoderInterface, N
 
         try {
             return $this->serializerManager->serialize(
-                strtolower($format),
+                mb_strtolower($format),
                 $data,
                 $this->getSignatureIndex($context)
             );
@@ -62,7 +58,6 @@ final readonly class JWSEncoder implements EncoderInterface, DecoderInterface, N
         }
     }
 
-    #[Override]
     public function decode($data, $format, array $context = []): JWS
     {
         try {
@@ -90,6 +85,6 @@ final readonly class JWSEncoder implements EncoderInterface, DecoderInterface, N
     private function formatSupported(?string $format): bool
     {
         return $format !== null
-            && in_array(strtolower($format), $this->serializerManager->list(), true);
+            && in_array(mb_strtolower($format), $this->serializerManager->list(), true);
     }
 }

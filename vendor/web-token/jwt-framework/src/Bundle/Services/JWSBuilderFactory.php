@@ -7,7 +7,7 @@ namespace Jose\Bundle\JoseFramework\Services;
 use Jose\Component\Core\AlgorithmManagerFactory;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-final readonly class JWSBuilderFactory
+final class JWSBuilderFactory
 {
     public function __construct(
         private readonly AlgorithmManagerFactory $signatureAlgorithmManagerFactory,

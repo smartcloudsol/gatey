@@ -12,6 +12,7 @@ use Exception;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use UQI\Cognito\Tokens\CognitoTokenVerifier;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
@@ -308,7 +309,6 @@ class Admin
 
     function login(WP_REST_Request $request)
     {
-        require_once GATEY_PATH . 'admin/cognito.php';
         $data = $request->get_body_params();
         if (wp_get_current_user()->has_prop('user_email') && wp_get_current_user()->get('user_email') == $data['email']) {
             //return new WP_REST_Response(array('success' => true, 'message' => __('Already logged in.', 'gatey')), 200);
@@ -326,15 +326,14 @@ class Admin
         }
         $token = substr($token, 7);
 
-        $config = new \SmartCloud\WPSuite\Gatey\CognitoConfiguration($region, $poolId, $clientId);
-        $keyManager = new \SmartCloud\WPSuite\Gatey\CognitoKeyManager(
-            new \GuzzleHttp\Client(),
-            $config,
+        $verifier = new CognitoTokenVerifier(
+            $region,
+            $poolId,
+            $clientId
         );
-        $decoder = new \SmartCloud\WPSuite\Gatey\CognitoJwtDecoder($keyManager, $config);
-
         try {
-            $t = json_decode($decoder->decodeIdToken($token)->getPayload(), true);
+            $t = $verifier->verifyIdToken($token);
+            error_log('Cognito token verified: ' . print_r($t, true));
         } catch (Exception $e) {
             return new WP_REST_Response(array('success' => false, 'message' => __('Invalid token.', 'gatey')), 401);
         }

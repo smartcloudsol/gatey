@@ -13,13 +13,12 @@ use RuntimeException;
 use function chr;
 use function count;
 use function ord;
-use function strlen;
 use const STR_PAD_LEFT;
 
 /**
  * @internal
  */
-final readonly class RSACrypt
+final class RSACrypt
 {
     /**
      * Optimal Asymmetric Encryption Padding (OAEP).
@@ -65,15 +64,15 @@ final readonly class RSACrypt
 
     public static function encryptWithRSA15(RSAKey $key, string $data): string
     {
-        $mLen = strlen($data);
+        $mLen = mb_strlen($data, '8bit');
         if ($mLen > $key->getModulusLength() - 11) {
             throw new InvalidArgumentException('Message too long');
         }
 
         $psLen = $key->getModulusLength() - $mLen - 3;
         $ps = '';
-        while (strlen($ps) !== $psLen) {
-            $temp = random_bytes($psLen - strlen($ps));
+        while (mb_strlen($ps, '8bit') !== $psLen) {
+            $temp = random_bytes($psLen - mb_strlen($ps, '8bit'));
             $temp = str_replace("\x00", '', $temp);
             $ps .= $temp;
         }
@@ -88,7 +87,7 @@ final readonly class RSACrypt
 
     public static function decryptWithRSA15(RSAKey $key, string $c): string
     {
-        if (strlen($c) !== $key->getModulusLength()) {
+        if (mb_strlen($c, '8bit') !== $key->getModulusLength()) {
             throw new InvalidArgumentException('Unable to decrypt');
         }
         $c = BigInteger::createFromBinaryString($c);
@@ -97,9 +96,9 @@ final readonly class RSACrypt
         if (ord($em[0]) !== 0 || ord($em[1]) > 2) {
             throw new InvalidArgumentException('Unable to decrypt');
         }
-        $ps = substr($em, 2, (int) strpos($em, chr(0), 2) - 2);
-        $m = substr($em, strlen($ps) + 3, null);
-        if (strlen($ps) < 8) {
+        $ps = mb_substr($em, 2, (int) mb_strpos($em, chr(0), 2, '8bit') - 2, '8bit');
+        $m = mb_substr($em, mb_strlen($ps, '8bit') + 3, null, '8bit');
+        if (mb_strlen($ps, '8bit') < 8) {
             throw new InvalidArgumentException('Unable to decrypt');
         }
 
@@ -117,7 +116,7 @@ final readonly class RSACrypt
         if ($length <= 0) {
             throw new RuntimeException();
         }
-        $splitPlaintext = str_split($plaintext, $length);
+        $splitPlaintext = mb_str_split($plaintext, $length, '8bit');
         $ciphertext = '';
         foreach ($splitPlaintext as $m) {
             $ciphertext .= self::encryptRSAESOAEP($key, $m, $hash);
@@ -135,7 +134,7 @@ final readonly class RSACrypt
             throw new RuntimeException('Invalid modulus length');
         }
         $hash = Hash::$hash_algorithm();
-        $splitCiphertext = str_split($ciphertext, $key->getModulusLength());
+        $splitCiphertext = mb_str_split($ciphertext, $key->getModulusLength(), '8bit');
         $splitCiphertext[count($splitCiphertext) - 1] = str_pad(
             $splitCiphertext[count($splitCiphertext) - 1],
             $key->getModulusLength(),
@@ -154,7 +153,7 @@ final readonly class RSACrypt
     private static function convertIntegerToOctetString(BigInteger $x, int $xLen): string
     {
         $x = $x->toBytes();
-        if (strlen($x) > $xLen) {
+        if (mb_strlen($x, '8bit') > $xLen) {
             throw new RuntimeException('Invalid length.');
         }
 
@@ -205,7 +204,7 @@ final readonly class RSACrypt
             $t .= $mgfHash->hash($mgfSeed . $c);
         }
 
-        return substr($t, 0, $maskLen);
+        return mb_substr($t, 0, $maskLen, '8bit');
     }
 
     /**
@@ -213,7 +212,7 @@ final readonly class RSACrypt
      */
     private static function encryptRSAESOAEP(RSAKey $key, string $m, Hash $hash): string
     {
-        $mLen = strlen($m);
+        $mLen = mb_strlen($m, '8bit');
         $lHash = $hash->hash('');
         $ps = str_repeat(chr(0), $key->getModulusLength() - $mLen - 2 * $hash->getLength() - 2);
         $db = $lHash . $ps . chr(1) . $m;
@@ -239,14 +238,14 @@ final readonly class RSACrypt
         $m = self::getRSADP($key, $c);
         $em = self::convertIntegerToOctetString($m, $key->getModulusLength());
         $lHash = $hash->hash('');
-        $maskedSeed = substr($em, 1, $hash->getLength());
-        $maskedDB = substr($em, $hash->getLength() + 1);
+        $maskedSeed = mb_substr($em, 1, $hash->getLength(), '8bit');
+        $maskedDB = mb_substr($em, $hash->getLength() + 1, null, '8bit');
         $seedMask = self::getMGF1($maskedDB, $hash->getLength(), $hash/*MGF*/);
         $seed = $maskedSeed ^ $seedMask;
         $dbMask = self::getMGF1($seed, $key->getModulusLength() - $hash->getLength() - 1, $hash/*MGF*/);
         $db = $maskedDB ^ $dbMask;
-        $lHash2 = substr($db, 0, $hash->getLength());
-        $m = substr($db, $hash->getLength());
+        $lHash2 = mb_substr($db, 0, $hash->getLength(), '8bit');
+        $m = mb_substr($db, $hash->getLength(), null, '8bit');
         if (! hash_equals($lHash, $lHash2)) {
             throw new RuntimeException();
         }
@@ -255,6 +254,6 @@ final readonly class RSACrypt
             throw new RuntimeException();
         }
 
-        return substr($m, 1);
+        return mb_substr($m, 1, null, '8bit');
     }
 }

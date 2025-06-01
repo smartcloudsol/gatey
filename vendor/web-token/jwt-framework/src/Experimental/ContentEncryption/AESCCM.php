@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace Jose\Experimental\ContentEncryption;
 
 use Jose\Component\Encryption\Algorithm\ContentEncryptionAlgorithm;
-use Override;
 use RuntimeException;
 use const OPENSSL_RAW_DATA;
 
-abstract readonly class AESCCM implements ContentEncryptionAlgorithm
+abstract class AESCCM implements ContentEncryptionAlgorithm
 {
-    #[Override]
     public function allowedKeyTypes(): array
     {
         return []; //Irrelevant
     }
 
-    #[Override]
     public function encryptContent(
         string $data,
         string $cek,
@@ -48,7 +45,6 @@ abstract readonly class AESCCM implements ContentEncryptionAlgorithm
         return $result;
     }
 
-    #[Override]
     public function decryptContent(
         string $data,
         string $cek,

@@ -25,21 +25,24 @@ use Symfony\Component\Config\Resource\GlobResource;
  */
 abstract class FileLoader extends Loader
 {
-    protected static array $loading = [];
+    protected static $loading = [];
+
+    protected $locator;
 
     private ?string $currentDir = null;
 
-    public function __construct(
-        protected FileLocatorInterface $locator,
-        ?string $env = null,
-    ) {
+    public function __construct(FileLocatorInterface $locator, ?string $env = null)
+    {
+        $this->locator = $locator;
         parent::__construct($env);
     }
 
     /**
      * Sets the current directory.
+     *
+     * @return void
      */
-    public function setCurrentDir(string $dir): void
+    public function setCurrentDir(string $dir)
     {
         $this->currentDir = $dir;
     }
@@ -61,11 +64,13 @@ abstract class FileLoader extends Loader
      * @param string|null          $sourceResource The original resource importing the new resource
      * @param string|string[]|null $exclude        Glob patterns to exclude from the import
      *
+     * @return mixed
+     *
      * @throws LoaderLoadException
      * @throws FileLoaderImportCircularReferenceException
      * @throws FileLocatorFileNotFoundException
      */
-    public function import(mixed $resource, ?string $type = null, bool $ignoreErrors = false, ?string $sourceResource = null, string|array|null $exclude = null): mixed
+    public function import(mixed $resource, ?string $type = null, bool $ignoreErrors = false, ?string $sourceResource = null, string|array|null $exclude = null)
     {
         if (\is_string($resource) && \strlen($resource) !== ($i = strcspn($resource, '*?{[')) && !str_contains($resource, "\n")) {
             $excluded = [];

@@ -3,7 +3,7 @@
 This repository contains the complete source code and frontend modules for the free version of Gatey WordPress plugin. The plugin provides a modular authentication and administration interface for WordPress-based systems.
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D16.x-blue.svg)
-![PHP](https://img.shields.io/badge/PHP-%3E%3D8.0-blue)
+![PHP](https://img.shields.io/badge/PHP-%3E%3D8.1-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## Project Structure
@@ -20,7 +20,7 @@ This repository contains the complete source code and frontend modules for the f
 ### Prerequisites
 - Node.js (>= 16.x)
 - Yarn or NPM
-- PHP >= 8.2
+- PHP >= 8.1
 - Composer
 - Git
 
@@ -115,7 +115,7 @@ This uses rules defined in the `.gitattributes` file to include only required `d
 
 - **Node.js / Yarn or NPM**: For building frontend assets
 - **Composer**: For PHP dependency management
-- **PHP >= 8.0**
+- **PHP >= 8.1**
 - **WordPress**: Target environment
 
 ## License

@@ -7,7 +7,7 @@ namespace Jose\Bundle\JoseFramework\Services;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-final readonly class JWSLoaderFactory
+final class JWSLoaderFactory
 {
     public function __construct(
         private readonly JWSSerializerManagerFactory $jwsSerializerManagerFactory,

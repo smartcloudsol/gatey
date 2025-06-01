@@ -9,14 +9,12 @@ use Jose\Component\Core\JWK;
 use Jose\Component\Core\Util\Base64UrlSafe;
 use Jose\Component\Encryption\Algorithm\KeyEncryption\KeyEncryption;
 use LogicException;
-use Override;
 use RuntimeException;
 use function in_array;
 use function is_string;
-use function strlen;
 use const OPENSSL_RAW_DATA;
 
-final readonly class Chacha20Poly1305 implements KeyEncryption
+final class Chacha20Poly1305 implements KeyEncryption
 {
     public function __construct()
     {
@@ -25,13 +23,11 @@ final readonly class Chacha20Poly1305 implements KeyEncryption
         }
     }
 
-    #[Override]
     public function allowedKeyTypes(): array
     {
         return ['oct'];
     }
 
-    #[Override]
     public function name(): string
     {
         return 'chacha20-poly1305';
@@ -41,7 +37,6 @@ final readonly class Chacha20Poly1305 implements KeyEncryption
      * @param array<string, mixed> $completeHeader
      * @param array<string, mixed> $additionalHeader
      */
-    #[Override]
     public function encryptKey(JWK $key, string $cek, array $completeHeader, array &$additionalHeader): string
     {
         $k = $this->getKey($key);
@@ -62,14 +57,13 @@ final readonly class Chacha20Poly1305 implements KeyEncryption
     /**
      * @param array<string, mixed> $header
      */
-    #[Override]
     public function decryptKey(JWK $key, string $encrypted_cek, array $header): string
     {
         $k = $this->getKey($key);
         isset($header['nonce']) || throw new InvalidArgumentException('The header parameter "nonce" is missing.');
         is_string($header['nonce']) || throw new InvalidArgumentException('The header parameter "nonce" is not valid.');
         $nonce = Base64UrlSafe::decodeNoPadding($header['nonce']);
-        if (strlen($nonce) !== 12) {
+        if (mb_strlen($nonce, '8bit') !== 12) {
             throw new InvalidArgumentException('The header parameter "nonce" is not valid.');
         }
 
@@ -81,7 +75,6 @@ final readonly class Chacha20Poly1305 implements KeyEncryption
         return $result;
     }
 
-    #[Override]
     public function getKeyManagementMode(): string
     {
         return self::MODE_ENCRYPT;

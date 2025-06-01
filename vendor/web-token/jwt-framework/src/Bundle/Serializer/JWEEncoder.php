@@ -9,7 +9,6 @@ use Jose\Component\Encryption\JWE;
 use Jose\Component\Encryption\Serializer\JWESerializerManager;
 use Jose\Component\Encryption\Serializer\JWESerializerManagerFactory;
 use LogicException;
-use Override;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\NormalizationAwareInterface;
@@ -17,9 +16,9 @@ use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Throwable;
 use function in_array;
 use function is_int;
-use function sprintf;
+use function mb_strtolower;
 
-final readonly class JWEEncoder implements EncoderInterface, DecoderInterface, NormalizationAwareInterface
+final class JWEEncoder implements EncoderInterface, DecoderInterface, NormalizationAwareInterface
 {
     private readonly JWESerializerManager $serializerManager;
 
@@ -33,19 +32,16 @@ final readonly class JWEEncoder implements EncoderInterface, DecoderInterface, N
         $this->serializerManager = $serializerManager;
     }
 
-    #[Override]
     public function supportsEncoding(string $format, array $context = []): bool
     {
         return class_exists(JWESerializerManager::class) && $this->formatSupported($format);
     }
 
-    #[Override]
     public function supportsDecoding(string $format, array $context = []): bool
     {
         return class_exists(JWESerializerManager::class) && $this->formatSupported($format);
     }
 
-    #[Override]
     public function encode(mixed $data, string $format, array $context = []): string
     {
         if ($data instanceof JWE === false) {
@@ -54,7 +50,7 @@ final readonly class JWEEncoder implements EncoderInterface, DecoderInterface, N
 
         try {
             return $this->serializerManager->serialize(
-                strtolower($format),
+                mb_strtolower($format),
                 $data,
                 $this->getRecipientIndex($context)
             );
@@ -63,7 +59,6 @@ final readonly class JWEEncoder implements EncoderInterface, DecoderInterface, N
         }
     }
 
-    #[Override]
     public function decode(string $data, string $format, array $context = []): JWE
     {
         try {
@@ -91,6 +86,6 @@ final readonly class JWEEncoder implements EncoderInterface, DecoderInterface, N
     private function formatSupported(?string $format): bool
     {
         return $format !== null
-            && in_array(strtolower($format), $this->serializerManager->names(), true);
+            && in_array(mb_strtolower($format), $this->serializerManager->names(), true);
     }
 }

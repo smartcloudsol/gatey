@@ -6,7 +6,6 @@ namespace Jose\Component\Console;
 
 use InvalidArgumentException;
 use Jose\Component\KeyManagement\X5UFactory;
-use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +15,10 @@ use function is_string;
 #[AsCommand(name: 'keyset:load:x5u', description: 'Loads a key set from an url.',)]
 final class X5ULoaderCommand extends ObjectOutputCommand
 {
+    protected static $defaultName = 'keyset:load:x5u';
+
+    protected static $defaultDescription = 'Loads a key set from an url.';
+
     public function __construct(
         private readonly X5UFactory $x5uFactory,
         ?string $name = null
@@ -23,7 +26,6 @@ final class X5ULoaderCommand extends ObjectOutputCommand
         parent::__construct($name);
     }
 
-    #[Override]
     protected function configure(): void
     {
         parent::configure();
@@ -33,7 +35,6 @@ final class X5ULoaderCommand extends ObjectOutputCommand
             ->addArgument('url', InputArgument::REQUIRED, 'The URL');
     }
 
-    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $url = $input->getArgument('url');

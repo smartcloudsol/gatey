@@ -6,18 +6,16 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\KeyManagement\JWK
 
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\AbstractSource;
 use Jose\Component\KeyManagement\JWKFactory;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-final readonly class JWK extends AbstractSource implements JWKSource
+class JWK extends AbstractSource implements JWKSource
 {
     /**
      * @param array<string, mixed> $config
      */
-    #[Override]
     public function createDefinition(ContainerBuilder $container, array $config): Definition
     {
         $definition = new Definition(\Jose\Component\Core\JWK::class);
@@ -28,13 +26,11 @@ final readonly class JWK extends AbstractSource implements JWKSource
         return $definition;
     }
 
-    #[Override]
     public function getKey(): string
     {
         return 'jwk';
     }
 
-    #[Override]
     public function addConfiguration(NodeDefinition $node): void
     {
         parent::addConfiguration($node);

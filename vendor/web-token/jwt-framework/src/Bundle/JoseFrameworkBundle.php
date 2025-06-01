@@ -16,7 +16,6 @@ use Jose\Bundle\JoseFramework\DependencyInjection\Source\KeyManagement\KeyManage
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\NestedToken\NestedToken;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Signature\SignatureSource;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\SourceWithCompilerPasses;
-use Override;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
@@ -36,13 +35,11 @@ final class JoseFrameworkBundle extends Bundle
         }
     }
 
-    #[Override]
     public function getContainerExtension(): ExtensionInterface
     {
         return new JoseFrameworkExtension('jose', $this->sources);
     }
 
-    #[Override]
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

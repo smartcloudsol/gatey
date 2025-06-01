@@ -7,22 +7,18 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\Signature;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use function sprintf;
 
-final readonly class JWSSerializer implements Source
+class JWSSerializer implements Source
 {
-    #[Override]
     public function name(): string
     {
         return 'serializers';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         foreach ($configs[$this->name()] as $name => $itemConfig) {
@@ -41,7 +37,6 @@ final readonly class JWSSerializer implements Source
         }
     }
 
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         $node->children()
@@ -78,7 +73,6 @@ final readonly class JWSSerializer implements Source
             ->end();
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         return [];

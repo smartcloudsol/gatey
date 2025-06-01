@@ -12,7 +12,6 @@ use Jose\Component\Encryption\JWE;
 use Jose\Component\Encryption\JWEDecrypter;
 use Jose\Component\Encryption\JWELoader as BaseJWELoader;
 use Jose\Component\Encryption\Serializer\JWESerializerManager;
-use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -27,7 +26,6 @@ final class JWELoader extends BaseJWELoader
         parent::__construct($serializerManager, $jweDecrypter, $headerCheckerManager);
     }
 
-    #[Override]
     public function loadAndDecryptWithKeySet(string $token, JWKSet $keyset, ?int &$recipient): JWE
     {
         try {

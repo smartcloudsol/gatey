@@ -11,7 +11,6 @@ use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\SourceWithCompilerPasses;
 use Jose\Component\KeyManagement\Analyzer\KeyAnalyzer;
 use Jose\Component\KeyManagement\Analyzer\KeysetAnalyzer;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -19,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use function count;
 
-final readonly class KeyManagementSource implements SourceWithCompilerPasses
+class KeyManagementSource implements SourceWithCompilerPasses
 {
     /**
      * @var Source[]
@@ -31,13 +30,11 @@ final readonly class KeyManagementSource implements SourceWithCompilerPasses
         $this->sources = [new JWKSetSource(), new JWKSource(), new JWKUriSource(), new JKUSource()];
     }
 
-    #[Override]
     public function name(): string
     {
         return 'key_mgmt';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         $container->registerForAutoconfiguration(KeyAnalyzer::class)->addTag('jose.key_analyzer');
@@ -52,7 +49,6 @@ final readonly class KeyManagementSource implements SourceWithCompilerPasses
         }
     }
 
-    #[Override]
     public function getNodeDefinition(NodeDefinition $node): void
     {
         foreach ($this->sources as $source) {
@@ -60,7 +56,6 @@ final readonly class KeyManagementSource implements SourceWithCompilerPasses
         }
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container, array $config): array
     {
         $result = [];
@@ -77,7 +72,6 @@ final readonly class KeyManagementSource implements SourceWithCompilerPasses
     /**
      * @return CompilerPassInterface[]
      */
-    #[Override]
     public function getCompilerPasses(): array
     {
         return [

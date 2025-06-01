@@ -9,13 +9,12 @@ use Jose\Component\Core\JWKSet;
 use Jose\Component\KeyManagement\Analyzer\KeyAnalyzerManager;
 use Jose\Component\KeyManagement\Analyzer\KeysetAnalyzerManager;
 use Jose\Component\KeyManagement\Analyzer\MessageBag;
-use Override;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Throwable;
 
-final class KeyCollector implements Collector
+class KeyCollector implements Collector
 {
     /**
      * @var array<JWK>
@@ -36,7 +35,6 @@ final class KeyCollector implements Collector
     /**
      * @param array<string, mixed> $data
      */
-    #[Override]
     public function collect(array &$data, Request $request, Response $response, ?Throwable $exception = null): void
     {
         $this->collectJWK($data);

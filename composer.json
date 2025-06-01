@@ -3,8 +3,7 @@
   "description": "Dependencies for Gatey",
   "type": "wordpress-plugin",
   "require": {
-    "guzzlehttp/guzzle": "^7.9",
-    "web-token/jwt-framework": "^4.0"
+    "uqi/cognito-token": "^1.1"
   },
   "license": "gpl",
   "authors": [

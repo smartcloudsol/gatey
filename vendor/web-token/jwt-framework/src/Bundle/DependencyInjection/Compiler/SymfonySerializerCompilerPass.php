@@ -10,14 +10,12 @@ use Jose\Bundle\JoseFramework\Serializer\JWSEncoder;
 use Jose\Bundle\JoseFramework\Serializer\JWSSerializer;
 use Jose\Component\Encryption\Serializer\JWESerializerManagerFactory;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
-use Override;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Serializer\Serializer;
 
-final readonly class SymfonySerializerCompilerPass implements CompilerPassInterface
+class SymfonySerializerCompilerPass implements CompilerPassInterface
 {
-    #[Override]
     public function process(ContainerBuilder $container): void
     {
         if (! class_exists(Serializer::class)) {

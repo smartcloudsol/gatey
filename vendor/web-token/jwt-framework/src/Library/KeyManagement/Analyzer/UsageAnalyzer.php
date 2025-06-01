@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Jose\Component\KeyManagement\Analyzer;
 
 use Jose\Component\Core\JWK;
-use Override;
 use function in_array;
-use function sprintf;
 
-final readonly class UsageAnalyzer implements KeyAnalyzer
+final class UsageAnalyzer implements KeyAnalyzer
 {
-    #[Override]
     public function analyze(JWK $jwk, MessageBag $bag): void
     {
         if (! $jwk->has('use')) {

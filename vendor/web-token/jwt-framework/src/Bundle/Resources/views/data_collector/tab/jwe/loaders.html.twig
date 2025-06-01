@@ -9,7 +9,9 @@
     <tr>
         <th>Service ID</th>
         <th>Serializers</th>
-        <th>Encryption Algorithms</th>
+        <th>Key Encryption Algorithms</th>
+        <th>Content Encryption Algorithms</th>
+        <th>Compression Methods</th>
         <th>Header Checkers</th>
     </tr>
     </thead>
@@ -27,10 +29,26 @@
                 </td>
                 <td>
                     <ul>
-                        {% for algorithm in data.encryption_algorithms %}
+                        {% for algorithm in data.key_encryption_algorithms %}
                             <li class="{% if algorithm in collector.getData().algorithm.messages|keys %}{{ collector.getData().algorithm.messages[algorithm]['severity'] }}{% else %}no-severity{% endif %}">
                                 {{ algorithm }}
                             </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        {% for algorithm in data.content_encryption_algorithms %}
+                            <li class="{% if algorithm in collector.getData().algorithm.messages|keys %}{{ collector.getData().algorithm.messages[algorithm]['severity'] }}{% else %}no-severity{% endif %}">
+                                {{ algorithm }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        {% for method in data.compression_methods %}
+                            <li>{{ method }}</li>
                         {% endfor %}
                     </ul>
                 </td>

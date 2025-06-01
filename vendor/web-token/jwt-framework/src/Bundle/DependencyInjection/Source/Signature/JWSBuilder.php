@@ -6,21 +6,17 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\Signature;
 
 use Jose\Bundle\JoseFramework\Services\JWSBuilderFactory;
 use Jose\Component\Signature\JWSBuilder as JWSBuilderService;
-use Override;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use function sprintf;
 
-final readonly class JWSBuilder extends AbstractSignatureSource
+class JWSBuilder extends AbstractSignatureSource
 {
-    #[Override]
     public function name(): string
     {
         return 'builders';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         foreach ($configs[$this->name()] as $name => $itemConfig) {

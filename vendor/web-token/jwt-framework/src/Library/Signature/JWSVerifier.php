@@ -14,7 +14,6 @@ use Jose\Component\Core\Util\KeyChecker;
 use Jose\Component\Signature\Algorithm\MacAlgorithm;
 use Jose\Component\Signature\Algorithm\SignatureAlgorithm;
 use Throwable;
-use function sprintf;
 
 class JWSVerifier
 {

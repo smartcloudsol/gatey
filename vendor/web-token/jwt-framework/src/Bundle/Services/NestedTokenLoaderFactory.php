@@ -6,7 +6,7 @@ namespace Jose\Bundle\JoseFramework\Services;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-final readonly class NestedTokenLoaderFactory
+final class NestedTokenLoaderFactory
 {
     public function __construct(
         private readonly JWELoaderFactory $jweLoaderFactory,
@@ -18,12 +18,23 @@ final readonly class NestedTokenLoaderFactory
     public function create(
         array $jweSerializers,
         array $encryptionAlgorithms,
+        null|array $contentEncryptionAlgorithms,
+        null|array $compressionMethods,
         array $jweHeaderCheckers,
         array $jwsSerializers,
         array $signatureAlgorithms,
         array $jwsHeaderCheckers
     ): NestedTokenLoader {
-        $jweLoader = $this->jweLoaderFactory->create($jweSerializers, $encryptionAlgorithms, $jweHeaderCheckers);
+        if ($contentEncryptionAlgorithms !== null) {
+            $encryptionAlgorithms = array_merge($encryptionAlgorithms, $contentEncryptionAlgorithms);
+        }
+        $jweLoader = $this->jweLoaderFactory->create(
+            $jweSerializers,
+            $encryptionAlgorithms,
+            null,
+            $compressionMethods,
+            $jweHeaderCheckers
+        );
         $jwsLoader = $this->jwsLoaderFactory->create($jwsSerializers, $signatureAlgorithms, $jwsHeaderCheckers);
 
         return new NestedTokenLoader($jweLoader, $jwsLoader, $this->eventDispatcher);

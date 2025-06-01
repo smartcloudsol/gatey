@@ -9,7 +9,6 @@ namespace SmartCloud\WPSuite\Gatey;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
-require_once GATEY_PATH . 'admin/cognito.php';
 class OAuthConfiguration
 {
     public function __construct(

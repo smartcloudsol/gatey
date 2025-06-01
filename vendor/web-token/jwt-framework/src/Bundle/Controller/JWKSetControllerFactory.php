@@ -7,7 +7,7 @@ namespace Jose\Bundle\JoseFramework\Controller;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
 
-final readonly class JWKSetControllerFactory
+class JWKSetControllerFactory
 {
     public function create(JWKSet $jwkset): JWKSetController
     {

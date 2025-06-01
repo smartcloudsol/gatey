@@ -7,18 +7,16 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\KeyManagement\JWK
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\AbstractSource;
 use Jose\Component\Core\JWKSet as JWKSetAlias;
 use Jose\Component\KeyManagement\JWKFactory;
-use Override;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-final readonly class JWKSet extends AbstractSource implements JWKSetSource
+class JWKSet extends AbstractSource implements JWKSetSource
 {
     /**
      * @param array<string, mixed> $config
      */
-    #[Override]
     public function createDefinition(ContainerBuilder $container, array $config): Definition
     {
         $definition = new Definition(JWKSetAlias::class);
@@ -29,13 +27,11 @@ final readonly class JWKSet extends AbstractSource implements JWKSetSource
         return $definition;
     }
 
-    #[Override]
     public function getKeySet(): string
     {
         return 'jwkset';
     }
 
-    #[Override]
     public function addConfiguration(NodeDefinition $node): void
     {
         parent::addConfiguration($node);

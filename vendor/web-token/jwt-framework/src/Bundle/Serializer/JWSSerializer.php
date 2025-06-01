@@ -8,11 +8,11 @@ use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use LogicException;
-use Override;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use function in_array;
+use function mb_strtolower;
 
-final readonly class JWSSerializer implements DenormalizerInterface
+final class JWSSerializer implements DenormalizerInterface
 {
     private readonly JWSSerializerManager $serializerManager;
 
@@ -26,7 +26,6 @@ final readonly class JWSSerializer implements DenormalizerInterface
         $this->serializerManager = $serializerManager;
     }
 
-    #[Override]
     public function getSupportedTypes(?string $format): array
     {
         return [
@@ -34,7 +33,6 @@ final readonly class JWSSerializer implements DenormalizerInterface
         ];
     }
 
-    #[Override]
     public function supportsDenormalization(
         mixed $data,
         string $type,
@@ -46,7 +44,6 @@ final readonly class JWSSerializer implements DenormalizerInterface
             && $this->formatSupported($format);
     }
 
-    #[Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): JWS
     {
         if ($data instanceof JWS === false) {
@@ -62,6 +59,6 @@ final readonly class JWSSerializer implements DenormalizerInterface
     private function formatSupported(?string $format): bool
     {
         return $format !== null
-            && in_array(strtolower($format), $this->serializerManager->list(), true);
+            && in_array(mb_strtolower($format), $this->serializerManager->list(), true);
     }
 }

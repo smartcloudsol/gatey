@@ -8,17 +8,15 @@ use InvalidArgumentException;
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\Util\Base64UrlSafe;
 use Jose\Component\Signature\Algorithm\MacAlgorithm;
-use Override;
 use RuntimeException;
 use function extension_loaded;
 use function in_array;
 use function is_string;
-use function strlen;
 
 /**
  * @see \Jose\Tests\Component\Signature\Algorithm\Blake2bTest
  */
-final readonly class Blake2b implements MacAlgorithm
+final class Blake2b implements MacAlgorithm
 {
     private const MINIMUM_KEY_LENGTH = 32;
 
@@ -29,25 +27,21 @@ final readonly class Blake2b implements MacAlgorithm
         }
     }
 
-    #[Override]
     public function allowedKeyTypes(): array
     {
         return ['oct'];
     }
 
-    #[Override]
     public function name(): string
     {
         return 'BLAKE2B';
     }
 
-    #[Override]
     public function verify(JWK $key, string $input, string $signature): bool
     {
         return hash_equals($this->hash($key, $input), $signature);
     }
 
-    #[Override]
     public function hash(JWK $key, string $input): string
     {
         $k = $this->getKey($key);
@@ -68,7 +62,7 @@ final readonly class Blake2b implements MacAlgorithm
             throw new InvalidArgumentException('The key parameter "k" is invalid.');
         }
         $key = Base64UrlSafe::decodeNoPadding($k);
-        if (strlen($key) < self::MINIMUM_KEY_LENGTH) {
+        if (mb_strlen($key, '8bit') < self::MINIMUM_KEY_LENGTH) {
             throw new InvalidArgumentException('Key provided is shorter than 256 bits.');
         }
 

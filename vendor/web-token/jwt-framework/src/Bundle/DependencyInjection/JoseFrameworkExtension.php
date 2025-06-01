@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Jose\Bundle\JoseFramework\DependencyInjection;
 
 use Jose\Bundle\JoseFramework\DependencyInjection\Source\Source;
-use Override;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -23,13 +22,14 @@ final class JoseFrameworkExtension extends Extension implements PrependExtension
     ) {
     }
 
-    #[Override]
     public function getAlias(): string
     {
         return $this->alias;
     }
 
-    #[Override]
+    /**
+     * @param array<array> $configs
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $processor = new Processor();
@@ -40,13 +40,11 @@ final class JoseFrameworkExtension extends Extension implements PrependExtension
         }
     }
 
-    #[Override]
     public function getConfiguration(array $configs, ContainerBuilder $container): Configuration
     {
         return new Configuration($this->getAlias(), $this->sources);
     }
 
-    #[Override]
     public function prepend(ContainerBuilder $container): void
     {
         $configs = $container->getExtensionConfig($this->getAlias());

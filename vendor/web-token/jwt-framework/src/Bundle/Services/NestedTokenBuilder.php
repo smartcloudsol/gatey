@@ -10,7 +10,6 @@ use Jose\Component\Encryption\Serializer\JWESerializerManager;
 use Jose\Component\NestedToken\NestedTokenBuilder as BaseNestedTokenBuilder;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
-use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class NestedTokenBuilder extends BaseNestedTokenBuilder
@@ -25,7 +24,6 @@ final class NestedTokenBuilder extends BaseNestedTokenBuilder
         parent::__construct($jweBuilder, $jweSerializerManager, $jwsBuilder, $jwsSerializerManager);
     }
 
-    #[Override]
     public function create(
         string $payload,
         array $signatures,

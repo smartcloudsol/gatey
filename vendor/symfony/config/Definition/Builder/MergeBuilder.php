@@ -18,12 +18,13 @@ namespace Symfony\Component\Config\Definition\Builder;
  */
 class MergeBuilder
 {
-    public bool $allowFalse = false;
-    public bool $allowOverwrite = true;
+    protected $node;
+    public $allowFalse = false;
+    public $allowOverwrite = true;
 
-    public function __construct(
-        protected NodeDefinition $node,
-    ) {
+    public function __construct(NodeDefinition $node)
+    {
+        $this->node = $node;
     }
 
     /**

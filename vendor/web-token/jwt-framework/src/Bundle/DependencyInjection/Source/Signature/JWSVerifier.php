@@ -6,21 +6,17 @@ namespace Jose\Bundle\JoseFramework\DependencyInjection\Source\Signature;
 
 use Jose\Bundle\JoseFramework\Services\JWSVerifierFactory;
 use Jose\Component\Signature\JWSVerifier as JWSVerifierService;
-use Override;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use function sprintf;
 
-final readonly class JWSVerifier extends AbstractSignatureSource
+class JWSVerifier extends AbstractSignatureSource
 {
-    #[Override]
     public function name(): string
     {
         return 'verifiers';
     }
 
-    #[Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         foreach ($configs[$this->name()] as $name => $itemConfig) {
