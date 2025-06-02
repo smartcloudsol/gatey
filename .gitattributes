@@ -4,6 +4,7 @@
 clean.sh                    export-ignore
 readme.md                   export-ignore
 gatey-core                  export-ignore
+/screenshot-*.png           export-ignore
 vendor/*/test*/             export-ignore
 vendor/**/test*/            export-ignore
 vendor/*/Test*/             export-ignore

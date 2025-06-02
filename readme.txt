@@ -16,13 +16,23 @@ Gatey - Login & SSO with Amazon Cognito
 Gatey provides a seamless integration with Amazon Cognito for secure, scalable authentication in WordPress. This plugin supports both dynamic WordPress sites and statically generated WordPress frontends.
 
 Key features include:
-- Amazon Cognito user pool login and registration
-- SSO support with customizable pages
-- Gutenberg block and Elementor shortcode support
-- Multi-factor authentication (MFA)
-- Profile editing and password reset features
-- Secure API access with JWT or AWS IAM Signature authorization
-- Role-based access control
+  - Amazon Cognito user pool login and registration
+  - SSO support with customizable pages
+  - Gutenberg block and Elementor shortcode support
+  - Multi-factor authentication (MFA)
+  - Profile editing and password reset features
+  - Secure API access with JWT or AWS IAM Signature authorization
+  - Role-based access control
+
+You can find the plugin’s continuously expanding, detailed documentation at:
+
+[WP Suite - Gatey](https://wpsuite.io/gatey/docs/ "Gatey Docs")
+
+What’s on the site?
+  - Get Started guide — quick start, installation, first‑time setup.
+  - CSS/JS references — components, API, usage examples.
+  - Creating User Pools — step‑by‑step instructions with AWS CloudFormation / CDK scripts.
+  - Protecting static sites — full tutorial with point‑by‑point walkthroughs and AWS scripts.
 
 This plugin is not affiliated with or endorsed by Amazon Web Services or the WordPress Foundation. All trademarks are property of their respective owners.
 
