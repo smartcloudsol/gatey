@@ -17,6 +17,9 @@ $data = array(
 	'screen' => array_key_exists('screen', $attributes) ? esc_html($attributes['screen']) : 'signIn',
 	'variation' => array_key_exists('variation', $attributes) ? esc_html($attributes['variation']) : 'default',
 	'color_mode' => array_key_exists('colorMode', $attributes) ? esc_html($attributes['colorMode']) : 'default',
+	'signing_in_message' => array_key_exists('signingInMessage', $attributes) ? esc_html($attributes['signingInMessage']) : '',
+	'signing_out_message' => array_key_exists('signingOutMessage', $attributes) ? esc_html($attributes['signingOutMessage']) : '',
+	'redirecting_message' => array_key_exists('redirectingMessage', $attributes) ? esc_html($attributes['redirectingMessage']) : '',
 );
 $inlineScript = '{' .
 	'	const gateyAuthenticatorEvent = ' . wp_json_encode($data) . ';' .

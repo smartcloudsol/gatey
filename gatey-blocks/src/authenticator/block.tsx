@@ -10,6 +10,7 @@ import { type BlockEditProps } from "@wordpress/blocks";
 import {
   ComboboxControl,
   RadioControl,
+  TextControl,
   PanelBody,
   ToolbarGroup,
   ToolbarDropdownMenu,
@@ -69,7 +70,14 @@ export const Block: FunctionComponent<
   }
 ) => {
   const { children, attributes, setAttributes } = props;
-  const { screen, variation, colorMode } = attributes;
+  const {
+    screen,
+    variation,
+    colorMode,
+    signingInMessage,
+    signingOutMessage,
+    redirectingMessage,
+  } = attributes;
 
   const [amplifyConfigured, setAmplifyConfigured] = useState(false);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
@@ -234,6 +242,10 @@ export const Block: FunctionComponent<
                 setAttributes({ screen: value });
               }
             }}
+            help={__(
+              "This will set the initial screen of the authenticator.",
+              TEXT_DOMAIN
+            )}
           />
           <RadioControl
             label={__("Variation", TEXT_DOMAIN)}
@@ -247,6 +259,10 @@ export const Block: FunctionComponent<
                 setAttributes({ variation: value });
               }
             }}
+            help={__(
+              "This will set the variation of the authenticator. 'Default' is a full page, 'Modal' is a modal dialog.",
+              TEXT_DOMAIN
+            )}
           />
           <RadioControl
             label={__("Color Mode", TEXT_DOMAIN)}
@@ -261,6 +277,43 @@ export const Block: FunctionComponent<
                 setAttributes({ colorMode: value });
               }
             }}
+            help={__(
+              "This will set the color mode for the authenticator. 'System' will use the user's system preference.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Signing In Message", TEXT_DOMAIN)}
+            value={signingInMessage || ""}
+            onChange={(value) => {
+              setAttributes({ signingInMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is signing in.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Signing Out Message", TEXT_DOMAIN)}
+            value={signingOutMessage || ""}
+            onChange={(value) => {
+              setAttributes({ signingOutMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is signing out.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Redirecting Message", TEXT_DOMAIN)}
+            value={redirectingMessage || ""}
+            onChange={(value) => {
+              setAttributes({ redirectingMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is being redirected.",
+              TEXT_DOMAIN
+            )}
           />
         </PanelBody>
       </InspectorControls>
@@ -277,7 +330,6 @@ export const Block: FunctionComponent<
                   (!siteSubscriptionType ? currentPlan : ""),
                 onClick: () => setPreviewMode("FREE"),
               },
-
               {
                 icon: previewMode === "BASIC" ? check : null,
                 title:
@@ -285,7 +337,6 @@ export const Block: FunctionComponent<
                   (siteSubscriptionType === "BASIC" ? currentPlan : ""),
                 onClick: () => setPreviewMode("BASIC"),
               },
-
               {
                 icon: previewMode === "PROFESSIONAL" ? check : null,
                 title:
@@ -359,6 +410,9 @@ export const Block: FunctionComponent<
               id="gatey-block"
               screen={previewScreen}
               variation={variation}
+              signingInMessage={signingInMessage}
+              signingOutMessage={signingOutMessage}
+              redirectingMessage={redirectingMessage}
               store={fulfilledStore}
               nonce={Gatey.nonce}
               editorRef={editorRef}

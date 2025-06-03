@@ -86,6 +86,9 @@ export const Login = (
     store,
     screen,
     variation,
+    signingInMessage,
+    signingOutMessage,
+    redirectingMessage,
     isPreview,
     children,
     editorRef,
@@ -100,6 +103,8 @@ export const Login = (
   const [authenticatorConfig, setAuthenticatorConfig] = useState<
     AuthenticatorConfig | null | undefined
   >();
+  const [message, setMessage] = useState<string>();
+  const [redirecting, setRedirecting] = useState<boolean>(false);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const account: Account | undefined = useSelect(
@@ -289,12 +294,14 @@ export const Login = (
     }
     if (wasSignedIn) {
       setLogoutHandled(true);
+      setMessage(signingOutMessage);
       dispatchEvent("signing-out");
       clearAccount();
     } else {
       dispatchEvent("signed-out");
-      const url = redirectTo || Gatey.settings?.redirectSignOut || nextUrl;
+      const url = redirectTo || nextUrl || Gatey.settings.signInPage;
       if (url) {
+        setRedirecting(true);
         window.location.assign(url);
       } else {
         setLogoutHandled(true);
@@ -311,6 +318,7 @@ export const Login = (
     wasSignedIn,
     nextUrl,
     clearAccount,
+    signingOutMessage,
   ]);
 
   useEffect(() => {
@@ -323,10 +331,11 @@ export const Login = (
       if (!wasSignedIn) {
         setLoginHandled(true);
         setSignedIn(true);
+        setMessage(signingInMessage);
         dispatchEvent("signing-in");
       } else {
         dispatchEvent("signed-in");
-        let url = redirectTo || Gatey.settings?.redirectSignIn || nextUrl;
+        let url = redirectTo || nextUrl || Gatey.settings.signInPage;
         // prevent redirect loop
         if (url?.endsWith("/")) {
           url = url.substring(0, url.length - 1);
@@ -336,6 +345,7 @@ export const Login = (
           path = path.substring(0, path.length - 1);
         }
         if (url && url !== path + location.search) {
+          setRedirecting(true);
           window.location.assign(url);
         } else {
           setLoginHandled(true);
@@ -343,8 +353,8 @@ export const Login = (
       }
     }
   }, [
-    redirectTo,
     authStatus,
+    redirectTo,
     loggingOut,
     dispatchEvent,
     screen,
@@ -352,6 +362,7 @@ export const Login = (
     wasSignedIn,
     loginHandled,
     nextUrl,
+    signingInMessage,
   ]);
 
   useEffect(() => {
@@ -369,20 +380,23 @@ export const Login = (
     if (loginHandled) {
       if (route === "authenticated") {
         dispatchEvent("signed-in");
-        if (nextUrl) {
-          const url = redirectTo || Gatey.settings?.redirectSignIn || nextUrl;
+        if (nextUrl !== undefined) {
+          const url = redirectTo || nextUrl || Gatey.settings.signInPage;
           if (url) {
+            setRedirecting(true);
             window.location.assign(url);
           }
         }
       } else if (route !== "transition") {
+        setMessage(undefined);
         dispatchEvent("reset");
       }
     }
-    if (logoutHandled && nextUrl) {
+    if (logoutHandled && nextUrl !== null) {
       dispatchEvent("signed-out");
-      const url = redirectTo || Gatey.settings?.redirectSignOut || nextUrl;
+      const url = redirectTo || nextUrl || Gatey.settings.signInPage;
       if (url) {
+        setRedirecting(true);
         window.location.assign(url);
       }
     }
@@ -424,6 +438,13 @@ export const Login = (
       );
     }
   }, [config, account]);
+
+  /*useEffect(() => {
+    if (wasSignedIn && !signedIn) {
+      signOut();
+    }
+  }, [wasSignedIn, signedIn, params]);
+  */
 
   return (
     <View ref={containerRef}>
@@ -468,7 +489,27 @@ export const Login = (
                   components={components}
                   forceInitialState={isPreview}
                   variation={variation}
-                />
+                >
+                  {((redirecting && redirectingMessage) ||
+                    (!redirecting && message)) && (
+                    <View data-amplify-authenticator data-variation={variation}>
+                      <View data-amplify-container>
+                        <View data-amplify-router>
+                          <View
+                            data-amplify-form
+                            data-amplify-authenticator-message
+                            style={{
+                              textAlign: "center",
+                            }}
+                          >
+                            {redirecting && redirectingMessage}
+                            {!redirecting && message}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                </Authenticator>
               ))
           }
         </Flex>

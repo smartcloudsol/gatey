@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -148,6 +148,7 @@ final class Gatey_Plugin
         }
         wp_enqueue_script('gatey-main-script', GATEY_URL . 'gatey-main/dist/index.js', $script_asset['dependencies'], GATEY_VERSION, false);
         wp_enqueue_style('gatey-main-style', GATEY_URL . 'gatey-main/dist/index.css', array('wp-components'), GATEY_VERSION);
+        add_editor_style(GATEY_URL . 'gatey-main/dist/index.css');
 
         $data = array(
             'cognito' => array(),
@@ -186,6 +187,9 @@ final class Gatey_Plugin
                 'screen' => false,
                 'variation' => false,
                 'colormode' => false,
+                'signingin' => '',
+                'signingout' => '',
+                'redirecting' => '',
             ),
             $atts
         );
@@ -193,6 +197,9 @@ final class Gatey_Plugin
         $screen = $a['screen'];
         $variation = $a['variation'];
         $colorMode = $a['colormode'];
+        $signingInMessage = $a['signingin'];
+        $signingOutMessage = $a['signingout'];
+        $redirectingMessage = $a['redirecting'];
 
         // bad id
         if (!is_numeric($id)) {
@@ -229,6 +236,15 @@ final class Gatey_Plugin
                 }
                 if ($colorMode) {
                     $content = preg_replace('/color_mode: "(.*)"/', 'color_mode: "' . $colorMode . '"', $content);
+                }
+                if ($signingInMessage) {
+                    $content = preg_replace('/signing_in_message: "(.*)"/', 'signing_in_message: "' . $signingInMessage . '"', $content);
+                }
+                if ($signingOutMessage) {
+                    $content = preg_replace('/signing_out_message: "(.*)"/', 'signing_out_message: "' . $signingOutMessage . '"', $content);
+                }
+                if ($redirectingMessage) {
+                    $content = preg_replace('/redirecting_message: "(.*)"/', 'redirecting_message: "' . $redirectingMessage . '"', $content);
                 }
                 return $content;
             }

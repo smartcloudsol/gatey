@@ -12,6 +12,9 @@ export interface EditorBlockProps {
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
+  signingInMessage?: string;
+  signingOutMessage?: string;
+  redirectingMessage?: string;
 }
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (

@@ -48,12 +48,18 @@ try {
     screen,
     variation,
     colorMode,
+    signingInMessage,
+    signingOutMessage,
+    redirectingMessage,
     isPreview,
   }: {
     id: string;
     screen?: Screen;
     variation?: Variation;
     colorMode?: ColorMode;
+    signingInMessage?: string;
+    signingOutMessage?: string;
+    redirectingMessage?: string;
     isPreview: boolean;
   }) => {
     const el = document.querySelector("#" + id);
@@ -75,6 +81,9 @@ try {
                   store={fulfilledStore}
                   screen={screen}
                   variation={variation}
+                  signingInMessage={signingInMessage}
+                  signingOutMessage={signingOutMessage}
+                  redirectingMessage={redirectingMessage}
                   isPreview={isPreview}
                   nonce={Gatey?.nonce}
                 >
@@ -87,6 +96,9 @@ try {
                 store={fulfilledStore}
                 screen={screen}
                 variation={variation}
+                signingInMessage={signingInMessage}
+                signingOutMessage={signingOutMessage}
+                redirectingMessage={redirectingMessage}
                 isPreview={isPreview}
                 nonce={Gatey?.nonce}
               >
@@ -105,6 +117,9 @@ try {
       screen: msg.screen,
       variation: msg.variation,
       colorMode: msg.color_mode,
+      signingInMessage: msg.signing_in_message,
+      signingOutMessage: msg.signing_out_message,
+      redirectingMessage: msg.redirecting_message,
       isPreview: msg.is_preview === "true",
     });
   });

@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -161,11 +161,16 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.0.1 =
+Authenticator block: added optional "Signing in", "Signing out" and "Redirecting" message fields, so you no longer need to listen for gatey‑authenticator events for basic feedback. Defaults are empty.
 
+= 1.0.0 =
 Initial release.
 
 == Upgrade Notice ==
+
+s= 1.0.1 =
+You can now customise the messages shown while users are signing in, signing out, or being redirected. Leave the new fields blank to keep the previous silent behaviour, or remove any custom JavaScript listeners you added for the corresponding events.
 
 = 1.0.0 =
 Initial stable release.

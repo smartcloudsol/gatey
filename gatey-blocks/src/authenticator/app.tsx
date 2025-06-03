@@ -22,6 +22,9 @@ export interface AppProps extends PropsWithChildren {
   id: string;
   screen?: Screen;
   variation?: Variation;
+  signingInMessage?: string;
+  signingOutMessage?: string;
+  redirectingMessage?: string;
   store: Store;
   isPreview: boolean;
   nonce: string;
