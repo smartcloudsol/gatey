@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.0.1';
+const VERSION = '1.0.2';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -187,9 +187,9 @@ final class Gatey_Plugin
                 'screen' => false,
                 'variation' => false,
                 'colormode' => false,
-                'signingin' => '',
-                'signingout' => '',
-                'redirecting' => '',
+                'signingin' => false,
+                'signingout' => false,
+                'redirecting' => false,
             ),
             $atts
         );
@@ -229,22 +229,22 @@ final class Gatey_Plugin
                 $content = render_block($block);
                 $content = str_replace("gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
                 if ($screen) {
-                    $content = preg_replace('/screen: "(.*)"/', 'screen: "' . $screen . '"', $content);
+                    $content = preg_replace('/data-screen="(.*)"/', 'data-screen="' . $screen . '"', $content);
                 }
                 if ($variation) {
-                    $content = preg_replace('/variation: "(.*)"/', 'variation: "' . $variation . '"', $content);
+                    $content = preg_replace('/data-variation="(.*)"/', 'data-variation="' . $variation . '"', $content);
                 }
                 if ($colorMode) {
-                    $content = preg_replace('/color_mode: "(.*)"/', 'color_mode: "' . $colorMode . '"', $content);
+                    $content = preg_replace('/data-color-mode="(.*)"/', 'data-color-mode="' . $colorMode . '"', $content);
                 }
                 if ($signingInMessage) {
-                    $content = preg_replace('/signing_in_message: "(.*)"/', 'signing_in_message: "' . $signingInMessage . '"', $content);
+                    $content = preg_replace('/data-signing-in-message="(.*)"/', 'data-signing-in-message="' . $signingInMessage . '"', $content);
                 }
                 if ($signingOutMessage) {
-                    $content = preg_replace('/signing_out_message: "(.*)"/', 'signing_out_message: "' . $signingOutMessage . '"', $content);
+                    $content = preg_replace('/data-signing-out-message="(.*)"/', 'data-signing-out-message="' . $signingOutMessage . '"', $content);
                 }
                 if ($redirectingMessage) {
-                    $content = preg_replace('/redirecting_message: "(.*)"/', 'redirecting_message: "' . $redirectingMessage . '"', $content);
+                    $content = preg_replace('/data-redirecting-message="(.*)"/', 'data-redirecting-message="' . $redirectingMessage . '"', $content);
                 }
                 return $content;
             }

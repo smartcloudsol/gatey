@@ -5,26 +5,21 @@ if (!defined('ABSPATH')) {
 global $post;
 $bid = 'gatey-authenticator-' . wp_rand();
 ?>
-<div id="<?php echo esc_html($bid) ?>">
+<div gatey-authenticator id="<?php echo esc_html($bid) ?>" data-is-preview="gatey-is-preview"
+	data-screen="<?php echo esc_html(array_key_exists('screen', $attributes) ? $attributes['screen'] : 'signIn') ?>"
+	data-variation="<?php echo esc_html(array_key_exists('variation', $attributes) ? $attributes['variation'] : 'default') ?>"
+	data-color-mode="<?php echo esc_html(array_key_exists('colorMode', $attributes) ? $attributes['colorMode'] : 'system') ?>"
+	data-signing-in-message="<?php echo esc_html(array_key_exists('signingInMessage', $attributes) ? $attributes['signingInMessage'] : '') ?>"
+	data-signing-out-message="<?php echo esc_html(array_key_exists('signingOutMessage', $attributes) ? $attributes['signingOutMessage'] : '') ?>"
+	data-redirecting-message="<?php echo esc_html(array_key_exists('redirectingMessage', $attributes) ? $attributes['redirectingMessage'] : '') ?>">
 	<div style="display: none;">
 		<?php echo esc_html($content) ?>
 	</div>
 </div>
 <?php
-$data = array(
-	'id' => $bid,
-	'is_preview' => 'gatey-is-preview',
-	'screen' => array_key_exists('screen', $attributes) ? esc_html($attributes['screen']) : 'signIn',
-	'variation' => array_key_exists('variation', $attributes) ? esc_html($attributes['variation']) : 'default',
-	'color_mode' => array_key_exists('colorMode', $attributes) ? esc_html($attributes['colorMode']) : 'default',
-	'signing_in_message' => array_key_exists('signingInMessage', $attributes) ? esc_html($attributes['signingInMessage']) : '',
-	'signing_out_message' => array_key_exists('signingOutMessage', $attributes) ? esc_html($attributes['signingOutMessage']) : '',
-	'redirecting_message' => array_key_exists('redirectingMessage', $attributes) ? esc_html($attributes['redirectingMessage']) : '',
-);
 $inlineScript = '{' .
-	'	const gateyAuthenticatorEvent = ' . wp_json_encode($data) . ';' .
 	'	const handler = () => {' .
-	'		jQuery(document).trigger("gatey-block", gateyAuthenticatorEvent);' .
+	'			jQuery(document).trigger("gatey-block", "' . $bid . '");' .
 	'	};' .
 	'	jQuery(handler);' .
 	'}';

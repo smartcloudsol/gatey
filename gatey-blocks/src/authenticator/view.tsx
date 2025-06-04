@@ -43,27 +43,53 @@ const theme = {
 };
 
 try {
-  const call = async ({
-    id,
-    screen,
-    variation,
-    colorMode,
-    signingInMessage,
-    signingOutMessage,
-    redirectingMessage,
-    isPreview,
-  }: {
-    id: string;
-    screen?: Screen;
-    variation?: Variation;
-    colorMode?: ColorMode;
-    signingInMessage?: string;
-    signingOutMessage?: string;
-    redirectingMessage?: string;
-    isPreview: boolean;
-  }) => {
+  const observers: Record<string, MutationObserver> = {};
+  function observe(id: string, cb: (id: string) => void) {
+    if (observers[id]) {
+      observers[id].disconnect();
+    }
+    observers[id] = new MutationObserver((_, obs) => {
+      const el = document.querySelector("#" + id);
+      if (el) {
+        cb(id);
+        obs.disconnect();
+        delete observers[id];
+      }
+    });
+    observers[id].observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+  }
+  function findElement(id: string, cb: (id: string) => void) {
     const el = document.querySelector("#" + id);
     if (el) {
+      cb(id);
+      return;
+    }
+    observe(id, cb);
+  }
+
+  const call = async (id: string) => {
+    const el = document.querySelector("#" + id);
+    if (el) {
+      jQuery(el).on("done.gatey-authenticator", () => {
+        jQuery(el).remove();
+        observe(id, call);
+      });
+      jQuery(el).on("cancel.gatey-authenticator", () => {
+        jQuery(el).remove();
+        observe(id, call);
+      });
+      const isPreview = el.getAttribute("data-is-preview") === "true";
+      const screen = el.getAttribute("data-screen") as Screen;
+      const variation = el.getAttribute("data-variation") as Variation;
+      const colorMode = el.getAttribute("data-color-mode") as ColorMode;
+      const signingInMessage = el.getAttribute("data-signing-in-message") || "";
+      const signingOutMessage =
+        el.getAttribute("data-signing-out-message") || "";
+      const redirectingMessage =
+        el.getAttribute("data-redirecting-message") || "";
       const root = createRoot(el);
       const fulfilledStore = await store;
       root.render(
@@ -111,18 +137,7 @@ try {
     }
   };
 
-  jQuery(document).on("gatey-block", (_, msg) => {
-    call({
-      id: msg.id,
-      screen: msg.screen,
-      variation: msg.variation,
-      colorMode: msg.color_mode,
-      signingInMessage: msg.signing_in_message,
-      signingOutMessage: msg.signing_out_message,
-      redirectingMessage: msg.redirecting_message,
-      isPreview: msg.is_preview === "true",
-    });
-  });
+  jQuery(document).on("gatey-block", (_, id) => findElement(id, call));
 } catch (err) {
   console.error(err);
 }

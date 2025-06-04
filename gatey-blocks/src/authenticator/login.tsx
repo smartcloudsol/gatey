@@ -9,6 +9,7 @@ import {
   Authenticator,
   Flex,
   View,
+  Heading,
   AccountSettings,
   useAuthenticator,
 } from "@aws-amplify/ui-react";
@@ -299,13 +300,17 @@ export const Login = (
       clearAccount();
     } else {
       dispatchEvent("signed-out");
-      const url = redirectTo || nextUrl || Gatey.settings.signInPage;
+
+      const url =
+        redirectTo ||
+        nextUrl ||
+        Gatey.settings.redirectSignOut ||
+        Gatey.settings.signInPage;
       if (url) {
         setRedirecting(true);
         window.location.assign(url);
-      } else {
-        setLogoutHandled(true);
       }
+      setLogoutHandled(true);
     }
   }, [
     redirectTo,
@@ -335,7 +340,12 @@ export const Login = (
         dispatchEvent("signing-in");
       } else {
         dispatchEvent("signed-in");
-        let url = redirectTo || nextUrl || Gatey.settings.signInPage;
+
+        let url =
+          redirectTo ||
+          nextUrl ||
+          Gatey.settings.redirectSignIn ||
+          Gatey.settings.signInPage;
         // prevent redirect loop
         if (url?.endsWith("/")) {
           url = url.substring(0, url.length - 1);
@@ -381,7 +391,11 @@ export const Login = (
       if (route === "authenticated") {
         dispatchEvent("signed-in");
         if (nextUrl !== undefined) {
-          const url = redirectTo || nextUrl || Gatey.settings.signInPage;
+          const url =
+            redirectTo ||
+            nextUrl ||
+            Gatey.settings.redirectSignIn ||
+            Gatey.settings.signInPage;
           if (url) {
             setRedirecting(true);
             window.location.assign(url);
@@ -392,9 +406,13 @@ export const Login = (
         dispatchEvent("reset");
       }
     }
-    if (logoutHandled && nextUrl !== null) {
+    if (logoutHandled && nextUrl !== undefined) {
       dispatchEvent("signed-out");
-      const url = redirectTo || nextUrl || Gatey.settings.signInPage;
+      const url =
+        redirectTo ||
+        nextUrl ||
+        Gatey.settings.redirectSignOut ||
+        Gatey.settings.signInPage;
       if (url) {
         setRedirecting(true);
         window.location.assign(url);
@@ -493,7 +511,10 @@ export const Login = (
                   {((redirecting && redirectingMessage) ||
                     (!redirecting && message)) && (
                     <View data-amplify-authenticator data-variation={variation}>
-                      <View data-amplify-container>
+                      <View
+                        data-amplify-container
+                        style={{ placeSelf: "stretch" }}
+                      >
                         <View data-amplify-router>
                           <View
                             data-amplify-form
@@ -502,8 +523,12 @@ export const Login = (
                               textAlign: "center",
                             }}
                           >
-                            {redirecting && redirectingMessage}
-                            {!redirecting && message}
+                            {redirecting && (
+                              <Heading level={4}>{redirectingMessage}</Heading>
+                            )}
+                            {!redirecting && (
+                              <Heading level={4}>{message}</Heading>
+                            )}
                           </View>
                         </View>
                       </View>
