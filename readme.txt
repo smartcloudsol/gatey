@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -161,6 +161,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.0.3 =
+Bumped the Authenticator block version to invalidate cached frontend assets—ensures the updated view.js is loaded. No functional changes.
+
 = 1.0.2 =
 Pro features for an already‑connected site can now be edited even if the WordPress administrator is not logged in to wpsuite.io.
 Fixed [gatey] shortcode: the screen, variation, and colormode attributes are now honoured (previously only the pattern defaults were shown).
@@ -172,6 +175,9 @@ Authenticator block: added optional "Signing in", "Signing out" and "Redirecting
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+This release only bumps the Authenticator block version to refresh cached view.js assets. No functional changes—safe to update immediately.
 
 = 1.0.2 =
 You can now edit Pro feature settings for a connected site without logging in to wpsuite.io. 
