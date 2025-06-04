@@ -416,8 +416,9 @@ export const Settings: FunctionComponent<SettingsProps> = (
 
   const { data: site, isError: isSiteError } = useQuery({
     queryKey: ["site", accountId, siteId],
-    queryFn: () => fetchSite(accountId!, siteId!),
-    enabled: !!accountId && !!siteId && authStatus === "authenticated",
+    queryFn: () => fetchSite(accountId!, siteId!, siteKey),
+    enabled:
+      !!accountId && !!siteId && (authStatus === "authenticated" || !!siteKey),
   });
 
   useEffect(() => {
@@ -451,21 +452,11 @@ export const Settings: FunctionComponent<SettingsProps> = (
 
   useEffect(() => {
     if (authStatus === "unauthenticated") {
-      setSiteId(undefined);
-      setSiteKey(undefined);
       queryClient.invalidateQueries({
         queryKey: ["site", accountId, siteId],
       });
     }
-  }, [
-    accountId,
-    amplifyConfigured,
-    authStatus,
-    queryClient,
-    setSiteId,
-    setSiteKey,
-    siteId,
-  ]);
+  }, [accountId, amplifyConfigured, authStatus, queryClient, siteId]);
 
   useEffect(() => {
     if (authStatus !== "authenticated") {
@@ -826,7 +817,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
           </Group>
         </>
       )}
-      {subscriptionType === undefined && authStatus === "unauthenticated" && (
+      {authStatus === "unauthenticated" && (
         <Group gap="xs">
           <Button
             variant="gradient"
@@ -1604,11 +1595,18 @@ async function fetchAccount(accountId: string) {
   return body as unknown as Account;
 }
 
-async function fetchSite(accountId: string, siteId: string) {
-  const response = await get({
+async function fetchSite(accountId: string, siteId: string, siteKey?: string) {
+  const options = {
     apiName: "backend",
-    path: `/account/${accountId}/site/${siteId}`,
-  }).response;
+    path: `/account/${accountId}/site/${siteId}${siteKey ? "/settings" : ""}`,
+    options: {
+      headers: {},
+    },
+  };
+  if (siteKey) {
+    (options.options.headers as Record<string, string>)["X-Site-Key"] = siteKey;
+  }
+  const response = await get(options).response;
   const body = await response.body.json();
 
   return body as unknown as Site;

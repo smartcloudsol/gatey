@@ -337,6 +337,9 @@ const Main = (props: MainProps) => {
       const authSession = await fetchAuthSession();
       const scopes =
         authSession.tokens?.accessToken.payload["scope"]?.split(" ") ?? [];
+      setAccountId(Gatey.siteSettings.accountId);
+      setSiteId(Gatey.siteSettings.siteId);
+      setSiteKey(Gatey.siteSettings.siteKey);
       if (
         !scopes.includes("sc.account.owner." + Gatey.siteSettings.accountId) &&
         !scopes.includes("sc.account.admin." + Gatey.siteSettings.accountId)
@@ -351,13 +354,11 @@ const Main = (props: MainProps) => {
               scope.startsWith("sc.account.admin.")
           )
           ?.split(".")[3];
-        setAccountId(accountId);
-        setSiteId(undefined);
-        setSiteKey(undefined);
-      } else {
-        setAccountId(Gatey.siteSettings.accountId);
-        setSiteId(Gatey.siteSettings.siteId);
-        setSiteKey(Gatey.siteSettings.siteKey);
+        if (accountId) {
+          setAccountId(accountId);
+          setSiteId(undefined);
+          setSiteKey(undefined);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -684,14 +685,8 @@ const Main = (props: MainProps) => {
   useEffect(() => {
     const stopCb = Hub.listen("auth", (data) => {
       const { payload } = data;
-      if (payload.event === "signedIn") {
+      if (payload.event === "signedIn" || payload.event === "signedOut") {
         checkAccount();
-      }
-      if (payload.event === "signedOut") {
-        setAccountId(undefined);
-        setSiteId(undefined);
-        setSiteKey(undefined);
-        setFormConfig(undefined);
       }
     });
     return () => {
