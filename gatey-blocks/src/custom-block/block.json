@@ -4,7 +4,7 @@
   "name": "gatey/custom-block",
   "version": "1.0.0",
   "title": "Custom Block",
-  "category": "gatey-category",
+  "category": "wpsuite-gatey",
   "description": "Custom Block for Gatey Authenticator",
   "attributes": {
     "anchor": {

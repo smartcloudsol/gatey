@@ -9,6 +9,7 @@ import { InspectorControls, BlockControls } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
 import {
   ComboboxControl,
+  CheckboxControl,
   RadioControl,
   TextControl,
   PanelBody,
@@ -74,6 +75,8 @@ export const Block: FunctionComponent<
     screen,
     variation,
     colorMode,
+    showOpenButton,
+    openButtonTitle,
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
@@ -88,7 +91,9 @@ export const Block: FunctionComponent<
   >();
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
   const [previewMode, setPreviewMode] = useState<PreviewType>();
-  const [previewScreen, setPreviewScreen] = useState<Screen>("signIn");
+  const [previewScreen, setPreviewScreen] = useState<Screen>(
+    screen || "signIn"
+  );
 
   const editorRef = createRef<HTMLDivElement>();
 
@@ -102,7 +107,15 @@ export const Block: FunctionComponent<
             "/account/" +
             Gatey.siteSettings.accountId +
             "/site/" +
-            Gatey.siteSettings.siteId,
+            Gatey.siteSettings.siteId +
+            (Gatey.siteSettings.siteKey ? "/settings" : ""),
+          options: {
+            headers: Gatey.siteSettings.siteKey
+              ? {
+                  "X-Site-Key": Gatey.siteSettings.siteKey,
+                }
+              : {},
+          },
         })
           .response.then((response) => response.body.json())
           .then((response) => {
@@ -190,6 +203,32 @@ export const Block: FunctionComponent<
       });
   }, []);
 
+  useEffect(() => {
+    let title;
+    switch (screen) {
+      default:
+      case "signIn":
+        title = "Sign In";
+        break;
+      case "signUp":
+        title = "Sign Up";
+        break;
+      case "forgotPassword":
+        title = "Forgot Password";
+        break;
+      case "changePassword":
+        title = "Change Password";
+        break;
+      case "editAccount":
+        title = "Edit Account";
+        break;
+      case "setupTotp":
+        title = "Setup TOTP";
+        break;
+    }
+    setAttributes({ openButtonTitle: title });
+  }, [screen, setAttributes]);
+
   return (
     <div ref={editorRef}>
       <InspectorControls>
@@ -240,6 +279,7 @@ export const Block: FunctionComponent<
                 value === "changePassword"
               ) {
                 setAttributes({ screen: value });
+                setPreviewScreen(value as Screen);
               }
             }}
             help={__(
@@ -279,6 +319,28 @@ export const Block: FunctionComponent<
             }}
             help={__(
               "This will set the color mode for the authenticator. 'System' will use the user's system preference.",
+              TEXT_DOMAIN
+            )}
+          />
+          <CheckboxControl
+            label={__("Show Open Button", TEXT_DOMAIN)}
+            checked={showOpenButton || false}
+            onChange={(value) => {
+              setAttributes({ showOpenButton: value });
+            }}
+            help={__(
+              'Enable to hide the authenticator until the user clicks a button. The button\'s label defaults to the current screen’s title but can be overridden in the "Open Button Title" field.',
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Open Button Title", TEXT_DOMAIN)}
+            value={openButtonTitle || ""}
+            onChange={(value) => {
+              setAttributes({ openButtonTitle: value });
+            }}
+            help={__(
+              "Override the button label. Leave empty to use the current screen's default title.",
               TEXT_DOMAIN
             )}
           />
@@ -410,6 +472,8 @@ export const Block: FunctionComponent<
               id="gatey-block"
               screen={previewScreen}
               variation={variation}
+              showOpenButton={showOpenButton}
+              openButtonTitle={openButtonTitle}
               signingInMessage={signingInMessage}
               signingOutMessage={signingOutMessage}
               redirectingMessage={redirectingMessage}

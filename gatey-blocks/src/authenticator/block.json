@@ -2,9 +2,9 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/authenticator",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "title": "Authenticator",
-  "category": "gatey-category",
+  "category": "wpsuite-gatey",
   "description": "Gatey Authenticator",
   "attributes": {
     "screen": {
@@ -14,6 +14,12 @@
       "type": "string"
     },
     "colorMode": {
+      "type": "string"
+    },
+    "showOpenButton": {
+      "type": "boolean"
+    },
+    "openButtonTitle": {
       "type": "string"
     },
     "signingInMessage": {
@@ -27,7 +33,11 @@
     }
   },
   "supports": {
-    "inserter": true
+    "inserter": true,
+    "align": true,
+    "html": false,
+    "shadow": true,
+    "spacing": { "margin": true, "padding": true }
   },
   "allowedBlocks": ["gatey/custom-block"],
   "textdomain": "auth-with-amazon-cognito",

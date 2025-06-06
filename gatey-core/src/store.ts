@@ -131,7 +131,7 @@ const initAmplify = async (
   const apiConfiguration =
     window.location.hostname.toLowerCase() ===
       config?.secondaryDomain?.toLowerCase().trim() &&
-    config.apiConfigurations.secondary?.apis?.length
+    config.apiConfigurations?.secondary?.apis?.length
       ? config.apiConfigurations.secondary
       : config?.apiConfigurations?.default;
 
@@ -198,10 +198,10 @@ const getDefaultState = async (): Promise<State> => {
     ? await decryptData(config, salt)
     : undefined;
   initAmplify(authenticatorConfig);
+  const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const apiConfiguration =
-    window.location.hostname.toLowerCase() ===
-      authenticatorConfig?.secondaryDomain?.toLowerCase().trim() &&
-    authenticatorConfig.apiConfigurations.secondary?.apis?.length
+    hostname === authenticatorConfig?.secondaryDomain?.toLowerCase().trim() &&
+    authenticatorConfig.apiConfigurations?.secondary?.apis?.length
       ? authenticatorConfig.apiConfigurations.secondary
       : authenticatorConfig?.apiConfigurations?.default;
   const account = await getAccountFromStorage(apiConfiguration);

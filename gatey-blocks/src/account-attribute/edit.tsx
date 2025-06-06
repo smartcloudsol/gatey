@@ -5,7 +5,12 @@ import {
   InspectorControls,
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
-import { ComboboxControl, TextControl, PanelBody } from "@wordpress/components";
+import {
+  ComboboxControl,
+  TextControl,
+  PanelBody,
+  SelectControl,
+} from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
@@ -16,7 +21,9 @@ export const Edit: FunctionComponent<BlockEditProps<Attributes>> = (
   props: BlockEditProps<Attributes>
 ) => {
   const { attributes, setAttributes } = props;
-  const { attribute, custom } = attributes;
+  const { component, attribute, custom } = attributes;
+
+  const Component = component || "div";
 
   const blockProps = useBlockProps();
   const { ...innerBlocksProps } = useInnerBlocksProps(blockProps);
@@ -25,6 +32,22 @@ export const Edit: FunctionComponent<BlockEditProps<Attributes>> = (
     <>
       <InspectorControls>
         <PanelBody title={__("Settings", TEXT_DOMAIN)}>
+          <SelectControl
+            label={__("Component", TEXT_DOMAIN)}
+            value={component}
+            options={[
+              { label: "div", value: "div" },
+              { label: "p", value: "p" },
+              { label: "span", value: "span" },
+              { label: "h1", value: "h1" },
+              { label: "h2", value: "h2" },
+              { label: "h3", value: "h3" },
+              { label: "h4", value: "h4" },
+              { label: "h5", value: "h5" },
+              { label: "h6", value: "h6" },
+            ]}
+            onChange={(value) => setAttributes({ component: value })}
+          />
           <ComboboxControl
             label={__("Attribute", TEXT_DOMAIN)}
             value={attribute || ""}
@@ -71,9 +94,11 @@ export const Edit: FunctionComponent<BlockEditProps<Attributes>> = (
           )}
         </PanelBody>
       </InspectorControls>
-      <p {...innerBlocksProps}>
-        {attribute + (attribute === "custom" ? "-" + custom : "")}
-      </p>
+      <div {...innerBlocksProps}>
+        <Component>
+          {attribute + (attribute === "custom" ? "-" + custom : "")}
+        </Component>
+      </div>
     </>
   );
 };

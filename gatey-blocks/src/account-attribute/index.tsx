@@ -5,6 +5,7 @@ import { Save } from "./save";
 import metadata from "./block.json";
 
 export type Attributes = {
+  component?: "div" | "p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   attribute?: string;
   custom?: string;
 };

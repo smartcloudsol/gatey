@@ -1,13 +1,17 @@
 import {
   useEffect,
   useState,
+  useRef,
+  type RefObject,
+  type Dispatch,
+  type ReactNode,
   type PropsWithChildren,
   type FunctionComponent,
   type SetStateAction,
 } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Amplify, type ResourcesConfig } from "aws-amplify";
-import { Authenticator } from "@aws-amplify/ui-react";
+import { Authenticator, Button } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
 
@@ -16,34 +20,42 @@ import { type Screen, type Variation } from "./index";
 import { Login } from "./login";
 import { decryptData } from "./utils";
 
+import "./app.module.css";
+
 export type PreviewType = "FREE" | "BASIC" | "PROFESSIONAL";
 
 export interface AppProps extends PropsWithChildren {
   id: string;
   screen?: Screen;
   variation?: Variation;
+  showOpenButton?: boolean;
+  openButtonTitle?: string;
   signingInMessage?: string;
   signingOutMessage?: string;
   redirectingMessage?: string;
   store: Store;
   isPreview: boolean;
   nonce: string;
-  editorRef?: React.RefObject<HTMLDivElement>;
-  children?: React.ReactNode;
+  editorRef?: RefObject<HTMLDivElement>;
+  children?: ReactNode;
   previewMode?: PreviewType;
-  setPreviewMode?: React.Dispatch<SetStateAction<PreviewType | undefined>>;
+  setPreviewMode?: Dispatch<SetStateAction<PreviewType | undefined>>;
   siteSettings?: AuthenticatorConfig | null;
   siteSubscriptionType?: string | null;
 }
 
 export const App: FunctionComponent<AppProps> = (props: AppProps) => {
   const {
+    id,
     isPreview,
     previewMode,
     setPreviewMode,
     siteSettings = null,
     siteSubscriptionType = null,
     store,
+    showOpenButton,
+    openButtonTitle,
+    editorRef,
   } = props;
 
   const [decryptedConfig, setDecryptedConfig] = useState<
@@ -59,6 +71,10 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
   >(undefined);
 
   const [amplifyConfigured, setAmplifyConfigured] = useState(false);
+
+  const [show, setShow] = useState(false);
+
+  const containerRef = useRef(null);
 
   const salt: number = useSelect(
     (
@@ -86,6 +102,25 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     ) => select(store).getAmplifyConfig(),
     []
   );
+
+  useEffect(() => {
+    if (containerRef.current) {
+      jQuery(containerRef.current).on("done.gatey-authenticator", () => {
+        if (editorRef?.current) {
+          setShow(false);
+        } else {
+          jQuery(document).trigger("gatey-block", id);
+        }
+      });
+      jQuery(containerRef.current).on("cancel.gatey-authenticator", () => {
+        if (editorRef?.current) {
+          setShow(false);
+        } else {
+          jQuery(document).trigger("gatey-block", id);
+        }
+      });
+    }
+  }, [editorRef, containerRef, show, id]);
 
   useEffect(() => {
     if (config) {
@@ -180,7 +215,29 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
           <Routes>
             <Route
               path="*"
-              element={<Login {...props} config={filteredConfig} />}
+              element={
+                <>
+                  {showOpenButton && (
+                    <Button
+                      className="amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener"
+                      disabled={show}
+                      isFullWidth={true}
+                      onClick={() => {
+                        setShow(true);
+                      }}
+                    >
+                      {openButtonTitle || "Open Authenticator"}
+                    </Button>
+                  )}
+                  {(!showOpenButton || show) && (
+                    <Login
+                      containerRef={containerRef}
+                      {...props}
+                      config={filteredConfig}
+                    />
+                  )}
+                </>
+              }
             />
           </Routes>
         </Router>

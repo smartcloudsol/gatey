@@ -173,8 +173,8 @@
 
 "@aws-amplify/ui-react-core@3.4.3":
   version "3.4.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#0e5643cd565ce3d27cb8625b9c08d8e61d830ddf"
-  integrity sha1-DlZDzVZc49J8uGJbnAjY5h2DDd8=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#0907d0c5c0936ef3f69f6107f2b77217f76c9ffd"
+  integrity sha1-CQfQxcCTbvP2n2EH8rdyF/dsn/0=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@xstate/react" "^3.2.2"
@@ -184,8 +184,8 @@
 
 "@aws-amplify/ui-react@^6.11.2":
   version "6.11.2"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#5b3dcf80f46e1c3d7a99ec28eb7621623eff6e70"
-  integrity sha1-Wz3PgPRuHD16mewo63YhYj7/bnA=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#bb611e7b44f8967d4cf389f4e3eca8c23e18350a"
+  integrity sha1-u2Eee0T4ln1M84n04+yowj4YNQo=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@aws-amplify/ui-react-core" "3.4.3"
@@ -199,8 +199,8 @@
 
 "@aws-amplify/ui@6.10.3", "@aws-amplify/ui@^6.10.3":
   version "6.10.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#fa0a1c0a30d6023c6432977892bda29527636bab"
-  integrity sha1-+gocCjDWAjxkMpd4kr2ilSdja6s=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#78f650cc9d3c4b05eaba8e17bd01f1d9bd5a6a9d"
+  integrity sha1-ePZQzJ08SwXquo4XvQHx2b1aap0=
   dependencies:
     csstype "^3.1.1"
     lodash "4.17.21"
@@ -3510,8 +3510,8 @@
 
 "@smart-cloud/gatey-core@^1.0.0":
   version "1.0.0"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#7056d0bf4bc9f54856b6244005b8317f49ec2d3a"
-  integrity sha1-cFbQv0vJ9UhWtiRABbgxf0nsLTo=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#f875a08723286108ba54984da9a0fc3cff9c3ddd"
+  integrity sha1-+HWghyMoYQi6VJhNqaD8PP+cPd0=
   dependencies:
     "@aws-amplify/ui" "^6.10.3"
     "@wordpress/data" "^10.23.0"

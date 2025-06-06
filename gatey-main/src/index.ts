@@ -132,7 +132,7 @@ jQuery(() => {
     const apiConfiguration =
       window.location.hostname.toLowerCase() ===
         decryptedConfig?.secondaryDomain?.toLowerCase().trim() &&
-      decryptedConfig.apiConfigurations.secondary?.apis?.length
+      decryptedConfig.apiConfigurations?.secondary?.apis?.length
         ? decryptedConfig.apiConfigurations.secondary
         : decryptedConfig?.apiConfigurations?.default;
 

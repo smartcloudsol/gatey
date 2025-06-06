@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.0.3
+Stable tag: 1.0.5
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -86,15 +86,15 @@ Yes, at any time. The plugin will still work in Free mode, and your site’s blo
 
 Drag‑and‑drop Sign‑in block in the Gutenberg editor
 
-Sign‑up block rendered on a live page
-
-Custom Sign-in screen overridden with WordPress blocks
-
-Conditional content shown using shortcode for a logged‑in user
+Account attribute shown for a logged‑in user
 
 User profile form with attribute editing
 
-Setup MFA device form
+Custom Sign-in screen overridden with WordPress blocks
+
+Custom Sign‑up form rendered on a live page
+
+Custom Setup TOTP device form rendered on a live page
 
 Admin settings page showing the Gatey configuration wizard
 
@@ -161,6 +161,13 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.0.5 =
+Added new style controls (typography, spacing, colours, etc.) to the Account Attribute block and fixed a configuration-loading bug that could prevent the admin UI from appearing.
+
+= 1.0.4 =
+Authenticator block: added optional trigger‑button properties — render a button first, and open the Authenticator only after users click it. Perfect for building lean profile pages (see updated Get Started guide).
+Account block: now supports full Gutenberg styling controls — alignment, custom HTML tag, box‑shadow, spacing (margin/padding), min‑height, typography (font‑size, line‑height, text‑align) and color (background & text).
+
 = 1.0.3 =
 Bumped the Authenticator block version to invalidate cached frontend assets—ensures the updated view.js is loaded. No functional changes.
 
@@ -175,6 +182,12 @@ Authenticator block: added optional "Signing in", "Signing out" and "Redirecting
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+This update restores the admin interface and unlocks extra styling options for the Account Attribute block; review the block’s settings to fine-tune its appearance after upgrading.
+
+= 1.0.4 =
+New trigger‑button option for the Authenticator block and full Gutenberg style support in the Account block. Update to simplify profile‑page layouts and unlock richer styling options.
 
 = 1.0.3 =
 This release only bumps the Authenticator block version to refresh cached view.js assets. No functional changes—safe to update immediately.

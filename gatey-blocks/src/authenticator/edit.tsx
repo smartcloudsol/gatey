@@ -12,6 +12,8 @@ export interface EditorBlockProps {
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
+  showOpenButton?: boolean;
+  openButtonTitle?: string;
   signingInMessage?: string;
   signingOutMessage?: string;
   redirectingMessage?: string;

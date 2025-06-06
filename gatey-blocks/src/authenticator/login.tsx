@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
@@ -80,7 +80,10 @@ export type DefaultComponentDescriptors = {
 };
 
 export const Login = (
-  props: AppProps & { config: AuthenticatorConfig | null | undefined }
+  props: AppProps & {
+    config: AuthenticatorConfig | null | undefined;
+    containerRef: React.RefObject<HTMLDivElement>;
+  }
 ) => {
   const {
     id,
@@ -94,6 +97,7 @@ export const Login = (
     children,
     editorRef,
     config,
+    containerRef,
   } = props;
 
   const [components, setComponents] = useState<DefaultComponents>();
@@ -160,8 +164,6 @@ export const Login = (
     context.authStatus,
     context.route,
   ]);
-
-  const containerRef: React.Ref<HTMLDivElement> = useRef(null);
 
   const isVisible = useElementDetector(
     containerRef,
@@ -457,21 +459,20 @@ export const Login = (
     }
   }, [config, account]);
 
-  /*useEffect(() => {
-    if (wasSignedIn && !signedIn) {
-      signOut();
+  useEffect(() => {
+    if (route === "setup") {
+      setScreenChanged(true);
     }
-  }, [wasSignedIn, signedIn, params]);
-  */
+  }, [route]);
 
   return (
-    <View ref={containerRef}>
+    <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
       {visible && (
         <Flex
           justifyContent="center"
           direction="row"
           alignContent="middle"
-          style={{ marginTop: "2rem" }}
+          style={{ marginTop: variation === "default" ? "2rem" : 0 }}
         >
           {
             /*!loggingOut &&*/
