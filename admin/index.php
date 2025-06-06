@@ -333,7 +333,6 @@ class Admin
         );
         try {
             $t = $verifier->verifyIdToken($token);
-            error_log('Cognito token verified: ' . print_r($t, true));
         } catch (Exception $e) {
             return new WP_REST_Response(array('success' => false, 'message' => __('Invalid token.', 'gatey')), 401);
         }

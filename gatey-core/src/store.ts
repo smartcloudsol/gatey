@@ -89,9 +89,9 @@ salt = 13;
 const initAmplify = async (
   config: AuthenticatorConfig | undefined
 ): Promise<void> => {
+  const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const rc =
-    window.location.hostname.toLowerCase() ===
-      config?.secondaryDomain?.toLowerCase().trim() &&
+    hostname.toLowerCase() === config?.secondaryDomain?.toLowerCase().trim() &&
     Gatey.settings?.userPoolConfigurations.secondary?.Auth?.Cognito?.userPoolId
       ? Gatey.settings?.userPoolConfigurations.secondary
       : Gatey.settings?.userPoolConfigurations.default;
@@ -129,8 +129,7 @@ const initAmplify = async (
     },
   };
   const apiConfiguration =
-    window.location.hostname.toLowerCase() ===
-      config?.secondaryDomain?.toLowerCase().trim() &&
+    hostname.toLowerCase() === config?.secondaryDomain?.toLowerCase().trim() &&
     config.apiConfigurations?.secondary?.apis?.length
       ? config.apiConfigurations.secondary
       : config?.apiConfigurations?.default;

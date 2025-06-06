@@ -3675,8 +3675,8 @@
 
 "@smart-cloud/gatey-core@^1.0.0":
   version "1.0.0"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#f875a08723286108ba54984da9a0fc3cff9c3ddd"
-  integrity sha1-+HWghyMoYQi6VJhNqaD8PP+cPd0=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#d91ac35235e66dd26d74d0b8dcc847251fef95b7"
+  integrity sha1-2RrDUjXmbdJtdNC43MhHJR/vlbc=
   dependencies:
     "@aws-amplify/ui" "^6.10.3"
     "@wordpress/data" "^10.23.0"
