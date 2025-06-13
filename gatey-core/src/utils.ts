@@ -1,5 +1,11 @@
 import { AuthenticatorConfig } from "./store";
 
+export function b64uToBytes(b64u: string) {
+  let b64 = b64u.replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4) b64 += "=";
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+};
+
 const createKey = async (salt: number): Promise<CryptoKey> => {
   const k = deobfuscate(
     "emUgRnVEemN0U1BhUXB3amlxc1h0dm9JQklUbXh5Z2YaSRZeZ2EABH5lZgU=",

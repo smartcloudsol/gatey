@@ -4,6 +4,7 @@ import {
   ListGroupsCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import {
+  DEFAULT_THEME,
   ActionIcon,
   Card,
   Alert,
@@ -37,7 +38,6 @@ import {
   type AuthenticatorConfig,
   type RoleMapping,
   type Settings,
-  type SiteSettings,
   type Store,
 } from "@smart-cloud/gatey-core";
 import {
@@ -63,7 +63,7 @@ import { useCallback, useEffect, useState } from "react";
 import DocSidebar from "./DocSidebar";
 import { LicenseHandler } from "./license-handler";
 import { OnboardingBanner } from "./onboarding";
-import { decryptData } from "./utils";
+import { NoRegistrationRequiredBanner } from "./noregistration";
 
 import classes from "./main.module.css";
 
@@ -114,9 +114,11 @@ const FormFieldEditor = lazy(
 
 const SettingsTitle = ({ settings }: { settings: Settings }) => {
   // Add media query for responsive design
-  const isMobile = useMediaQuery("(max-width: 875px)");
+  const isMobile = useMediaQuery(
+    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
+  );
   return (
-    <Card p="sm" withBorder mt="md">
+    <Card p="sm" withBorder mt="md" maw={1280}>
       <Group
         align="flex-start"
         style={{
@@ -164,6 +166,7 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
           </HoverCard>{" "}
           the default WordPress login page with a Cognito-based flow.
         </Text>
+        <NoRegistrationRequiredBanner />
         <OnboardingBanner settings={settings} />
       </Group>
     </Card>
@@ -191,7 +194,6 @@ interface Page {
 interface MainProps {
   nonce: string;
   settings: Settings;
-  siteSettings: SiteSettings;
   store: Store;
 }
 
@@ -208,7 +210,7 @@ const configUrl =
     : "https://wpsuite.io/static/config/prod.json";
 
 const Main = (props: MainProps) => {
-  const { store, nonce, settings, siteSettings } = props;
+  const { store, nonce, settings } = props;
 
   const [currentConfig, setCurrentConfig] = useState<"default" | "secondary">(
     "default"
@@ -222,9 +224,16 @@ const Main = (props: MainProps) => {
   const [wpRolesLoaded, setWpRolesLoaded] = useState<boolean>(false);
   const [pages, setPages] = useState<Page[]>([]);
   const [scrollToId, setScrollToId] = useState<string>("");
-  const [accountId, setAccountId] = useState<string>();
-  const [siteId, setSiteId] = useState<string>();
-  const [siteKey, setSiteKey] = useState<string>();
+  const [ownedAccountId, setOwnedAccountId] = useState<string>();
+  const [accountId, setAccountId] = useState<string | undefined>(
+    Gatey.siteSettings.accountId
+  );
+  const [siteId, setSiteId] = useState<string | undefined>(
+    Gatey.siteSettings.siteId
+  );
+  const [siteKey, setSiteKey] = useState<string | undefined>(
+    Gatey.siteSettings.siteKey
+  );
   const [opened, { open, close }] = useDisclosure(false);
 
   const [settingsFormData, setSettingsFormData] = useState<Settings>({
@@ -241,24 +250,11 @@ const Main = (props: MainProps) => {
     reCaptchaPublicKey: settings.reCaptchaPublicKey,
   });
 
-  const [siteSettingsFormData /*, setSiteSettingsFormData*/] =
-    useState<SiteSettings>({
-      accountId: siteSettings.accountId,
-      siteId: siteSettings.siteId,
-      siteKey: siteSettings.siteKey,
-    });
-
-  const [decryptedConfig, setDecryptedConfig] = useState<
-    AuthenticatorConfig | null | undefined
-  >(undefined);
-
   const [resolvedConfig, setResolvedConfig] = useState<
     AuthenticatorConfig | null | undefined
   >(undefined);
 
   const [formConfig, setFormConfig] = useState<AuthenticatorConfig>();
-
-  const [saveSiteSettings, setSaveSiteSettings] = useState(false);
 
   const [amplifyConfigured, setAmplifyConfigured] = useState<
     boolean | undefined
@@ -274,15 +270,12 @@ const Main = (props: MainProps) => {
   >("user-pools");
 
   // Add media query for responsive design
-  const isMobile = useMediaQuery("(max-width: 875px)");
-
-  const config: string | undefined = useSelect(
-    () => wp.data.select(store)?.getConfig() ?? "",
-    []
+  const isMobile = useMediaQuery(
+    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
   );
 
-  const salt: number = useSelect(
-    () => wp.data.select(store)?.getSalt() ?? 13,
+  const decryptedConfig: AuthenticatorConfig | null = useSelect(
+    () => wp.data.select(store)?.getConfig(),
     []
   );
 
@@ -300,9 +293,35 @@ const Main = (props: MainProps) => {
     queryFn: async () => {
       const response = await fetch(configUrl).catch((err) => {
         return {
-          ok: false,
+          ok: true,
           statusText: err.message,
-          json: async () => undefined,
+          json: async () => ({
+            config: "prod",
+            baseUrl: "https://wpsuite.io",
+            userPoolId: "us-east-1_G0wEwK9tt",
+            identityPoolId: "us-east-1:11e55c9a-b768-48a2-8a0c-c51f1e99c129",
+            appClientPlugin: "5e6fs3pk1k1ju7cgpnp7o7si8u",
+            awsRegion: "us-east-1",
+            pricingTable: "prctbl_1QA6TQFjw5MDUzy6c3fBSPGL",
+            stripePublicKey:
+              "pk_live_51OVeJwFjw5MDUzy6pwTbsMjcBZjZioihzLAtxQsF91u4lYJC4mtqrJddSskhz6OPbWS0tr8XL2G1AwJaXEpv9Rgn008dAz5TEr",
+            permissions: {
+              owner: [
+                "transfer-account",
+                "manage-account",
+                "manage-sites",
+                "manage-subscriptions",
+                "manage-billing",
+              ],
+              admin: [
+                "manage-account",
+                "manage-sites",
+                "manage-subscriptions",
+                "manage-billing",
+              ],
+              accountant: ["manage-billing"],
+            },
+          }),
         };
       });
 
@@ -314,59 +333,60 @@ const Main = (props: MainProps) => {
     },
   });
 
-  const clearCache = useCallback(() => {
-    fetch(Gatey.restUrl + "/update-site-settings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-WP-Nonce": nonce,
-      },
-      body: JSON.stringify({
-        accountId,
-        siteId,
-        siteKey,
-        lastUpdate: new Date().getTime(),
-        subscriber: !!formConfig?.subscriptionType,
-      }),
-      credentials: "same-origin",
-    });
-  }, [accountId, formConfig?.subscriptionType, nonce, siteId, siteKey]);
+  const clearCache = useCallback(
+    (subscriber: boolean) => {
+      if (accountId && siteId && siteKey) {
+        fetch(Gatey.restUrl + "/update-site-settings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": nonce,
+          },
+          body: JSON.stringify({
+            accountId,
+            siteId,
+            siteKey,
+            lastUpdate: new Date().getTime(),
+            subscriber,
+          }),
+          credentials: "same-origin",
+        });
+      }
+    },
+    [accountId, nonce, siteId, siteKey]
+  );
 
   const checkAccount = useCallback(async () => {
     try {
       const authSession = await fetchAuthSession();
       const scopes =
         authSession.tokens?.accessToken.payload["scope"]?.split(" ") ?? [];
-      setAccountId(Gatey.siteSettings.accountId);
-      setSiteId(Gatey.siteSettings.siteId);
-      setSiteKey(Gatey.siteSettings.siteKey);
+      setOwnedAccountId(undefined);
       if (
-        !scopes.includes("sc.account.owner." + Gatey.siteSettings.accountId) &&
-        !scopes.includes("sc.account.admin." + Gatey.siteSettings.accountId)
+        accountId &&
+        !scopes.includes("sc.account.owner." + accountId) &&
+        !scopes.includes("sc.account.admin." + accountId)
       ) {
         console.error(
-          "You do not have permission to access this resource. Please contact support."
+          "You do not have permission to access this resource. Please contact site owner."
         );
-        const accountId = scopes
+        const accId = scopes
           .find(
             (scope) =>
               scope.startsWith("sc.account.owner.") ||
               scope.startsWith("sc.account.admin.")
           )
           ?.split(".")[3];
-        if (accountId) {
-          setAccountId(accountId);
-          setSiteId(undefined);
-          setSiteKey(undefined);
+
+        if (accId) {
+          setOwnedAccountId(accId);
         }
       }
     } catch (err) {
       console.error(err);
-      setAccountId(Gatey.siteSettings.accountId);
-      setSiteId(Gatey.siteSettings.siteId);
-      setSiteKey(Gatey.siteSettings.siteKey);
+      setOwnedAccountId(undefined);
     }
-  }, []);
+  }, [accountId]);
 
   const handleConfigChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -530,7 +550,7 @@ const Main = (props: MainProps) => {
         subscriptionType: formConfig?.subscriptionType,
         secondaryDomain: formConfig?.secondaryDomain,
       });
-      clearCache();
+      clearCache(!!formConfig?.subscriptionType);
     },
     [clearCache, formConfig]
   );
@@ -608,16 +628,6 @@ const Main = (props: MainProps) => {
       }
     }
   }, [settingsFormData.integrateWpLogin, nonce, wpRolesLoaded]);
-
-  useEffect(() => {
-    if (config) {
-      decryptData(config, salt).then((result) => {
-        setDecryptedConfig(result ?? null);
-      });
-    } else {
-      setDecryptedConfig(null);
-    }
-  }, [config, salt]);
 
   useEffect(() => {
     if (!amplifyConfigured) {
@@ -717,7 +727,7 @@ const Main = (props: MainProps) => {
         label: "API Settings",
         icon: <IconApi size={16} stroke={1.5} />,
         badge: (
-          <Badge variant="light" color="red">
+          <Badge variant="light" color="red" ml="4px" miw={35}>
             PRO
           </Badge>
         ),
@@ -728,7 +738,7 @@ const Main = (props: MainProps) => {
         label: "Form Fields",
         icon: <IconForms size={16} stroke={1.5} />,
         badge: (
-          <Badge variant="light" color="red">
+          <Badge variant="light" color="red" ml="4px" miw={35}>
             PRO
           </Badge>
         ),
@@ -738,31 +748,26 @@ const Main = (props: MainProps) => {
   }, [amplifyConfigured, formConfig]);
 
   useEffect(() => {
-    if (
-      resolvedConfig !== undefined ||
-      (decryptedConfig !== undefined && decryptedConfig !== null)
-    ) {
+    if (resolvedConfig !== undefined) {
       const fc = (resolvedConfig ?? decryptedConfig) as AuthenticatorConfig;
       setFormConfig(fc);
-      if (
-        resolvedConfig?.subscriptionType !== decryptedConfig?.subscriptionType
-      ) {
-        setSaveSiteSettings(true);
-      }
     }
   }, [resolvedConfig, decryptedConfig]);
 
   useEffect(() => {
-    if (
-      accountId &&
-      siteId &&
-      ((formConfig?.subscriptionType && !Gatey.siteSettings.subscriber) ||
-        (!formConfig?.subscriptionType && Gatey.siteSettings.subscriber) ||
-        saveSiteSettings)
-    ) {
-      clearCache();
+    if (resolvedConfig !== undefined) {
+      if (
+        resolvedConfig !== null &&
+        ((!!resolvedConfig.subscriptionType &&
+          !Gatey.siteSettings.subscriber) ||
+          (!resolvedConfig.subscriptionType && Gatey.siteSettings.subscriber))
+      ) {
+        const subscriber = !!resolvedConfig.subscriptionType;
+        Gatey.siteSettings.subscriber = subscriber;
+        clearCache(subscriber);
+      }
     }
-  }, [clearCache, accountId, siteId, formConfig, saveSiteSettings]);
+  }, [clearCache, resolvedConfig]);
 
   return (
     amplifyConfigured !== undefined && (
@@ -780,14 +785,16 @@ const Main = (props: MainProps) => {
             amplifyConfigured={amplifyConfigured}
             nonce={nonce}
             config={decryptedConfig}
-            setResolvedConfig={setResolvedConfig}
             stripePublicKey={configuration?.stripePublicKey}
             pricingTable={configuration?.pricingTable}
             accountId={accountId}
+            ownedAccountId={ownedAccountId ?? accountId}
             siteId={siteId}
             siteKey={siteKey}
+            setAccountId={setAccountId}
             setSiteId={setSiteId}
             setSiteKey={setSiteKey}
+            setResolvedConfig={setResolvedConfig}
           />
           <Group
             align="flex-start"
@@ -862,7 +869,7 @@ const Main = (props: MainProps) => {
                         disabled={!formConfig}
                       >
                         Secondary
-                        <Badge variant="light" color="blue">
+                        <Badge variant="light" color="blue" ml="4px" miw={60}>
                           BASIC
                         </Badge>
                       </Tabs.Tab>
@@ -1398,9 +1405,9 @@ const Main = (props: MainProps) => {
                   <ApiSettingsEditor
                     amplifyConfigured={amplifyConfigured}
                     config={formConfig}
-                    accountId={siteSettingsFormData.accountId!}
-                    siteId={siteSettingsFormData.siteId!}
-                    siteKey={siteSettingsFormData.siteKey!}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
                     onSave={handleConfigSave}
                     InfoLabelComponent={InfoLabelComponent}
                   />
@@ -1433,9 +1440,9 @@ const Main = (props: MainProps) => {
                   <FormFieldEditor
                     amplifyConfigured={amplifyConfigured}
                     config={formConfig}
-                    accountId={siteSettingsFormData.accountId!}
-                    siteId={siteSettingsFormData.siteId!}
-                    siteKey={siteSettingsFormData.siteKey!}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
                     onSave={handleConfigSave}
                     InfoLabelComponent={InfoLabelComponent}
                   />

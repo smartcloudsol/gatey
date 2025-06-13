@@ -626,8 +626,6 @@ export default function DocSidebar({
   const scrollHighlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    //console.log("ENTER useEffect");
-
     // Clear any pending scroll/highlight operations from previous renders/opens
     if (scrollHighlightTimeoutRef.current) {
       clearTimeout(scrollHighlightTimeoutRef.current);
@@ -645,18 +643,14 @@ export default function DocSidebar({
 
     // Only proceed if the drawer is currently open and has an ID to scroll to
     if (!opened || !scrollToId) {
-      //console.log("EXIT useEffect (drawer closed or no scrollToId)");
       return;
     }
 
     // Schedule the DOM manipulation to run after the current render cycle
     scrollHighlightTimeoutRef.current = setTimeout(() => {
-      //console.log("ENTER setTimeout for scroll/highlight");
       const targetElement = document.getElementById(scrollToId);
-      //console.log("targetElement", targetElement);
 
       if (!targetElement) {
-        //console.log("EXIT setTimeout (targetElement not found)");
         scrollHighlightTimeoutRef.current = null;
         return;
       }
@@ -666,18 +660,13 @@ export default function DocSidebar({
         behavior: "smooth",
         block: "center",
       });
-      //console.log("Scrolled to targetElement");
 
       // 4. Highlight the element
       const highlightableEl = targetElement.querySelector(".highlightable");
-      //console.log("highlightableEl", highlightableEl);
 
       if (highlightableEl) {
-        //console.log("highlightableEl found");
-
         // Clear previous highlight timeout if any (should be cleared above, but double-check)
         if (highlightTimeoutRef.current) {
-          //console.log("clearing existing highlight timeout");
           clearTimeout(highlightTimeoutRef.current);
           highlightTimeoutRef.current = null;
           // Ensure previous highlight is removed immediately
@@ -689,32 +678,25 @@ export default function DocSidebar({
         }
 
         highlightableEl.classList.add(classes["highlighted-doc-item"]);
-        //console.log("added highlighted-doc-item");
 
         // Remove the highlight after a short duration
         highlightTimeoutRef.current = setTimeout(() => {
-          //console.log("removing highlighted-doc-item after delay");
           highlightableEl.classList.remove(classes["highlighted-doc-item"]);
           highlightTimeoutRef.current = null;
         }, 2000); // Highlight for 2 seconds
-        //console.log("set highlight removal timeout");
       }
       scrollHighlightTimeoutRef.current = null; // Clear the ref once done
-      //console.log("EXIT setTimeout (success)");
     }, 0); // Delay of 0ms pushes execution after the current event loop cycle
 
     // Cleanup function for the useEffect
     return () => {
-      //console.log("CLEANUP useEffect");
       // Clear the main scroll/highlight timeout if the component unmounts or dependencies change
       if (scrollHighlightTimeoutRef.current) {
-        //console.log("Clearing scrollHighlightTimeoutRef in cleanup");
         clearTimeout(scrollHighlightTimeoutRef.current);
         scrollHighlightTimeoutRef.current = null;
       }
       // Clear the highlight removal timeout if the component unmounts or dependencies change
       if (highlightTimeoutRef.current) {
-        //console.log("Clearing highlightTimeoutRef in cleanup");
         clearTimeout(highlightTimeoutRef.current);
         highlightTimeoutRef.current = null;
       }

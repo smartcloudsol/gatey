@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.0.5
+Stable tag: 1.1.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -26,7 +26,7 @@ Key features include:
 
 You can find the plugin’s continuously expanding, detailed documentation at:
 
-[WP Suite - Gatey](https://wpsuite.io/gatey/docs/ "Gatey Docs")
+[WP Suite - Gatey](https://wpsuite.io/gatey/docs/ “Gatey Docs”)
 
 What’s on the site?
   - Get Started guide — quick start, installation, first‑time setup.
@@ -46,7 +46,7 @@ Optional premium features (like advanced customization or frontend integrations)
 
 Upload the plugin files to the /wp-content/plugins/gatey directory, or install via the WordPress plugin repository.
 
-Activate the plugin through the 'Plugins' screen in WordPress.
+Activate the plugin through the “Plugins” screen in WordPress.
 
 Navigate to WP Admin > Gatey > Settings to configure your AWS Cognito user pool and integration settings.
 
@@ -76,8 +76,10 @@ No. Gatey works fully offline out of the box and requires no registration or sub
 = What’s the difference between plans? =
 Free includes all core blocks, but frontend customizations are hidden. Basic shows custom blocks on live pages. Professional unlocks social login, JWT/IAM‑secured APIs, and advanced Gatey control.
 
-= How are configuration downloads counted? =
-Each time a user interacts with the plugin on the frontend, a configuration file is loaded from wpsuite.io. This file is cached per user for up to one month. The Free plan loads configuration locally only and has no external limit. Paid plans include usage caps of 100,000 (Basic) or 1,000,000 (Professional) configuration loads per month.
+= Where are the subscription-based configuration files stored, and how often are they refreshed? =
+All Pro settings you create in the Gatey Settings—API Settings, custom Form Fields—are saved server-side and, whenever you hit Save, an encrypted copy is written to your site’s wp-content/uploads/ folder.
+The small licence file needed to decrypt that config are also stored in uploads. A licence is valid for one month, so the plugin automatically downloads a fresh file every seven days while your subscription is active. 
+If you run a static export, you’ll still need that weekly refresh (a short tutorial covers this topic), but a normal WordPress install handles it for you automatically.
 
 = Can I cancel or upgrade later? =
 Yes, at any time. The plugin will still work in Free mode, and your site’s blocks won’t break — only premium features will deactivate.
@@ -161,6 +163,13 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.1.1 =
+Added the JavaScript chunks that were accidentally left out of 1.1.0; all blocks and admin screens now load correctly.
+
+= 1.1.0 =
+New on-disk configuration system eliminates all front-end config downloads. Config + weekly licence file now live in the WordPress uploads folder (static exports still refresh the licence weekly). Because downloads are gone, **all plans are now flat-priced—there is no longer any “Additional Usage” charge**.
+The admin screen makes it clear whether the site is linked to a WPSuite workspace and whose workspace it is. 
+
 = 1.0.5 =
 Added new style controls (typography, spacing, colours, etc.) to the Account Attribute block and fixed a configuration-loading bug that could prevent the admin UI from appearing.
 
@@ -176,12 +185,18 @@ Pro features for an already‑connected site can now be edited even if the WordP
 Fixed [gatey] shortcode: the screen, variation, and colormode attributes are now honoured (previously only the pattern defaults were shown).
 
 = 1.0.1 =
-Authenticator block: added optional "Signing in", "Signing out" and "Redirecting" message fields, so you no longer need to listen for gatey‑authenticator events for basic feedback. Defaults are empty.
+Authenticator block: added optional “Signing in”, “Signing out” and “Redirecting” message fields, so you no longer need to listen for gatey‑authenticator events for basic feedback. Defaults are empty.
 
 = 1.0.0 =
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+This update only restores missing JS assets. Install it to ensure every Gatey block and the admin UI work as expected.
+
+= 1.1.0 =
+After updating, config and licence files are stored locally, the admin panel shows clearer linkage details, and pricing is simpler: every plan is pay-once with no extra usage fees.
 
 = 1.0.5 =
 This update restores the admin interface and unlocks extra styling options for the Account Attribute block; review the block’s settings to fine-tune its appearance after upgrading.

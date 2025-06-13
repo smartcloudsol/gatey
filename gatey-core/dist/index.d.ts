@@ -39,8 +39,7 @@ declare const selectors: {
     getAccount(state: State): Account;
     getNextUrl(state: State): string | null | undefined;
     isSignedIn(state: State): boolean;
-    getConfig(state: State): string | undefined;
-    getSalt(state: State): number;
+    getConfig(state: State): AuthenticatorConfig | null;
     getState(state: State): State;
 };
 interface ApiOptions {
@@ -88,8 +87,7 @@ interface State {
     account: Account;
     signedIn: boolean;
     nextUrl: string | undefined | null;
-    salt: number;
-    config: string | undefined;
+    config: AuthenticatorConfig | null;
     reloadAuthSession: number;
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
@@ -184,6 +182,7 @@ interface Gatey {
     siteSettings: SiteSettings;
     nonce: string;
     restUrl: string;
+    uploadUrl: string;
 }
 
 declare const store: Promise<Store>;

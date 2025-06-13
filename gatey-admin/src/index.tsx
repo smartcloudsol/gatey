@@ -1,15 +1,21 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { store, type Account, type Store } from "@smart-cloud/gatey-core";
+import {
+  AuthenticatorConfig,
+  store,
+  type Account,
+  type Store,
+} from "@smart-cloud/gatey-core";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import Main from "./main";
-
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+
+import Main from "./main";
+
 const production = process.env?.NODE_ENV === "production";
 if (!production) {
   import("./index.css");
@@ -18,8 +24,7 @@ declare global {
   const wp: {
     data: {
       select: (store: Store) => {
-        getConfig: () => string | undefined;
-        getSalt: () => number;
+        getConfig: () => AuthenticatorConfig | null;
         getAccount: () => Account | undefined;
       };
     };

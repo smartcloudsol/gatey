@@ -28,11 +28,7 @@ import {
   type Account,
 } from "./auth";
 
-import { decryptData } from "./utils";
-
 import { ACCOUNT } from "./constants";
-
-let salt = Math.min(Math.round(Math.random() * 256), 255);
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -85,7 +81,6 @@ export const getAccountFromStorage = async (
   return account;
 };
 
-salt = 13;
 const initAmplify = async (
   config: AuthenticatorConfig | undefined
 ): Promise<void> => {
@@ -193,19 +188,15 @@ const getDefaultState = async (): Promise<State> => {
   );
   const config = await configLoader.getConfigFromStorage();
 
-  const authenticatorConfig = config
-    ? await decryptData(config, salt)
-    : undefined;
-  initAmplify(authenticatorConfig);
+  initAmplify(config);
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const apiConfiguration =
-    hostname === authenticatorConfig?.secondaryDomain?.toLowerCase().trim() &&
-    authenticatorConfig.apiConfigurations?.secondary?.apis?.length
-      ? authenticatorConfig.apiConfigurations.secondary
-      : authenticatorConfig?.apiConfigurations?.default;
+    hostname === config?.secondaryDomain?.toLowerCase().trim() &&
+    config.apiConfigurations?.secondary?.apis?.length
+      ? config.apiConfigurations.secondary
+      : config?.apiConfigurations?.default;
   const account = await getAccountFromStorage(apiConfiguration);
   return {
-    salt: salt,
     config: config,
     amplifyConfig: {} as ResourcesConfig,
     account: account,
@@ -287,9 +278,6 @@ const selectors = {
   getConfig(state: State) {
     return state.config;
   },
-  getSalt(state: State) {
-    return state.salt;
-  },
   getState(state: State) {
     return state;
   },
@@ -355,8 +343,7 @@ export interface State {
   account: Account;
   signedIn: boolean;
   nextUrl: string | undefined | null;
-  salt: number;
-  config: string | undefined;
+  config: AuthenticatorConfig | null;
   reloadAuthSession: number;
   reloadUserAttributes: number;
   reloadMFAPreferences: number;

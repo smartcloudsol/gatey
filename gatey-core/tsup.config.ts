@@ -7,13 +7,8 @@ console.log("PREMIUM BUILD:", premium);
 
 let constants: Constants = {
   __OB_KEY_EXPR__: 0,
-  __OB_PARTS__: {} as RegExpMatchArray,
-  __FETCH_EXPR__: "",
-  __T_PARAM_EXPR__: "",
-  __H_PARAM_EXPR__: "",
-  __SITE_ID_EXPR__: "",
-  __SUBSCRIBER_EXPR__: "",
-  __LAST_UPDATE_EXPR__: "",
+  __X_EXPR__: "",
+  __Y_EXPR__: "",
 };
 if (premium) {
   constants = await loadConstants();
@@ -30,12 +25,7 @@ export default defineConfig({
   define: {
     __GATEY_PREMIUM__: String(premium),
     __OB_KEY_EXPR__: JSON.stringify(constants.__OB_KEY_EXPR__),
-    __OB_PARTS__: JSON.stringify(constants.__OB_PARTS__),
-    __FETCH_EXPR__: JSON.stringify(constants.__FETCH_EXPR__),
-    __T_PARAM_EXPR__: JSON.stringify(constants.__T_PARAM_EXPR__),
-    __H_PARAM_EXPR__: JSON.stringify(constants.__H_PARAM_EXPR__),
-    __SITE_ID_EXPR__: JSON.stringify(constants.__SITE_ID_EXPR__),
-    __SUBSCRIBER_EXPR__: JSON.stringify(constants.__SUBSCRIBER_EXPR__),
-    __LAST_UPDATE_EXPR__: JSON.stringify(constants.__LAST_UPDATE_EXPR__),
+    __X_EXPR__: JSON.stringify(constants.__X_EXPR__),
+    __Y_EXPR__: JSON.stringify(constants.__Y_EXPR__),
   },
 });

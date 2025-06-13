@@ -18,7 +18,6 @@ import { useSelect } from "@wordpress/data";
 import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
 import { type Screen, type Variation } from "./index";
 import { Login } from "./login";
-import { decryptData } from "./utils";
 
 import "./app.module.css";
 
@@ -58,10 +57,6 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     editorRef,
   } = props;
 
-  const [decryptedConfig, setDecryptedConfig] = useState<
-    AuthenticatorConfig | null | undefined
-  >(undefined);
-
   const [filteredConfig, setFilteredConfig] = useState<
     AuthenticatorConfig | null | undefined
   >(undefined);
@@ -76,19 +71,10 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
 
   const containerRef = useRef(null);
 
-  const salt: number = useSelect(
+  const decryptedConfig: AuthenticatorConfig | null = useSelect(
     (
       select: (store: Store) => {
-        getSalt: () => number;
-      }
-    ) => select(store).getSalt(),
-    []
-  );
-
-  const config: string | undefined = useSelect(
-    (
-      select: (store: Store) => {
-        getConfig: () => string | undefined;
+        getConfig: () => AuthenticatorConfig | null;
       }
     ) => select(store).getConfig(),
     []
@@ -123,34 +109,27 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
   }, [editorRef, containerRef, show, id]);
 
   useEffect(() => {
-    if (config) {
-      decryptData(config, salt).then((result) => {
-        setDecryptedConfig(result);
-        if (setPreviewMode) {
-          setNextFilteredConfig(undefined);
-          setPreviewMode(
-            decryptedConfig?.subscriptionType === "BASIC"
-              ? "BASIC"
-              : "PROFESSIONAL"
-          );
-        }
-      });
-    } else {
-      setDecryptedConfig(null);
+    if (decryptedConfig) {
       if (setPreviewMode) {
         setNextFilteredConfig(undefined);
         setPreviewMode(
-          siteSubscriptionType
-            ? siteSubscriptionType === "BASIC"
-              ? "BASIC"
-              : "PROFESSIONAL"
-            : "FREE"
+          decryptedConfig?.subscriptionType === "BASIC"
+            ? "BASIC"
+            : "PROFESSIONAL"
         );
       }
+    } else if (setPreviewMode) {
+      setNextFilteredConfig(undefined);
+      setPreviewMode(
+        siteSubscriptionType
+          ? siteSubscriptionType === "BASIC"
+            ? "BASIC"
+            : "PROFESSIONAL"
+          : "FREE"
+      );
     }
   }, [
-    config,
-    salt,
+    decryptedConfig,
     siteSettings,
     setPreviewMode,
     siteSubscriptionType,
@@ -158,32 +137,30 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
   ]);
 
   useEffect(() => {
-    if (decryptedConfig !== undefined) {
-      if (isPreview && previewMode) {
-        let fc = undefined;
-        switch (previewMode) {
-          case "FREE":
-            fc = null;
-            break;
-          case "BASIC":
-            fc = {
-              socialProviders: [],
-              signUpAttributes: [],
-              formFields: {},
-              apiConfigurations: {
-                default: { apis: [] },
-              },
-            };
-            break;
-          case "PROFESSIONAL":
-            fc = siteSettings ?? decryptedConfig;
-            break;
-        }
-        setFilteredConfig(undefined);
-        setNextFilteredConfig(fc);
-      } else {
-        setFilteredConfig(decryptedConfig);
+    if (isPreview && previewMode) {
+      let fc = undefined;
+      switch (previewMode) {
+        case "FREE":
+          fc = null;
+          break;
+        case "BASIC":
+          fc = {
+            socialProviders: [],
+            signUpAttributes: [],
+            formFields: {},
+            apiConfigurations: {
+              default: { apis: [] },
+            },
+          };
+          break;
+        case "PROFESSIONAL":
+          fc = siteSettings ?? decryptedConfig;
+          break;
       }
+      setFilteredConfig(undefined);
+      setNextFilteredConfig(fc);
+    } else {
+      setFilteredConfig(decryptedConfig);
     }
   }, [
     siteSettings,

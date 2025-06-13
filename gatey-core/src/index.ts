@@ -95,6 +95,7 @@ export interface Gatey {
   siteSettings: SiteSettings;
   nonce: string;
   restUrl: string;
+  uploadUrl: string;
 }
 
 export {

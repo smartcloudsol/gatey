@@ -8,7 +8,6 @@ import {
   loadMFAPreferences,
   login,
   logout,
-  decryptData,
   isAuthenticated,
   getAmplifyConfig,
   type Account,
@@ -125,10 +124,7 @@ jQuery(() => {
   };
 
   store.then(async (store) => {
-    const config = select(store).getConfig();
-    const decryptedConfig = config
-      ? await decryptData(config, select(store).getSalt())
-      : undefined;
+    const decryptedConfig = select(store).getConfig();
     const apiConfiguration =
       window.location.hostname.toLowerCase() ===
         decryptedConfig?.secondaryDomain?.toLowerCase().trim() &&

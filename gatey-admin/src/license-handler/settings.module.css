@@ -30,3 +30,7 @@
     background-color: var(--mantine-color-gray-0);
   }
 }
+
+.dropdown {
+  z-index: 100001 !important;
+}

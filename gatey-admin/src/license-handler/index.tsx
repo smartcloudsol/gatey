@@ -1,5 +1,5 @@
 import "@aws-amplify/ui-react/styles.css";
-import { Card, Skeleton } from "@mantine/core";
+import { Skeleton } from "@mantine/core";
 import { type AuthenticatorConfig } from "@smart-cloud/gatey-core";
 import {
   useEffect,
@@ -15,7 +15,8 @@ export interface LicenseHandlerProps extends PropsWithChildren {
   apiUrl: string;
   stripePublicKey: string;
   pricingTable: string;
-  config: AuthenticatorConfig | null | undefined;
+  config: AuthenticatorConfig | null;
+  ownedAccountId?: string;
   accountId?: string;
   siteId?: string;
   siteKey?: string;
@@ -23,6 +24,7 @@ export interface LicenseHandlerProps extends PropsWithChildren {
   setResolvedConfig: Dispatch<
     SetStateAction<AuthenticatorConfig | null | undefined>
   >;
+  setAccountId: Dispatch<SetStateAction<string | undefined>>;
   setSiteId: Dispatch<SetStateAction<string | undefined>>;
   setSiteKey: Dispatch<SetStateAction<string | undefined>>;
 }
@@ -43,9 +45,7 @@ export const LicenseHandler: FunctionComponent<LicenseHandlerProps> = (
       width="100%"
       mt="md"
     >
-      <Card p="sm" withBorder mt="md">
-        <Settings {...props} />
-      </Card>
+      <Settings {...props} />
     </Skeleton>
   );
 };

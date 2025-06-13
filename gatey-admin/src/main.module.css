@@ -33,7 +33,7 @@ input[readonly].mantine-Select-input {
   flex-direction: column;
   align-items: flex-start;
   padding: 0;
-  max-width: 800px;
+  max-width: 600px;
 }
 
 .wpc-title {

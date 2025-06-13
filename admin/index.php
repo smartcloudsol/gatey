@@ -516,17 +516,106 @@ class Admin
     {
         $settings_param = json_decode($request->get_body());
 
-        $this->siteSettings = new SiteSettings(
-            $settings_param->accountId,
-            $settings_param->siteId,
-            $settings_param->lastUpdate,
-            $settings_param->subscriber,
-            $settings_param->siteKey,
+        if ($settings_param->accountId) {
+            $this->siteSettings = new SiteSettings(
+                $settings_param->accountId,
+                $settings_param->siteId,
+                $settings_param->lastUpdate,
+                $settings_param->subscriber,
+                $settings_param->siteKey
+            );
+
+            update_option(GATEY_SLUG . '/site-settings', $this->siteSettings);
+        } else {
+            $this->siteSettings = new SiteSettings(
+                accountId: '',
+                siteId: '',
+                lastUpdate: 0,
+                subscriber: false,
+                siteKey: '',
+            );
+            delete_option(GATEY_SLUG . '/site-settings');
+        }
+
+        if ($settings_param->subscriber) {
+            $this->reloadConfig(
+                $settings_param->accountId,
+                $settings_param->siteId,
+                $settings_param->siteKey
+            );
+        } else {
+            $this->deleteConfig();
+        }
+
+        return new WP_REST_Response(array('success' => true, 'message' => __('Site settings updated successfully.', 'gatey')), 200);
+    }
+
+    function reloadConfig($accountId, $siteId, $siteKey)
+    {
+        $api_base = 'https://api.wpsuite.io';
+
+        // Ha a WordPress-URL tartalmazza a dev-domaint, akkor /dev-et fűzünk hozzá
+        if (strpos(get_site_url(), 'dev.wpsuite.io') !== false) {
+            $api_base .= '/dev';
+        }
+
+        $endpoint = sprintf(
+            '%s/account/%s/site/%s/license',
+            $api_base,
+            $accountId,
+            $siteId
         );
 
-        // Frissített beállítások mentése
-        update_option(GATEY_SLUG . '/site-settings', $this->siteSettings);
-        return new WP_REST_Response(array('success' => true, 'message' => __('Site settings updated successfully.', 'gatey')), 200);
+        $args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'X-Site-Key' => $siteKey,
+            ],
+            'timeout' => 10,
+        ];
+
+        $response = wp_remote_get($endpoint, $args);
+
+        if (!is_wp_error($response)) {
+            $status = wp_remote_retrieve_response_code($response);
+            if (200 === $status) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data) && isset($data['config'], $data['jws'])) {
+                    $upload_dir_info = wp_upload_dir();
+                    $base_dir = trailingslashit($upload_dir_info['basedir']);
+                    $plugin_subdir = trailingslashit($base_dir . GATEY_SLUG);
+
+                    wp_mkdir_p($plugin_subdir);
+
+                    $config_path = $plugin_subdir . 'config.enc';
+                    $jws_path = $plugin_subdir . 'lic.jws';
+
+                    // Biztonságosabb fájl-írás WP_Filesystem-mel, de röviden:
+                    file_put_contents($config_path, sanitize_text_field($data['config']));
+                    file_put_contents($jws_path, sanitize_text_field($data['jws']));
+
+                    update_option(GATEY_SLUG . '/license-last-refresh', time());
+                }
+            }
+        }
+    }
+
+    function deleteConfig()
+    {
+        $upload_dir_info = wp_upload_dir();
+        $base_dir = trailingslashit($upload_dir_info['basedir']);
+        $plugin_subdir = trailingslashit($base_dir . GATEY_SLUG);
+
+        $config_path = $plugin_subdir . 'config.enc';
+        $jws_path = $plugin_subdir . 'lic.jws';
+
+        if (file_exists($config_path)) {
+            unlink($config_path);
+        }
+        if (file_exists($jws_path)) {
+            unlink($jws_path);
+        }
     }
 
     function setAuthCookieExpiration($length, $user_id, $remember)
