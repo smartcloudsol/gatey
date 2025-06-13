@@ -606,80 +606,81 @@ export const Settings: FunctionComponent<SettingsProps> = (
               >
                 Clear Cache
               </Menu.Item>
-              {authStatus === "authenticated" && (
-                <>
-                  <Menu.Divider />
-                  <Menu.Label>Subscription</Menu.Label>
-                  {subscriptionType === null && (
-                    <Menu.Item
-                      leftSection={<IconCreditCard size={16} />}
-                      onClick={() => openPricingTable()}
-                    >
-                      Plans &amp; Pricing
-                    </Menu.Item>
-                  )}
-                  {subscriptionType !== null && subscription && (
-                    <>
+              {authStatus === "authenticated" &&
+                ownedAccountId === accountId && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Label>Subscription</Menu.Label>
+                    {subscriptionType === null && (
                       <Menu.Item
                         leftSection={<IconCreditCard size={16} />}
-                        disabled={
-                          !!creatingUpdateSubscriptionSession ||
-                          !!mutatingSubscription
-                        }
-                        onClick={() => openBillingPortalSession()}
+                        onClick={() => openPricingTable()}
                       >
-                        Manage Billing
+                        Plans &amp; Pricing
                       </Menu.Item>
-                      <Menu.Item
-                        leftSection={<IconArrowsUp size={16} />}
-                        disabled={
-                          !!creatingUpdateSubscriptionSession ||
-                          !!mutatingSubscription
-                        }
-                        onClick={() => openBillingPortalSession("update")}
-                      >
-                        Update
-                      </Menu.Item>
-                      {(subscription.cancelAtPeriodEnd ||
-                        (subscription.nextSubscriptionType &&
-                          subscription.nextSubscriptionType !==
-                            subscriptionType)) && (
+                    )}
+                    {subscriptionType !== null && subscription && (
+                      <>
                         <Menu.Item
-                          leftSection={<IconReload size={16} />}
+                          leftSection={<IconCreditCard size={16} />}
                           disabled={
                             !!creatingUpdateSubscriptionSession ||
                             !!mutatingSubscription
                           }
-                          onClick={() =>
-                            openModal(
-                              site,
-                              subscription.cancelAtPeriodEnd
-                                ? "renew"
-                                : "cancel_schedule"
-                            )
-                          }
+                          onClick={() => openBillingPortalSession()}
                         >
-                          {subscription.cancelAtPeriodEnd
-                            ? "Renew"
-                            : "Cancel Scheduled Update"}
+                          Manage Billing
                         </Menu.Item>
-                      )}
-                      {!subscription.cancelAtPeriodEnd && (
                         <Menu.Item
-                          leftSection={<IconCancel size={16} />}
+                          leftSection={<IconArrowsUp size={16} />}
                           disabled={
                             !!creatingUpdateSubscriptionSession ||
                             !!mutatingSubscription
                           }
-                          onClick={() => openModal(site, "cancel")}
+                          onClick={() => openBillingPortalSession("update")}
                         >
-                          Close
+                          Update
                         </Menu.Item>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+                        {(subscription.cancelAtPeriodEnd ||
+                          (subscription.nextSubscriptionType &&
+                            subscription.nextSubscriptionType !==
+                              subscriptionType)) && (
+                          <Menu.Item
+                            leftSection={<IconReload size={16} />}
+                            disabled={
+                              !!creatingUpdateSubscriptionSession ||
+                              !!mutatingSubscription
+                            }
+                            onClick={() =>
+                              openModal(
+                                site,
+                                subscription.cancelAtPeriodEnd
+                                  ? "renew"
+                                  : "cancel_schedule"
+                              )
+                            }
+                          >
+                            {subscription.cancelAtPeriodEnd
+                              ? "Renew"
+                              : "Cancel Scheduled Update"}
+                          </Menu.Item>
+                        )}
+                        {!subscription.cancelAtPeriodEnd && (
+                          <Menu.Item
+                            leftSection={<IconCancel size={16} />}
+                            disabled={
+                              !!creatingUpdateSubscriptionSession ||
+                              !!mutatingSubscription
+                            }
+                            onClick={() => openModal(site, "cancel")}
+                          >
+                            Cancel
+                          </Menu.Item>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
             </>
           ) : (
             <Menu.Item
@@ -693,6 +694,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
       </Menu>
     );
   }, [
+    accountId,
     authStatus,
     clearCache,
     creatingUpdateSubscriptionSession,
@@ -700,6 +702,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
     openBillingPortalSession,
     openModal,
     openPricingTable,
+    ownedAccountId,
     site,
     stack,
     subscription,

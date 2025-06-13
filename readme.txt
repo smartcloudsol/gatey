@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -163,6 +163,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.1.2 =
+Refined the Settings screen: subscription-management actions now appear only for users who have permission to manage the site’s active plan.
+
 = 1.1.1 =
 Added the JavaScript chunks that were accidentally left out of 1.1.0; all blocks and admin screens now load correctly.
 
@@ -191,6 +194,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+Update to hide subscription controls from non-authorised admins and keep the Settings menu clean.
 
 = 1.1.1 =
 This update only restores missing JS assets. Install it to ensure every Gatey block and the admin UI work as expected.
