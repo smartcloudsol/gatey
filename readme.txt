@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.2.2 =
+Added “**Auto (by language)**” to the Direction setting: the Authenticator now switches to RTL for Arabic or Hebrew and stays LTR for all other languages. You can still override this at any time by selecting **LTR** or **RTL** explicitly.
+
 = 1.2.1 =
 Added a Custom Translations URL field under Gatey › Settings › General. Point it to a JSON file to override any of the 22 built-in languages—or add completely new languages—without touching the code.
 
@@ -203,6 +206,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+Update to get automatic text-direction handling, with the option to force LTR or RTL manually whenever you need.
 
 = 1.2.1 =
 After updating, head to Settings › General to supply your own translation-JSON URL and tailor the Authenticator text in any language you need.

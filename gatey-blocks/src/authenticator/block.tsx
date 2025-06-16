@@ -37,7 +37,7 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type Screen, type Language } from "./index";
+import { type Screen, type Language, Direction } from "./index";
 import { EditorBlockProps } from "./edit";
 import { App, type PreviewType } from "./app";
 
@@ -103,6 +103,8 @@ export const Block: FunctionComponent<
   const [previewScreen, setPreviewScreen] = useState<Screen>(
     screen || "signIn"
   );
+  const [themeDirection, setThemeDirection] =
+    useState<Omit<Direction, "dependent">>();
 
   const editorRef = createRef<HTMLDivElement>();
 
@@ -240,6 +242,14 @@ export const Block: FunctionComponent<
     }
     setAttributes({ openButtonTitle: title });
   }, [screen, language, setAttributes]);
+
+  useEffect(() => {
+    let td = direction;
+    if (!direction || direction === "dependent") {
+      td = language === "ar" || language === "he" ? "rtl" : "ltr";
+    }
+    setThemeDirection(td as Omit<Direction, "dependent">);
+  }, [direction, language]);
 
   return (
     <div ref={editorRef}>
@@ -393,11 +403,6 @@ export const Block: FunctionComponent<
                 value === "ua"
               ) {
                 setAttributes({ language: value as Language });
-                if (value === "ar" || value === "he") {
-                  setAttributes({ direction: "rtl" });
-                } else {
-                  setAttributes({ direction: "ltr" });
-                }
               }
             }}
             help={__(
@@ -407,13 +412,17 @@ export const Block: FunctionComponent<
           />
           <RadioControl
             label={__("Direction", TEXT_DOMAIN)}
-            selected={direction || "ltr"}
+            selected={direction || "dependent"}
             options={[
+              {
+                label: __("Auto (by language)", TEXT_DOMAIN),
+                value: "dependent",
+              },
               { label: __("Left to Right", TEXT_DOMAIN), value: "ltr" },
               { label: __("Right to Left", TEXT_DOMAIN), value: "rtl" },
             ]}
             onChange={(value) => {
-              if (value === "ltr" || value === "rtl") {
+              if (value === "dependent" || value === "ltr" || value === "rtl") {
                 setAttributes({ direction: value });
               }
             }}
@@ -570,7 +579,7 @@ export const Block: FunctionComponent<
           <ThemeProvider
             theme={theme}
             colorMode={colorMode}
-            direction={direction}
+            direction={themeDirection as "ltr" | "rtl" | undefined}
           >
             <App
               id="gatey-block"

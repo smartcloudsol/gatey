@@ -38,7 +38,7 @@ export type Language =
   | "tr"
   | "ua";
 
-export type Direction = "ltr" | "rtl";
+export type Direction = "ltr" | "rtl" | "dependent";
 
 const icon = (
   <svg

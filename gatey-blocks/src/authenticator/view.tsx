@@ -52,7 +52,13 @@ try {
       const variation = el.getAttribute("data-variation") as Variation;
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
       const language = el.getAttribute("data-language") as Language;
-      const direction = el.getAttribute("data-direction") as "ltr" | "rtl";
+      let direction = el.getAttribute("data-direction") as
+        | "dependent"
+        | "ltr"
+        | "rtl";
+      if (direction === "dependent") {
+        direction = language === "ar" || language === "he" ? "rtl" : "ltr";
+      }
       const showOpenButton =
         el.getAttribute("data-show-open-button") === "true";
       let openButtonTitle = el.getAttribute("data-open-button-title") || "";
