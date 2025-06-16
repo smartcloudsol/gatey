@@ -20,10 +20,15 @@ import { seen, check, currencyDollar } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
 
 import { Amplify } from "aws-amplify";
+import { I18n } from "aws-amplify/utils";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { get } from "@aws-amplify/api";
 
-import { defaultDarkModeOverride, ThemeProvider } from "@aws-amplify/ui-react";
+import {
+  defaultDarkModeOverride,
+  ThemeProvider,
+  translations,
+} from "@aws-amplify/ui-react";
 
 import {
   AuthenticatorConfig,
@@ -32,7 +37,7 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type Screen } from "./index";
+import { type Screen, type Language } from "./index";
 import { EditorBlockProps } from "./edit";
 import { App, type PreviewType } from "./app";
 
@@ -63,6 +68,8 @@ const configUrl =
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
 
+I18n.putVocabularies(translations);
+
 export const Block: FunctionComponent<
   BlockEditProps<EditorBlockProps> & { children: ReactNode }
 > = (
@@ -70,175 +77,180 @@ export const Block: FunctionComponent<
     children: ReactNode;
   }
 ) => {
-    const { children, attributes, setAttributes } = props;
-    const {
-      screen,
-      variation,
-      colorMode,
-      showOpenButton,
-      openButtonTitle,
-      signingInMessage,
-      signingOutMessage,
-      redirectingMessage,
-    } = attributes;
+  const { children, attributes, setAttributes } = props;
+  const {
+    screen,
+    variation,
+    colorMode,
+    language,
+    direction,
+    showOpenButton,
+    openButtonTitle,
+    signingInMessage,
+    signingOutMessage,
+    redirectingMessage,
+  } = attributes;
 
-    const [amplifyConfigured, setAmplifyConfigured] = useState(false);
-    const [loadingSubscription, setLoadingSubscription] = useState(false);
-    const [siteSettings, setSiteSettings] =
-      useState<AuthenticatorConfig | null>();
-    const [siteSubscriptionType, setSiteSubscriptionType] = useState<
-      string | null
-    >();
-    const [fulfilledStore, setFulfilledStore] = useState<Store>();
-    const [previewMode, setPreviewMode] = useState<PreviewType>();
-    const [previewScreen, setPreviewScreen] = useState<Screen>(
-      screen || "signIn"
-    );
+  const [amplifyConfigured, setAmplifyConfigured] = useState(false);
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
+  const [siteSettings, setSiteSettings] =
+    useState<AuthenticatorConfig | null>();
+  const [siteSubscriptionType, setSiteSubscriptionType] = useState<
+    string | null
+  >();
+  const [fulfilledStore, setFulfilledStore] = useState<Store>();
+  const [previewMode, setPreviewMode] = useState<PreviewType>();
+  const [previewScreen, setPreviewScreen] = useState<Screen>(
+    screen || "signIn"
+  );
 
-    const editorRef = createRef<HTMLDivElement>();
+  const editorRef = createRef<HTMLDivElement>();
 
-    useEffect(() => {
-      if (amplifyConfigured && !loadingSubscription) {
-        setLoadingSubscription(true);
-        if (Gatey.siteSettings.accountId && Gatey.siteSettings.siteId) {
-          get({
-            apiName: "backend",
-            path:
-              "/account/" +
-              Gatey.siteSettings.accountId +
-              "/site/" +
-              Gatey.siteSettings.siteId +
-              (Gatey.siteSettings.siteKey ? "/settings" : ""),
-            options: {
-              headers: Gatey.siteSettings.siteKey
-                ? {
+  useEffect(() => {
+    if (amplifyConfigured && !loadingSubscription) {
+      setLoadingSubscription(true);
+      if (Gatey.siteSettings.accountId && Gatey.siteSettings.siteId) {
+        get({
+          apiName: "backend",
+          path:
+            "/account/" +
+            Gatey.siteSettings.accountId +
+            "/site/" +
+            Gatey.siteSettings.siteId +
+            (Gatey.siteSettings.siteKey ? "/settings" : ""),
+          options: {
+            headers: Gatey.siteSettings.siteKey
+              ? {
                   "X-Site-Key": Gatey.siteSettings.siteKey,
                 }
-                : {},
-            },
+              : {},
+          },
+        })
+          .response.then((response) => response.body.json())
+          .then((response) => {
+            const site = response as unknown as {
+              settings: AuthenticatorConfig;
+              subscriptionType: string;
+            };
+            setSiteSettings(site?.settings ?? null);
+            setSiteSubscriptionType(site?.subscriptionType ?? null);
           })
-            .response.then((response) => response.body.json())
-            .then((response) => {
-              const site = response as unknown as {
-                settings: AuthenticatorConfig;
-                subscriptionType: string;
-              };
-              setSiteSettings(site?.settings ?? null);
-              setSiteSubscriptionType(site?.subscriptionType ?? null);
-            })
-            .catch((err) => {
-              console.error("Error:", (err as Error).message);
-              setSiteSettings(null);
-              setSiteSubscriptionType(null);
-            });
-        } else {
-          setSiteSettings(null);
-          setSiteSubscriptionType(null);
-        }
+          .catch((err) => {
+            console.error("Error:", (err as Error).message);
+            setSiteSettings(null);
+            setSiteSubscriptionType(null);
+          });
+      } else {
+        setSiteSettings(null);
+        setSiteSubscriptionType(null);
       }
-    }, [amplifyConfigured, loadingSubscription]);
+    }
+  }, [amplifyConfigured, loadingSubscription]);
 
-    useEffect(() => {
-      if (amplifyConfigured && siteSettings !== undefined) {
-        Amplify.configure({});
-      }
-    }, [amplifyConfigured, siteSettings]);
+  useEffect(() => {
+    if (amplifyConfigured && siteSettings !== undefined) {
+      Amplify.configure({});
+    }
+  }, [amplifyConfigured, siteSettings]);
 
-    useEffect(() => {
-      store.then((fulfilledStore) => {
-        setFulfilledStore(fulfilledStore);
-      });
-      fetch(configUrl)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data?.userPoolId && data?.appClientPlugin && data?.identityPoolId) {
-            Amplify.configure(
-              {
-                Auth: {
-                  Cognito: {
-                    userPoolId: data.userPoolId,
-                    userPoolClientId: data.appClientPlugin,
-                    identityPoolId: data.identityPoolId,
-                  },
+  useEffect(() => {
+    store.then((fulfilledStore) => {
+      setFulfilledStore(fulfilledStore);
+    });
+    fetch(configUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data?.userPoolId && data?.appClientPlugin && data?.identityPoolId) {
+          Amplify.configure(
+            {
+              Auth: {
+                Cognito: {
+                  userPoolId: data.userPoolId,
+                  userPoolClientId: data.appClientPlugin,
+                  identityPoolId: data.identityPoolId,
                 },
-                API: {
-                  REST: {
-                    backend: {
-                      endpoint: apiUrl,
-                    },
-                    backendWithIam: {
-                      endpoint: apiUrl,
-                    },
+              },
+              API: {
+                REST: {
+                  backend: {
+                    endpoint: apiUrl,
+                  },
+                  backendWithIam: {
+                    endpoint: apiUrl,
                   },
                 },
               },
-              {
-                API: {
-                  REST: {
-                    headers: async (options: { apiName: string }) => {
-                      if (options.apiName === "backend") {
-                        try {
-                          const authSession = await fetchAuthSession();
-                          if (authSession?.tokens?.accessToken) {
-                            return {
-                              Authorization: `Bearer ${authSession.tokens.accessToken}`,
-                            };
-                          }
-                        } catch (err) {
-                          console.error(err);
+            },
+            {
+              API: {
+                REST: {
+                  headers: async (options: { apiName: string }) => {
+                    if (options.apiName === "backend") {
+                      try {
+                        const authSession = await fetchAuthSession();
+                        if (authSession?.tokens?.accessToken) {
+                          return {
+                            Authorization: `Bearer ${authSession.tokens.accessToken}`,
+                          };
                         }
+                      } catch (err) {
+                        console.error(err);
                       }
-                      return {};
-                    },
+                    }
+                    return {};
                   },
                 },
-              } as Record<string, unknown>
-            );
-            setAmplifyConfigured(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
+              },
+            } as Record<string, unknown>
+          );
           setAmplifyConfigured(true);
-        });
-    }, []);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setAmplifyConfigured(true);
+      });
+  }, []);
 
-    useEffect(() => {
-      let title;
-      switch (screen) {
-        default:
-        case "signIn":
-          title = "Sign In";
-          break;
-        case "signUp":
-          title = "Sign Up";
-          break;
-        case "forgotPassword":
-          title = "Forgot Password";
-          break;
-        case "changePassword":
-          title = "Change Password";
-          break;
-        case "editAccount":
-          title = "Edit Account";
-          break;
-        case "setupTotp":
-          title = "Setup TOTP";
-          break;
-      }
-      setAttributes({ openButtonTitle: title });
-    }, [screen, setAttributes]);
+  useEffect(() => {
+    if (language) {
+      I18n.setLanguage(language);
+    }
+    let title;
+    switch (screen) {
+      default:
+      case "signIn":
+        title = I18n.get("Sign In");
+        break;
+      case "signUp":
+        title = I18n.get("Sign Up");
+        break;
+      case "forgotPassword":
+        title = I18n.get("Forgot Password");
+        break;
+      case "changePassword":
+        title = I18n.get("Change Password");
+        break;
+      case "editAccount":
+        title = I18n.get("Edit Account");
+        break;
+      case "setupTotp":
+        title = I18n.get("Setup TOTP");
+        break;
+    }
+    setAttributes({ openButtonTitle: title });
+  }, [screen, language, setAttributes]);
 
-    return (
-      <div ref={editorRef}>
-        <InspectorControls>
-          <PanelBody title={__("Settings", TEXT_DOMAIN)}>
-            <ComboboxControl
-              label={__("Initial Screen", TEXT_DOMAIN)}
-              value={screen || ""}
-              options={
-                process.env.GATEY_PREMIUM
-                  ? [
+  return (
+    <div ref={editorRef}>
+      <InspectorControls>
+        <PanelBody title={__("Settings", TEXT_DOMAIN)}>
+          <ComboboxControl
+            label={__("Initial Screen", TEXT_DOMAIN)}
+            value={screen || "signIn"}
+            options={
+              process.env.GATEY_PREMIUM
+                ? [
                     {
                       label: __("Sign In (default)", TEXT_DOMAIN),
                       value: "signIn",
@@ -261,163 +273,251 @@ export const Block: FunctionComponent<
                       value: "setupTotp",
                     },
                   ]
-                  : [
+                : [
                     {
                       label: __("Sign In (default)", TEXT_DOMAIN),
                       value: "signIn",
                     },
                     { label: __("Sign Up", TEXT_DOMAIN), value: "signUp" },
                   ]
+            }
+            onChange={(value) => {
+              if (
+                value === "forgotPassword" ||
+                value === "signIn" ||
+                value === "signUp" ||
+                value === "setupTotp" ||
+                value === "editAccount" ||
+                value === "changePassword"
+              ) {
+                setAttributes({ screen: value });
+                setPreviewScreen(value as Screen);
               }
-              onChange={(value) => {
-                if (
-                  value === "forgotPassword" ||
-                  value === "signIn" ||
-                  value === "signUp" ||
-                  value === "setupTotp" ||
-                  value === "editAccount" ||
-                  value === "changePassword"
-                ) {
-                  setAttributes({ screen: value });
-                  setPreviewScreen(value as Screen);
+            }}
+            help={__(
+              "This will set the initial screen of the authenticator.",
+              TEXT_DOMAIN
+            )}
+          />
+          <RadioControl
+            label={__("Variation", TEXT_DOMAIN)}
+            selected={variation || "default"}
+            options={[
+              { label: __("Default", TEXT_DOMAIN), value: "default" },
+              { label: __("Modal", TEXT_DOMAIN), value: "modal" },
+            ]}
+            onChange={(value) => {
+              if (value === "default" || value === "modal") {
+                setAttributes({ variation: value });
+              }
+            }}
+            help={__(
+              "This will set the variation of the authenticator. 'Default' is a full page, 'Modal' is a modal dialog.",
+              TEXT_DOMAIN
+            )}
+          />
+          <RadioControl
+            label={__("Color Mode", TEXT_DOMAIN)}
+            selected={colorMode || "system"}
+            options={[
+              { label: __("Light", TEXT_DOMAIN), value: "light" },
+              { label: __("Dark", TEXT_DOMAIN), value: "dark" },
+              { label: __("System", TEXT_DOMAIN), value: "system" },
+            ]}
+            onChange={(value) => {
+              if (value === "system" || value === "light" || value === "dark") {
+                setAttributes({ colorMode: value });
+              }
+            }}
+            help={__(
+              "This will set the color mode for the authenticator. 'System' will use the user's system preference.",
+              TEXT_DOMAIN
+            )}
+          />
+          <ComboboxControl
+            label={__("Language", TEXT_DOMAIN)}
+            value={language || "en"}
+            options={[
+              {
+                label: __("Arabic", TEXT_DOMAIN),
+                value: "ar",
+              },
+              {
+                label: __("English (default)", TEXT_DOMAIN),
+                value: "en",
+              },
+              { label: __("Chinese", TEXT_DOMAIN), value: "zh" },
+              { label: __("Dutch", TEXT_DOMAIN), value: "nl" },
+              { label: __("French", TEXT_DOMAIN), value: "fr" },
+              { label: __("German", TEXT_DOMAIN), value: "de" },
+              { label: __("Hebrew", TEXT_DOMAIN), value: "he" },
+              { label: __("Hindi", TEXT_DOMAIN), value: "hi" },
+              { label: __("Hungarian", TEXT_DOMAIN), value: "hu" },
+              { label: __("Indonesian", TEXT_DOMAIN), value: "id" },
+              { label: __("Italian", TEXT_DOMAIN), value: "it" },
+              { label: __("Japanese", TEXT_DOMAIN), value: "ja" },
+              { label: __("Korean", TEXT_DOMAIN), value: "ko" },
+              { label: __("Norwegian", TEXT_DOMAIN), value: "nb" },
+              { label: __("Polish", TEXT_DOMAIN), value: "pl" },
+              { label: __("Portuguese", TEXT_DOMAIN), value: "pt" },
+              { label: __("Russian", TEXT_DOMAIN), value: "ru" },
+              { label: __("Spanish", TEXT_DOMAIN), value: "es" },
+              { label: __("Swedish", TEXT_DOMAIN), value: "sv" },
+              { label: __("Thai", TEXT_DOMAIN), value: "th" },
+              { label: __("Turkish", TEXT_DOMAIN), value: "tr" },
+              { label: __("Ukrainian", TEXT_DOMAIN), value: "ua" },
+            ]}
+            onChange={(value) => {
+              if (
+                value === "ar" ||
+                value === "en" ||
+                value === "zh" ||
+                value === "nl" ||
+                value === "fr" ||
+                value === "de" ||
+                value === "he" ||
+                value === "hi" ||
+                value === "hu" ||
+                value === "id" ||
+                value === "it" ||
+                value === "ja" ||
+                value === "ko" ||
+                value === "nb" ||
+                value === "pl" ||
+                value === "pt" ||
+                value === "ru" ||
+                value === "es" ||
+                value === "sv" ||
+                value === "th" ||
+                value === "tr" ||
+                value === "ua"
+              ) {
+                setAttributes({ language: value as Language });
+                if (value === "ar" || value === "he") {
+                  setAttributes({ direction: "rtl" });
+                } else {
+                  setAttributes({ direction: "ltr" });
                 }
-              }}
-              help={__(
-                "This will set the initial screen of the authenticator.",
-                TEXT_DOMAIN
-              )}
-            />
-            <RadioControl
-              label={__("Variation", TEXT_DOMAIN)}
-              selected={variation || "default"}
-              options={[
-                { label: __("Default", TEXT_DOMAIN), value: "default" },
-                { label: __("Modal", TEXT_DOMAIN), value: "modal" },
-              ]}
-              onChange={(value) => {
-                if (value === "default" || value === "modal") {
-                  setAttributes({ variation: value });
-                }
-              }}
-              help={__(
-                "This will set the variation of the authenticator. 'Default' is a full page, 'Modal' is a modal dialog.",
-                TEXT_DOMAIN
-              )}
-            />
-            <RadioControl
-              label={__("Color Mode", TEXT_DOMAIN)}
-              selected={colorMode || "system"}
-              options={[
-                { label: __("Light", TEXT_DOMAIN), value: "light" },
-                { label: __("Dark", TEXT_DOMAIN), value: "dark" },
-                { label: __("System", TEXT_DOMAIN), value: "system" },
-              ]}
-              onChange={(value) => {
-                if (value === "system" || value === "light" || value === "dark") {
-                  setAttributes({ colorMode: value });
-                }
-              }}
-              help={__(
-                "This will set the color mode for the authenticator. 'System' will use the user's system preference.",
-                TEXT_DOMAIN
-              )}
-            />
-            <CheckboxControl
-              label={__("Show Open Button", TEXT_DOMAIN)}
-              checked={showOpenButton || false}
-              onChange={(value) => {
-                setAttributes({ showOpenButton: value });
-              }}
-              help={__(
-                'Enable to hide the authenticator until the user clicks a button. The button\'s label defaults to the current screen’s title but can be overridden in the "Open Button Title" field.',
-                TEXT_DOMAIN
-              )}
-            />
-            <TextControl
-              label={__("Open Button Title", TEXT_DOMAIN)}
-              value={openButtonTitle || ""}
-              onChange={(value) => {
-                setAttributes({ openButtonTitle: value });
-              }}
-              help={__(
-                "Override the button label. Leave empty to use the current screen's default title.",
-                TEXT_DOMAIN
-              )}
-            />
-            <TextControl
-              label={__("Signing In Message", TEXT_DOMAIN)}
-              value={signingInMessage || ""}
-              onChange={(value) => {
-                setAttributes({ signingInMessage: value });
-              }}
-              help={__(
-                "This message will be displayed while the user is signing in.",
-                TEXT_DOMAIN
-              )}
-            />
-            <TextControl
-              label={__("Signing Out Message", TEXT_DOMAIN)}
-              value={signingOutMessage || ""}
-              onChange={(value) => {
-                setAttributes({ signingOutMessage: value });
-              }}
-              help={__(
-                "This message will be displayed while the user is signing out.",
-                TEXT_DOMAIN
-              )}
-            />
-            <TextControl
-              label={__("Redirecting Message", TEXT_DOMAIN)}
-              value={redirectingMessage || ""}
-              onChange={(value) => {
-                setAttributes({ redirectingMessage: value });
-              }}
-              help={__(
-                "This message will be displayed while the user is being redirected.",
-                TEXT_DOMAIN
-              )}
-            />
-          </PanelBody>
-        </InspectorControls>
-        <BlockControls>
-          <ToolbarGroup>
-            <ToolbarDropdownMenu
-              icon={currencyDollar}
-              label="Preview Mode"
-              controls={[
-                {
-                  icon: previewMode === "FREE" ? check : null,
-                  title:
-                    __("Free", TEXT_DOMAIN) +
-                    (!siteSubscriptionType ? currentPlan : ""),
-                  onClick: () => setPreviewMode("FREE"),
-                },
-                {
-                  icon: previewMode === "BASIC" ? check : null,
-                  title:
-                    __("Basic", TEXT_DOMAIN) +
-                    (siteSubscriptionType === "BASIC" ? currentPlan : ""),
-                  onClick: () => setPreviewMode("BASIC"),
-                },
-                {
-                  icon: previewMode === "PROFESSIONAL" ? check : null,
-                  title:
-                    __("Pro+", TEXT_DOMAIN) +
-                    (siteSubscriptionType && siteSubscriptionType !== "BASIC"
-                      ? currentPlan
-                      : ""),
-                  onClick: () => setPreviewMode("PROFESSIONAL"),
-                },
-              ]}
-            />
-          </ToolbarGroup>
-          <ToolbarGroup>
-            <ToolbarDropdownMenu
-              icon={seen}
-              label="Preview Screen"
-              controls={
-                process.env.GATEY_PREMIUM
-                  ? [
+              }
+            }}
+            help={__(
+              "This will set the language of the authenticator.",
+              TEXT_DOMAIN
+            )}
+          />
+          <RadioControl
+            label={__("Direction", TEXT_DOMAIN)}
+            selected={direction || "ltr"}
+            options={[
+              { label: __("Left to Right", TEXT_DOMAIN), value: "ltr" },
+              { label: __("Right to Left", TEXT_DOMAIN), value: "rtl" },
+            ]}
+            onChange={(value) => {
+              if (value === "ltr" || value === "rtl") {
+                setAttributes({ direction: value });
+              }
+            }}
+            help={__(
+              "This will set the direction of the authenticator. 'Left to Right' is the default, 'Right to Left' is for RTL languages.",
+              TEXT_DOMAIN
+            )}
+          />
+          <CheckboxControl
+            label={__("Show Open Button", TEXT_DOMAIN)}
+            checked={showOpenButton || false}
+            onChange={(value) => {
+              setAttributes({ showOpenButton: value });
+            }}
+            help={__(
+              'Enable to hide the authenticator until the user clicks a button. The button\'s label defaults to the current screen’s title but can be overridden in the "Open Button Title" field.',
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Open Button Title", TEXT_DOMAIN)}
+            value={openButtonTitle || ""}
+            onChange={(value) => {
+              setAttributes({ openButtonTitle: value });
+            }}
+            help={__(
+              "Override the button label. Leave empty to use the current screen's default title.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Signing In Message", TEXT_DOMAIN)}
+            value={signingInMessage || ""}
+            onChange={(value) => {
+              setAttributes({ signingInMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is signing in.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Signing Out Message", TEXT_DOMAIN)}
+            value={signingOutMessage || ""}
+            onChange={(value) => {
+              setAttributes({ signingOutMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is signing out.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("Redirecting Message", TEXT_DOMAIN)}
+            value={redirectingMessage || ""}
+            onChange={(value) => {
+              setAttributes({ redirectingMessage: value });
+            }}
+            help={__(
+              "This message will be displayed while the user is being redirected.",
+              TEXT_DOMAIN
+            )}
+          />
+        </PanelBody>
+      </InspectorControls>
+      <BlockControls>
+        <ToolbarGroup>
+          <ToolbarDropdownMenu
+            icon={currencyDollar}
+            label="Preview Mode"
+            controls={[
+              {
+                icon: previewMode === "FREE" ? check : null,
+                title:
+                  __("Free", TEXT_DOMAIN) +
+                  (!siteSubscriptionType ? currentPlan : ""),
+                onClick: () => setPreviewMode("FREE"),
+              },
+              {
+                icon: previewMode === "BASIC" ? check : null,
+                title:
+                  __("Basic", TEXT_DOMAIN) +
+                  (siteSubscriptionType === "BASIC" ? currentPlan : ""),
+                onClick: () => setPreviewMode("BASIC"),
+              },
+              {
+                icon: previewMode === "PROFESSIONAL" ? check : null,
+                title:
+                  __("Pro+", TEXT_DOMAIN) +
+                  (siteSubscriptionType && siteSubscriptionType !== "BASIC"
+                    ? currentPlan
+                    : ""),
+                onClick: () => setPreviewMode("PROFESSIONAL"),
+              },
+            ]}
+          />
+        </ToolbarGroup>
+        <ToolbarGroup>
+          <ToolbarDropdownMenu
+            icon={seen}
+            label="Preview Screen"
+            controls={
+              process.env.GATEY_PREMIUM
+                ? [
                     {
                       icon: previewScreen === "signIn" ? check : null,
                       title: __("Sign In (default)", TEXT_DOMAIN),
@@ -449,7 +549,7 @@ export const Block: FunctionComponent<
                       onClick: () => setPreviewScreen("setupTotp"),
                     },
                   ]
-                  : [
+                : [
                     {
                       icon: previewScreen === "signIn" ? check : null,
                       title: __("Sign In (default)", TEXT_DOMAIN),
@@ -461,39 +561,44 @@ export const Block: FunctionComponent<
                       onClick: () => setPreviewScreen("signUp"),
                     },
                   ]
-              }
-            />
-          </ToolbarGroup>
-        </BlockControls>
-        <>
-          {fulfilledStore && siteSettings !== undefined ? (
-            <ThemeProvider theme={theme} colorMode={colorMode}>
-              <App
-                id="gatey-block"
-                screen={previewScreen}
-                variation={variation}
-                showOpenButton={showOpenButton}
-                openButtonTitle={openButtonTitle}
-                signingInMessage={signingInMessage}
-                signingOutMessage={signingOutMessage}
-                redirectingMessage={redirectingMessage}
-                store={fulfilledStore}
-                nonce={Gatey.nonce}
-                editorRef={editorRef}
-                isPreview={true}
-                previewMode={previewMode}
-                setPreviewMode={setPreviewMode}
-                siteSettings={siteSettings}
-                siteSubscriptionType={siteSubscriptionType}
-              >
-                {children}
-              </App>
-            </ThemeProvider>
-          ) : (
-            <>Loading configuration...</>
-          )}
-          {children}
-        </>
-      </div>
-    );
-  };
+            }
+          />
+        </ToolbarGroup>
+      </BlockControls>
+      <>
+        {fulfilledStore && siteSettings !== undefined ? (
+          <ThemeProvider
+            theme={theme}
+            colorMode={colorMode}
+            direction={direction}
+          >
+            <App
+              id="gatey-block"
+              screen={previewScreen}
+              variation={variation}
+              language={language}
+              showOpenButton={showOpenButton}
+              openButtonTitle={openButtonTitle}
+              signingInMessage={signingInMessage}
+              signingOutMessage={signingOutMessage}
+              redirectingMessage={redirectingMessage}
+              store={fulfilledStore}
+              nonce={Gatey.nonce}
+              editorRef={editorRef}
+              isPreview={true}
+              previewMode={previewMode}
+              setPreviewMode={setPreviewMode}
+              siteSettings={siteSettings}
+              siteSubscriptionType={siteSubscriptionType}
+            >
+              {children}
+            </App>
+          </ThemeProvider>
+        ) : (
+          <>{__("Loading configuration...", TEXT_DOMAIN)}</>
+        )}
+        {children}
+      </>
+    </div>
+  );
+};

@@ -182,6 +182,24 @@ const initAmplify = async (
   configureAmplify(resourceConfig, libraryOptions);
 };
 
+const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
+  let translations: CustomTranslations | null = null;
+  if (Gatey.settings.customTranslationsUrl) {
+    translations = await fetch(
+      Gatey.settings.customTranslationsUrl +
+        (Gatey.settings.customTranslationsUrl.includes("?") ? "&" : "?") +
+        "t=" +
+        Gatey.siteSettings.lastUpdate
+    )
+      .then((response) => (response.ok ? response.text() : null))
+      .then((response) =>
+        response ? (JSON.parse(response) as CustomTranslations) : null
+      )
+      .catch(() => null);
+  }
+  return translations ?? null;
+};
+
 const getDefaultState = async (): Promise<State> => {
   const configLoader = await import(
     __GATEY_PREMIUM__ ? "./paid-features/config" : "./free-features/config"
@@ -196,12 +214,15 @@ const getDefaultState = async (): Promise<State> => {
       ? config.apiConfigurations.secondary
       : config?.apiConfigurations?.default;
   const account = await getAccountFromStorage(apiConfiguration);
+  const customTranslations = await getCustomTranslations();
   return {
     config: config,
     amplifyConfig: {} as ResourcesConfig,
     account: account,
     signedIn: !!account?.username && !account.loaded,
     nextUrl: undefined,
+    language: undefined,
+    customTranslations: customTranslations,
     reloadAuthSession: 0,
     reloadUserAttributes: 0,
     reloadMFAPreferences: 0,
@@ -243,6 +264,13 @@ const actions = {
     };
   },
 
+  setLanguage(language: string | undefined | null) {
+    return {
+      type: "SET_LANGUAGE",
+      language,
+    };
+  },
+
   reloadAuthSession() {
     return {
       type: "RELOAD_AUTH_SESSION",
@@ -277,6 +305,12 @@ const selectors = {
   },
   getConfig(state: State) {
     return state.config;
+  },
+  getCustomTranslations(state: State) {
+    return state.customTranslations;
+  },
+  getLanguage(state: State) {
+    return state.language;
   },
   getState(state: State) {
     return state;
@@ -338,12 +372,18 @@ export interface AuthenticatorConfig {
   secondaryDomain?: string;
 }
 
+export interface CustomTranslations {
+  [key: string]: Record<string, string>;
+}
+
 export interface State {
   amplifyConfig: ResourcesConfig;
   account: Account;
   signedIn: boolean;
   nextUrl: string | undefined | null;
   config: AuthenticatorConfig | null;
+  language: string | undefined | null;
+  customTranslations: CustomTranslations | null;
   reloadAuthSession: number;
   reloadUserAttributes: number;
   reloadMFAPreferences: number;
@@ -416,6 +456,12 @@ export const createStore = async (): Promise<Store> => {
           return {
             ...state,
             nextUrl: action.nextUrl,
+          };
+
+        case "SET_LANGUAGE":
+          return {
+            ...state,
+            language: action.language,
           };
       }
 

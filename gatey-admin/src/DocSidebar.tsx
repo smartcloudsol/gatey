@@ -189,8 +189,46 @@ const pages = {
         Ensure your Cognito User Pool is configured to support the selected
         mechanisms under "Sign-in options".
       </Text>
-      <Title order={3} mt="md">
-        reCAPTCHA v3 Integration
+
+      <Title order={3} mt="md" id="custom-translations-url">
+        <span className="highlightable">Custom Translations</span>
+      </Title>
+      <Text>
+        Specify the URL of a JSON file that provides your custom translations
+        for the authentication flow.
+      </Text>
+      <Text>
+        The file can live on your own server or any public location, as long as
+        it returns valid JSON in the expected format. Include{" "}
+        <strong>only</strong> those locales and text keys you actually want to
+        override or add (e.g.&nbsp;labels for <em>Custom Blocks</em> that have
+        no default translation). For details, see&nbsp;
+        <Anchor
+          href="https://ui.docs.amplify.aws/react/connected-components/authenticator/customization#internationalization-i18n"
+          target="_blank"
+        >
+          AWS Amplify Authenticator Internationalization (i18n) documentation
+        </Anchor>
+        .
+      </Text>
+      <Text>Example of a minimal JSON file:</Text>
+      <Text
+        className={classes["highlighted-doc-item"]}
+        style={{ whiteSpace: "pre-wrap" }}
+      >
+        {`{
+  "fr": {
+    "Sign In": "Se connecter"
+  },
+  "es": {
+    "custom:company": "Empresa",
+    "custom:favoriteColor": "Color favorito"
+  }
+}`}
+      </Text>
+
+      <Title order={3} mt="md" id="recaptcha-v3-public-key">
+        <span className="highlightable">Recaptcha V3 Public Key</span>
       </Title>
       <Text>
         <Anchor href="https://www.google.com/recaptcha/about/" target="_blank">

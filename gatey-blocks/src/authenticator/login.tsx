@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
+import { I18n } from "aws-amplify/utils";
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
-import { type AuthContext } from "@aws-amplify/ui";
+import { translate, type AuthContext } from "@aws-amplify/ui";
 
 import {
   Authenticator,
@@ -12,6 +13,7 @@ import {
   Heading,
   AccountSettings,
   useAuthenticator,
+  translations,
 } from "@aws-amplify/ui-react";
 
 import "@aws-amplify/ui-react/styles.css";
@@ -23,6 +25,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import {
   type Account,
   type AuthenticatorConfig,
+  type CustomTranslations,
   type Store,
 } from "@smart-cloud/gatey-core";
 
@@ -33,6 +36,8 @@ const parseCustomBlocks = import(
     ? "./paid-features/custom-blocks"
     : "./free-features/custom-blocks"
 );
+
+I18n.putVocabularies(translations);
 
 declare global {
   interface Window {
@@ -90,6 +95,7 @@ export const Login = (
     store,
     screen,
     variation,
+    language,
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
@@ -105,6 +111,7 @@ export const Login = (
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<string>();
   const [authenticatorConfig, setAuthenticatorConfig] = useState<
     AuthenticatorConfig | null | undefined
   >();
@@ -131,6 +138,24 @@ export const Login = (
     []
   );
 
+  const customTranslations: CustomTranslations | undefined | null = useSelect(
+    (
+      select: (store: Store) => {
+        getCustomTranslations: () => CustomTranslations | undefined | null;
+      }
+    ) => select(store).getCustomTranslations(),
+    []
+  );
+
+  const languageInStore: string | undefined | null = useSelect(
+    (
+      select: (store: Store) => {
+        getLanguage: () => string | undefined | null;
+      }
+    ) => select(store).getLanguage(),
+    []
+  );
+
   const [wasSignedIn] = useState<boolean>(signedIn && !account?.loaded);
 
   const {
@@ -148,6 +173,7 @@ export const Login = (
   const [params] = useSearchParams();
 
   const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
+  const [languageOverride] = useState<string>(params.get("language") ?? "");
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
   const {
     authStatus,
@@ -254,7 +280,7 @@ export const Login = (
     } else {
       setComponents({});
     }
-  }, [children, editorRef, config]);
+  }, [children, editorRef, config, currentLanguage]);
 
   useEffect(() => {
     if (screenChanged) {
@@ -465,6 +491,20 @@ export const Login = (
     }
   }, [route]);
 
+  useEffect(() => {
+    I18n.putVocabularies(customTranslations || {});
+    if (languageOverride) {
+      I18n.setLanguage(languageOverride);
+      setCurrentLanguage(languageOverride);
+    } else if (languageInStore) {
+      I18n.setLanguage(languageInStore);
+      setCurrentLanguage(languageInStore);
+    } else if (language) {
+      I18n.setLanguage(language);
+      setCurrentLanguage(language);
+    }
+  }, [language, languageOverride, languageInStore, customTranslations]);
+
   return (
     <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
       {visible && (
@@ -524,11 +564,12 @@ export const Login = (
                               textAlign: "center",
                             }}
                           >
-                            {redirecting && (
-                              <Heading level={4}>{redirectingMessage}</Heading>
-                            )}
-                            {!redirecting && (
-                              <Heading level={4}>{message}</Heading>
+                            {redirecting ? (
+                              <Heading level={4}>
+                                {translate(redirectingMessage!)}
+                              </Heading>
+                            ) : (
+                              <Heading level={4}>{translate(message!)}</Heading>
                             )}
                           </View>
                         </View>

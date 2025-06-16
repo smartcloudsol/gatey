@@ -418,6 +418,9 @@ export const Settings: FunctionComponent<SettingsProps> = (
       ) {
         setResolvedConfig(null);
         setSite(null);
+        if (!siteSettings.accountId) {
+          setSubscriptionType(null);
+        }
         setAccountId(siteSettings.accountId);
         setSiteId(siteSettings.siteId);
         setSiteKey(siteSettings.siteKey);
@@ -506,7 +509,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Label>Site</Menu.Label>
-          {site ? (
+          {accountId && siteId && (site || isSiteError) ? (
             <>
               <Menu.Item
                 leftSection={<IconLink size={16} />}
@@ -619,66 +622,69 @@ export const Settings: FunctionComponent<SettingsProps> = (
                         Plans &amp; Pricing
                       </Menu.Item>
                     )}
-                    {subscriptionType !== null && subscription && (
-                      <>
-                        <Menu.Item
-                          leftSection={<IconCreditCard size={16} />}
-                          disabled={
-                            !!creatingUpdateSubscriptionSession ||
-                            !!mutatingSubscription
-                          }
-                          onClick={() => openBillingPortalSession()}
-                        >
-                          Manage Billing
-                        </Menu.Item>
-                        <Menu.Item
-                          leftSection={<IconArrowsUp size={16} />}
-                          disabled={
-                            !!creatingUpdateSubscriptionSession ||
-                            !!mutatingSubscription
-                          }
-                          onClick={() => openBillingPortalSession("update")}
-                        >
-                          Update
-                        </Menu.Item>
-                        {(subscription.cancelAtPeriodEnd ||
-                          (subscription.nextSubscriptionType &&
-                            subscription.nextSubscriptionType !==
-                              subscriptionType)) && (
+                    {site &&
+                      subscriptionType !== null &&
+                      subscription &&
+                      !isAccountError && (
+                        <>
                           <Menu.Item
-                            leftSection={<IconReload size={16} />}
+                            leftSection={<IconCreditCard size={16} />}
                             disabled={
                               !!creatingUpdateSubscriptionSession ||
                               !!mutatingSubscription
                             }
-                            onClick={() =>
-                              openModal(
-                                site,
-                                subscription.cancelAtPeriodEnd
-                                  ? "renew"
-                                  : "cancel_schedule"
-                              )
-                            }
+                            onClick={() => openBillingPortalSession()}
                           >
-                            {subscription.cancelAtPeriodEnd
-                              ? "Renew"
-                              : "Cancel Scheduled Update"}
+                            Manage Billing
                           </Menu.Item>
-                        )}
-                        {!subscription.cancelAtPeriodEnd && (
                           <Menu.Item
-                            leftSection={<IconCancel size={16} />}
+                            leftSection={<IconArrowsUp size={16} />}
                             disabled={
                               !!creatingUpdateSubscriptionSession ||
                               !!mutatingSubscription
                             }
-                            onClick={() => openModal(site, "cancel")}
+                            onClick={() => openBillingPortalSession("update")}
                           >
-                            Cancel
+                            Update
                           </Menu.Item>
-                        )}
-                      </>
-                    )}
+                          {(subscription.cancelAtPeriodEnd ||
+                            (subscription.nextSubscriptionType &&
+                              subscription.nextSubscriptionType !==
+                                subscriptionType)) && (
+                            <Menu.Item
+                              leftSection={<IconReload size={16} />}
+                              disabled={
+                                !!creatingUpdateSubscriptionSession ||
+                                !!mutatingSubscription
+                              }
+                              onClick={() =>
+                                openModal(
+                                  site,
+                                  subscription.cancelAtPeriodEnd
+                                    ? "renew"
+                                    : "cancel_schedule"
+                                )
+                              }
+                            >
+                              {subscription.cancelAtPeriodEnd
+                                ? "Renew"
+                                : "Cancel Scheduled Update"}
+                            </Menu.Item>
+                          )}
+                          {!subscription.cancelAtPeriodEnd && (
+                            <Menu.Item
+                              leftSection={<IconCancel size={16} />}
+                              disabled={
+                                !!creatingUpdateSubscriptionSession ||
+                                !!mutatingSubscription
+                              }
+                              onClick={() => openModal(site, "cancel")}
+                            >
+                              Cancel
+                            </Menu.Item>
+                          )}
+                        </>
+                      )}
                   </>
                 )}
             </>
@@ -698,12 +704,15 @@ export const Settings: FunctionComponent<SettingsProps> = (
     authStatus,
     clearCache,
     creatingUpdateSubscriptionSession,
+    isAccountError,
+    isSiteError,
     mutatingSubscription,
     openBillingPortalSession,
     openModal,
     openPricingTable,
     ownedAccountId,
     site,
+    siteId,
     stack,
     subscription,
     subscriptionType,
@@ -742,9 +751,12 @@ export const Settings: FunctionComponent<SettingsProps> = (
         secondaryDomain: site.prodDomain,
       });
     } else {
-      setSubscriptionType(config?.subscriptionType ?? null);
-      if ((!accountId && !siteId) || isAccountError || isSiteError) {
+      if (accountId && siteId) {
+        setSubscriptionType(config?.subscriptionType ?? null);
+      } else {
         setSubscriptionType(null);
+      }
+      if ((!accountId && !siteId) || isAccountError || isSiteError) {
         setResolvedConfig(null);
         setSubscription(null);
       }
@@ -825,7 +837,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
                 "custom:acknowledgement": {
                   isRequired: true,
                   label:
-                    'By creating an account, you agree to our <a href="https://wpsuite.io/privacy-policy" target="_blank" class="dark-link">Privacy Policy</a> and <a href="https://wpsuite.io/terms-of-use" target="_blank" class="dark-link">Terms of Use</a>, including the binding arbitration clause and class action waiver in Section 9.2.',
+                    'By creating an account, you agree to our <a href="https://wpsuite.io/privacy-policy" target="_blank" rel="noopener noreferrer" class="dark-link">Privacy Policy</a> and <a href="https://wpsuite.io/terms-of-use" target="_blank" rel="noopener noreferrer" class="dark-link">Terms of Use</a>, including the binding arbitration clause and class action waiver in Section 9.2.',
                   type: "checkbox",
                 },
               },
@@ -1038,13 +1050,15 @@ export const Settings: FunctionComponent<SettingsProps> = (
                 w="fit-content"
                 visible={site === undefined && isSitePending}
               >
-                {site ? (
+                {accountId && siteId && !isAccountError && !isSiteError ? (
                   <Badge color="green" miw={100}>
                     Connected
                   </Badge>
                 ) : (
                   <Badge color="grey" miw={120}>
-                    Not connected
+                    {accountId && siteId && !site
+                      ? "Connected (unreachable)"
+                      : "Not connected"}
                   </Badge>
                 )}
               </Skeleton>
@@ -1062,13 +1076,15 @@ export const Settings: FunctionComponent<SettingsProps> = (
                   w="fit-content"
                   visible={site === undefined && isSitePending}
                 >
-                  {site ? (
+                  {accountId && siteId && !isAccountError && !isSiteError ? (
                     <Badge color="green" miw={100}>
                       Connected
                     </Badge>
                   ) : (
                     <Badge color="grey" miw={120}>
-                      Not connected
+                      {accountId && siteId && !site
+                        ? "Connected (unreachable)"
+                        : "Not connected"}
                     </Badge>
                   )}
                 </Skeleton>
@@ -1088,7 +1104,47 @@ export const Settings: FunctionComponent<SettingsProps> = (
                       <>
                         <Stack gap={2} style={{ flexGrow: 1 }}>
                           <Text size="sm" fw={500} component="div">
-                            Site: {site.name} (id: {site.siteId})
+                            Site: {site.name} (id: {site.siteId}, site-key:{" "}
+                            <a
+                              href="#"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                textDecoration: "none",
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                let component = jQuery(
+                                  "[gatey-site-key=hidden]"
+                                );
+                                if (component.length > 0) {
+                                  component.text(site.siteKey!);
+                                  component.attr("gatey-site-key", "revealed");
+                                } else {
+                                  component = jQuery(
+                                    "[gatey-site-key=revealed]"
+                                  );
+                                  component.trigger("select");
+                                  navigator.clipboard.writeText(
+                                    site.siteKey ?? ""
+                                  );
+                                  notifications.show({
+                                    title: __("Site key copied", TEXT_DOMAIN),
+                                    message: __(
+                                      "Site key copied successfully.",
+                                      TEXT_DOMAIN
+                                    ),
+                                    color: "green",
+                                    icon: <IconInfoCircle />,
+                                    className: classes["notification"],
+                                  });
+                                }
+                                return false;
+                              }}
+                            >
+                              <em gatey-site-key="hidden">reveal</em>
+                            </a>
+                            )
                           </Text>
                           {site.account && (
                             <>
@@ -1098,6 +1154,8 @@ export const Settings: FunctionComponent<SettingsProps> = (
                                 <a
                                   className="dark-link"
                                   href={`mailto:${site.account.ownerEmail}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                 >
                                   {site.account.ownerEmail}
                                 </a>
@@ -1545,7 +1603,13 @@ function SiteSelector({
     setCurrentPage(sites?.slice(start, start + PAGE_SIZE));
   }, [sites, activePage]);
 
-  if (accountsPending || isFetchingNextPage || sitesPending || sitesReloading) {
+  if (
+    accountsPending ||
+    isFetchingNextPage ||
+    (!!selectedAccountId &&
+      authStatus === "authenticated" &&
+      (sitesPending || sitesReloading))
+  ) {
     return <SiteSelectorSkeleton />;
   }
 

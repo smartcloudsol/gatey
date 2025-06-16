@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.1.2
+ * Version:           1.2.1
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.1.2';
+const VERSION = '1.2.1';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -240,6 +240,8 @@ final class Gatey_Plugin
                 'screen' => false,
                 'variation' => false,
                 'colormode' => false,
+                'language' => false,
+                'direction' => false,
                 'showopen' => false,
                 'open' => false,
                 'signingin' => false,
@@ -252,6 +254,8 @@ final class Gatey_Plugin
         $screen = $a['screen'];
         $variation = $a['variation'];
         $colorMode = $a['colormode'];
+        $language = $a['language'];
+        $direction = $a['direction'];
         $showOpenButton = $a['showopen'];
         $openButtonTitle = $a['open'];
         $signingInMessage = $a['signingin'];
@@ -293,6 +297,12 @@ final class Gatey_Plugin
                 }
                 if ($colorMode) {
                     $content = preg_replace('/data-color-mode="(.*)"/', 'data-color-mode="' . $colorMode . '"', $content);
+                }
+                if ($language) {
+                    $content = preg_replace('/data-language="(.*)"/', 'data-language="' . $language . '"', $content);
+                }
+                if ($direction) {
+                    $content = preg_replace('/data-direction="(.*)"/', 'data-direction="' . $direction . '"', $content);
                 }
                 if ($showOpenButton) {
                     $content = preg_replace('/data-show-open-button="(.*)"/', 'data-show-open-button="' . ($showOpenButton ? 'true' : 'false') . '"', $content);

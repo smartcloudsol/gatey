@@ -91,6 +91,7 @@ class Settings
         public string $redirectSignIn = "",
         public string $redirectSignOut = "",
         public string $reCaptchaPublicKey = "",
+        public string $customTranslationsUrl = "",
     ) {
     }
 }

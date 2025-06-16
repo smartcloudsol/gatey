@@ -5,13 +5,20 @@ import { useBlockProps, useInnerBlocksProps } from "@wordpress/block-editor";
 
 import { type ColorMode } from "@aws-amplify/ui-react";
 
-import { type Screen, type Variation } from "./index";
+import {
+  type Screen,
+  type Variation,
+  type Language,
+  type Direction,
+} from "./index";
 import { Block } from "./block";
 
 export interface EditorBlockProps {
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
+  language?: Language;
+  direction?: Direction;
   showOpenButton?: boolean;
   openButtonTitle?: string;
   signingInMessage?: string;

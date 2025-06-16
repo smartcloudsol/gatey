@@ -16,7 +16,12 @@ import { Authenticator, Button } from "@aws-amplify/ui-react";
 import { useSelect } from "@wordpress/data";
 
 import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
-import { type Screen, type Variation } from "./index";
+import {
+  type Screen,
+  type Variation,
+  type Language,
+  type Direction,
+} from "./index";
 import { Login } from "./login";
 
 import "./app.module.css";
@@ -27,6 +32,8 @@ export interface AppProps extends PropsWithChildren {
   id: string;
   screen?: Screen;
   variation?: Variation;
+  language?: Language;
+  direction?: Direction;
   showOpenButton?: boolean;
   openButtonTitle?: string;
   signingInMessage?: string;

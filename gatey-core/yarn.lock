@@ -123,8 +123,8 @@
 
 "@aws-amplify/ui@^6.10.3":
   version "6.10.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#78f650cc9d3c4b05eaba8e17bd01f1d9bd5a6a9d"
-  integrity sha1-ePZQzJ08SwXquo4XvQHx2b1aap0=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#00444baebc7948a187092882c9797d379a5ea7b5"
+  integrity sha1-AERLrrx5SKGHCSiCyXl9N5pep7U=
   dependencies:
     csstype "^3.1.1"
     lodash "4.17.21"

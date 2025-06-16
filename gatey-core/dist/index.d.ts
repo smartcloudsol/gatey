@@ -24,6 +24,10 @@ declare const actions: {
         type: string;
         nextUrl: string | null | undefined;
     };
+    setLanguage(language: string | undefined | null): {
+        type: string;
+        language: string | null | undefined;
+    };
     reloadAuthSession(): {
         type: string;
     };
@@ -40,6 +44,8 @@ declare const selectors: {
     getNextUrl(state: State): string | null | undefined;
     isSignedIn(state: State): boolean;
     getConfig(state: State): AuthenticatorConfig | null;
+    getCustomTranslations(state: State): CustomTranslations | null;
+    getLanguage(state: State): string | null | undefined;
     getState(state: State): State;
 };
 interface ApiOptions {
@@ -82,12 +88,17 @@ interface AuthenticatorConfig {
     subscriptionType?: SubscriptionType;
     secondaryDomain?: string;
 }
+interface CustomTranslations {
+    [key: string]: Record<string, string>;
+}
 interface State {
     amplifyConfig: ResourcesConfig;
     account: Account;
     signedIn: boolean;
     nextUrl: string | undefined | null;
     config: AuthenticatorConfig | null;
+    language: string | undefined | null;
+    customTranslations: CustomTranslations | null;
     reloadAuthSession: number;
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
@@ -145,6 +156,7 @@ interface Settings {
     redirectSignIn?: string;
     redirectSignOut?: string;
     reCaptchaPublicKey?: string;
+    customTranslationsUrl?: string;
 }
 interface SiteSettings {
     accountId?: string;
@@ -154,9 +166,11 @@ interface SiteSettings {
     siteKey?: string;
 }
 declare const signOut: () => void;
+declare const setLanguage: (language?: string) => void;
 interface Cognito {
     readonly store: Promise<Store>;
     readonly observeStore: typeof observeStore;
+    readonly setLanguage: typeof setLanguage;
     readonly getUsername: typeof getUsername;
     readonly getUserAttributes: typeof getUserAttributes;
     readonly getMfaPreferences: typeof getMfaPreferences;
@@ -187,4 +201,4 @@ interface Gatey {
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

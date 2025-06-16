@@ -34,7 +34,7 @@ import "jquery";
 
 import { store } from "@smart-cloud/gatey-core";
 
-import { type Screen, type Variation } from "./index";
+import { type Screen, type Variation, type Language } from "./index";
 import { App } from "./app";
 
 const theme = {
@@ -51,6 +51,8 @@ try {
       const screen = el.getAttribute("data-screen") as Screen;
       const variation = el.getAttribute("data-variation") as Variation;
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
+      const language = el.getAttribute("data-language") as Language;
+      const direction = el.getAttribute("data-direction") as "ltr" | "rtl";
       const showOpenButton =
         el.getAttribute("data-show-open-button") === "true";
       let openButtonTitle = el.getAttribute("data-open-button-title") || "";
@@ -90,7 +92,11 @@ try {
       }
       root.render(
         <StrictMode>
-          <ThemeProvider theme={theme} colorMode={colorMode}>
+          <ThemeProvider
+            theme={theme}
+            colorMode={colorMode}
+            direction={direction}
+          >
             {Gatey.settings?.reCaptchaPublicKey ? (
               <GoogleReCaptchaProvider
                 reCaptchaKey={Gatey.settings?.reCaptchaPublicKey}
@@ -103,6 +109,7 @@ try {
                   store={fulfilledStore}
                   screen={screen}
                   variation={variation}
+                  language={language}
                   showOpenButton={showOpenButton}
                   openButtonTitle={openButtonTitle}
                   signingInMessage={signingInMessage}
@@ -120,6 +127,7 @@ try {
                 store={fulfilledStore}
                 screen={screen}
                 variation={variation}
+                language={language}
                 showOpenButton={showOpenButton}
                 openButtonTitle={openButtonTitle}
                 signingInMessage={signingInMessage}

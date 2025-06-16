@@ -152,8 +152,8 @@
 
 "@aws-amplify/ui-react-core@3.4.3":
   version "3.4.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#0907d0c5c0936ef3f69f6107f2b77217f76c9ffd"
-  integrity sha1-CQfQxcCTbvP2n2EH8rdyF/dsn/0=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#6035405bde6f043b212d5a3d3de08c9fa4f8e06a"
+  integrity sha1-YDVAW95vBDshLVo9PeCMn6T44Go=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@xstate/react" "^3.2.2"
@@ -163,8 +163,8 @@
 
 "@aws-amplify/ui-react@^6.11.2":
   version "6.11.2"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#bb611e7b44f8967d4cf389f4e3eca8c23e18350a"
-  integrity sha1-u2Eee0T4ln1M84n04+yowj4YNQo=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#074d3df59cd20d225f8d6b54d0f317394254f93f"
+  integrity sha1-B0099ZzSDSJfjWtU0PMXOUJU+T8=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@aws-amplify/ui-react-core" "3.4.3"
@@ -178,8 +178,8 @@
 
 "@aws-amplify/ui@6.10.3", "@aws-amplify/ui@^6.10.3":
   version "6.10.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#78f650cc9d3c4b05eaba8e17bd01f1d9bd5a6a9d"
-  integrity sha1-ePZQzJ08SwXquo4XvQHx2b1aap0=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#00444baebc7948a187092882c9797d379a5ea7b5"
+  integrity sha1-AERLrrx5SKGHCSiCyXl9N5pep7U=
   dependencies:
     csstype "^3.1.1"
     lodash "4.17.21"
@@ -3687,8 +3687,8 @@
 
 "@smart-cloud/gatey-core@^1.0.0":
   version "1.0.0"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#e5f8dff42fab547b879bf0e1afe204b54fa069f7"
-  integrity sha1-5fjf9C+rVHuHm/Dhr+IEtU+gafc=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#1a5fc4b04c0a34505adb9b56921ad2f5d290acf7"
+  integrity sha1-Gl/EsEwKNFBa25tWkhrS9dKQrPc=
   dependencies:
     "@aws-amplify/ui" "^6.10.3"
     "@wordpress/data" "^10.25.0"
@@ -5010,6 +5010,13 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
+"@types/jquery@^3.5.32":
+  version "3.5.32"
+  resolved "https://registry.npmjs.org/@types/jquery/-/jquery-3.5.32.tgz#3eb0da20611b92c7c49ebed6163b52a4fdc57def"
+  integrity sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==
+  dependencies:
+    "@types/sizzle" "*"
+
 "@types/jsdom@^20.0.0":
   version "20.0.1"
   resolved "https://registry.npmjs.org/@types/jsdom/-/jsdom-20.0.1.tgz#07c14bc19bd2f918c1929541cdaacae894744808"
@@ -5134,6 +5141,11 @@
     "@types/http-errors" "*"
     "@types/node" "*"
     "@types/send" "*"
+
+"@types/sizzle@*":
+  version "2.3.9"
+  resolved "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.9.tgz#d4597dbd4618264c414d7429363e3f50acb66ea2"
+  integrity sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==
 
 "@types/sockjs@^0.3.33":
   version "0.3.36"
@@ -10601,6 +10613,11 @@ jpeg-js@^0.4.1, jpeg-js@^0.4.4:
   version "0.4.4"
   resolved "https://registry.npmjs.org/jpeg-js/-/jpeg-js-0.4.4.tgz#a9f1c6f1f9f0fa80cdb3484ed9635054d28936aa"
   integrity sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==
+
+jquery@^3.7.1:
+  version "3.7.1"
+  resolved "https://registry.npmjs.org/jquery/-/jquery-3.7.1.tgz#083ef98927c9a6a74d05a6af02806566d16274de"
+  integrity sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==
 
 js-cookie@^3.0.5:
   version "3.0.5"

@@ -41,6 +41,7 @@ export interface Settings {
   redirectSignIn?: string;
   redirectSignOut?: string;
   reCaptchaPublicKey?: string;
+  customTranslationsUrl?: string;
 }
 
 export interface SiteSettings {
@@ -66,9 +67,16 @@ const signOut = () => {
   });
 };
 
+const setLanguage = (language?: string) => {
+  Gatey.cognito.store.then((store) => {
+    dispatch(store).setLanguage(language ?? "en");
+  });
+};
+
 export interface Cognito {
   readonly store: Promise<Store>;
   readonly observeStore: typeof observeStore;
+  readonly setLanguage: typeof setLanguage;
   readonly getUsername: typeof getUsername;
   readonly getUserAttributes: typeof getUserAttributes;
   readonly getMfaPreferences: typeof getMfaPreferences;
@@ -125,6 +133,7 @@ export {
   observeStore,
   type Store,
   type State,
+  type CustomTranslations,
   type AuthenticatorConfig,
 } from "./store";
 
@@ -139,6 +148,7 @@ if (!initialized) {
   Gatey.cognito = {
     store: store,
     observeStore,
+    setLanguage,
     getAmplifyConfig,
     isAuthenticated,
     isInGroup,
