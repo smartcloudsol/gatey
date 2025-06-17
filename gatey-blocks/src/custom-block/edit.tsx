@@ -74,21 +74,39 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
             value={component || ""}
             options={[
               { label: "-", value: "Global" },
-              { label: "Change Password", value: "ChangePassword" },
-              { label: "Confirm Sign In", value: "ConfirmSignIn" },
-              { label: "Confirm Sign Up", value: "ConfirmSignUp" },
               {
-                label: "Confirm Reset Password",
+                label: __("Change Password", TEXT_DOMAIN),
+                value: "ChangePassword",
+              },
+              {
+                label: __("Confirm Sign In", TEXT_DOMAIN),
+                value: "ConfirmSignIn",
+              },
+              {
+                label: __("Confirm Sign Up", TEXT_DOMAIN),
+                value: "ConfirmSignUp",
+              },
+              {
+                label: __("Confirm Reset Password", TEXT_DOMAIN),
                 value: "ConfirmResetPassword",
               },
-              { label: "Confirm Verify User", value: "ConfirmVerifyUser" },
-              { label: "Edit Account", value: "EditAccount" },
-              { label: "Force New Password", value: "ForceNewPassword" },
-              { label: "Forgot Password", value: "ForgotPassword" },
-              { label: "Setup TOTP", value: "SetupTotp" },
-              { label: "Sign In", value: "SignIn" },
-              { label: "Sign Up", value: "SignUp" },
-              { label: "Verify User", value: "VerifyUser" },
+              {
+                label: __("Confirm Verify User", TEXT_DOMAIN),
+                value: "ConfirmVerifyUser",
+              },
+              { label: __("Edit Account", TEXT_DOMAIN), value: "EditAccount" },
+              {
+                label: __("Force New Password", TEXT_DOMAIN),
+                value: "ForceNewPassword",
+              },
+              {
+                label: __("Forgot Password", TEXT_DOMAIN),
+                value: "ForgotPassword",
+              },
+              { label: __("Setup TOTP", TEXT_DOMAIN), value: "SetupTotp" },
+              { label: __("Sign In", TEXT_DOMAIN), value: "SignIn" },
+              { label: __("Sign Up", TEXT_DOMAIN), value: "SignUp" },
+              { label: __("Verify User", TEXT_DOMAIN), value: "VerifyUser" },
             ]}
             onChange={(value) => {
               if (value as ComponentAttributes["component"]) {

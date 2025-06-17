@@ -23,11 +23,12 @@ import { Amplify } from "aws-amplify";
 import { I18n } from "aws-amplify/utils";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { get } from "@aws-amplify/api";
+import { translate } from "@aws-amplify/ui";
 
 import {
   defaultDarkModeOverride,
-  ThemeProvider,
   translations,
+  ThemeProvider,
 } from "@aws-amplify/ui-react";
 
 import {
@@ -37,9 +38,15 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type Screen, type Language, Direction } from "./index";
+import { type Direction, type Screen, type Language } from "./index";
 import { EditorBlockProps } from "./edit";
-import { App, type PreviewType } from "./app";
+import { type PreviewType } from "./theme";
+import { App } from "./app";
+
+const theme = {
+  name: "gatey-theme",
+  overrides: [defaultDarkModeOverride],
+};
 
 export interface Attributes {
   anchor: string;
@@ -50,11 +57,6 @@ export interface EditorBlock {
   attributes: Attributes;
   innerBlocks: EditorBlock[];
 }
-
-const theme = {
-  name: "gatey-theme",
-  overrides: [defaultDarkModeOverride],
-};
 
 const apiUrl =
   window.location.host === "dev.wpsuite.io"
@@ -105,6 +107,8 @@ export const Block: FunctionComponent<
   );
   const [themeDirection, setThemeDirection] =
     useState<Omit<Direction, "auto">>();
+  const [title, setTitle] = useState<string>();
+  const [currentLanguage, setCurrentLanguage] = useState<string>();
 
   const editorRef = createRef<HTMLDivElement>();
 
@@ -217,31 +221,34 @@ export const Block: FunctionComponent<
   useEffect(() => {
     if (language) {
       I18n.setLanguage(language);
+      setCurrentLanguage(language);
     }
-    let title;
-    switch (screen) {
-      default:
-      case "signIn":
-        title = I18n.get("Sign In");
-        break;
-      case "signUp":
-        title = I18n.get("Sign Up");
-        break;
-      case "forgotPassword":
-        title = I18n.get("Forgot Password");
-        break;
-      case "changePassword":
-        title = I18n.get("Change Password");
-        break;
-      case "editAccount":
-        title = I18n.get("Edit Account");
-        break;
-      case "setupTotp":
-        title = I18n.get("Setup TOTP");
-        break;
+    if (showOpenButton) {
+      let title;
+      switch (screen) {
+        default:
+        case "signIn":
+          title = translate("Sign In");
+          break;
+        case "signUp":
+          title = translate("Sign Up");
+          break;
+        case "forgotPassword":
+          title = translate("Forgot Password");
+          break;
+        case "changePassword":
+          title = translate("Change Password");
+          break;
+        case "editAccount":
+          title = translate("Edit Account");
+          break;
+        case "setupTotp":
+          title = translate("Setup TOTP");
+          break;
+      }
+      setTitle(title);
     }
-    setAttributes({ openButtonTitle: title });
-  }, [screen, language, setAttributes]);
+  }, [screen, language, showOpenButton, setAttributes]);
 
   useEffect(() => {
     let td = direction;
@@ -445,6 +452,7 @@ export const Block: FunctionComponent<
           <TextControl
             label={__("Open Button Title", TEXT_DOMAIN)}
             value={openButtonTitle || ""}
+            placeholder={title || ""}
             onChange={(value) => {
               setAttributes({ openButtonTitle: value });
             }}
@@ -585,7 +593,7 @@ export const Block: FunctionComponent<
               id="gatey-block"
               screen={previewScreen}
               variation={variation}
-              language={language}
+              language={currentLanguage as Language}
               showOpenButton={showOpenButton}
               openButtonTitle={openButtonTitle}
               signingInMessage={signingInMessage}

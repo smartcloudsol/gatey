@@ -222,6 +222,7 @@ const getDefaultState = async (): Promise<State> => {
     signedIn: !!account?.username && !account.loaded,
     nextUrl: undefined,
     language: undefined,
+    direction: undefined,
     customTranslations: customTranslations,
     reloadAuthSession: 0,
     reloadUserAttributes: 0,
@@ -271,6 +272,13 @@ const actions = {
     };
   },
 
+  setDirection(direction: "ltr" | "rtl" | "auto" | undefined | null) {
+    return {
+      type: "SET_DIRECTION",
+      direction,
+    };
+  },
+
   reloadAuthSession() {
     return {
       type: "RELOAD_AUTH_SESSION",
@@ -311,6 +319,9 @@ const selectors = {
   },
   getLanguage(state: State) {
     return state.language;
+  },
+  getDirection(state: State) {
+    return state.direction;
   },
   getState(state: State) {
     return state;
@@ -383,6 +394,7 @@ export interface State {
   nextUrl: string | undefined | null;
   config: AuthenticatorConfig | null;
   language: string | undefined | null;
+  direction: "ltr" | "rtl" | "auto" | undefined | null;
   customTranslations: CustomTranslations | null;
   reloadAuthSession: number;
   reloadUserAttributes: number;
@@ -462,6 +474,12 @@ export const createStore = async (): Promise<Store> => {
           return {
             ...state,
             language: action.language,
+          };
+
+        case "SET_DIRECTION":
+          return {
+            ...state,
+            direction: action.direction,
           };
       }
 

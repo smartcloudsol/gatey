@@ -28,6 +28,10 @@ declare const actions: {
         type: string;
         language: string | null | undefined;
     };
+    setDirection(direction: "ltr" | "rtl" | "auto" | undefined | null): {
+        type: string;
+        direction: "ltr" | "rtl" | "auto" | null | undefined;
+    };
     reloadAuthSession(): {
         type: string;
     };
@@ -46,6 +50,7 @@ declare const selectors: {
     getConfig(state: State): AuthenticatorConfig | null;
     getCustomTranslations(state: State): CustomTranslations | null;
     getLanguage(state: State): string | null | undefined;
+    getDirection(state: State): "ltr" | "rtl" | "auto" | null | undefined;
     getState(state: State): State;
 };
 interface ApiOptions {
@@ -98,6 +103,7 @@ interface State {
     nextUrl: string | undefined | null;
     config: AuthenticatorConfig | null;
     language: string | undefined | null;
+    direction: "ltr" | "rtl" | "auto" | undefined | null;
     customTranslations: CustomTranslations | null;
     reloadAuthSession: number;
     reloadUserAttributes: number;
@@ -167,10 +173,12 @@ interface SiteSettings {
 }
 declare const signOut: () => void;
 declare const setLanguage: (language?: string) => void;
+declare const setDirection: (direction?: "ltr" | "rtl" | "auto") => void;
 interface Cognito {
     readonly store: Promise<Store>;
     readonly observeStore: typeof observeStore;
     readonly setLanguage: typeof setLanguage;
+    readonly setDirection: typeof setDirection;
     readonly getUsername: typeof getUsername;
     readonly getUserAttributes: typeof getUserAttributes;
     readonly getMfaPreferences: typeof getMfaPreferences;

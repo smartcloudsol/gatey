@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
-import { I18n } from "aws-amplify/utils";
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
 import { translate, type AuthContext } from "@aws-amplify/ui";
 
@@ -13,7 +12,6 @@ import {
   Heading,
   AccountSettings,
   useAuthenticator,
-  translations,
 } from "@aws-amplify/ui-react";
 
 import "@aws-amplify/ui-react/styles.css";
@@ -25,7 +23,6 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import {
   type Account,
   type AuthenticatorConfig,
-  type CustomTranslations,
   type Store,
 } from "@smart-cloud/gatey-core";
 
@@ -36,18 +33,6 @@ const parseCustomBlocks = import(
     ? "./paid-features/custom-blocks"
     : "./free-features/custom-blocks"
 );
-
-I18n.putVocabularies(translations);
-
-declare global {
-  interface Window {
-    toForgotPassword: () => void;
-    toSignIn: () => void;
-    toSignUp: () => void;
-    resendCode: () => void;
-    skipVerification: () => void;
-  }
-}
 
 type EventDetails = {
   [key: string]: unknown;
@@ -88,6 +73,7 @@ export const Login = (
   props: AppProps & {
     config: AuthenticatorConfig | null | undefined;
     containerRef: React.RefObject<HTMLDivElement>;
+    currentLanguage?: string;
   }
 ) => {
   const {
@@ -95,7 +81,7 @@ export const Login = (
     store,
     screen,
     variation,
-    language,
+    currentLanguage,
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
@@ -111,7 +97,6 @@ export const Login = (
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<string>();
   const [authenticatorConfig, setAuthenticatorConfig] = useState<
     AuthenticatorConfig | null | undefined
   >();
@@ -138,24 +123,6 @@ export const Login = (
     []
   );
 
-  const customTranslations: CustomTranslations | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getCustomTranslations: () => CustomTranslations | undefined | null;
-      }
-    ) => select(store).getCustomTranslations(),
-    []
-  );
-
-  const languageInStore: string | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getLanguage: () => string | undefined | null;
-      }
-    ) => select(store).getLanguage(),
-    []
-  );
-
   const [wasSignedIn] = useState<boolean>(signedIn && !account?.loaded);
 
   const {
@@ -173,7 +140,6 @@ export const Login = (
   const [params] = useSearchParams();
 
   const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
-  const [languageOverride] = useState<string>(params.get("language") ?? "");
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
   const {
     authStatus,
@@ -183,8 +149,6 @@ export const Login = (
     toForgotPassword,
     toSetupTotp,
     toEditAccount,
-    resendCode,
-    skipVerification,
   } = useAuthenticator((context) => [
     context.user,
     context.authStatus,
@@ -404,14 +368,6 @@ export const Login = (
   ]);
 
   useEffect(() => {
-    window.toForgotPassword = toForgotPassword;
-    window.toSignIn = toSignIn;
-    window.toSignUp = toSignUp;
-    window.resendCode = resendCode;
-    window.skipVerification = skipVerification;
-  }, [toSignIn, toSignUp, toForgotPassword, resendCode, skipVerification]);
-
-  useEffect(() => {
     if (screen !== "signIn") {
       return;
     }
@@ -490,20 +446,6 @@ export const Login = (
       setScreenChanged(true);
     }
   }, [route]);
-
-  useEffect(() => {
-    I18n.putVocabularies(customTranslations || {});
-    if (languageOverride) {
-      I18n.setLanguage(languageOverride);
-      setCurrentLanguage(languageOverride);
-    } else if (languageInStore) {
-      I18n.setLanguage(languageInStore);
-      setCurrentLanguage(languageInStore);
-    } else if (language) {
-      I18n.setLanguage(language);
-      setCurrentLanguage(language);
-    }
-  }, [language, languageOverride, languageInStore, customTranslations]);
 
   return (
     <View ref={containerRef} style={{ margin: 0, padding: 0 }}>

@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.2.4
+Stable tag: 1.2.5
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.2.5 =
+Filled in the last untranslated UI strings and exposed two client-side helpers: Gatey.cognito.setLanguage() and Gatey.cognito.setDirection() for runtime language or LTR/RTL switching.
+
 = 1.2.4 =
 Fixed attribute parsing in the [gatey] shortcode; all parameters now load correctly even in edge-case combinations.
 
@@ -212,6 +215,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.5 =
+Update to get complete translations and use the new JavaScript methods to change language or text-direction on the fly.
 
 = 1.2.4 =
 Update if you rely on shortcode attributes—screens, button labels, direction, etc. will now be applied exactly as entered.

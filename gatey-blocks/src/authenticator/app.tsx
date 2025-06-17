@@ -11,20 +11,20 @@ import {
 } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Amplify, type ResourcesConfig } from "aws-amplify";
-import { Authenticator, Button } from "@aws-amplify/ui-react";
+
+import { I18n } from "aws-amplify/utils";
+import { translate } from "@aws-amplify/ui";
+import { translations, Authenticator, Button } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
 
 import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
-import {
-  type Screen,
-  type Variation,
-  type Language,
-  type Direction,
-} from "./index";
+import { type Screen, type Variation, type Language } from "./index";
 import { Login } from "./login";
 
 import "./app.module.css";
+
+I18n.putVocabularies(translations);
 
 export type PreviewType = "FREE" | "BASIC" | "PROFESSIONAL";
 
@@ -33,7 +33,6 @@ export interface AppProps extends PropsWithChildren {
   screen?: Screen;
   variation?: Variation;
   language?: Language;
-  direction?: Direction;
   showOpenButton?: boolean;
   openButtonTitle?: string;
   signingInMessage?: string;
@@ -62,7 +61,11 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     showOpenButton,
     openButtonTitle,
     editorRef,
+    screen,
+    language,
   } = props;
+
+  const [title, setTitle] = useState<string>();
 
   const [filteredConfig, setFilteredConfig] = useState<
     AuthenticatorConfig | null | undefined
@@ -191,6 +194,35 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     }
   }, [amplifyConfig, isPreview, store]);
 
+  useEffect(() => {
+    if (showOpenButton) {
+      if (!openButtonTitle) {
+        switch (screen) {
+          case "signIn":
+            setTitle(translate("Sign In"));
+            break;
+          case "signUp":
+            setTitle(translate("Sign Up"));
+            break;
+          case "forgotPassword":
+            setTitle(translate("Forgot Password"));
+            break;
+          case "changePassword":
+            setTitle(translate("Change Password"));
+            break;
+          case "editAccount":
+            setTitle(translate("Edit Account"));
+            break;
+          case "setupTotp":
+            setTitle(translate("Setup TOTP"));
+            break;
+        }
+      } else {
+        setTitle(translate(openButtonTitle));
+      }
+    }
+  }, [screen, language, showOpenButton, openButtonTitle]);
+
   return (
     filteredConfig !== undefined &&
     (isPreview || amplifyConfigured) && (
@@ -210,7 +242,7 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
                         setShow(true);
                       }}
                     >
-                      {openButtonTitle || "Open Authenticator"}
+                      {title}
                     </Button>
                   )}
                   {(!showOpenButton || show) && (

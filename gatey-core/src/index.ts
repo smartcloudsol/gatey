@@ -73,10 +73,17 @@ const setLanguage = (language?: string) => {
   });
 };
 
+const setDirection = (direction?: "ltr" | "rtl" | "auto") => {
+  Gatey.cognito.store.then((store) => {
+    dispatch(store).setDirection(direction ?? "auto");
+  });
+};
+
 export interface Cognito {
   readonly store: Promise<Store>;
   readonly observeStore: typeof observeStore;
   readonly setLanguage: typeof setLanguage;
+  readonly setDirection: typeof setDirection;
   readonly getUsername: typeof getUsername;
   readonly getUserAttributes: typeof getUserAttributes;
   readonly getMfaPreferences: typeof getMfaPreferences;
@@ -149,6 +156,7 @@ if (!initialized) {
     store: store,
     observeStore,
     setLanguage,
+    setDirection,
     getAmplifyConfig,
     isAuthenticated,
     isInGroup,
