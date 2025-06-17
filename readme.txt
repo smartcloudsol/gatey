@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.2.2
+Stable tag: 1.2.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -27,7 +27,7 @@ Key features include:
 
 You can find the plugin’s continuously expanding, detailed documentation at:
 
-[WP Suite - Gatey](https://wpsuite.io/gatey/docs/ “Gatey Docs”)
+[WP Suite – Gatey Docs](https://wpsuite.io/gatey/docs/)
 
 What’s on the site?
   - Get Started guide — quick start, installation, first‑time setup.
@@ -166,6 +166,12 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.2.4 =
+Fixed attribute parsing in the [gatey] shortcode; all parameters now load correctly even in edge-case combinations.
+
+= 1.2.3 =
+Small fixes: the shortcode’s direction attribute now accepts auto, and shortcode previews inside the Elementor editor render correctly even when multiple Gatey shortcodes are placed on the same page.
+
 = 1.2.2 =
 Added “**Auto (by language)**” to the Direction setting: the Authenticator now switches to RTL for Arabic or Hebrew and stays LTR for all other languages. You can still override this at any time by selecting **LTR** or **RTL** explicitly.
 
@@ -206,6 +212,12 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.4 =
+Update if you rely on shortcode attributes—screens, button labels, direction, etc. will now be applied exactly as entered.
+
+= 1.2.3 =
+Update to use direction="auto" in shortcodes and to see accurate previews for every Gatey shortcode instance inside Elementor.
 
 = 1.2.2 =
 Update to get automatic text-direction handling, with the option to force LTR or RTL manually whenever you need.

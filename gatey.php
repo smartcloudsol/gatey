@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.2.2
+ * Version:           1.2.4
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.2.2';
+const VERSION = '1.2.4';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -101,13 +101,13 @@ final class Gatey_Plugin
             $lock_key = GATEY_SLUG . '/license-refresh-lock';
             $time_key = GATEY_SLUG . '/license-last-refresh';
 
-            /* ---- 1.  handling race-conditions (5-minute lock) --------------- */
+            /* ---- 1.  handling race-conditions (5-minute lock) ---- */
             if (get_transient($lock_key)) {
                 return;
             }
             set_transient($lock_key, 1, 5 * MINUTE_IN_SECONDS);
 
-            /* ---- 2.  do we need to refresh? --------------------------------- */
+            /* ---- 2.  do we need to refresh? ---- */
             $need_refresh = false;
 
             $upload_dir_info = wp_upload_dir();
@@ -127,7 +127,7 @@ final class Gatey_Plugin
                 $need_refresh = true;
             }
 
-            /* ---- 3.  refresh if we need to --------------------------- */
+            /* ---- 3.  refresh if we need to ---- */
             if ($need_refresh) {
                 $this->admin->reloadConfig(
                     $siteSettings->accountId,
@@ -135,7 +135,7 @@ final class Gatey_Plugin
                     $siteSettings->siteKey
                 );
             }
-            /* ---- 4.  lock feloldása -------------------------------------- */
+            /* ---- 4.  unlock ---- */
             delete_transient($lock_key);
         }
     }
@@ -227,6 +227,12 @@ final class Gatey_Plugin
                 '};';
         }
         wp_add_inline_script('gatey-main-script', $js, 'before');
+
+        wp_add_inline_script(
+            'gatey-authenticator-view-script',
+            file_get_contents(GATEY_PATH . 'observer.js'),
+            'after'
+        );
     }
 
     /**
@@ -236,31 +242,21 @@ final class Gatey_Plugin
     {
         $a = shortcode_atts(
             array(
-                'id' => false,
-                'screen' => false,
-                'variation' => false,
-                'colormode' => false,
-                'language' => false,
-                'direction' => false,
-                'showopen' => false,
-                'open' => false,
-                'signingin' => false,
-                'signingout' => false,
-                'redirecting' => false,
+                'id' => null,
+                'screen' => null,
+                'variation' => null,
+                'colormode' => null,
+                'language' => null,
+                'direction' => null,
+                'showopen' => null,
+                'open' => null,
+                'signingin' => null,
+                'signingout' => null,
+                'redirecting' => null,
             ),
             $atts
         );
         $id = $a['id'];
-        $screen = $a['screen'];
-        $variation = $a['variation'];
-        $colorMode = $a['colormode'];
-        $language = $a['language'];
-        $direction = $a['direction'];
-        $showOpenButton = $a['showopen'];
-        $openButtonTitle = $a['open'];
-        $signingInMessage = $a['signingin'];
-        $signingOutMessage = $a['signingout'];
-        $redirectingMessage = $a['redirecting'];
 
         // bad id
         if (!is_numeric($id)) {
@@ -287,38 +283,29 @@ final class Gatey_Plugin
         foreach ($blocks as $block) {
 
             if ('gatey/authenticator' === $block['blockName']) {
-                $content = render_block($block);
+                // parsing the block attributes
+                $attrs = array(
+                    'id' => $id,
+                    'screen' => $a['screen'] ?? $block['attrs']['screen'] ?? 'signIn',
+                    'variation' => $a['variation'] ?? $block['attrs']['variation'] ?? 'default',
+                    'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
+                    'language' => $a['language'] ?? $block['attrs']['language'] ?? 'en',
+                    'direction' => $a['direction'] ?? $block['attrs']['direction'] ?? 'auto',
+                    'showOpenButton' => $a['showopen'] != false ? $a['showopen'] : ($block['attrs']['showOpenButton'] ?? false),
+                    'openButtonTitle' => $a['open'] ?? $block['attrs']['openButtonTitle'] ?? '',
+                    'signingInMessage' => $a['signingin'] ?? $block['attrs']['signingInMessage'] ?? '',
+                    'signingOutMessage' => $a['signingout'] ?? $block['attrs']['signingOutMessage'] ?? '',
+                    'redirectingMessage' => $a['redirecting'] ?? $block['attrs']['redirectingMessage'] ?? '',
+                );
+                $newBlock = [
+                    'blockName' => 'gatey/authenticator',
+                    'attrs' => $attrs,
+                    'innerBlocks' => $block['innerBlocks'],
+                    'innerHTML' => $block['innerHTML'],
+                    'innerContent' => $block['innerContent'],
+                ];
+                $content = render_block($newBlock);
                 $content = str_replace("gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
-                if ($screen) {
-                    $content = preg_replace('/data-screen="(.*)"/', 'data-screen="' . $screen . '"', $content);
-                }
-                if ($variation) {
-                    $content = preg_replace('/data-variation="(.*)"/', 'data-variation="' . $variation . '"', $content);
-                }
-                if ($colorMode) {
-                    $content = preg_replace('/data-color-mode="(.*)"/', 'data-color-mode="' . $colorMode . '"', $content);
-                }
-                if ($language) {
-                    $content = preg_replace('/data-language="(.*)"/', 'data-language="' . $language . '"', $content);
-                }
-                if ($direction) {
-                    $content = preg_replace('/data-direction="(.*)"/', 'data-direction="' . $direction . '"', $content);
-                }
-                if ($showOpenButton) {
-                    $content = preg_replace('/data-show-open-button="(.*)"/', 'data-show-open-button="' . ($showOpenButton ? 'true' : 'false') . '"', $content);
-                }
-                if ($openButtonTitle) {
-                    $content = preg_replace('/data-open-button-title="(.*)"/', 'data-open-button-title="' . $openButtonTitle . '"', $content);
-                }
-                if ($signingInMessage) {
-                    $content = preg_replace('/data-signing-in-message="(.*)"/', 'data-signing-in-message="' . $signingInMessage . '"', $content);
-                }
-                if ($signingOutMessage) {
-                    $content = preg_replace('/data-signing-out-message="(.*)"/', 'data-signing-out-message="' . $signingOutMessage . '"', $content);
-                }
-                if ($redirectingMessage) {
-                    $content = preg_replace('/data-redirecting-message="(.*)"/', 'data-redirecting-message="' . $redirectingMessage . '"', $content);
-                }
                 return $content;
             }
         }
@@ -332,8 +319,8 @@ final class Gatey_Plugin
     {
         $a = shortcode_atts(
             array(
-                'attribute' => false,
-                'custom' => false,
+                'attribute' => null,
+                'custom' => null,
             ),
             $atts
         );

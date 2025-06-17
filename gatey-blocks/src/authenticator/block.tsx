@@ -104,7 +104,7 @@ export const Block: FunctionComponent<
     screen || "signIn"
   );
   const [themeDirection, setThemeDirection] =
-    useState<Omit<Direction, "dependent">>();
+    useState<Omit<Direction, "auto">>();
 
   const editorRef = createRef<HTMLDivElement>();
 
@@ -245,10 +245,10 @@ export const Block: FunctionComponent<
 
   useEffect(() => {
     let td = direction;
-    if (!direction || direction === "dependent") {
+    if (!direction || direction === "auto") {
       td = language === "ar" || language === "he" ? "rtl" : "ltr";
     }
-    setThemeDirection(td as Omit<Direction, "dependent">);
+    setThemeDirection(td as Omit<Direction, "auto">);
   }, [direction, language]);
 
   return (
@@ -412,17 +412,17 @@ export const Block: FunctionComponent<
           />
           <RadioControl
             label={__("Direction", TEXT_DOMAIN)}
-            selected={direction || "dependent"}
+            selected={direction || "auto"}
             options={[
               {
                 label: __("Auto (by language)", TEXT_DOMAIN),
-                value: "dependent",
+                value: "auto",
               },
               { label: __("Left to Right", TEXT_DOMAIN), value: "ltr" },
               { label: __("Right to Left", TEXT_DOMAIN), value: "rtl" },
             ]}
             onChange={(value) => {
-              if (value === "dependent" || value === "ltr" || value === "rtl") {
+              if (value === "auto" || value === "ltr" || value === "rtl") {
                 setAttributes({ direction: value });
               }
             }}

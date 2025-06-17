@@ -53,10 +53,10 @@ try {
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
       const language = el.getAttribute("data-language") as Language;
       let direction = el.getAttribute("data-direction") as
-        | "dependent"
+        | "auto"
         | "ltr"
         | "rtl";
-      if (direction === "dependent") {
+      if (!direction || direction === "auto") {
         direction = language === "ar" || language === "he" ? "rtl" : "ltr";
       }
       const showOpenButton =
