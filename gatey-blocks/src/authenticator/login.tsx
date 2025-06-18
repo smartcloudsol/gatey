@@ -282,6 +282,12 @@ export const Login = (
   ]);
 
   useEffect(() => {
+    Gatey.cognito.toSignIn = toSignIn;
+    Gatey.cognito.toSignUp = toSignUp;
+    Gatey.cognito.toForgotPassword = toForgotPassword;
+  }, [toForgotPassword, toSignIn, toSignUp]);
+
+  useEffect(() => {
     if (screen !== "signIn" || isPreview || logoutHandled || !loggingOut) {
       return;
     }

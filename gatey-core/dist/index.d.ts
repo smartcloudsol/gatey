@@ -197,6 +197,9 @@ interface Cognito {
     readonly del: typeof del;
     readonly head: typeof head;
     readonly patch: typeof patch;
+    toSignIn?: () => void;
+    toSignUp?: () => void;
+    toForgotPassword?: () => void;
 }
 interface Gatey {
     cognito: Cognito;

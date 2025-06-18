@@ -12,6 +12,7 @@ import {
   Badge,
   Button,
   Card,
+  Code,
   Flex,
   Group,
   Grid,
@@ -31,11 +32,12 @@ import {
   Title,
   Tooltip,
   useModalsStack,
+  rem,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { useForm, zodResolver } from "@mantine/form";
-import { useMediaQuery } from "@mantine/hooks";
+import { useMediaQuery, useViewportSize } from "@mantine/hooks";
 import { __ } from "@wordpress/i18n";
 import {
   type AuthenticatorConfig,
@@ -183,6 +185,8 @@ export const Settings: FunctionComponent<SettingsProps> = (
   const isMobile = useMediaQuery(
     `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
   );
+  const { width: vw } = useViewportSize();
+  const dropdownWidth = Math.min(300, vw - parseInt(rem(32)));
 
   const stack = useModalsStack(["connect-your-site", "prices"]);
 
@@ -214,8 +218,8 @@ export const Settings: FunctionComponent<SettingsProps> = (
         .response.then((response) => response.body.json())
         .then((result) => {
           notifications.show({
-            title: __("Subscription changed"),
-            message: __("Subscription changed successfully."),
+            title: __("Subscription changed", TEXT_DOMAIN),
+            message: __("Subscription changed successfully.", TEXT_DOMAIN),
             color: "green",
             icon: <IconMoneybagHeart />,
             className: classes["notification"],
@@ -1104,47 +1108,182 @@ export const Settings: FunctionComponent<SettingsProps> = (
                       <>
                         <Stack gap={2} style={{ flexGrow: 1 }}>
                           <Text size="sm" fw={500} component="div">
-                            Site: {site.name} (id: {site.siteId}, site-key:{" "}
-                            <a
-                              href="#"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                textDecoration: "none",
-                              }}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                let component = jQuery(
-                                  "[gatey-site-key=hidden]"
-                                );
-                                if (component.length > 0) {
-                                  component.text(site.siteKey!);
-                                  component.attr("gatey-site-key", "revealed");
-                                } else {
-                                  component = jQuery(
-                                    "[gatey-site-key=revealed]"
-                                  );
-                                  component.trigger("select");
-                                  navigator.clipboard.writeText(
-                                    site.siteKey ?? ""
-                                  );
-                                  notifications.show({
-                                    title: __("Site key copied", TEXT_DOMAIN),
-                                    message: __(
-                                      "Site key copied successfully.",
-                                      TEXT_DOMAIN
-                                    ),
-                                    color: "green",
-                                    icon: <IconInfoCircle />,
-                                    className: classes["notification"],
-                                  });
-                                }
-                                return false;
-                              }}
-                            >
-                              <em gatey-site-key="hidden">reveal</em>
-                            </a>
-                            )
+                            Site: {site.name} (id: {site.siteId})
+                            {subscriptionType !== undefined &&
+                              subscriptionType !== null && (
+                                <HoverCard
+                                  shadow="md"
+                                  width={isMobile ? dropdownWidth : 300}
+                                  position="bottom-start"
+                                  offset={8}
+                                  withArrow
+                                  styles={
+                                    isMobile
+                                      ? {
+                                          dropdown: {
+                                            left: "20px",
+                                          },
+                                        }
+                                      : {}
+                                  }
+                                >
+                                  {/* Clickable / hoverable trigger */}
+                                  <HoverCard.Target>
+                                    <ActionIcon
+                                      variant="subtle"
+                                      size="xs"
+                                      className={classes["info-icon"]}
+                                    >
+                                      <IconInfoCircle size={16} />
+                                    </ActionIcon>
+                                  </HoverCard.Target>
+
+                                  {/* HoverCard content */}
+                                  <HoverCard.Dropdown
+                                    style={{
+                                      maxWidth: "calc(100vw - 2rem)",
+                                    }}
+                                  >
+                                    <Heading level={4} marginBottom="xs">
+                                      License Refresh
+                                    </Heading>
+                                    <Text size="sm" mb="sm">
+                                      Send a{" "}
+                                      <Text component="span" fw={700}>
+                                        GET
+                                      </Text>{" "}
+                                      request to the URL below, including
+                                      the&nbsp;
+                                      <Code mx="xs">X-Site-Key</Code> header.
+                                    </Text>
+                                    <Text size="sm" mb="sm">
+                                      The server returns a JSON object; the
+                                      value of its <Code>jws</Code> property is
+                                      the license content.
+                                    </Text>
+                                    <Text size="sm" mb="sm">
+                                      Save that value as <Code>lic.jws</Code> in
+                                      your site’s&nbsp;
+                                      <Code>
+                                        /wp-content/uploads/gatey/
+                                      </Code>{" "}
+                                      directory.
+                                    </Text>
+                                    <Text size="sm" mb="sm">
+                                      <Text fw={600} component="span">
+                                        Note:
+                                      </Text>{" "}
+                                      the license file is valid for{" "}
+                                      <b>one&nbsp;month</b>. On{" "}
+                                      <b>static&nbsp;sites</b>, automate a
+                                      refresh at least <b>once a week</b>. On{" "}
+                                      <b>WordPress</b> sites, the Gatey plugin
+                                      refreshes it automatically—no manual
+                                      action needed.
+                                    </Text>{" "}
+                                    <Text size="sm">
+                                      <Text fw={600} component="span">
+                                        URL:
+                                      </Text>{" "}
+                                      <Code>
+                                        <strong>
+                                          <a
+                                            href="#"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="dark-link"
+                                            style={{
+                                              textDecoration: "none",
+                                            }}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              const component = jQuery(
+                                                "#gatey-license-url-" +
+                                                  site.siteId
+                                              );
+                                              component.trigger("select");
+                                              navigator.clipboard.writeText(
+                                                apiUrl +
+                                                  "/account/" +
+                                                  site.accountId +
+                                                  "/site/" +
+                                                  site.siteId +
+                                                  "/license"
+                                              );
+                                              notifications.show({
+                                                title: "License URL copied",
+                                                message:
+                                                  "License URL copied successfully.",
+                                                color: "green",
+                                                icon: <IconInfoCircle />,
+                                                className:
+                                                  classes["notification"],
+                                              });
+                                              return false;
+                                            }}
+                                          >
+                                            <span
+                                              id={
+                                                "gatey-license-url-" +
+                                                site.siteId
+                                              }
+                                            >
+                                              copy
+                                            </span>
+                                          </a>
+                                        </strong>
+                                      </Code>
+                                      <br />
+                                      <Text fw={600} component="span">
+                                        X-Site-Key:
+                                      </Text>{" "}
+                                      <Code>
+                                        <strong>
+                                          <a
+                                            href="#"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="dark-link"
+                                            style={{
+                                              textDecoration: "none",
+                                            }}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              const component = jQuery(
+                                                "#gatey-site-key-" + site.siteId
+                                              );
+                                              component.trigger("select");
+                                              navigator.clipboard.writeText(
+                                                site.siteKey ?? ""
+                                              );
+                                              notifications.show({
+                                                title: "Site key copied",
+                                                message:
+                                                  "Site key copied successfully.",
+                                                color: "green",
+                                                icon: <IconInfoCircle />,
+                                                className:
+                                                  classes["notification"],
+                                              });
+                                              return false;
+                                            }}
+                                          >
+                                            <span
+                                              id={
+                                                "gatey-site-key-" + site.siteId
+                                              }
+                                            >
+                                              copy
+                                            </span>
+                                          </a>
+                                        </strong>
+                                      </Code>
+                                    </Text>
+                                  </HoverCard.Dropdown>
+                                </HoverCard>
+                              )}
                           </Text>
                           {site.account && (
                             <>
