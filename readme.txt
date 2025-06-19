@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.2.6
+Stable tag: 1.2.7
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.2.7 =
+Fixed the **Copy Shortcode** button in **Gatey** › **Patterns** so it now works on sites served over “http://”. Also removed animations from Mantine Select components in the admin UI to prevent tab freezes on Windows when OS-level animations are disabled.
+
 = 1.2.6 =
 Added a licence-file download guide to the admin screen, plus three JavaScript helpers—`Gatey.cognito.toSignIn()`, `Gatey.cognito.toSignUp()`, and `Gatey.cognito.toForgotPassword()`—for switching screens inside custom blocks.
 
@@ -218,6 +221,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.7 =
+Update if the shortcode-copy button failed on non-HTTPS sites or if you experienced admin-tab freezes on Windows; both issues are resolved.
 
 = 1.2.6 =
 Update to see licence-file instructions in the admin area and to use the new helper functions for seamless Sign-In / Sign-Up / Forgot-Password screen switching in your custom Gatey blocks.

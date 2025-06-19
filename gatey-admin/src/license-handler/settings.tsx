@@ -1784,6 +1784,11 @@ function SiteSelector({
               classNames={{
                 dropdown: classes["dropdown"],
               }}
+              comboboxProps={{
+                transitionProps: {
+                  duration: 0,
+                },
+              }}
             />
           )}
           <Radio.Group

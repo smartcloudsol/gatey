@@ -171,27 +171,59 @@ class Admin
             return;
         }
 
-        // jQuery már úgyis betöltve, ezért inline-ban rányúlunk
         wp_add_inline_script(
             'jquery-core',
             "
-            jQuery( document ).on( 'click', '.wpc-copy', function( e ) {
-                e.preventDefault();
-                var \$btn      = jQuery( this );
-                var targetId   = \$btn.data( 'target' );
-                var textToCopy = jQuery( '#' + targetId ).text();
+            (function($){
+                function copyText( text, onSuccess, onFail ) {
     
-                // Clipboard API (modern böngészők)
-                navigator.clipboard.writeText( textToCopy ).then( function() {
-                    var origTxt = \$btn.text();
-                    \$btn.text( '" . esc_js(__('Copied!', 'gatey')) . "' );
-                    setTimeout( function() {
-                        \$btn.text( origTxt );
-                    }, 1500 );
-                } ).catch( function( err ) {
-                    console.error( 'Clipboard copy failed', err );
-                } );
-            } );
+                    if ( navigator.clipboard && window.isSecureContext ) {
+                        navigator.clipboard.writeText( text )
+                            .then( onSuccess )
+                            .catch( function(){ legacyCopy( text, onSuccess, onFail ); } );
+                        return;
+                    }
+    
+                    legacyCopy( text, onSuccess, onFail );
+                }
+    
+                function legacyCopy( text, onSuccess, onFail ) {
+                    var \$tmp = $('<textarea readonly>')
+                        .css({position:'absolute',left:'-9999px',top:0,opacity:0})
+                        .val( text )
+                        .appendTo('body')
+                        .select();
+    
+                    try {
+                        if ( document.execCommand('copy') ) {
+                            onSuccess();
+                            \$tmp.remove();
+                            return;
+                        }
+                    } catch(e) {}
+    
+                    \$tmp.remove();
+                    onFail();
+                }
+    
+                $(document).on('click', '.wpc-copy', function(e){
+                    e.preventDefault();
+    
+                    var \$btn   = $(this),
+                        orig   = \$btn.text(),
+                        text   = $('#' + \$btn.data('target')).text();
+    
+                    function showOk(){
+                        \$btn.text( '" . esc_js(__('Copied!', 'gatey')) . "' );
+                        setTimeout( function(){ \$btn.text( orig ); }, 1500 );
+                    }
+                    function showFail(){
+                        window.prompt( '" . esc_js(__('Copy manually (Ctrl+C):', 'gatey')) . "', text );
+                    }
+    
+                    copyText( text, showOk, showFail );
+                });
+            })(jQuery);
             "
         );
     }

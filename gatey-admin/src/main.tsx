@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import { produce } from "immer";
 import {
   CognitoIdentityProviderClient,
   ListGroupsCommand,
@@ -34,7 +35,6 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import apiFetch from "@wordpress/api-fetch";
 import {
   loadAuthSession,
-  type Account,
   type AuthenticatorConfig,
   type RoleMapping,
   type Settings,
@@ -59,7 +59,7 @@ import {
 import { __experimentalHeading as Heading } from "@wordpress/components";
 import { dispatch, useSelect } from "@wordpress/data";
 import { __ } from "@wordpress/i18n";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import DocSidebar from "./DocSidebar";
 import { LicenseHandler } from "./license-handler";
 import { OnboardingBanner } from "./onboarding";
@@ -115,7 +115,6 @@ const FormFieldEditor = lazy(
 );
 
 const SettingsTitle = ({ settings }: { settings: Settings }) => {
-  // Add media query for responsive design
   const isMobile = useMediaQuery(
     `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
   );
@@ -282,15 +281,6 @@ const Main = (props: MainProps) => {
     []
   );
 
-  type FormDataProperty = unknown & {
-    [key: string]: FormDataProperty | string[];
-  };
-
-  const account: Account | undefined = useSelect(
-    () => wp.data.select(store)?.getAccount(),
-    []
-  );
-
   const { data: configuration, error: configurationError } = useQuery({
     queryKey: ["config"],
     queryFn: async () => {
@@ -390,7 +380,7 @@ const Main = (props: MainProps) => {
       setOwnedAccountId(undefined);
     }
   }, [accountId]);
-
+  /*
   const handleConfigChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       let obj: FormDataProperty =
@@ -414,6 +404,20 @@ const Main = (props: MainProps) => {
     },
     [settingsFormData]
   );
+*/
+  const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSettingsFormData((prev) =>
+      produce(prev, (draft: Settings) => {
+        const parts = name.split(".");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let ref = draft.userPoolConfigurations as unknown as any;
+        while (parts.length > 1) ref = ref[parts.shift()!];
+        ref[parts[0]] =
+          parts[0] === "scopes" ? value.split(",").map((s) => s.trim()) : value;
+      })
+    );
+  };
 
   const handleMappingChange = useCallback(
     (index: number, field: keyof RoleMapping, value: string) => {
@@ -558,12 +562,13 @@ const Main = (props: MainProps) => {
     [clearCache, formConfig]
   );
 
+  const shouldLoadGroups =
+    activePage === "wordpress-login" &&
+    settingsFormData.integrateWpLogin &&
+    !cognitoGroupsLoaded;
+
   useEffect(() => {
-    if (
-      settingsFormData.integrateWpLogin &&
-      !cognitoGroupsLoaded &&
-      account?.username
-    ) {
+    if (shouldLoadGroups) {
       loadAuthSession()
         .then((authSession) => {
           if (authSession?.credentials) {
@@ -595,22 +600,27 @@ const Main = (props: MainProps) => {
           dispatch(store).clearAccount();
         });
     }
-  }, [settingsFormData, cognitoGroupsLoaded, account, store]);
+  }, [shouldLoadGroups, store]);
 
   useEffect(() => {
     apiFetch<WpPage[]>({
       path: "/wp/v2/pages?status=publish&per_page=100&context=embed",
     })
-      .then((pages) =>
+      .then((pages) => {
         setPages(
           pages.map((p: { slug: string; title: { rendered: string } }) => ({
             path: "/" + p.slug,
             title: p.title.rendered,
           })) as Page[]
-        )
-      )
+        );
+      })
       .catch((error) => console.error("Error loading form:", error));
   }, []);
+
+  const pageOptions = useMemo(
+    () => pages.map((p) => ({ label: p.title, value: p.path })),
+    [pages]
+  );
 
   useEffect(() => {
     if (nonce) {
@@ -1188,10 +1198,12 @@ const Main = (props: MainProps) => {
                           signInPage: value!,
                         })
                       }
-                      data={pages.map((page) => ({
-                        label: page.title,
-                        value: page.path,
-                      }))}
+                      data={pageOptions}
+                      comboboxProps={{
+                        transitionProps: {
+                          duration: 0,
+                        },
+                      }}
                     />
                     <Select
                       disabled={savingSettings}
@@ -1209,10 +1221,12 @@ const Main = (props: MainProps) => {
                           redirectSignIn: value!,
                         })
                       }
-                      data={pages.map((page) => ({
-                        label: page.title,
-                        value: page.path,
-                      }))}
+                      data={pageOptions}
+                      comboboxProps={{
+                        transitionProps: {
+                          duration: 0,
+                        },
+                      }}
                     />
                     <Select
                       disabled={savingSettings}
@@ -1230,10 +1244,12 @@ const Main = (props: MainProps) => {
                           redirectSignOut: value!,
                         })
                       }
-                      data={pages.map((page) => ({
-                        label: page.title,
-                        value: page.path,
-                      }))}
+                      data={pageOptions}
+                      comboboxProps={{
+                        transitionProps: {
+                          duration: 0,
+                        },
+                      }}
                     />
                   </Stack>
                   <Group justify="flex-end" mt="lg">
@@ -1326,6 +1342,11 @@ const Main = (props: MainProps) => {
                                               )
                                             }
                                             data={cognitoGroups}
+                                            comboboxProps={{
+                                              transitionProps: {
+                                                duration: 0,
+                                              },
+                                            }}
                                           />
                                         )}
                                         {!cognitoGroupsLoaded && (
@@ -1356,6 +1377,11 @@ const Main = (props: MainProps) => {
                                             )
                                           }
                                           data={wpRoles}
+                                          comboboxProps={{
+                                            transitionProps: {
+                                              duration: 0,
+                                            },
+                                          }}
                                         />
                                       </Table.Td>
                                       <Table.Td>
