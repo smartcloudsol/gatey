@@ -16,6 +16,20 @@ import "@mantine/notifications/styles.css";
 
 import Main from "./main";
 
+export const signUpAttributes = [
+  "name",
+  "family_name",
+  "given_name",
+  "middle_name",
+  "nickname",
+  "preferred_username",
+  "birthdate",
+  "email",
+  "phone_number",
+  "profile",
+  "website",
+];
+
 const production = process.env?.NODE_ENV === "production";
 if (!production) {
   import("./index.css");

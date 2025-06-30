@@ -14,32 +14,6 @@ export type Screen =
 
 export type Variation = "default" | "modal";
 
-export type Language =
-  | "ar"
-  | "en"
-  | "zh"
-  | "nl"
-  | "fr"
-  | "de"
-  | "he"
-  | "hi"
-  | "hu"
-  | "id"
-  | "it"
-  | "ja"
-  | "ko"
-  | "nb"
-  | "pl"
-  | "pt"
-  | "ru"
-  | "es"
-  | "sv"
-  | "th"
-  | "tr"
-  | "ua";
-
-export type Direction = "ltr" | "rtl" | "auto";
-
 const icon = (
   <svg
     width="800px"

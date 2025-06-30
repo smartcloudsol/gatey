@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-admin",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -22,7 +22,6 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.11.2",
     "@aws-sdk/client-cognito-identity-provider": "^3.828.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@mantine/core": "^8.1.0",
@@ -46,6 +45,7 @@
     "zod": "^3.25.64"
   },
   "devDependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@types/jquery": "^3.5.32",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",

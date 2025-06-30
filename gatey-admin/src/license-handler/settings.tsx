@@ -40,8 +40,10 @@ import { useForm, zodResolver } from "@mantine/form";
 import { useMediaQuery, useViewportSize } from "@mantine/hooks";
 import { __ } from "@wordpress/i18n";
 import {
+  TEXT_DOMAIN,
   type AuthenticatorConfig,
   type SiteSettings,
+  type SubscriptionType,
 } from "@smart-cloud/gatey-core";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import {
@@ -78,7 +80,6 @@ import {
   type FunctionComponent,
 } from "react";
 import { z } from "zod";
-import { TEXT_DOMAIN } from "../main";
 import { type LicenseHandlerProps } from "./index";
 import { EmailSkeleton, FullSkeleton } from "./skeletons";
 import classes from "./settings.module.css";
@@ -129,8 +130,6 @@ export interface Site {
   settings: AuthenticatorConfig;
   account?: Account;
 }
-
-export type SubscriptionType = "BASIC" | "PROFESSIONAL";
 
 export interface SettingsProps extends LicenseHandlerProps {
   apiUrl: string;
@@ -777,7 +776,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
   ]);
 
   useEffect(() => {
-    if (authStatus === "unauthenticated") {
+    if (authStatus === "authenticated" || authStatus === "unauthenticated") {
       queryClient.invalidateQueries({
         queryKey: ["accounts"],
       });
@@ -806,10 +805,10 @@ export const Settings: FunctionComponent<SettingsProps> = (
   }, [props.stripePublicKey]);
 
   useEffect(() => {
-    if (!isSitePending || !loadSiteEnabled) {
-      setSite(siteRecord ?? null);
+    if (isSiteError || !isSitePending || !loadSiteEnabled) {
+      setSite(isSiteError ? null : siteRecord ?? null);
     }
-  }, [siteRecord, loadSiteEnabled, isSitePending]);
+  }, [siteRecord, loadSiteEnabled, isSitePending, isSiteError]);
 
   return (
     <Group

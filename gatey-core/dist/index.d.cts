@@ -1,6 +1,6 @@
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { SocialProvider, SignUpAttribute, FormFieldComponents, FormFieldOptions, LoginMechanism } from '@aws-amplify/ui';
+import { SocialProvider, FormFieldComponents, FormFieldOptions, LoginMechanism, SignUpAttribute, translate } from '@aws-amplify/ui';
 import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { StoreDescriptor, ReduxStoreConfig } from '@wordpress/data/build-types/types';
 
@@ -80,7 +80,6 @@ interface ApiConfiguration {
 }
 interface AuthenticatorConfig {
     socialProviders: SocialProvider[];
-    signUpAttributes: SignUpAttribute[];
     formFields: {
         [key in FormFieldComponents]?: {
             [field_name: string]: FormFieldOptions;
@@ -109,7 +108,7 @@ interface State {
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
 }
-type SubscriptionType = "BASIC" | "PROFESSIONAL";
+type SubscriptionType = "BASIC" | "PROFESSIONAL" | "AGENCY";
 type Store = StoreDescriptor<ReduxStoreConfig<State, typeof actions, typeof selectors>>;
 declare const observeStore: (observableStore: Store, selector: (state: State) => ResourcesConfig | Account | boolean | number | string | null | undefined, onChange: (nextValue: ResourcesConfig | Account | boolean | number | string | null | undefined, previousValue: ResourcesConfig | Account | boolean | number | string | null | undefined) => void) => any;
 
@@ -156,6 +155,7 @@ interface Settings {
     };
     mappings: RoleMapping[];
     loginMechanisms: LoginMechanism[];
+    signUpAttributes: SignUpAttribute[];
     integrateWpLogin: boolean;
     cookieExpiration?: number;
     signInPage?: string;
@@ -197,6 +197,7 @@ interface Cognito {
     readonly del: typeof del;
     readonly head: typeof head;
     readonly patch: typeof patch;
+    readonly translate: typeof translate;
     toSignIn?: () => void;
     toSignUp?: () => void;
     toForgotPassword?: () => void;
@@ -212,4 +213,4 @@ interface Gatey {
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

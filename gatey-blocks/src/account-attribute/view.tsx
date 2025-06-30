@@ -8,7 +8,7 @@ import "jquery";
 import { store } from "@smart-cloud/gatey-core";
 
 import { type Language } from "../index";
-import { type Screen, type Variation } from "./index";
+import { type Component, type Attribute } from "./index";
 import { Theme } from "./theme";
 
 const cache = new Map<string, string>();
@@ -17,19 +17,12 @@ try {
     const el = document.querySelector("#" + id);
     if (el) {
       const isPreview = el.getAttribute("data-is-preview") === "true";
-      const screen = el.getAttribute("data-screen") as Screen;
-      const variation = el.getAttribute("data-variation") as Variation;
+      const component = el.getAttribute("data-component") as Component | "div";
+      const attribute = el.getAttribute("data-attribute") as Attribute | "sub";
+      const custom = el.getAttribute("data-custom") as string;
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
       const language = el.getAttribute("data-language") as Language;
       const direction = el.getAttribute("data-direction") as Direction | "auto";
-      const showOpenButton =
-        el.getAttribute("data-show-open-button") === "true";
-      const openButtonTitle = el.getAttribute("data-open-button-title") || "";
-      const signingInMessage = el.getAttribute("data-signing-in-message") || "";
-      const signingOutMessage =
-        el.getAttribute("data-signing-out-message") || "";
-      const redirectingMessage =
-        el.getAttribute("data-redirecting-message") || "";
       const root = createRoot(el);
       const fulfilledStore = await store;
       if (cache.has(id)) {
@@ -41,28 +34,21 @@ try {
         <StrictMode>
           <Theme
             id={id}
+            isPreview={isPreview}
             store={fulfilledStore}
-            screen={screen}
-            variation={variation}
+            component={component}
+            attribute={attribute}
+            custom={custom}
             colorMode={colorMode}
             language={language}
             direction={direction}
-            showOpenButton={showOpenButton}
-            openButtonTitle={openButtonTitle}
-            signingInMessage={signingInMessage}
-            signingOutMessage={signingOutMessage}
-            redirectingMessage={redirectingMessage}
-            isPreview={isPreview}
-            nonce={Gatey?.nonce}
-          >
-            {el.children?.length && el.children[0].innerHTML}
-          </Theme>
+          />
         </StrictMode>
       );
     }
   };
 
-  jQuery(document).on("gatey-authenticator-block", (_, id) => call(id));
+  jQuery(document).on("gatey-account-attribute-block", (_, id) => call(id));
 } catch (err) {
   console.error(err);
 }

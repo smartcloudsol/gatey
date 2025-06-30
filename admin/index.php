@@ -44,6 +44,7 @@ class Admin
             redirectSignOut: '',
             reCaptchaPublicKey: '',
             customTranslationsUrl: '',
+            signUpAttributes: [],
         );
         $defaultSiteSettings = new SiteSettings(
             accountId: '',
@@ -73,6 +74,7 @@ class Admin
             $this->settings->redirectSignOut ??= '';
             $this->settings->reCaptchaPublicKey ??= '';
             $this->settings->customTranslationsUrl ??= '';
+            $this->settings->signUpAttributes ??= [];
             $this->siteSettings = get_option(GATEY_SLUG . '/site-settings', $defaultSiteSettings);
             $this->siteSettings->accountId ??= '';
             $this->siteSettings->siteId ??= '';
@@ -540,6 +542,7 @@ class Admin
             $settings_param->redirectSignOut ?? "",
             $settings_param->reCaptchaPublicKey ?? "",
             $settings_param->customTranslationsUrl ?? "",
+            $settings_param->signUpAttributes ?? [],
         );
 
         // Frissített beállítások mentése

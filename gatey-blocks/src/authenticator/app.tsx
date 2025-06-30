@@ -1,55 +1,26 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  type RefObject,
-  type Dispatch,
-  type ReactNode,
-  type PropsWithChildren,
-  type FunctionComponent,
-  type SetStateAction,
-} from "react";
+import { useEffect, useState, useRef, type FunctionComponent } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Amplify, type ResourcesConfig } from "aws-amplify";
 
 import { I18n } from "aws-amplify/utils";
-import { translate } from "@aws-amplify/ui";
 import { translations, Authenticator, Button } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
 
-import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
-import { type Screen, type Variation, type Language } from "./index";
+import {
+  type AuthenticatorConfig,
+  type CustomTranslations,
+  type Store,
+} from "@smart-cloud/gatey-core";
+import { type Language } from "../index";
+import { type ThemeProps } from "./theme";
 import { Login } from "./login";
 
 import "./app.module.css";
 
 I18n.putVocabularies(translations);
 
-export type PreviewType = "FREE" | "BASIC" | "PROFESSIONAL";
-
-export interface AppProps extends PropsWithChildren {
-  id: string;
-  screen?: Screen;
-  variation?: Variation;
-  language?: Language;
-  showOpenButton?: boolean;
-  openButtonTitle?: string;
-  signingInMessage?: string;
-  signingOutMessage?: string;
-  redirectingMessage?: string;
-  store: Store;
-  isPreview: boolean;
-  nonce: string;
-  editorRef?: RefObject<HTMLDivElement>;
-  children?: ReactNode;
-  previewMode?: PreviewType;
-  setPreviewMode?: Dispatch<SetStateAction<PreviewType | undefined>>;
-  siteSettings?: AuthenticatorConfig | null;
-  siteSubscriptionType?: string | null;
-}
-
-export const App: FunctionComponent<AppProps> = (props: AppProps) => {
+export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
     isPreview,
@@ -64,6 +35,8 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     screen,
     language,
   } = props;
+
+  const [currentLanguage, setCurrentLanguage] = useState<Language>();
 
   const [title, setTitle] = useState<string>();
 
@@ -99,20 +72,29 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     []
   );
 
+  const customTranslations: CustomTranslations | undefined | null = useSelect(
+    (
+      select: (store: Store) => {
+        getCustomTranslations: () => CustomTranslations | undefined | null;
+      }
+    ) => select(store).getCustomTranslations(),
+    []
+  );
+
   useEffect(() => {
     if (containerRef.current) {
       jQuery(containerRef.current).on("done.gatey-authenticator", () => {
         if (editorRef?.current) {
           setShow(false);
         } else {
-          jQuery(document).trigger("gatey-block", id);
+          jQuery(document).trigger("gatey-authenticator-block", id);
         }
       });
       jQuery(containerRef.current).on("cancel.gatey-authenticator", () => {
         if (editorRef?.current) {
           setShow(false);
         } else {
-          jQuery(document).trigger("gatey-block", id);
+          jQuery(document).trigger("gatey-authenticator-block", id);
         }
       });
     }
@@ -122,21 +104,11 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
     if (decryptedConfig) {
       if (setPreviewMode) {
         setNextFilteredConfig(undefined);
-        setPreviewMode(
-          decryptedConfig?.subscriptionType === "BASIC"
-            ? "BASIC"
-            : "PROFESSIONAL"
-        );
+        setPreviewMode(decryptedConfig?.subscriptionType ? "PAID" : "FREE");
       }
     } else if (setPreviewMode) {
       setNextFilteredConfig(undefined);
-      setPreviewMode(
-        siteSubscriptionType
-          ? siteSubscriptionType === "BASIC"
-            ? "BASIC"
-            : "PROFESSIONAL"
-          : "FREE"
-      );
+      setPreviewMode(siteSubscriptionType ? "PAID" : "FREE");
     }
   }, [
     decryptedConfig,
@@ -153,17 +125,7 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
         case "FREE":
           fc = null;
           break;
-        case "BASIC":
-          fc = {
-            socialProviders: [],
-            signUpAttributes: [],
-            formFields: {},
-            apiConfigurations: {
-              default: { apis: [] },
-            },
-          };
-          break;
-        case "PROFESSIONAL":
+        case "PAID":
           fc = siteSettings ?? decryptedConfig;
           break;
       }
@@ -195,30 +157,41 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
   }, [amplifyConfig, isPreview, store]);
 
   useEffect(() => {
+    I18n.putVocabularies(customTranslations || {});
+    if (!language || language === "system") {
+      I18n.setLanguage("");
+      setCurrentLanguage(undefined);
+    } else {
+      I18n.setLanguage(language);
+      setCurrentLanguage(language);
+    }
+  }, [language, customTranslations]);
+
+  useEffect(() => {
     if (showOpenButton) {
       if (!openButtonTitle) {
         switch (screen) {
           case "signIn":
-            setTitle(translate("Sign In"));
+            setTitle(Gatey.cognito.translate("Sign In"));
             break;
           case "signUp":
-            setTitle(translate("Sign Up"));
+            setTitle(Gatey.cognito.translate("Sign Up"));
             break;
           case "forgotPassword":
-            setTitle(translate("Forgot Password"));
+            setTitle(Gatey.cognito.translate("Forgot Password"));
             break;
           case "changePassword":
-            setTitle(translate("Change Password"));
+            setTitle(Gatey.cognito.translate("Change Password"));
             break;
           case "editAccount":
-            setTitle(translate("Edit Account"));
+            setTitle(Gatey.cognito.translate("Edit Account"));
             break;
           case "setupTotp":
-            setTitle(translate("Setup TOTP"));
+            setTitle(Gatey.cognito.translate("Setup TOTP"));
             break;
         }
       } else {
-        setTitle(translate(openButtonTitle));
+        setTitle(Gatey.cognito.translate(openButtonTitle));
       }
     }
   }, [screen, language, showOpenButton, openButtonTitle]);
@@ -250,6 +223,7 @@ export const App: FunctionComponent<AppProps> = (props: AppProps) => {
                       containerRef={containerRef}
                       {...props}
                       config={filteredConfig}
+                      language={currentLanguage}
                     />
                   )}
                 </>

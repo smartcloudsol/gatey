@@ -1,12 +1,13 @@
 import { type ResourcesConfig } from "aws-amplify";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { I18n } from "aws-amplify/utils";
 import { type APIConfig } from "@aws-amplify/core";
 import {
   type FormFieldComponents,
   type FormFieldOptions,
-  type SignUpAttribute,
   type SocialProvider,
 } from "@aws-amplify/ui";
+import { translations } from "@aws-amplify/ui-react";
 
 import {
   createReduxStore,
@@ -29,6 +30,8 @@ import {
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
+
+I18n.putVocabularies(translations);
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -215,6 +218,8 @@ const getDefaultState = async (): Promise<State> => {
       : config?.apiConfigurations?.default;
   const account = await getAccountFromStorage(apiConfiguration);
   const customTranslations = await getCustomTranslations();
+  I18n.putVocabularies(customTranslations || {});
+
   return {
     config: config,
     amplifyConfig: {} as ResourcesConfig,
@@ -266,6 +271,11 @@ const actions = {
   },
 
   setLanguage(language: string | undefined | null) {
+    if (!language || language === "system") {
+      I18n.setLanguage("");
+    } else {
+      I18n.setLanguage(language);
+    }
     return {
       type: "SET_LANGUAGE",
       language,
@@ -369,7 +379,6 @@ export interface ApiConfiguration {
 
 export interface AuthenticatorConfig {
   socialProviders: SocialProvider[];
-  signUpAttributes: SignUpAttribute[];
   formFields: {
     [key in FormFieldComponents]?: {
       [field_name: string]: FormFieldOptions;
@@ -401,7 +410,7 @@ export interface State {
   reloadMFAPreferences: number;
 }
 
-export type SubscriptionType = "BASIC" | "PROFESSIONAL";
+export type SubscriptionType = "BASIC" | "PROFESSIONAL" | "AGENCY";
 
 export type Store = StoreDescriptor<
   ReduxStoreConfig<State, typeof actions, typeof selectors>

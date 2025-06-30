@@ -16,6 +16,7 @@ import {
   Fieldset,
   Group,
   HoverCard,
+  MultiSelect,
   NumberInput,
   Select,
   Stack,
@@ -31,10 +32,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Amplify } from "aws-amplify";
 import { Hub } from "aws-amplify/utils";
 import { fetchAuthSession } from "@aws-amplify/auth";
+import { type SignUpAttribute } from "@aws-amplify/ui";
 import { Authenticator } from "@aws-amplify/ui-react";
 import apiFetch from "@wordpress/api-fetch";
 import {
   loadAuthSession,
+  TEXT_DOMAIN,
   type AuthenticatorConfig,
   type RoleMapping,
   type Settings,
@@ -60,6 +63,7 @@ import { __experimentalHeading as Heading } from "@wordpress/components";
 import { dispatch, useSelect } from "@wordpress/data";
 import { __ } from "@wordpress/i18n";
 import { useCallback, useEffect, useState, useMemo } from "react";
+import { signUpAttributes } from "./index";
 import DocSidebar from "./DocSidebar";
 import { LicenseHandler } from "./license-handler";
 import { OnboardingBanner } from "./onboarding";
@@ -94,8 +98,6 @@ export interface FormFieldEditorProps {
     scrollToId: string;
   }) => JSX.Element;
 }
-
-export const TEXT_DOMAIN = "auth-with-amazon-cognito";
 
 const ApiSettingsEditor = lazy(
   () =>
@@ -250,6 +252,7 @@ const Main = (props: MainProps) => {
     redirectSignOut: settings.redirectSignOut,
     reCaptchaPublicKey: settings.reCaptchaPublicKey,
     customTranslationsUrl: settings.customTranslationsUrl,
+    signUpAttributes: settings.signUpAttributes || [],
   });
 
   const [resolvedConfig, setResolvedConfig] = useState<
@@ -269,7 +272,7 @@ const Main = (props: MainProps) => {
     | "wordpress-login"
     | "api-settings"
     | "form-fields"
-  >("user-pools");
+  >("general");
 
   // Add media query for responsive design
   const isMobile = useMediaQuery(
@@ -721,19 +724,30 @@ const Main = (props: MainProps) => {
   useEffect(() => {
     setNavigationOptions([
       {
-        value: "user-pools",
-        label: "User Pools",
-        icon: <IconUsersGroup size={16} stroke={1.5} />,
-      },
-      {
         value: "general",
         label: "General",
         icon: <IconSettings size={16} stroke={1.5} />,
       },
       {
+        value: "user-pools",
+        label: "User Pools",
+        icon: <IconUsersGroup size={16} stroke={1.5} />,
+      },
+      {
         value: "wordpress-login",
         label: "WordPress Login",
         icon: <IconLogin size={16} stroke={1.5} />,
+      },
+      {
+        value: "form-fields",
+        label: "Form Fields",
+        icon: <IconForms size={16} stroke={1.5} />,
+        badge: (
+          <Badge variant="light" color="blue" ml="4px" miw={35}>
+            BASIC
+          </Badge>
+        ),
+        disabled: !decryptedConfig?.subscriptionType,
       },
       {
         value: "api-settings",
@@ -744,21 +758,10 @@ const Main = (props: MainProps) => {
             PRO
           </Badge>
         ),
-        disabled: !formConfig,
-      },
-      {
-        value: "form-fields",
-        label: "Form Fields",
-        icon: <IconForms size={16} stroke={1.5} />,
-        badge: (
-          <Badge variant="light" color="red" ml="4px" miw={35}>
-            PRO
-          </Badge>
-        ),
-        disabled: !formConfig,
+        disabled: !decryptedConfig?.subscriptionType,
       },
     ]);
-  }, [amplifyConfigured, formConfig]);
+  }, [amplifyConfigured, decryptedConfig]);
 
   useEffect(() => {
     if (resolvedConfig !== undefined) {
@@ -830,8 +833,8 @@ const Main = (props: MainProps) => {
               onChange={(value) =>
                 setActivePage(
                   value as
-                    | "user-pools"
                     | "general"
+                    | "user-pools"
                     | "wordpress-login"
                     | "api-settings"
                     | "form-fields"
@@ -1130,6 +1133,25 @@ const Main = (props: MainProps) => {
                         }}
                       />
                     </Fieldset>
+                    <MultiSelect
+                      label={
+                        <InfoLabelComponent
+                          text="Sign-up Attributes"
+                          scrollToId="signup-attributes"
+                        />
+                      }
+                      placeholder="Select attributes"
+                      data={signUpAttributes}
+                      value={settingsFormData.signUpAttributes}
+                      onChange={(values: string[]) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          signUpAttributes: values as SignUpAttribute[],
+                        })
+                      }
+                      searchable
+                      hidePickedOptions
+                    />
                     <TextInput
                       disabled={savingSettings}
                       label={
@@ -1252,6 +1274,7 @@ const Main = (props: MainProps) => {
                       }}
                     />
                   </Stack>
+
                   <Group justify="flex-end" mt="lg">
                     <Button
                       loading={savingSettings}
@@ -1452,7 +1475,8 @@ const Main = (props: MainProps) => {
                   URL, then configure sign-in and sign-up hooks.
                 </Text>
 
-                {formConfig?.subscriptionType === "BASIC" && (
+                {(formConfig ?? decryptedConfig)?.subscriptionType ===
+                  "BASIC" && (
                   <Alert
                     variant="light"
                     color="yellow"
@@ -1465,10 +1489,10 @@ const Main = (props: MainProps) => {
                     will not take effect until you upgrade your subscription.
                   </Alert>
                 )}
-                {formConfig && (
+                {(formConfig ?? decryptedConfig) && (
                   <ApiSettingsEditor
                     amplifyConfigured={amplifyConfigured}
-                    config={formConfig}
+                    config={formConfig ?? decryptedConfig}
                     accountId={accountId!}
                     siteId={siteId!}
                     siteKey={siteKey!}
@@ -1487,7 +1511,8 @@ const Main = (props: MainProps) => {
                   or custom Cognito attributes with full control.
                 </Text>
 
-                {formConfig?.subscriptionType === "BASIC" && (
+                {(formConfig ?? decryptedConfig)?.subscriptionType ===
+                  "BASIC" && (
                   <Alert
                     variant="light"
                     color="yellow"
@@ -1500,10 +1525,10 @@ const Main = (props: MainProps) => {
                     will not take effect until you upgrade your subscription.
                   </Alert>
                 )}
-                {formConfig && (
+                {(formConfig ?? decryptedConfig) && (
                   <FormFieldEditor
                     amplifyConfigured={amplifyConfigured}
-                    config={formConfig}
+                    config={formConfig ?? decryptedConfig}
                     accountId={accountId!}
                     siteId={siteId!}
                     siteKey={siteKey!}

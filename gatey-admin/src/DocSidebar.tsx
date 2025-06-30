@@ -190,6 +190,19 @@ const pages = {
         mechanisms under "Sign-in options".
       </Text>
 
+      {/* ── Sign-up attributes ───────────────────────────────────────────── */}
+      <Title order={3} mt="md" id="signup-attributes">
+        <span className="highlightable">Sign-up attributes</span>
+      </Title>
+      <List size="sm" spacing="xs" withPadding>
+        <List.Item>
+          <Text fw={500}>Standard attributes</Text>
+          Choose which Cognito attributes are stored at sign-up —
+          <Code ml="xs">email</Code>, <Code>phone_number</Code>, etc. These
+          fields are rendered automatically by Cognito.
+        </List.Item>
+      </List>
+
       <Title order={3} mt="md" id="custom-translations-url">
         <span className="highlightable">Custom Translations</span>
       </Title>
@@ -521,19 +534,6 @@ const pages = {
           <Text fw={500}>Providers</Text>
           Toggle Google, Facebook, Apple or Amazon buttons (requires
           corresponding Identity Provider in AWS console).
-        </List.Item>
-      </List>
-
-      {/* ── Sign-up attributes ───────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="signup-attributes">
-        <span className="highlightable">Sign-up attributes</span>
-      </Title>
-      <List size="sm" spacing="xs" withPadding>
-        <List.Item>
-          <Text fw={500}>Standard attributes</Text>
-          Choose which Cognito attributes are stored at sign-up —
-          <Code ml="xs">email</Code>, <Code>phone_number</Code>, etc. These
-          fields are rendered automatically by Cognito.
         </List.Item>
       </List>
 

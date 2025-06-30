@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.2.7
+ * Version:           1.3.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.2.7';
+const VERSION = '1.3.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -319,23 +319,34 @@ final class Gatey_Plugin
     {
         $a = shortcode_atts(
             array(
+                'component' => null,
                 'attribute' => null,
                 'custom' => null,
             ),
             $atts
         );
-        $is_admin = is_admin();
-        if (!$is_admin && did_action('elementor/loaded') && class_exists('\Elementor\Plugin')) {
+        $is_preview = is_admin();
+        if (!$is_preview && did_action('elementor/loaded') && class_exists('\Elementor\Plugin')) {
             $plugin = \Elementor\Plugin::$instance;
             if (isset($plugin->preview) && method_exists($plugin->preview, 'is_preview_mode')) {
-                $is_admin = $plugin->preview->is_preview_mode();
+                $is_preview = $plugin->preview->is_preview_mode();
             }
         }
-        return '<p gatey-account-attribute-' . (strcmp($a['attribute'], 'custom') != 0 ?
-            $a['attribute']
-            :
-            'custom-' . $a['custom']
-        ) . ' style="margin:0;padding:0;">' . ($is_admin ? $a['attribute'] . (strcmp($a['attribute'], 'custom') == 0 ? '-' . $a['custom'] : '') : '') . '</p>';
+        $attrs = array(
+            'component' => $a['component'] ?? $block['attrs']['component'] ?? 'div',
+            'attribute' => $a['attribute'] ?? $block['attrs']['attribute'] ?? 'sub',
+            'custom' => $a['custom'] ?? $block['attrs']['custom'] ?? '',
+            'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
+            'language' => $a['language'] ?? $block['attrs']['language'] ?? 'en',
+            'direction' => $a['direction'] ?? $block['attrs']['direction'] ?? 'auto',
+        );
+        $newBlock = [
+            'blockName' => 'gatey/account-attribute',
+            'attrs' => $attrs,
+        ];
+        $content = render_block($newBlock);
+        $content = str_replace("gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
+        return $content;
     }
 
     /**
@@ -345,7 +356,7 @@ final class Gatey_Plugin
     {
         $settings = $this->admin->getSettings();
         if (!empty($settings->signInPage)) {
-            return site_url($settings->signInPage) . ($redirect ? '?redirect_to=' . urlencode($redirect) : '');
+            return site_url($settings->signInPage) . ($redirect ? '?redirect_to=' . urlencode($redirect) : '') . ($force_reauth ? '&reauth=1' : '');
         }
         return $login_url;
     }

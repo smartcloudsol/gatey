@@ -1,5 +1,6 @@
 import { select, dispatch } from "@wordpress/data";
 
+import { countries } from "country-data-list";
 import {
   store,
   observeStore,
@@ -11,6 +12,7 @@ import {
   isAuthenticated,
   getAmplifyConfig,
   type Account,
+  type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
 
 import "jquery";
@@ -21,6 +23,9 @@ const root = document.documentElement;
 root.style.setProperty("--gatey-initialized", "none");
 root.style.setProperty("--gatey-not-initialized", "flex");
 jQuery(() => {
+  let decryptedConfig: AuthenticatorConfig | undefined | null;
+  let allAttributeKeys: string[];
+
   const cssVariables: string[] = Array.from(document.styleSheets)
     .filter(
       (sheet) =>
@@ -48,28 +53,68 @@ jQuery(() => {
     );
 
   const replaceValues = (key: string, value: string) => {
-    jQuery("[" + key + "]:not(:has(*))").text(value);
-    jQuery("[" + key + "] *:not(:has(*))").text(value);
-    jQuery("." + key + ":not(:has(*))").text(value);
-    jQuery("." + key + " *:not(:has(*))").text(value);
+    jQuery("[" + key + "]:not(:has(*))").html(value);
+    jQuery("[" + key + "] *:not(:has(*))").html(value);
+    jQuery("." + key + ":not(:has(*))").html(value);
+    jQuery("." + key + " *:not(:has(*))").html(value);
   };
 
   const refresh = async (signedIn: boolean) => {
     if (signedIn) {
       if (Gatey.cognito.getUserAttributes) {
         const attrs = await Gatey.cognito.getUserAttributes();
+        const processedAttrs: string[] = [];
         if (attrs) {
           Object.keys(attrs).forEach((attr) => {
+            const field =
+              (decryptedConfig?.formFields?.signUp &&
+                decryptedConfig?.formFields?.signUp[attr]) ??
+              (decryptedConfig?.formFields?.editAccount &&
+                decryptedConfig?.formFields?.editAccount[attr]);
+            let value = attrs[attr] as string;
+            if (value) {
+              if (field?.type === "country") {
+                const country = countries.all.find(
+                  (country) =>
+                    country.alpha3?.toLocaleLowerCase() ===
+                      value.toLocaleLowerCase() ||
+                    country.alpha2?.toLocaleLowerCase() ===
+                      value.toLocaleLowerCase()
+                );
+                if (country) {
+                  value = Gatey.cognito.translate(country.name);
+                }
+              } else if (field?.type === "select" || field?.type === "radio") {
+                const options = field?.values ?? [];
+                const option = options.find((option) => option.value === value);
+                if (option) {
+                  value = Gatey.cognito.translate(option.label);
+                }
+              }
+            }
             replaceValues(
               "gatey-account-attribute-" + attr.replaceAll(":", "-"),
-              attrs[attr] as string
+              value ?? "&nbsp;"
             );
             root.style.setProperty(
               "--gatey-account-attribute-" + attr.replaceAll(":", "-"),
-              "'" + (attrs[attr] as string) + "'"
+              "'" + (value ?? "") + "'"
             );
+            processedAttrs.push(attr);
           });
         }
+        allAttributeKeys?.forEach((key) => {
+          if (!processedAttrs.includes(key)) {
+            replaceValues(
+              "gatey-account-attribute-" + key.replaceAll(":", "-"),
+              "&nbsp;"
+            );
+            root.style.setProperty(
+              "--gatey-account-attribute-" + key.replaceAll(":", "-"),
+              "''"
+            );
+          }
+        });
       }
       if (Gatey.cognito.getMfaPreferences) {
         const mfaPreferences = await Gatey.cognito.getMfaPreferences();
@@ -124,13 +169,26 @@ jQuery(() => {
   };
 
   store.then(async (store) => {
-    const decryptedConfig = select(store).getConfig();
+    decryptedConfig = select(store).getConfig();
     const apiConfiguration =
       window.location.hostname.toLowerCase() ===
         decryptedConfig?.secondaryDomain?.toLowerCase().trim() &&
       decryptedConfig.apiConfigurations?.secondary?.apis?.length
         ? decryptedConfig.apiConfigurations.secondary
         : decryptedConfig?.apiConfigurations?.default;
+    const allAttrs = [];
+    if (decryptedConfig?.formFields?.signUp) {
+      allAttrs.push(...Object.keys(decryptedConfig.formFields.signUp));
+    }
+    if (decryptedConfig?.formFields?.editAccount) {
+      allAttrs.push(...Object.keys(decryptedConfig.formFields.editAccount));
+    }
+    allAttributeKeys = Array.from(new Set(allAttrs));
+    Gatey.settings.signUpAttributes.forEach((attr) => {
+      if (!allAttributeKeys.includes(attr)) {
+        allAttributeKeys.push(attr);
+      }
+    });
 
     dispatch(store).setAmplifyConfig(getAmplifyConfig());
 
@@ -216,6 +274,26 @@ jQuery(() => {
         const signedIn = !!(account as Account)?.username;
         dispatch(store).setSignedIn(signedIn);
         refresh(signedIn);
+      }
+    );
+
+    observeStore(
+      store,
+      (state) => state.language,
+      () => {
+        Gatey.cognito
+          .isAuthenticated()
+          .then((authenticated) => refresh(authenticated));
+      }
+    );
+
+    observeStore(
+      store,
+      (state) => state.direction,
+      () => {
+        Gatey.cognito
+          .isAuthenticated()
+          .then((authenticated) => refresh(authenticated));
       }
     );
   });

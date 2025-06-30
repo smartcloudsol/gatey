@@ -20,15 +20,13 @@ import { seen, check, currencyDollar } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
 
 import { Amplify } from "aws-amplify";
-import { I18n } from "aws-amplify/utils";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { get } from "@aws-amplify/api";
-import { translate } from "@aws-amplify/ui";
 
 import {
   defaultDarkModeOverride,
-  translations,
   ThemeProvider,
+  type Direction,
 } from "@aws-amplify/ui-react";
 
 import {
@@ -38,7 +36,13 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type Direction, type Screen, type Language } from "./index";
+import {
+  colorModeOptions,
+  directionOptions,
+  languageOptions,
+  type Language,
+} from "../index";
+import { type Screen } from "./index";
 import { EditorBlockProps } from "./edit";
 import { type PreviewType } from "./theme";
 import { App } from "./app";
@@ -69,8 +73,6 @@ const configUrl =
     : "https://wpsuite.io/static/config/prod.json";
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
-
-I18n.putVocabularies(translations);
 
 export const Block: FunctionComponent<
   BlockEditProps<EditorBlockProps> & { children: ReactNode }
@@ -105,8 +107,7 @@ export const Block: FunctionComponent<
   const [previewScreen, setPreviewScreen] = useState<Screen>(
     screen || "signIn"
   );
-  const [themeDirection, setThemeDirection] =
-    useState<Omit<Direction, "auto">>();
+  const [themeDirection, setThemeDirection] = useState<Direction>();
   const [title, setTitle] = useState<string>();
   const [currentLanguage, setCurrentLanguage] = useState<string>();
 
@@ -220,7 +221,6 @@ export const Block: FunctionComponent<
 
   useEffect(() => {
     if (language) {
-      I18n.setLanguage(language);
       setCurrentLanguage(language);
     }
     if (showOpenButton) {
@@ -228,22 +228,22 @@ export const Block: FunctionComponent<
       switch (screen) {
         default:
         case "signIn":
-          title = translate("Sign In");
+          title = Gatey.cognito.translate("Sign In");
           break;
         case "signUp":
-          title = translate("Sign Up");
+          title = Gatey.cognito.translate("Sign Up");
           break;
         case "forgotPassword":
-          title = translate("Forgot Password");
+          title = Gatey.cognito.translate("Forgot Password");
           break;
         case "changePassword":
-          title = translate("Change Password");
+          title = Gatey.cognito.translate("Change Password");
           break;
         case "editAccount":
-          title = translate("Edit Account");
+          title = Gatey.cognito.translate("Edit Account");
           break;
         case "setupTotp":
-          title = translate("Setup TOTP");
+          title = Gatey.cognito.translate("Setup TOTP");
           break;
       }
       setTitle(title);
@@ -255,7 +255,7 @@ export const Block: FunctionComponent<
     if (!direction || direction === "auto") {
       td = language === "ar" || language === "he" ? "rtl" : "ltr";
     }
-    setThemeDirection(td as Omit<Direction, "auto">);
+    setThemeDirection(td as Direction);
   }, [direction, language]);
 
   return (
@@ -336,11 +336,7 @@ export const Block: FunctionComponent<
           <RadioControl
             label={__("Color Mode", TEXT_DOMAIN)}
             selected={colorMode || "system"}
-            options={[
-              { label: __("Light", TEXT_DOMAIN), value: "light" },
-              { label: __("Dark", TEXT_DOMAIN), value: "dark" },
-              { label: __("System", TEXT_DOMAIN), value: "system" },
-            ]}
+            options={colorModeOptions}
             onChange={(value) => {
               if (value === "system" || value === "light" || value === "dark") {
                 setAttributes({ colorMode: value });
@@ -353,62 +349,10 @@ export const Block: FunctionComponent<
           />
           <ComboboxControl
             label={__("Language", TEXT_DOMAIN)}
-            value={language || "en"}
-            options={[
-              {
-                label: __("Arabic", TEXT_DOMAIN),
-                value: "ar",
-              },
-              {
-                label: __("English (default)", TEXT_DOMAIN),
-                value: "en",
-              },
-              { label: __("Chinese", TEXT_DOMAIN), value: "zh" },
-              { label: __("Dutch", TEXT_DOMAIN), value: "nl" },
-              { label: __("French", TEXT_DOMAIN), value: "fr" },
-              { label: __("German", TEXT_DOMAIN), value: "de" },
-              { label: __("Hebrew", TEXT_DOMAIN), value: "he" },
-              { label: __("Hindi", TEXT_DOMAIN), value: "hi" },
-              { label: __("Hungarian", TEXT_DOMAIN), value: "hu" },
-              { label: __("Indonesian", TEXT_DOMAIN), value: "id" },
-              { label: __("Italian", TEXT_DOMAIN), value: "it" },
-              { label: __("Japanese", TEXT_DOMAIN), value: "ja" },
-              { label: __("Korean", TEXT_DOMAIN), value: "ko" },
-              { label: __("Norwegian", TEXT_DOMAIN), value: "nb" },
-              { label: __("Polish", TEXT_DOMAIN), value: "pl" },
-              { label: __("Portuguese", TEXT_DOMAIN), value: "pt" },
-              { label: __("Russian", TEXT_DOMAIN), value: "ru" },
-              { label: __("Spanish", TEXT_DOMAIN), value: "es" },
-              { label: __("Swedish", TEXT_DOMAIN), value: "sv" },
-              { label: __("Thai", TEXT_DOMAIN), value: "th" },
-              { label: __("Turkish", TEXT_DOMAIN), value: "tr" },
-              { label: __("Ukrainian", TEXT_DOMAIN), value: "ua" },
-            ]}
+            value={language || "system"}
+            options={languageOptions}
             onChange={(value) => {
-              if (
-                value === "ar" ||
-                value === "en" ||
-                value === "zh" ||
-                value === "nl" ||
-                value === "fr" ||
-                value === "de" ||
-                value === "he" ||
-                value === "hi" ||
-                value === "hu" ||
-                value === "id" ||
-                value === "it" ||
-                value === "ja" ||
-                value === "ko" ||
-                value === "nb" ||
-                value === "pl" ||
-                value === "pt" ||
-                value === "ru" ||
-                value === "es" ||
-                value === "sv" ||
-                value === "th" ||
-                value === "tr" ||
-                value === "ua"
-              ) {
+              if (value as Language) {
                 setAttributes({ language: value as Language });
               }
             }}
@@ -420,14 +364,7 @@ export const Block: FunctionComponent<
           <RadioControl
             label={__("Direction", TEXT_DOMAIN)}
             selected={direction || "auto"}
-            options={[
-              {
-                label: __("Auto (by language)", TEXT_DOMAIN),
-                value: "auto",
-              },
-              { label: __("Left to Right", TEXT_DOMAIN), value: "ltr" },
-              { label: __("Right to Left", TEXT_DOMAIN), value: "rtl" },
-            ]}
+            options={directionOptions}
             onChange={(value) => {
               if (value === "auto" || value === "ltr" || value === "rtl") {
                 setAttributes({ direction: value });
@@ -510,20 +447,11 @@ export const Block: FunctionComponent<
                 onClick: () => setPreviewMode("FREE"),
               },
               {
-                icon: previewMode === "BASIC" ? check : null,
+                icon: previewMode === "PAID" ? check : null,
                 title:
-                  __("Basic", TEXT_DOMAIN) +
-                  (siteSubscriptionType === "BASIC" ? currentPlan : ""),
-                onClick: () => setPreviewMode("BASIC"),
-              },
-              {
-                icon: previewMode === "PROFESSIONAL" ? check : null,
-                title:
-                  __("Pro+", TEXT_DOMAIN) +
-                  (siteSubscriptionType && siteSubscriptionType !== "BASIC"
-                    ? currentPlan
-                    : ""),
-                onClick: () => setPreviewMode("PROFESSIONAL"),
+                  __("Paid", TEXT_DOMAIN) +
+                  (siteSubscriptionType === "PAID" ? currentPlan : ""),
+                onClick: () => setPreviewMode("PAID"),
               },
             ]}
           />
@@ -587,13 +515,14 @@ export const Block: FunctionComponent<
           <ThemeProvider
             theme={theme}
             colorMode={colorMode}
-            direction={themeDirection as "ltr" | "rtl" | undefined}
+            direction={themeDirection}
           >
             <App
-              id="gatey-block"
+              id="gatey-authenticator-block"
               screen={previewScreen}
               variation={variation}
               language={currentLanguage as Language}
+              direction={themeDirection}
               showOpenButton={showOpenButton}
               openButtonTitle={openButtonTitle}
               signingInMessage={signingInMessage}

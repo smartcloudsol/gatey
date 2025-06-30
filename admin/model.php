@@ -92,6 +92,7 @@ class Settings
         public string $redirectSignOut = "",
         public string $reCaptchaPublicKey = "",
         public string $customTranslationsUrl = "",
+        public array $signUpAttributes = [],
     ) {
     }
 }

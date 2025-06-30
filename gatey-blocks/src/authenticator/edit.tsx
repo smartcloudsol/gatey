@@ -3,14 +3,10 @@ import { type FunctionComponent } from "react";
 import { type BlockEditProps } from "@wordpress/blocks";
 import { useBlockProps, useInnerBlocksProps } from "@wordpress/block-editor";
 
-import { type ColorMode } from "@aws-amplify/ui-react";
+import { type ColorMode, type Direction } from "@aws-amplify/ui-react";
 
-import {
-  type Screen,
-  type Variation,
-  type Language,
-  type Direction,
-} from "./index";
+import { type Language } from "../index";
+import { type Screen, type Variation } from "./index";
 import { Block } from "./block";
 
 export interface EditorBlockProps {
@@ -18,7 +14,7 @@ export interface EditorBlockProps {
   variation?: Variation;
   colorMode?: ColorMode;
   language?: Language;
-  direction?: Direction;
+  direction?: Direction | "auto";
   showOpenButton?: boolean;
   openButtonTitle?: string;
   signingInMessage?: string;

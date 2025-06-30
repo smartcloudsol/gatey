@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.2.7
+Stable tag: 1.3.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,12 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.3.0 =
+Sign-up attributes unlocked: all standard Cognito attributes are now available in the free plan.
+Form-field editor moved down to BASIC: customise field order, labels, and validation rules without a PRO licence.
+New field type – country: autocomplete selector with the full ISO list, translated in all 22 Gatey languages.
+Enhanced phone_number field: country-code picker now uses the same autocomplete component and localisation as the new country field.
+
 = 1.2.7 =
 Fixed the **Copy Shortcode** button in **Gatey** › **Patterns** so it now works on sites served over “http://”. Also removed animations from Mantine Select components in the admin UI to prevent tab freezes on Windows when OS-level animations are disabled.
 
@@ -221,6 +227,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+After updating you can add Cognito sign-up attributes on every site, customise form fields starting with the BASIC plan, and use the new country and improved phone fields in any language.
 
 = 1.2.7 =
 Update if the shortcode-copy button failed on non-HTTPS sites or if you experienced admin-tab freezes on Windows; both issues are resolved.

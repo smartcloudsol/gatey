@@ -152,8 +152,8 @@
 
 "@aws-amplify/ui-react-core@3.4.3":
   version "3.4.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#6035405bde6f043b212d5a3d3de08c9fa4f8e06a"
-  integrity sha1-YDVAW95vBDshLVo9PeCMn6T44Go=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#7ab40277e1d02433c02c06df26fa27083f14b481"
+  integrity sha1-erQCd+HQJDPALAbfJvonCD8UtIE=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@xstate/react" "^3.2.2"
@@ -163,8 +163,8 @@
 
 "@aws-amplify/ui-react@^6.11.2":
   version "6.11.2"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#074d3df59cd20d225f8d6b54d0f317394254f93f"
-  integrity sha1-B0099ZzSDSJfjWtU0PMXOUJU+T8=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.11.2.tgz#6e3246bc6723784b5243c1885a134a41bdddba31"
+  integrity sha1-bjJGvGcjeEtSQ8GIWhNKQb3dujE=
   dependencies:
     "@aws-amplify/ui" "6.10.3"
     "@aws-amplify/ui-react-core" "3.4.3"
@@ -172,14 +172,16 @@
     "@radix-ui/react-dropdown-menu" "^2.1.10"
     "@radix-ui/react-slider" "^1.3.2"
     "@xstate/react" "^3.2.2"
+    country-data-list "^1.4.1"
+    country-flag-icons "^1.5.19"
     lodash "4.17.21"
     qrcode "1.5.0"
     tslib "^2.5.2"
 
-"@aws-amplify/ui@6.10.3", "@aws-amplify/ui@^6.10.3":
+"@aws-amplify/ui@6.10.3":
   version "6.10.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#00444baebc7948a187092882c9797d379a5ea7b5"
-  integrity sha1-AERLrrx5SKGHCSiCyXl9N5pep7U=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#ede938823e3c797c50b017f9a383c44f9d5aa0f6"
+  integrity sha1-7ek4gj48eXxQsBf5o4PET51aoPY=
   dependencies:
     csstype "^3.1.1"
     lodash "4.17.21"
@@ -3687,10 +3689,10 @@
 
 "@smart-cloud/gatey-core@^1.0.0":
   version "1.0.0"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#d535132d62f8734db20b06ce0801492805cc5d0f"
-  integrity sha1-1TUTLWL4c02yCwbOCAFJKAXMXQ8=
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/@smart-cloud/gatey-core/-/@smart-cloud/gatey-core-1.0.0.tgz#b407e3166fae1120109103580ac3b4a90b37f4ed"
+  integrity sha1-tAfjFm+uESAQkQNYCsO0qQs39O0=
   dependencies:
-    "@aws-amplify/ui" "^6.10.3"
+    "@aws-amplify/ui-react" "^6.11.2"
     "@wordpress/data" "^10.25.0"
     jose "^6.0.11"
     js-cookie "^3.0.5"
@@ -7390,6 +7392,16 @@ cosmiconfig@^9.0.0:
     import-fresh "^3.3.0"
     js-yaml "^4.1.0"
     parse-json "^5.2.0"
+
+country-data-list@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.npmjs.org/country-data-list/-/country-data-list-1.4.1.tgz#f5696fd7887386b5b78f3ffdb82751d9669751ce"
+  integrity sha512-TQoQNS0a5+7GuAgDNYKLOVG4JwVmjZ2entwcStNh/yN7YzO5SfqVwSyZPK7O9JksxM2OXDzRD3zVHp4CmLzrsg==
+
+country-flag-icons@^1.5.19:
+  version "1.5.19"
+  resolved "https://registry.npmjs.org/country-flag-icons/-/country-flag-icons-1.5.19.tgz#ecfc0ad0f92a5b484310ac59578cb61b6b35fa66"
+  integrity sha512-D/ZkRyj+ywJC6b2IrAN3/tpbReMUqmuRLlcKFoY/o0+EPQN9Ev/e8tV+D3+9scvu/tarxwLErNwS73C3yzxs/g==
 
 crc-32@1.2.2:
   version "1.2.2"

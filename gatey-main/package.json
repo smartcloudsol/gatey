@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -19,11 +19,11 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
   },
   "dependencies": {
-    "@aws-amplify/ui": "^6.10.3",
     "@smart-cloud/gatey-core": "^1.0.0",
     "@wordpress/data": "^10.25.0"
   },
   "devDependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@babel/core": "^7.27.4",
     "@types/jquery": "^3.5.32",
     "@typescript-eslint/eslint-plugin": "^8.34.0",
@@ -32,6 +32,7 @@
     "ajv": "^8.17.1",
     "aws-amplify": "^6.15.0",
     "buffer-browserify": "^0.2.5",
+    "country-data-list": "^1.4.1",
     "crypto-browserify": "^3.12.1",
     "esbuild": "0.25.5",
     "eslint": "^9.28.0",

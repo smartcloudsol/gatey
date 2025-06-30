@@ -9,47 +9,31 @@ import {
   type SetStateAction,
 } from "react";
 
-import { I18n } from "aws-amplify/utils";
-import { translations } from "@aws-amplify/ui-react";
 import {
   defaultDarkModeOverride,
   ThemeProvider,
   type ColorMode,
+  type Direction,
 } from "@aws-amplify/ui-react";
 
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { useSelect } from "@wordpress/data";
 
-import {
-  type AuthenticatorConfig,
-  type CustomTranslations,
-  type Store,
-} from "@smart-cloud/gatey-core";
-import {
-  type Screen,
-  type Variation,
-  type Language,
-  type Direction,
-} from "./index";
+import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
+import { type Language } from "../index";
+import { type Screen, type Variation } from "./index";
 import { App } from "./app";
 
-I18n.putVocabularies(translations);
+export type PreviewType = "FREE" | "PAID";
 
-const theme = {
-  name: "gatey-theme",
-  overrides: [defaultDarkModeOverride],
-};
-
-export type PreviewType = "FREE" | "BASIC" | "PROFESSIONAL";
-
-export interface AppProps extends PropsWithChildren {
+export interface ThemeProps extends PropsWithChildren {
   id: string;
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
   language?: Language;
-  direction?: Direction;
+  direction?: Direction | "auto";
   showOpenButton?: boolean;
   openButtonTitle?: string;
   signingInMessage?: string;
@@ -66,7 +50,7 @@ export interface AppProps extends PropsWithChildren {
   siteSubscriptionType?: string | null;
 }
 
-export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
+export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
     isPreview,
@@ -85,17 +69,13 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
     redirectingMessage,
   } = props;
 
+  const theme = {
+    name: "gatey-theme-" + id,
+    overrides: [defaultDarkModeOverride],
+  };
+
   const [currentLanguage, setCurrentLanguage] = useState<string>();
   const [currentDirection, setCurrentDirection] = useState<Direction>();
-
-  const customTranslations: CustomTranslations | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getCustomTranslations: () => CustomTranslations | undefined | null;
-      }
-    ) => select(store).getCustomTranslations(),
-    []
-  );
 
   const languageInStore: string | undefined | null = useSelect(
     (
@@ -106,10 +86,10 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
     []
   );
 
-  const directionInStore: Direction | undefined | null = useSelect(
+  const directionInStore: Direction | "auto" | undefined | null = useSelect(
     (
       select: (store: Store) => {
-        getDirection: () => Direction | undefined | null;
+        getDirection: () => Direction | "auto" | undefined | null;
       }
     ) => select(store).getDirection(),
     []
@@ -124,21 +104,16 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
   );
 
   useEffect(() => {
-    I18n.putVocabularies(customTranslations || {});
-    if (languageOverride) {
-      I18n.setLanguage(languageOverride);
-      setCurrentLanguage(languageOverride);
-    } else if (languageInStore) {
-      I18n.setLanguage(languageInStore);
-      setCurrentLanguage(languageInStore);
-    } else if (language) {
-      I18n.setLanguage(language);
-      setCurrentLanguage(language);
+    const lang = languageInStore || languageOverride || language;
+    if (!lang || lang === "system") {
+      setCurrentLanguage("");
+    } else {
+      setCurrentLanguage(lang);
     }
-  }, [language, languageOverride, languageInStore, customTranslations]);
+  }, [language, languageOverride, languageInStore]);
 
   useEffect(() => {
-    const dir = directionOverride || directionInStore || direction;
+    const dir = directionInStore || directionOverride || direction;
     if (!dir || dir === "auto") {
       setCurrentDirection(
         currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr"
@@ -152,9 +127,9 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
     <ThemeProvider
       theme={theme}
       colorMode={colorMode}
-      direction={currentDirection as "ltr" | "rtl"}
+      direction={currentDirection}
     >
-      {Gatey.settings?.reCaptchaPublicKey && screen === "signUp" ? (
+      {Gatey.settings?.reCaptchaPublicKey ? (
         <GoogleReCaptchaProvider
           reCaptchaKey={Gatey.settings?.reCaptchaPublicKey}
           language="en"
@@ -168,6 +143,7 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
             screen={screen}
             variation={variation}
             language={currentLanguage as Language}
+            direction={currentDirection}
             showOpenButton={showOpenButton}
             openButtonTitle={openButtonTitle}
             signingInMessage={signingInMessage}
@@ -187,6 +163,7 @@ export const Theme: FunctionComponent<AppProps> = (props: AppProps) => {
           screen={screen}
           variation={variation}
           language={currentLanguage as Language}
+          direction={currentDirection}
           showOpenButton={showOpenButton}
           openButtonTitle={openButtonTitle}
           signingInMessage={signingInMessage}

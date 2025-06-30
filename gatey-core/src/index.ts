@@ -1,6 +1,10 @@
 import { type ResourcesConfig } from "aws-amplify";
 import { get, post, put, del, head, patch } from "aws-amplify/api";
-import { type LoginMechanism } from "@aws-amplify/ui";
+import {
+  translate,
+  type LoginMechanism,
+  type SignUpAttribute,
+} from "@aws-amplify/ui";
 import { dispatch } from "@wordpress/data";
 
 import {
@@ -35,6 +39,7 @@ export interface Settings {
   };
   mappings: RoleMapping[];
   loginMechanisms: LoginMechanism[];
+  signUpAttributes: SignUpAttribute[];
   integrateWpLogin: boolean;
   cookieExpiration?: number;
   signInPage?: string;
@@ -102,6 +107,7 @@ export interface Cognito {
   readonly del: typeof del;
   readonly head: typeof head;
   readonly patch: typeof patch;
+  readonly translate: typeof translate;
   toSignIn?: () => void;
   toSignUp?: () => void;
   toForgotPassword?: () => void;
@@ -145,6 +151,7 @@ export {
   type State,
   type CustomTranslations,
   type AuthenticatorConfig,
+  type SubscriptionType,
 } from "./store";
 
 export { deobfuscate, decryptData } from "./utils";
@@ -178,6 +185,7 @@ if (!initialized) {
     del,
     head,
     patch,
+    translate,
   };
 }
 initialized = true;

@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/account-attribute",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "title": "Account Attribute",
   "category": "wpsuite-gatey",
   "description": "Account Attribute for Gatey Authenticator - display an attribute of the current user",
@@ -15,12 +15,22 @@
     },
     "custom": {
       "type": "string"
+    },
+    "colorMode": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string"
     }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./index.css",
   "render": "file:./render.php",
+  "viewScript": "file:./view.js",
   "supports": {
     "align": true,
     "__experimentalBorder": {

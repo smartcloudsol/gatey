@@ -4,11 +4,35 @@ import { Edit } from "./edit";
 import { Save } from "./save";
 import metadata from "./block.json";
 
-export type Attributes = {
-  component?: "div" | "p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  attribute?: string;
-  custom?: string;
-};
+export type Component =
+  | "div"
+  | "p"
+  | "span"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6";
+
+export type Attribute =
+  | "sub"
+  | "preferred_username"
+  | "email"
+  | "phone_number"
+  | "name"
+  | "given_name"
+  | "family_name"
+  | "middle_name"
+  | "nickname"
+  | "gender"
+  | "birthdate"
+  | "address"
+  | "picture"
+  | "website"
+  | "zoneinfo"
+  | "locale"
+  | "custom";
 
 const icon = (
   <svg

@@ -3,15 +3,18 @@ import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
-import { translate, type AuthContext } from "@aws-amplify/ui";
+import { type AuthContext } from "@aws-amplify/ui";
 
 import {
   Authenticator,
   Flex,
   View,
   Heading,
+  Text,
+  Link,
   AccountSettings,
   useAuthenticator,
+  type Direction,
 } from "@aws-amplify/ui-react";
 
 import "@aws-amplify/ui-react/styles.css";
@@ -26,7 +29,7 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type AppProps } from "./app";
+import { type ThemeProps } from "./theme";
 
 const parseCustomBlocks = import(
   process.env.GATEY_PREMIUM
@@ -69,11 +72,14 @@ export type DefaultComponentDescriptors = {
   [key in DefaultComponentDescriptorKeys]?: string[] | null;
 };
 
+const recaptchaHook = Gatey.settings?.reCaptchaPublicKey
+  ? useGoogleReCaptcha
+  : () => ({ executeRecaptcha: undefined });
+
 export const Login = (
-  props: AppProps & {
+  props: ThemeProps & {
     config: AuthenticatorConfig | null | undefined;
     containerRef: React.RefObject<HTMLDivElement>;
-    currentLanguage?: string;
   }
 ) => {
   const {
@@ -81,7 +87,8 @@ export const Login = (
     store,
     screen,
     variation,
-    currentLanguage,
+    language,
+    direction,
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
@@ -102,7 +109,8 @@ export const Login = (
   >();
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
-  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const { executeRecaptcha } = recaptchaHook();
 
   const account: Account | undefined = useSelect(
     (select: (store: Store) => { getAccount: () => Account | undefined }) =>
@@ -123,8 +131,6 @@ export const Login = (
     []
   );
 
-  const [wasSignedIn] = useState<boolean>(signedIn && !account?.loaded);
-
   const {
     clearAccount,
     reloadUserAttributes,
@@ -141,6 +147,8 @@ export const Login = (
 
   const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
+  const [reauth] = useState<string | null>(params.get("reauth"));
+
   const {
     authStatus,
     route,
@@ -154,6 +162,10 @@ export const Login = (
     context.authStatus,
     context.route,
   ]);
+
+  const [wasSignedIn] = useState<boolean>(
+    signedIn && !account?.loaded && reauth !== "1"
+  );
 
   const isVisible = useElementDetector(
     containerRef,
@@ -244,7 +256,7 @@ export const Login = (
     } else {
       setComponents({});
     }
-  }, [children, editorRef, config, currentLanguage]);
+  }, [children, editorRef, config, language]);
 
   useEffect(() => {
     if (screenChanged) {
@@ -480,51 +492,80 @@ export const Login = (
                           footer={components.ChangePassword?.Footer}
                           onSuccess={() => dispatchEvent("done")}
                           onCancel={services.handleCancel}
+                          variation={variation}
                         ></AccountSettings.ChangePassword>
                       </View>
                     </View>
                   </View>
                 </View>
               ) : (
-                <Authenticator
-                  loginMechanisms={Gatey.settings?.loginMechanisms}
-                  services={services}
-                  initialState={screen}
-                  signUpAttributes={authenticatorConfig?.signUpAttributes}
-                  socialProviders={authenticatorConfig?.socialProviders}
-                  formFields={authenticatorConfig?.formFields}
-                  components={components}
-                  forceInitialState={isPreview}
-                  variation={variation}
-                >
-                  {((redirecting && redirectingMessage) ||
-                    (!redirecting && message)) && (
-                    <View data-amplify-authenticator data-variation={variation}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <Authenticator
+                    loginMechanisms={Gatey.settings?.loginMechanisms}
+                    language={language}
+                    textDirection={direction as Direction}
+                    services={services}
+                    initialState={screen}
+                    signUpAttributes={Gatey.settings?.signUpAttributes}
+                    socialProviders={authenticatorConfig?.socialProviders}
+                    formFields={authenticatorConfig?.formFields}
+                    components={components}
+                    forceInitialState={isPreview}
+                    variation={variation}
+                  >
+                    {((redirecting && redirectingMessage) ||
+                      (!redirecting && message)) && (
                       <View
-                        data-amplify-container
-                        style={{ placeSelf: "stretch" }}
+                        data-amplify-authenticator
+                        data-variation={variation}
                       >
-                        <View data-amplify-router>
-                          <View
-                            data-amplify-form
-                            data-amplify-authenticator-message
-                            style={{
-                              textAlign: "center",
-                            }}
-                          >
-                            {redirecting ? (
-                              <Heading level={4}>
-                                {translate(redirectingMessage!)}
-                              </Heading>
-                            ) : (
-                              <Heading level={4}>{translate(message!)}</Heading>
-                            )}
+                        <View
+                          data-amplify-container
+                          style={{ placeSelf: "stretch" }}
+                        >
+                          <View data-amplify-router>
+                            <View
+                              data-amplify-form
+                              data-amplify-authenticator-message
+                              style={{
+                                textAlign: "center",
+                              }}
+                            >
+                              {redirecting ? (
+                                <Heading level={4}>
+                                  {Gatey.cognito.translate(redirectingMessage!)}
+                                </Heading>
+                              ) : (
+                                <Heading level={4}>
+                                  {Gatey.cognito.translate(message!)}
+                                </Heading>
+                              )}
+                            </View>
                           </View>
                         </View>
                       </View>
-                    </View>
-                  )}
-                </Authenticator>
+                    )}
+                  </Authenticator>
+                  {config === null &&
+                    (route === "signIn" || route === "signUp") && (
+                      <Text
+                        as="p"
+                        variation="tertiary"
+                        textAlign="right"
+                        fontSize="var(--amplify-components-textfield-font-size)"
+                      >
+                        Powered by{" "}
+                        <Link
+                          as="a"
+                          href="https://wpsuite.io/gatey/"
+                          isExternal={true}
+                          fontWeight={400}
+                        >
+                          WPSuite Gatey
+                        </Link>
+                      </Text>
+                    )}
+                </div>
               ))
           }
         </Flex>
