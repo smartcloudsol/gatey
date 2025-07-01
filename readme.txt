@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.3.1 =
+reCAPTCHA upgrade: Gatey now works exclusively with reCAPTCHA Enterprise (v3) keys.
+
 = 1.3.0 =
 Sign-up attributes unlocked: all standard Cognito attributes are now available in the free plan.
 Form-field editor moved down to BASIC: customise field order, labels, and validation rules without a PRO licence.
@@ -227,6 +230,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+After updating, generate a new Site Key in Google Cloud → reCAPTCHA Enterprise and paste it into Gatey → Settings → General → Google reCAPTCHA Enterprise (v3) Site Key. Update any Lambda that verifies the token to read validationData.recaptchaToken; legacy reCAPTCHA keys will no longer work.
 
 = 1.3.0 =
 After updating you can add Cognito sign-up attributes on every site, customise form fields starting with the BASIC plan, and use the new country and improved phone fields in any language.

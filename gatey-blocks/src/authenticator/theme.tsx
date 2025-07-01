@@ -134,6 +134,7 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           reCaptchaKey={Gatey.settings?.reCaptchaPublicKey}
           language="en"
           useRecaptchaNet={true}
+          useEnterprise={true}
           scriptProps={{ async: true, defer: true }}
         >
           <App

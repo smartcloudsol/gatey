@@ -74,7 +74,7 @@ export type DefaultComponentDescriptors = {
 
 const recaptchaHook = Gatey.settings?.reCaptchaPublicKey
   ? useGoogleReCaptcha
-  : () => ({ executeRecaptcha: undefined });
+  : () => ({ executeRecaptcha: null });
 
 export const Login = (
   props: ThemeProps & {
@@ -177,7 +177,7 @@ export const Login = (
 
   const handleReCaptchaVerify = useCallback(async () => {
     if (!executeRecaptcha) {
-      console.error("ReCaptcha is not yet available");
+      console.error("ReCaptcha is not available", executeRecaptcha);
       return;
     }
 
@@ -213,11 +213,11 @@ export const Login = (
       },
       async handleSignUp(input: SignUpInput): Promise<SignUpOutput> {
         if (Gatey.settings?.reCaptchaPublicKey) {
-          const reCaptchaV3Response = await handleReCaptchaVerify();
-          if (reCaptchaV3Response) {
+          const recaptchaToken = await handleReCaptchaVerify();
+          if (recaptchaToken) {
             input.options = input.options || { userAttributes: {} };
-            input.options.clientMetadata = {
-              recaptchaV3Token: reCaptchaV3Response,
+            input.options.validationData = {
+              recaptchaToken,
             };
           }
         }
@@ -467,7 +467,7 @@ export const Login = (
 
   return (
     <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
-      {visible && (
+      {visible && executeRecaptcha !== undefined && (
         <Flex
           justifyContent="center"
           direction="row"

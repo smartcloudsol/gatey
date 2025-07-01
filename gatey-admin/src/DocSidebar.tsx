@@ -240,40 +240,61 @@ const pages = {
 }`}
       </Text>
 
-      <Title order={3} mt="md" id="recaptcha-v3-public-key">
-        <span className="highlightable">Recaptcha V3 Public Key</span>
+      {/* ───────────────────────────────────────────── */}
+      <Title order={3} mt="md" id="recaptcha-enterprise-site-key">
+        <span className="highlightable">
+          reCAPTCHA Enterprise&nbsp;(v3) Site Key
+        </span>
       </Title>
+
       <Text>
-        <Anchor href="https://www.google.com/recaptcha/about/" target="_blank">
-          Google reCAPTCHA v3
+        <Anchor
+          href="https://cloud.google.com/recaptcha-enterprise/docs"
+          target="_blank"
+        >
+          Google reCAPTCHA Enterprise
         </Anchor>{" "}
-        helps protect your site from spam and abuse by distinguishing between
-        human users and automated bots without requiring user interaction (like
-        solving puzzles). It analyzes user behavior and returns a score.
+        protects your site from bots without puzzles or user challenges. Gatey
+        now generates Enterprise tokens client-side, so you must use keys
+        created in a reCAPTCHA Enterprise project &mdash; free v2/v3 keys won’t
+        work.
       </Text>
+
       <Text>
-        Integrating reCAPTCHA adds a layer of security during user registration,
-        to prevent automated sign-ups.
+        The Site Key is stored in WordPress; the matching Secret Key is only
+        needed server-side when you validate tokens in a custom API.
       </Text>
+
       <List size="sm" spacing="sm" mt="xs">
-        <List.Item id="recaptcha-v3-public-key">
+        <List.Item id="recaptcha-enterprise-site-key">
           <Text fw={500}>
-            <span className="highlightable">Recaptcha V3 Public Key</span>
+            <span className="highlightable">
+              reCAPTCHA Enterprise (v3) Site Key
+            </span>
           </Text>
-          If you wish to use reCAPTCHA v3, enter your site's Public Key
-          (sometimes called Site Key) here. You can obtain this key by
-          registering your site with{" "}
+          Paste the Site Key you generated in&nbsp;
           <Anchor
-            href="https://www.google.com/recaptcha/admin/create"
+            href="https://console.cloud.google.com/security/recaptcha"
             target="_blank"
           >
-            Google reCAPTCHA
+            Google Cloud › reCAPTCHA Enterprise
           </Anchor>
-          . You will also need to configure the corresponding Secret Key within
-          your server-side environment or plugin settings (if applicable,
-          depends on your plugin's specific handling).
+          . Gatey uses it to generate Enterprise tokens in the browser.
+          <em>Tip:</em> Tokens are automatically attached to the Authenticator
+          requests&mdash;no extra action needed.
         </List.Item>
       </List>
+
+      <Text mt="sm">
+        During <em>sign-up</em> the client token is sent as&nbsp;
+        <code>validationData.recaptchaToken</code>. Validate it in your
+        pre-sign-up Lambda — see the example on{" "}
+        <Anchor href="https://wpsuite.io" target="_blank">
+          wpsuite.io
+        </Anchor>
+        .
+      </Text>
+
       <Title order={3} mt="md">
         Page Settings
       </Title>

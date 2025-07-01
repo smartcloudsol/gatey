@@ -1191,11 +1191,11 @@ const Main = (props: MainProps) => {
                       disabled={savingSettings}
                       label={
                         <InfoLabelComponent
-                          text="Recaptcha V3 Public Key"
-                          scrollToId="recaptcha-v3-public-key"
+                          text="Google reCAPTCHA Enterprise (v3) Site Key"
+                          scrollToId="recaptcha-enterprise-site-key"
                         />
                       }
-                      description="If you want to use reCAPTCHA, enter the public key here"
+                      description="Create the key in your reCAPTCHA Enterprise project, then paste it here."
                       value={settingsFormData.reCaptchaPublicKey}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setSettingsFormData({
