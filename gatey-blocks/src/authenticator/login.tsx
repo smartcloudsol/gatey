@@ -21,8 +21,6 @@ import "@aws-amplify/ui-react/styles.css";
 
 import { useDispatch, useSelect } from "@wordpress/data";
 
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
-
 import {
   type Account,
   type AuthenticatorConfig,
@@ -30,6 +28,7 @@ import {
 } from "@smart-cloud/gatey-core";
 
 import { type ThemeProps } from "./theme";
+import { useRecaptcha } from "./recaptcha";
 
 const parseCustomBlocks = import(
   process.env.GATEY_PREMIUM
@@ -73,8 +72,8 @@ export type DefaultComponentDescriptors = {
 };
 
 const recaptchaHook = Gatey.settings?.reCaptchaPublicKey
-  ? useGoogleReCaptcha
-  : () => ({ executeRecaptcha: null });
+  ? useRecaptcha
+  : () => ({ executeRecaptcha: null, isReady: true });
 
 export const Login = (
   props: ThemeProps & {
@@ -110,7 +109,7 @@ export const Login = (
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
 
-  const { executeRecaptcha } = recaptchaHook();
+  const { executeRecaptcha, isReady: recaptchaIsReady } = recaptchaHook();
 
   const account: Account | undefined = useSelect(
     (select: (store: Store) => { getAccount: () => Account | undefined }) =>
@@ -176,14 +175,18 @@ export const Login = (
   );
 
   const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha) {
-      console.error("ReCaptcha is not available", executeRecaptcha);
+    if (!executeRecaptcha || !recaptchaIsReady) {
+      console.error(
+        "ReCaptcha is not available",
+        executeRecaptcha,
+        recaptchaIsReady
+      );
       return;
     }
 
     const token = await executeRecaptcha("signup");
     return token;
-  }, [executeRecaptcha]);
+  }, [executeRecaptcha, recaptchaIsReady]);
 
   const dispatchEvent = useCallback(
     (name: string, details?: EventDetails) => {
@@ -467,7 +470,7 @@ export const Login = (
 
   return (
     <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
-      {visible && executeRecaptcha !== undefined && (
+      {visible && recaptchaIsReady && (
         <Flex
           justifyContent="center"
           direction="row"

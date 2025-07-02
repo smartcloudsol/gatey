@@ -62,7 +62,7 @@ interface ApiOptions {
 interface API {
     name: string;
     endpoint: string;
-    region: string;
+    region?: string;
     authorization: "IAM" | "ID_TOKEN" | "ACCESS_TOKEN";
 }
 interface ApiConfiguration {
@@ -163,6 +163,8 @@ interface Settings {
     redirectSignOut?: string;
     reCaptchaPublicKey?: string;
     customTranslationsUrl?: string;
+    useRecaptchaNet?: boolean;
+    useRecaptchaEnterprise?: boolean;
 }
 interface SiteSettings {
     accountId?: string;

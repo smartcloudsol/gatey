@@ -1,18 +1,42 @@
 const defaultConfig = require("@wordpress/scripts/config/webpack.config");
 const webpack = require("webpack");
+const path = require("path");
 
 module.exports = function (env = {}) {
   const config = {
     ...defaultConfig,
+    entry: {
+      index: [
+        path.resolve(
+          process.cwd(),
+          "src",
+          "stubs",
+          "polyfill-webcrypto-liner.cjs"
+        ),
+        path.resolve(process.cwd(), "src", "index.ts"),
+      ],
+    },
     resolve: {
       ...defaultConfig.resolve,
       fallback: {
-        crypto: require.resolve("crypto-browserify"),
+        ...defaultConfig.resolve?.fallback,
+        crypto: false,
+        util: require.resolve("util/"),
         stream: require.resolve("stream-browserify"),
         vm: require.resolve("vm-browserify"),
         buffer: require.resolve("buffer-browserify"),
         "process/browser": require.resolve("process/browser"),
       },
+      alias: {
+        crypto: path.resolve(__dirname, "src/stubs/crypto-random.js"),
+        "node:crypto": false,
+        ...(defaultConfig.resolve?.alias || {}),
+      },
+    },
+    optimization: {
+      ...defaultConfig.optimization,
+      splitChunks: false,
+      runtimeChunk: false,
     },
     plugins: [
       ...defaultConfig.plugins.filter(
@@ -20,10 +44,9 @@ module.exports = function (env = {}) {
       ),
       new webpack.ProvidePlugin({
         Buffer: ["buffer", "Buffer"],
-      }),
-      new webpack.ProvidePlugin({
         process: "process/browser",
       }),
+      new webpack.DefinePlugin({ "process.versions": "{}" }),
     ],
   };
 

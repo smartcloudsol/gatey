@@ -1,6 +1,5 @@
 import { useEffect, useState, type FunctionComponent } from "react";
 
-import { FetchUserAttributesOutput } from "aws-amplify/auth";
 import { I18n } from "aws-amplify/utils";
 import { translations, Text } from "@aws-amplify/ui-react";
 

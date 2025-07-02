@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
-$hash = substr(md5(serialize($attributes)), 0, 6);
+$hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
 $bid = 'gatey_authenticator_' . $hash;
 ?>
 <div gatey-authenticator id="<?php echo esc_html($bid) ?>" data-is-preview="gatey-is-preview"

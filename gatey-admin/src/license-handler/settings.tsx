@@ -45,7 +45,6 @@ import {
   type SiteSettings,
   type SubscriptionType,
 } from "@smart-cloud/gatey-core";
-import { loadStripe, Stripe } from "@stripe/stripe-js";
 import {
   IconArrowsUp,
   IconAlertCircle,
@@ -157,7 +156,6 @@ export const Settings: FunctionComponent<SettingsProps> = (
     setSiteId,
     setSiteKey,
   } = props;
-  const [stripe, setStripe] = useState<Stripe | null>();
   const [email, setEmail] = useState<string>();
   const [
     creatingUpdateSubscriptionSession,
@@ -799,12 +797,6 @@ export const Settings: FunctionComponent<SettingsProps> = (
   }, [authStatus]);
 
   useEffect(() => {
-    if (props.stripePublicKey) {
-      loadStripe(props.stripePublicKey).then((stripe) => setStripe(stripe));
-    }
-  }, [props.stripePublicKey]);
-
-  useEffect(() => {
     if (isSiteError || !isSitePending || !loadSiteEnabled) {
       setSite(isSiteError ? null : siteRecord ?? null);
     }
@@ -864,34 +856,36 @@ export const Settings: FunctionComponent<SettingsProps> = (
             />
           </Authenticator>
         </Modal>
-        {stripe && (
-          <Modal
-            {...stack.register("prices")}
-            withCloseButton
-            size={1050}
-            zIndex={100000}
-            centered
-            title={
-              <Text size="lg" fw={700}>
-                Plans and Pricing
-              </Text>
-            }
-          >
-            {clientSecret !== undefined && email !== undefined && (
+        <Modal
+          {...stack.register("prices")}
+          withCloseButton
+          size={1050}
+          zIndex={100000}
+          centered
+          title={
+            <Text size="lg" fw={700}>
+              Plans and Pricing
+            </Text>
+          }
+        >
+          {clientSecret !== undefined &&
+            email !== undefined &&
+            accountId &&
+            siteId && (
               <Group justify="center" mt={20}>
                 <Stack w="100%" gap={20}>
                   {clientSecret ? (
                     <stripe-pricing-table
                       pricing-table-id={props.pricingTable}
                       publishable-key={props.stripePublicKey}
-                      client-reference-id={props.accountId + "-" + props.siteId}
+                      client-reference-id={accountId + "-" + siteId}
                       customer-session-client-secret={clientSecret}
                     />
                   ) : (
                     <stripe-pricing-table
                       pricing-table-id={props.pricingTable}
                       publishable-key={props.stripePublicKey}
-                      client-reference-id={props.accountId + "-" + props.siteId}
+                      client-reference-id={accountId + "-" + siteId}
                       customer-email={email}
                     />
                   )}
@@ -919,8 +913,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
                 </Stack>
               </Group>
             )}
-          </Modal>
-        )}
+        </Modal>
       </Modal.Stack>
       {authStatus === "configuring" && <FullSkeleton />}
       {authStatus === "unauthenticated" && (
@@ -1782,11 +1775,6 @@ function SiteSelector({
               }))}
               classNames={{
                 dropdown: classes["dropdown"],
-              }}
-              comboboxProps={{
-                transitionProps: {
-                  duration: 0,
-                },
               }}
             />
           )}

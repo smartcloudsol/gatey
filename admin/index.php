@@ -45,6 +45,8 @@ class Admin
             reCaptchaPublicKey: '',
             customTranslationsUrl: '',
             signUpAttributes: [],
+            useRecaptchaEnterprise: false,
+            useRecaptchaNet: false,
         );
         $defaultSiteSettings = new SiteSettings(
             accountId: '',
@@ -75,6 +77,8 @@ class Admin
             $this->settings->reCaptchaPublicKey ??= '';
             $this->settings->customTranslationsUrl ??= '';
             $this->settings->signUpAttributes ??= [];
+            $this->settings->useRecaptchaEnterprise ??= false;
+            $this->settings->useRecaptchaNet ??= false;
             $this->siteSettings = get_option(GATEY_SLUG . '/site-settings', $defaultSiteSettings);
             $this->siteSettings->accountId ??= '';
             $this->siteSettings->siteId ??= '';
@@ -543,6 +547,8 @@ class Admin
             $settings_param->reCaptchaPublicKey ?? "",
             $settings_param->customTranslationsUrl ?? "",
             $settings_param->signUpAttributes ?? [],
+            $settings_param->useRecaptchaEnterprise ?? false,
+            $settings_param->useRecaptchaNet ?? false,
         );
 
         // Frissített beállítások mentése

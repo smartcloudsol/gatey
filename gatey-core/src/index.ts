@@ -47,6 +47,8 @@ export interface Settings {
   redirectSignOut?: string;
   reCaptchaPublicKey?: string;
   customTranslationsUrl?: string;
+  useRecaptchaNet?: boolean;
+  useRecaptchaEnterprise?: boolean;
 }
 
 export interface SiteSettings {

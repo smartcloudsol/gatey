@@ -253,6 +253,8 @@ const Main = (props: MainProps) => {
     reCaptchaPublicKey: settings.reCaptchaPublicKey,
     customTranslationsUrl: settings.customTranslationsUrl,
     signUpAttributes: settings.signUpAttributes || [],
+    useRecaptchaEnterprise: settings.useRecaptchaEnterprise || false,
+    useRecaptchaNet: settings.useRecaptchaNet || false,
   });
 
   const [resolvedConfig, setResolvedConfig] = useState<
@@ -722,6 +724,10 @@ const Main = (props: MainProps) => {
 
   // Navigation options for both NavLink and Select
   useEffect(() => {
+    const paidSettingsDisabled =
+      decryptedConfig && accountId && siteId && siteKey
+        ? !decryptedConfig?.subscriptionType
+        : !resolvedConfig?.subscriptionType;
     setNavigationOptions([
       {
         value: "general",
@@ -747,7 +753,7 @@ const Main = (props: MainProps) => {
             BASIC
           </Badge>
         ),
-        disabled: !decryptedConfig?.subscriptionType,
+        disabled: paidSettingsDisabled,
       },
       {
         value: "api-settings",
@@ -758,10 +764,20 @@ const Main = (props: MainProps) => {
             PRO
           </Badge>
         ),
-        disabled: !decryptedConfig?.subscriptionType,
+        disabled: paidSettingsDisabled,
       },
     ]);
-  }, [amplifyConfigured, decryptedConfig]);
+    if (paidSettingsDisabled) {
+      setActivePage("general");
+    }
+  }, [
+    accountId,
+    amplifyConfigured,
+    decryptedConfig,
+    resolvedConfig,
+    siteId,
+    siteKey,
+  ]);
 
   useEffect(() => {
     if (resolvedConfig !== undefined) {
@@ -1191,16 +1207,48 @@ const Main = (props: MainProps) => {
                       disabled={savingSettings}
                       label={
                         <InfoLabelComponent
-                          text="Google reCAPTCHA Enterprise (v3) Site Key"
-                          scrollToId="recaptcha-enterprise-site-key"
+                          text="Google reCAPTCHA (v3) Site Key"
+                          scrollToId="recaptcha-site-key"
                         />
                       }
-                      description="Create the key in your reCAPTCHA Enterprise project, then paste it here."
+                      description="Create the key in your reCAPTCHA project, then paste it here."
                       value={settingsFormData.reCaptchaPublicKey}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setSettingsFormData({
                           ...settingsFormData,
                           reCaptchaPublicKey: e.target.value,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use reCAPTCHA Enterprise"
+                          scrollToId="use-recaptcha-enterprise"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaEnterprise}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaEnterprise: e.target.checked,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use recaptcha.net"
+                          scrollToId="use-recaptcha-net"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaNet}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaNet: e.target.checked,
                         })
                       }
                     />
@@ -1221,11 +1269,6 @@ const Main = (props: MainProps) => {
                         })
                       }
                       data={pageOptions}
-                      comboboxProps={{
-                        transitionProps: {
-                          duration: 0,
-                        },
-                      }}
                     />
                     <Select
                       disabled={savingSettings}
@@ -1244,11 +1287,6 @@ const Main = (props: MainProps) => {
                         })
                       }
                       data={pageOptions}
-                      comboboxProps={{
-                        transitionProps: {
-                          duration: 0,
-                        },
-                      }}
                     />
                     <Select
                       disabled={savingSettings}
@@ -1267,11 +1305,6 @@ const Main = (props: MainProps) => {
                         })
                       }
                       data={pageOptions}
-                      comboboxProps={{
-                        transitionProps: {
-                          duration: 0,
-                        },
-                      }}
                     />
                   </Stack>
 
@@ -1365,11 +1398,6 @@ const Main = (props: MainProps) => {
                                               )
                                             }
                                             data={cognitoGroups}
-                                            comboboxProps={{
-                                              transitionProps: {
-                                                duration: 0,
-                                              },
-                                            }}
                                           />
                                         )}
                                         {!cognitoGroupsLoaded && (
@@ -1400,11 +1428,6 @@ const Main = (props: MainProps) => {
                                             )
                                           }
                                           data={wpRoles}
-                                          comboboxProps={{
-                                            transitionProps: {
-                                              duration: 0,
-                                            },
-                                          }}
                                         />
                                       </Table.Td>
                                       <Table.Td>
@@ -1475,12 +1498,12 @@ const Main = (props: MainProps) => {
                   URL, then configure sign-in and sign-up hooks.
                 </Text>
 
-                {(formConfig ?? decryptedConfig)?.subscriptionType ===
-                  "BASIC" && (
+                {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                  "PROFESSIONAL" && (
                   <Alert
                     variant="light"
                     color="yellow"
-                    title="Pro Feature"
+                    title="PRO Feature"
                     icon={<IconExclamationCircle />}
                     mb="md"
                   >
@@ -1511,16 +1534,15 @@ const Main = (props: MainProps) => {
                   or custom Cognito attributes with full control.
                 </Text>
 
-                {(formConfig ?? decryptedConfig)?.subscriptionType ===
-                  "BASIC" && (
+                {!(formConfig ?? decryptedConfig)?.subscriptionType && (
                   <Alert
                     variant="light"
                     color="yellow"
-                    title="Pro Feature"
+                    title="BASIC Feature"
                     icon={<IconExclamationCircle />}
                     mb="md"
                   >
-                    This feature is available in the <strong>PRO</strong>{" "}
+                    This feature is available in the <strong>BASIC</strong>{" "}
                     version of the plugin. You can save your settings but they
                     will not take effect until you upgrade your subscription.
                   </Alert>

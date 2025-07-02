@@ -93,6 +93,8 @@ class Settings
         public string $reCaptchaPublicKey = "",
         public string $customTranslationsUrl = "",
         public array $signUpAttributes = [],
+        public bool $useRecaptchaEnterprise = false,
+        public bool $useRecaptchaNet = false,
     ) {
     }
 }

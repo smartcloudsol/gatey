@@ -189,7 +189,6 @@ const pages = {
         Ensure your Cognito User Pool is configured to support the selected
         mechanisms under "Sign-in options".
       </Text>
-
       {/* ── Sign-up attributes ───────────────────────────────────────────── */}
       <Title order={3} mt="md" id="signup-attributes">
         <span className="highlightable">Sign-up attributes</span>
@@ -202,7 +201,6 @@ const pages = {
           fields are rendered automatically by Cognito.
         </List.Item>
       </List>
-
       <Title order={3} mt="md" id="custom-translations-url">
         <span className="highlightable">Custom Translations</span>
       </Title>
@@ -239,62 +237,82 @@ const pages = {
   }
 }`}
       </Text>
-
       {/* ───────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="recaptcha-enterprise-site-key">
-        <span className="highlightable">
-          reCAPTCHA Enterprise&nbsp;(v3) Site Key
-        </span>
+      <Title order={3} mt="md" id="recaptcha-site-key">
+        <span className="highlightable">reCAPTCHA Site Key</span>
       </Title>
-
+      {/* Intro */}
       <Text>
         <Anchor
-          href="https://cloud.google.com/recaptcha-enterprise/docs"
+          href="https://developers.google.com/recaptcha/docs/v3"
           target="_blank"
         >
-          Google reCAPTCHA Enterprise
+          Google reCAPTCHA
         </Anchor>{" "}
-        protects your site from bots without puzzles or user challenges. Gatey
-        now generates Enterprise tokens client-side, so you must use keys
-        created in a reCAPTCHA Enterprise project &mdash; free v2/v3 keys won’t
-        work.
+        protects your site from automated abuse without annoying your real
+        visitors. Gatey can work with both the <strong>classic v3</strong> and
+        <strong> reCAPTCHA Enterprise (v3)</strong> APIs. Simply paste the Site
+        Key here, then use the check‑boxes below to tell Gatey which variant to
+        load and from which host.
       </Text>
-
       <Text>
         The Site Key is stored in WordPress; the matching Secret Key is only
-        needed server-side when you validate tokens in a custom API.
+        required server‑side when you verify tokens in a custom API.
       </Text>
-
+      {/* Options */}
       <List size="sm" spacing="sm" mt="xs">
-        <List.Item id="recaptcha-enterprise-site-key">
+        <List.Item id="recaptcha-site-key">
           <Text fw={500}>
-            <span className="highlightable">
-              reCAPTCHA Enterprise (v3) Site Key
-            </span>
+            <span className="highlightable">Site Key</span>
           </Text>
-          Paste the Site Key you generated in&nbsp;
+          Paste the key generated in either the{" "}
           <Anchor
             href="https://console.cloud.google.com/security/recaptcha"
             target="_blank"
           >
-            Google Cloud › reCAPTCHA Enterprise
+            reCAPTCHA Enterprise console
+          </Anchor>{" "}
+          or the{" "}
+          <Anchor
+            href="https://www.google.com/recaptcha/admin/create"
+            target="_blank"
+          >
+            classic v3 admin page
           </Anchor>
-          . Gatey uses it to generate Enterprise tokens in the browser.
-          <em>Tip:</em> Tokens are automatically attached to the Authenticator
-          requests&mdash;no extra action needed.
+          . Gatey will use it in the browser to request a token every time a
+          user performs a protected action.
+        </List.Item>
+
+        <List.Item id="use-recaptcha-enterprise">
+          <Text fw={500}>
+            <span className="highlightable">Use reCAPTCHA Enterprise</span>
+          </Text>
+          Tick this if the key above belongs to a reCAPTCHA Enterprise project.
+          Enterprise offers higher quotas, risk analysis, and Google Cloud IAM
+          integration. Leave it <em>unchecked</em> to load the classic v3 client
+          instead.
+        </List.Item>
+
+        <List.Item id="use-recaptcha-net">
+          <Text fw={500}>
+            <span className="highlightable">Serve from recaptcha.net</span>
+          </Text>
+          When enabled, the reCAPTCHA script will be downloaded from
+          <code>recaptcha.net</code> rather than <code>google.com</code>. This
+          is useful for visitors in regions where <code>google.com</code> is
+          blocked (e.g. mainland China). For most sites you can keep this
+          unchecked for the fastest global CDN delivery.
         </List.Item>
       </List>
-
       <Text mt="sm">
-        During <em>sign-up</em> the client token is sent as&nbsp;
+        During <em>sign‑up</em> the client token is sent as{" "}
         <code>validationData.recaptchaToken</code>. Validate it in your
-        pre-sign-up Lambda — see the example on{" "}
+        pre‑sign‑up Lambda &mdash; see the example on{" "}
         <Anchor href="https://wpsuite.io" target="_blank">
           wpsuite.io
         </Anchor>
         .
-      </Text>
-
+      </Text>{" "}
       <Title order={3} mt="md">
         Page Settings
       </Title>
@@ -489,6 +507,14 @@ const pages = {
           Base URL such as&nbsp;
           <Code>https://api.example.com</Code> or&nbsp;
           <Code>https://xyz.execute-api.us-east-1.amazonaws.com/prod</Code>.
+        </List.Item>
+
+        <List.Item id="api-region">
+          <Text fw={500}>
+            <span className="highlightable">Region</span>
+          </Text>
+          AWS region where the API is hosted, e.g.&nbsp;
+          <Code>us-east-1</Code>.
         </List.Item>
 
         <List.Item id="api-authorization">

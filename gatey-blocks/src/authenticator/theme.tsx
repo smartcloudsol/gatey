@@ -16,7 +16,7 @@ import {
   type Direction,
 } from "@aws-amplify/ui-react";
 
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
+import { RecaptchaProvider } from "./recaptcha";
 
 import { useSelect } from "@wordpress/data";
 
@@ -130,12 +130,10 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       direction={currentDirection}
     >
       {Gatey.settings?.reCaptchaPublicKey ? (
-        <GoogleReCaptchaProvider
-          reCaptchaKey={Gatey.settings?.reCaptchaPublicKey}
-          language="en"
-          useRecaptchaNet={true}
-          useEnterprise={true}
-          scriptProps={{ async: true, defer: true }}
+        <RecaptchaProvider
+          siteKey={Gatey.settings?.reCaptchaPublicKey}
+          useEnterprise={Gatey.settings?.useRecaptchaEnterprise}
+          useRecaptchaNet={Gatey.settings?.useRecaptchaNet}
         >
           <App
             id={id}
@@ -155,7 +153,7 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           >
             {children}
           </App>
-        </GoogleReCaptchaProvider>
+        </RecaptchaProvider>
       ) : (
         <App
           id={id}

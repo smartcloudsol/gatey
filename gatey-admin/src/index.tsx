@@ -6,7 +6,7 @@ import {
   type Account,
   type Store,
 } from "@smart-cloud/gatey-core";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -34,6 +34,9 @@ const production = process.env?.NODE_ENV === "production";
 if (!production) {
   import("./index.css");
 }
+
+const theme = createTheme({ respectReducedMotion: true });
+
 declare global {
   const wp: {
     data: {
@@ -60,7 +63,7 @@ store.then((store) => {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <MantineProvider>
+        <MantineProvider theme={theme}>
           <Notifications position="top-right" zIndex={100000} />
           <ModalsProvider>
             <Main store={store} {...Gatey} />

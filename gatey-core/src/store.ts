@@ -359,7 +359,7 @@ export interface ApiOptions {
 export interface API {
   name: string;
   endpoint: string;
-  region: string;
+  region?: string;
   authorization: "IAM" | "ID_TOKEN" | "ACCESS_TOKEN";
 }
 
