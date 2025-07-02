@@ -208,7 +208,6 @@ const getDefaultState = async (): Promise<State> => {
     __GATEY_PREMIUM__ ? "./paid-features/config" : "./free-features/config"
   );
   const config = await configLoader.getConfigFromStorage();
-
   initAmplify(config);
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const apiConfiguration =
