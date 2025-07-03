@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.3.3
+ * Version:           1.3.4
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.3.3';
+const VERSION = '1.3.4';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -229,7 +229,7 @@ final class Gatey_Plugin
         wp_add_inline_script('gatey-main-script', $js, 'before');
 
         wp_add_inline_script(
-            'gatey-authenticator-view-script',
+            'gatey-main-script',
             file_get_contents(GATEY_PATH . 'observer.js'),
             'after'
         );

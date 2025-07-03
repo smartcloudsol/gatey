@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.3.4 =
+Patched observer.js: eliminated edge-case errors that could appear in the browser console (rendering was unaffected).
+
 = 1.3.3 =
 Improved licence handling: secondary-domain detection and validation logic have been fixed, ensuring licences activate correctly on all mapped domains.
 
@@ -238,6 +241,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.4 =
+Update to remove stray console warnings; no functional changes, just a cleaner log.
 
 = 1.3.3 =
 Update if you use a secondary domain; licences will now validate and refresh properly across every configured domain.
