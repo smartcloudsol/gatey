@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.3.6 =
+The reCAPTCHA provider is now enqueued inside the Gutenberg editor whenever a Site Key is set, so the Authenticator block renders correctly during editing.
+
 = 1.3.5 =
 Second observer.js patch: fixed a bug that could prevent Gatey Gutenberg blocks from rendering (they stayed invisible but produced no error).
 
@@ -244,6 +247,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.6 =
+Update if the Authenticator block was blank in Gutenberg when reCAPTCHA was enabled; the editor preview now loads as expected.
 
 = 1.3.5 =
 Update immediately if you’re on 1.3.4; this patch restores the visual rendering of Gatey blocks that were not appearing in Gutenberg.

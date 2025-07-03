@@ -46,6 +46,7 @@ import { type Screen } from "./index";
 import { EditorBlockProps } from "./edit";
 import { type PreviewType } from "./theme";
 import { App } from "./app";
+import { RecaptchaProvider } from "./recaptcha";
 
 const theme = {
   name: "gatey-theme",
@@ -517,28 +518,59 @@ export const Block: FunctionComponent<
             colorMode={colorMode}
             direction={themeDirection}
           >
-            <App
-              id="gatey-authenticator-block"
-              screen={previewScreen}
-              variation={variation}
-              language={currentLanguage as Language}
-              direction={themeDirection}
-              showOpenButton={showOpenButton}
-              openButtonTitle={openButtonTitle}
-              signingInMessage={signingInMessage}
-              signingOutMessage={signingOutMessage}
-              redirectingMessage={redirectingMessage}
-              store={fulfilledStore}
-              nonce={Gatey.nonce}
-              editorRef={editorRef}
-              isPreview={true}
-              previewMode={previewMode}
-              setPreviewMode={setPreviewMode}
-              siteSettings={siteSettings}
-              siteSubscriptionType={siteSubscriptionType}
-            >
-              {children}
-            </App>
+            {Gatey.settings?.reCaptchaPublicKey ? (
+              <RecaptchaProvider
+                siteKey={Gatey.settings?.reCaptchaPublicKey}
+                useEnterprise={Gatey.settings?.useRecaptchaEnterprise}
+                useRecaptchaNet={Gatey.settings?.useRecaptchaNet}
+              >
+                <App
+                  id="gatey-authenticator-block"
+                  screen={previewScreen}
+                  variation={variation}
+                  language={currentLanguage as Language}
+                  direction={themeDirection}
+                  showOpenButton={showOpenButton}
+                  openButtonTitle={openButtonTitle}
+                  signingInMessage={signingInMessage}
+                  signingOutMessage={signingOutMessage}
+                  redirectingMessage={redirectingMessage}
+                  store={fulfilledStore}
+                  nonce={Gatey.nonce}
+                  editorRef={editorRef}
+                  isPreview={true}
+                  previewMode={previewMode}
+                  setPreviewMode={setPreviewMode}
+                  siteSettings={siteSettings}
+                  siteSubscriptionType={siteSubscriptionType}
+                >
+                  {children}
+                </App>
+              </RecaptchaProvider>
+            ) : (
+              <App
+                id="gatey-authenticator-block"
+                screen={previewScreen}
+                variation={variation}
+                language={currentLanguage as Language}
+                direction={themeDirection}
+                showOpenButton={showOpenButton}
+                openButtonTitle={openButtonTitle}
+                signingInMessage={signingInMessage}
+                signingOutMessage={signingOutMessage}
+                redirectingMessage={redirectingMessage}
+                store={fulfilledStore}
+                nonce={Gatey.nonce}
+                editorRef={editorRef}
+                isPreview={true}
+                previewMode={previewMode}
+                setPreviewMode={setPreviewMode}
+                siteSettings={siteSettings}
+                siteSubscriptionType={siteSubscriptionType}
+              >
+                {children}
+              </App>
+            )}
           </ThemeProvider>
         ) : (
           <>{__("Loading configuration...", TEXT_DOMAIN)}</>
