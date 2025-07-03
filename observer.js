@@ -12,8 +12,8 @@
     };
 
     // Initial pass
-    jQuery(() => jQuery('[gatey-authenticator]').each(mountAuthenticator));
-    jQuery(() => jQuery('[gatey-account-attribute]').each(mountAccountAttribute));
+    jQuery(() => jQuery('[gatey-authenticator]').each((_idx, n) => mountAuthenticator(n)));
+    jQuery(() => jQuery('[gatey-account-attribute]').each((_idx, n) => mountAccountAttribute(n)));
     jQuery(window).on("elementor/frontend/init", function () {
         elementorFrontend?.hooks && elementorFrontend.hooks.addAction("frontend/element_ready/shortcode.default", () => { jQuery('[gatey-authenticator]').each((_idx, n) => mountAuthenticator(n)); jQuery('[gatey-account-attribute]').each((_idx, n) => mountAccountAttribute(n)); });
     });
