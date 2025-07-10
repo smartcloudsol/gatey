@@ -95,7 +95,7 @@ Account attribute shown for a logged‑in user
 
 User profile form with attribute editing
 
-Custom Sign-in screen overridden with WordPress blocks
+Custom Sign‑up screen overridden with Custom Blocks and Form Fields
 
 Custom Sign‑up form rendered on a live page
 
