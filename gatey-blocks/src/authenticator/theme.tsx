@@ -11,6 +11,7 @@ import {
 
 import {
   defaultDarkModeOverride,
+  Theme,
   ThemeProvider,
   type ColorMode,
   type Direction,
@@ -39,6 +40,7 @@ export interface ThemeProps extends PropsWithChildren {
   signingInMessage?: string;
   signingOutMessage?: string;
   redirectingMessage?: string;
+  totpIssuer?: string;
   store: Store;
   isPreview: boolean;
   nonce: string;
@@ -46,11 +48,12 @@ export interface ThemeProps extends PropsWithChildren {
   children?: ReactNode;
   previewMode?: PreviewType;
   setPreviewMode?: Dispatch<SetStateAction<PreviewType | undefined>>;
+  setPreviewZIndex?: Dispatch<SetStateAction<number | undefined>>;
   siteSettings?: AuthenticatorConfig | null;
   siteSubscriptionType?: string | null;
 }
 
-export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
+export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
     isPreview,
@@ -67,9 +70,10 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
+    totpIssuer,
   } = props;
 
-  const theme = {
+  const theme: Theme = {
     name: "gatey-theme-" + id,
     overrides: [defaultDarkModeOverride],
   };
@@ -148,6 +152,7 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
             signingInMessage={signingInMessage}
             signingOutMessage={signingOutMessage}
             redirectingMessage={redirectingMessage}
+            totpIssuer={totpIssuer}
             isPreview={isPreview}
             nonce={Gatey?.nonce}
           >
@@ -168,6 +173,7 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           signingInMessage={signingInMessage}
           signingOutMessage={signingOutMessage}
           redirectingMessage={redirectingMessage}
+          totpIssuer={totpIssuer}
           isPreview={isPreview}
           nonce={Gatey?.nonce}
         >

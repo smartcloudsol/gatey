@@ -16,6 +16,7 @@ $bid = 'gatey_authenticator_' . $hash;
 	data-signing-in-message="<?php echo esc_html(array_key_exists('signingInMessage', $attributes) ? $attributes['signingInMessage'] : '') ?>"
 	data-signing-out-message="<?php echo esc_html(array_key_exists('signingOutMessage', $attributes) ? $attributes['signingOutMessage'] : '') ?>"
 	data-redirecting-message="<?php echo esc_html(array_key_exists('redirectingMessage', $attributes) ? $attributes['redirectingMessage'] : '') ?>"
+	data-totp-issuer="<?php echo esc_html(array_key_exists('totpIssuer', $attributes) ? $attributes['totpIssuer'] : '') ?>"
 	<?php echo get_block_wrapper_attributes() ?>>
 	<div style="display: none;">
 		<?php echo esc_html($content) ?>

@@ -19,6 +19,7 @@ import {
 import { store, TEXT_DOMAIN, type Store } from "@smart-cloud/gatey-core";
 
 import {
+  formFieldOptions,
   colorModeOptions,
   directionOptions,
   languageOptions,
@@ -92,28 +93,17 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 });
               }
             }}
+            help={__(
+              "Specify the HTML element (e.g., <div>, <span>, <input>) that will render this account attribute.",
+              TEXT_DOMAIN
+            )}
           />
           <ComboboxControl
             label={__("Attribute", TEXT_DOMAIN)}
             value={attribute || ""}
             options={[
-              { label: "Username", value: "sub" },
-              { label: "Preferred Username", value: "preferred_username" },
-              { label: "Email", value: "email" },
-              { label: "Phone Number", value: "phone_number" },
-              { label: "Name", value: "name" },
-              { label: "First Name", value: "given_name" },
-              { label: "Last Name", value: "family_name" },
-              { label: "Middle Name", value: "middle_name" },
-              { label: "Nickname", value: "nickname" },
-              { label: "Gender", value: "gender" },
-              { label: "Birthdate", value: "birthdate" },
-              { label: "Address", value: "address" },
-              { label: "Picture", value: "picture" },
-              { label: "Website", value: "website" },
-              { label: "Zoneinfo", value: "zoneinfo" },
-              { label: "Locale", value: "locale" },
-              { label: "Custom", value: "custom" },
+              { label: __("Username", TEXT_DOMAIN), value: "sub" },
+              ...formFieldOptions,
             ]}
             onChange={(value) => {
               if (value as Attribute) {
@@ -122,6 +112,10 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 });
               }
             }}
+            help={__(
+              "Select the account attribute to display—either a standard Cognito attribute (e.g., email, given_name) or a custom attribute.",
+              TEXT_DOMAIN
+            )}
           />
           {attribute === "custom" && (
             <TextControl
@@ -135,6 +129,10 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 }
               }}
               placeholder={__("Enter custom attribute:", TEXT_DOMAIN)}
+              help={__(
+                "Enter the name of the custom attribute (e.g.,country).",
+                TEXT_DOMAIN
+              )}
             />
           )}
           <RadioControl
@@ -147,7 +145,7 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }
             }}
             help={__(
-              "This will set the color mode for the account attribute. 'System' will use the user's system preference.",
+              "Choose the account attribute’s color scheme—Light, Dark, or System (follows the user’s system preference).",
               TEXT_DOMAIN
             )}
           />
@@ -161,7 +159,7 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }
             }}
             help={__(
-              "This will set the language of the account attribute.",
+              "Set the display language for this account attribute. The chosen language controls the built‑in country selector list and any custom select or radio fields that have translated option labels.",
               TEXT_DOMAIN
             )}
           />
@@ -175,7 +173,7 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }
             }}
             help={__(
-              "This will set the direction of the account attribute. 'Left to Right' is the default, 'Right to Left' is for RTL languages.",
+              "Choose the layout direction for this account attribute—Auto (default; follows the selected language), Left‑to‑Right, or Right‑to‑Left for RTL languages.",
               TEXT_DOMAIN
             )}
           />

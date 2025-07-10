@@ -1,0 +1,18 @@
+.wp-core-ui select {
+  background: none;
+  font-size: inherit;
+}
+
+.wp-core-ui select::-ms-expand {
+  display: none;
+}
+
+.wp-core-ui .option-value,
+.wp-core-ui .option-value .components-base-control__field {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.wp-core-ui .interface-complementary-area hr {
+  margin: 0 0 1rem;
+}

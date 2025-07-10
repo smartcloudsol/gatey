@@ -36,6 +36,9 @@
     },
     "direction": {
       "type": "string"
+    },
+    "totpIssuer": {
+      "type": "string"
     }
   },
   "supports": {

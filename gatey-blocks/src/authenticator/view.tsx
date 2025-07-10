@@ -9,7 +9,9 @@ import { store } from "@smart-cloud/gatey-core";
 
 import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
-import { Theme } from "./theme";
+import { ThemedApp } from "./theme";
+
+import "./index.css";
 
 const cache = new Map<string, string>();
 try {
@@ -17,6 +19,7 @@ try {
     const el = document.querySelector("#" + id);
     if (el) {
       const isPreview = el.getAttribute("data-is-preview") === "true";
+      const width = el.getAttribute("data-screen") as string | "";
       const screen = el.getAttribute("data-screen") as Screen;
       const variation = el.getAttribute("data-variation") as Variation;
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
@@ -30,6 +33,7 @@ try {
         el.getAttribute("data-signing-out-message") || "";
       const redirectingMessage =
         el.getAttribute("data-redirecting-message") || "";
+      const totpIssuer = el.getAttribute("data-totp-issuer") || "";
       const root = createRoot(el);
       const fulfilledStore = await store;
       if (cache.has(id)) {
@@ -39,7 +43,7 @@ try {
       }
       root.render(
         <StrictMode>
-          <Theme
+          <ThemedApp
             id={id}
             store={fulfilledStore}
             screen={screen}
@@ -52,11 +56,12 @@ try {
             signingInMessage={signingInMessage}
             signingOutMessage={signingOutMessage}
             redirectingMessage={redirectingMessage}
+            totpIssuer={totpIssuer}
             isPreview={isPreview}
             nonce={Gatey?.nonce}
           >
             {el.children?.length && el.children[0].innerHTML}
-          </Theme>
+          </ThemedApp>
         </StrictMode>
       );
     }

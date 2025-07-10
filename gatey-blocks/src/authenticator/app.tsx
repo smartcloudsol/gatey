@@ -26,6 +26,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     isPreview,
     previewMode,
     setPreviewMode,
+    setPreviewZIndex,
     siteSettings = null,
     siteSubscriptionType = null,
     store,
@@ -195,6 +196,12 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       }
     }
   }, [screen, language, showOpenButton, openButtonTitle]);
+
+  useEffect(() => {
+    if (isPreview && setPreviewZIndex) {
+      setPreviewZIndex(show ? 1000 : undefined);
+    }
+  }, [isPreview, setPreviewZIndex, show]);
 
   return (
     filteredConfig !== undefined &&

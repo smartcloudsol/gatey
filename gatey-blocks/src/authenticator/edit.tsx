@@ -9,6 +9,8 @@ import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
 import { Block } from "./block";
 
+import "./index.css";
+
 export interface EditorBlockProps {
   screen?: Screen;
   variation?: Variation;
@@ -20,6 +22,7 @@ export interface EditorBlockProps {
   signingInMessage?: string;
   signingOutMessage?: string;
   redirectingMessage?: string;
+  totpIssuer?: string;
 }
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (

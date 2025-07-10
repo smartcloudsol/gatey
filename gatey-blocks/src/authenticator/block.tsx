@@ -15,8 +15,9 @@ import {
   PanelBody,
   ToolbarGroup,
   ToolbarDropdownMenu,
+  ToolbarButton,
 } from "@wordpress/components";
-import { seen, check, currencyDollar } from "@wordpress/icons";
+import { seen, check, settings, currencyDollar, close } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
 
 import { Amplify } from "aws-amplify";
@@ -94,6 +95,7 @@ export const Block: FunctionComponent<
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
+    totpIssuer,
   } = attributes;
 
   const [amplifyConfigured, setAmplifyConfigured] = useState(false);
@@ -111,6 +113,9 @@ export const Block: FunctionComponent<
   const [themeDirection, setThemeDirection] = useState<Direction>();
   const [title, setTitle] = useState<string>();
   const [currentLanguage, setCurrentLanguage] = useState<string>();
+
+  const [showCustomization, setShowCustomization] = useState<boolean>(false);
+  const [previewZIndex, setPreviewZIndex] = useState<number>();
 
   const editorRef = createRef<HTMLDivElement>();
 
@@ -313,7 +318,7 @@ export const Block: FunctionComponent<
               }
             }}
             help={__(
-              "This will set the initial screen of the authenticator.",
+              "Choose the first screen that the authenticator shows.",
               TEXT_DOMAIN
             )}
           />
@@ -330,7 +335,7 @@ export const Block: FunctionComponent<
               }
             }}
             help={__(
-              "This will set the variation of the authenticator. 'Default' is a full page, 'Modal' is a modal dialog.",
+              "Choose whether the authenticator appears as a full page (Default) or a modal dialog (Modal).",
               TEXT_DOMAIN
             )}
           />
@@ -344,7 +349,7 @@ export const Block: FunctionComponent<
               }
             }}
             help={__(
-              "This will set the color mode for the authenticator. 'System' will use the user's system preference.",
+              "Select the authenticator’s color scheme—Light, Dark, or System (follows the user’s system preference).",
               TEXT_DOMAIN
             )}
           />
@@ -357,10 +362,7 @@ export const Block: FunctionComponent<
                 setAttributes({ language: value as Language });
               }
             }}
-            help={__(
-              "This will set the language of the authenticator.",
-              TEXT_DOMAIN
-            )}
+            help={__("Set the authenticator’s display language.", TEXT_DOMAIN)}
           />
           <RadioControl
             label={__("Direction", TEXT_DOMAIN)}
@@ -372,7 +374,19 @@ export const Block: FunctionComponent<
               }
             }}
             help={__(
-              "This will set the direction of the authenticator. 'Left to Right' is the default, 'Right to Left' is for RTL languages.",
+              "Choose the authenticator’s layout direction—Auto (default; follows the selected language), Left‑to‑Right, or Right‑to‑Left.",
+              TEXT_DOMAIN
+            )}
+          />
+          <TextControl
+            label={__("TOTP Issuer", TEXT_DOMAIN)}
+            value={totpIssuer || ""}
+            placeholder="AWSCognito"
+            onChange={(value) => {
+              setAttributes({ totpIssuer: value });
+            }}
+            help={__(
+              "Enter the issuer name that will appear in the authenticator app (e.g., “My Company”).",
               TEXT_DOMAIN
             )}
           />
@@ -383,7 +397,7 @@ export const Block: FunctionComponent<
               setAttributes({ showOpenButton: value });
             }}
             help={__(
-              'Enable to hide the authenticator until the user clicks a button. The button\'s label defaults to the current screen’s title but can be overridden in the "Open Button Title" field.',
+              "Hide the authenticator behind a button. The button label defaults to the current screen title, or you can customise it in Open Button Title.",
               TEXT_DOMAIN
             )}
           />
@@ -395,7 +409,7 @@ export const Block: FunctionComponent<
               setAttributes({ openButtonTitle: value });
             }}
             help={__(
-              "Override the button label. Leave empty to use the current screen's default title.",
+              "Override the button label. Leave empty to use the current screen’s default title.",
               TEXT_DOMAIN
             )}
           />
@@ -406,7 +420,7 @@ export const Block: FunctionComponent<
               setAttributes({ signingInMessage: value });
             }}
             help={__(
-              "This message will be displayed while the user is signing in.",
+              "Specify the text that appears to the user while sign‑in is in progress.",
               TEXT_DOMAIN
             )}
           />
@@ -417,7 +431,7 @@ export const Block: FunctionComponent<
               setAttributes({ signingOutMessage: value });
             }}
             help={__(
-              "This message will be displayed while the user is signing out.",
+              "Specify the text that appears to the user while sign‑out is in progress.",
               TEXT_DOMAIN
             )}
           />
@@ -428,7 +442,7 @@ export const Block: FunctionComponent<
               setAttributes({ redirectingMessage: value });
             }}
             help={__(
-              "This message will be displayed while the user is being redirected.",
+              "Specify the text that appears to the user while they are being redirected.",
               TEXT_DOMAIN
             )}
           />
@@ -510,8 +524,20 @@ export const Block: FunctionComponent<
             }
           />
         </ToolbarGroup>
+        <ToolbarGroup>
+          <ToolbarButton
+            icon={showCustomization ? close : settings}
+            label={__(
+              showCustomization ? "Hide Customization" : "Show Customization",
+              TEXT_DOMAIN
+            )}
+            onClick={() => {
+              setShowCustomization(!showCustomization);
+            }}
+          />
+        </ToolbarGroup>
       </BlockControls>
-      <>
+      <div style={{ position: "relative", zIndex: previewZIndex }}>
         {fulfilledStore && siteSettings !== undefined ? (
           <ThemeProvider
             theme={theme}
@@ -541,6 +567,7 @@ export const Block: FunctionComponent<
                   isPreview={true}
                   previewMode={previewMode}
                   setPreviewMode={setPreviewMode}
+                  setPreviewZIndex={setPreviewZIndex}
                   siteSettings={siteSettings}
                   siteSubscriptionType={siteSubscriptionType}
                 >
@@ -565,6 +592,7 @@ export const Block: FunctionComponent<
                 isPreview={true}
                 previewMode={previewMode}
                 setPreviewMode={setPreviewMode}
+                setPreviewZIndex={setPreviewZIndex}
                 siteSettings={siteSettings}
                 siteSubscriptionType={siteSubscriptionType}
               >
@@ -575,8 +603,10 @@ export const Block: FunctionComponent<
         ) : (
           <>{__("Loading configuration...", TEXT_DOMAIN)}</>
         )}
-        {children}
-      </>
+        <div style={{ display: showCustomization ? "block" : "none" }}>
+          {children}
+        </div>
+      </div>
     </div>
   );
 };

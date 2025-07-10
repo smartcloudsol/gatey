@@ -27,6 +27,17 @@ interface EditorBlock {
   innerBlocks: EditorBlock[];
 }
 
+const HeaderFooterOptions = [
+  { label: __("Header", TEXT_DOMAIN), value: "Header" },
+  { label: __("Footer", TEXT_DOMAIN), value: "Footer" },
+];
+
+const HeaderFooterFormFieldsOptions = [
+  { label: __("Header", TEXT_DOMAIN), value: "Header" },
+  { label: __("Form Fields", TEXT_DOMAIN), value: "FormFields" },
+  { label: __("Footer", TEXT_DOMAIN), value: "Footer" },
+];
+
 export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
   props: BlockEditProps<ComponentAttributes>
 ) => {
@@ -115,19 +126,28 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
                 });
               }
             }}
+            help={__(
+              "Select the authenticator screen you want to customise. The custom block’s content will be injected into the chosen screen.",
+              TEXT_DOMAIN
+            )}
           />
           <RadioControl
             label={__("Part", TEXT_DOMAIN)}
             selected={part || ""}
-            options={[
-              { label: __("Header", TEXT_DOMAIN), value: "Header" },
-              { label: __("Footer", TEXT_DOMAIN), value: "Footer" },
-            ]}
+            options={
+              component === "SignUp" || component === "EditAccount"
+                ? HeaderFooterFormFieldsOptions
+                : HeaderFooterOptions
+            }
             onChange={(value) => {
-              if (value === "Header" || value === "Footer") {
-                setAttributes({ part: value });
+              if (value as ComponentAttributes["part"]) {
+                setAttributes({ part: value as ComponentAttributes["part"] });
               }
             }}
+            help={__(
+              "Choose which part of that screen to override. The custom block’s children will be rendered in the selected section.",
+              TEXT_DOMAIN
+            )}
           />
         </PanelBody>
       </InspectorControls>

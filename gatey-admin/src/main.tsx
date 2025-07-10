@@ -48,7 +48,7 @@ import {
   IconCheck,
   IconCircleNumber2,
   IconExclamationCircle,
-  IconForms,
+  /*IconForms,*/
   IconInfoCircle,
   IconLogin,
   IconPlus,
@@ -744,6 +744,7 @@ const Main = (props: MainProps) => {
         label: "WordPress Login",
         icon: <IconLogin size={16} stroke={1.5} />,
       },
+      /*
       {
         value: "form-fields",
         label: "Form Fields",
@@ -755,6 +756,7 @@ const Main = (props: MainProps) => {
         ),
         disabled: paidSettingsDisabled,
       },
+      */
       {
         value: "api-settings",
         label: "API Settings",

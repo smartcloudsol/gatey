@@ -44,9 +44,15 @@ export interface DefaultComponentOptions {
   Header?: () => React.JSX.Element;
   Footer?: () => React.JSX.Element;
 }
+export interface DefaultComponentOptionsWithFormFields
+  extends DefaultComponentOptions {
+  FormFields?: () => React.JSX.Element;
+}
 export type DefaultComponents = {
   [key in keyof DefaultComponentDescriptors]: DefaultComponentOptions;
 } & {
+  SignUp?: DefaultComponentOptionsWithFormFields;
+  EditAccount?: DefaultComponentOptionsWithFormFields;
   Header?: () => React.JSX.Element;
   Footer?: () => React.JSX.Element;
 };
@@ -91,6 +97,7 @@ export const Login = (
     signingInMessage,
     signingOutMessage,
     redirectingMessage,
+    totpIssuer,
     isPreview,
     children,
     editorRef,
@@ -254,12 +261,20 @@ export const Login = (
     }
     if (children && config !== null) {
       parseCustomBlocks.then((pcb) =>
-        setComponents(pcb.default(children, editorRef?.current?.innerHTML))
+        setComponents(
+          pcb.default(
+            isPreview,
+            account,
+            children,
+            editorRef?.current?.innerHTML,
+            direction
+          )
+        )
       );
     } else {
       setComponents({});
     }
-  }, [children, editorRef, config, language]);
+  }, [children, editorRef, config, language, account, direction, isPreview]);
 
   useEffect(() => {
     if (screenChanged) {
@@ -454,13 +469,14 @@ export const Login = (
                   QR: {
                     ...config?.formFields?.setupTotp?.QR,
                     totpUsername: totpUsername,
+                    totpIssuer: totpIssuer,
                   },
                 },
               },
             }
       );
     }
-  }, [config, account]);
+  }, [config, account, totpIssuer]);
 
   useEffect(() => {
     if (route === "setup") {
@@ -471,12 +487,7 @@ export const Login = (
   return (
     <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
       {visible && recaptchaIsReady && (
-        <Flex
-          justifyContent="center"
-          direction="row"
-          alignContent="middle"
-          style={{ marginTop: variation === "default" ? "2rem" : 0 }}
-        >
+        <Flex justifyContent="center" direction="row" alignContent="middle">
           {
             /*!loggingOut &&*/
             components &&

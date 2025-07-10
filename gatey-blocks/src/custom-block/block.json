@@ -17,6 +17,9 @@
       "type": "string"
     }
   },
+  "providesContext": {
+    "gatey/custom-block/component": "component"
+  },
   "editorScript": "file:./index.tsx",
   "editorStyle": "file:./index.css",
   "style": "file:./index.css",

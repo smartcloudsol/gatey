@@ -12,13 +12,14 @@ export type ComponentAttributes = {
     | "ConfirmSignUp"
     | "ConfirmResetPassword"
     | "ConfirmVerifyUser"
+    | "EditAccount"
     | "ForceNewPassword"
     | "ForgotPassword"
     | "SetupTotp"
     | "SignIn"
     | "SignUp"
     | "VerifyUser";
-  part?: "Header" | "Footer";
+  part?: "Header" | "Footer" | "FormFields";
   children?: ReactNode;
 };
 

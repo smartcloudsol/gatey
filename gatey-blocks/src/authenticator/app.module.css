@@ -1,3 +1,15 @@
 [gatey-authenticator] {
   border-radius: 4px;
 }
+
+[data-amplify-authenticator] [data-amplify-container] {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 30rem) {
+  [data-amplify-authenticator] [data-amplify-container] {
+    width: unset;
+    min-width: 30rem;
+  }
+}

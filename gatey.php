@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.3.6
+ * Version:           1.4.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.3.6';
+const VERSION = '1.4.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -161,6 +161,7 @@ final class Gatey_Plugin
             register_block_type(__DIR__ . '/gatey-blocks/dist/authenticator');
             register_block_type(__DIR__ . '/gatey-blocks/dist/custom-block');
             register_block_type(__DIR__ . '/gatey-blocks/dist/account-attribute');
+            register_block_type(__DIR__ . '/gatey-blocks/dist/form-field');
         }
 
         // Category for custom blocks.
@@ -248,6 +249,7 @@ final class Gatey_Plugin
                 'colormode' => null,
                 'language' => null,
                 'direction' => null,
+                'totp' => null,
                 'showopen' => null,
                 'open' => null,
                 'signingin' => null,
@@ -296,6 +298,7 @@ final class Gatey_Plugin
                     'signingInMessage' => $a['signingin'] ?? $block['attrs']['signingInMessage'] ?? '',
                     'signingOutMessage' => $a['signingout'] ?? $block['attrs']['signingOutMessage'] ?? '',
                     'redirectingMessage' => $a['redirecting'] ?? $block['attrs']['redirectingMessage'] ?? '',
+                    'totpIssuer' => $a['totp'] ?? $block['attrs']['totpIssuer'] ?? '',
                 );
                 $newBlock = [
                     'blockName' => 'gatey/authenticator',
