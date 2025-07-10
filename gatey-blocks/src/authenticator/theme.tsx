@@ -30,6 +30,7 @@ export type PreviewType = "FREE" | "PAID";
 
 export interface ThemeProps extends PropsWithChildren {
   id: string;
+  className: string;
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
@@ -56,6 +57,7 @@ export interface ThemeProps extends PropsWithChildren {
 export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
+    className,
     isPreview,
     store,
     editorRef,
@@ -141,6 +143,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         >
           <App
             id={id}
+            className={className}
             store={store}
             editorRef={editorRef}
             screen={screen}
@@ -162,6 +165,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       ) : (
         <App
           id={id}
+          className={className}
           store={store}
           editorRef={editorRef}
           screen={screen}

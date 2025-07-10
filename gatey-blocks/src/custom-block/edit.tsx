@@ -1,17 +1,29 @@
-import { useEffect, useState, type FunctionComponent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type FunctionComponent,
+} from "react";
 import {
   useBlockProps,
   useInnerBlocksProps,
   InspectorControls,
 } from "@wordpress/block-editor";
-import { type BlockEditProps } from "@wordpress/blocks";
+import { createBlock, type BlockEditProps } from "@wordpress/blocks";
 import {
   ComboboxControl,
   RadioControl,
   PanelBody,
+  Button,
 } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 import { select, useDispatch, useSelect } from "@wordpress/data";
+
+import {
+  AuthMachineState,
+  FormFieldComponents,
+  getSortedFormFields,
+} from "@aws-amplify/ui";
 
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
 
@@ -53,7 +65,36 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     (s: typeof select) => s("core/block-editor").getBlock(clientId),
     [clientId]
   );
-  const dispatch = useDispatch("core/block-editor");
+  const { insertBlocks, updateBlock } = useDispatch("core/block-editor");
+
+  const addChild = useCallback(() => {
+    let route: FormFieldComponents | undefined;
+    switch (component) {
+      case "SignUp":
+        route = "signUp";
+        break;
+      case "EditAccount":
+        route = "editAccount";
+        break;
+    }
+    if (!route) {
+      return;
+    }
+    const children = getSortedFormFields(route, {
+      context: {
+        config: {
+          loginMechanisms: Gatey.settings.loginMechanisms,
+          signUpAttributes: Gatey.settings.signUpAttributes,
+        },
+      },
+    } as AuthMachineState).map(([field, options]) => {
+      return createBlock("gatey/form-field", {
+        attribute: field,
+        ...options,
+      });
+    });
+    insertBlocks(children, undefined, clientId);
+  }, [component, insertBlocks, clientId]);
 
   useEffect(() => {
     let attr: string | undefined;
@@ -66,7 +107,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     if (block && attr) {
       setCustomPart(attr);
       if (block.attributes.anchor !== attr) {
-        dispatch.updateBlock(clientId, {
+        updateBlock(clientId, {
           attributes: {
             ...attributes,
             anchor: attr,
@@ -74,7 +115,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
         });
       }
     }
-  }, [attributes, clientId, component, part, dispatch, block]);
+  }, [attributes, clientId, component, part, updateBlock, block]);
 
   return (
     <>
@@ -149,6 +190,16 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
               TEXT_DOMAIN
             )}
           />
+          {(component === "SignUp" || component === "EditAccount") &&
+            part === "FormFields" && (
+              <Button
+                variant="primary"
+                onClick={addChild}
+                style={{ width: "100%" }}
+              >
+                {__("Add Default Form Fields", TEXT_DOMAIN)}
+              </Button>
+            )}
         </PanelBody>
       </InspectorControls>
       <div {...innerBlocksProps}>

@@ -1,4 +1,4 @@
-import { type FunctionComponent } from "react";
+import { useEffect, type FunctionComponent } from "react";
 
 import { type BlockEditProps } from "@wordpress/blocks";
 import { useBlockProps, useInnerBlocksProps } from "@wordpress/block-editor";
@@ -23,13 +23,25 @@ export interface EditorBlockProps {
   signingOutMessage?: string;
   redirectingMessage?: string;
   totpIssuer?: string;
+  uid?: string;
+  customCSS?: string;
 }
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   props: BlockEditProps<EditorBlockProps>
 ) => {
-  const blockProps = useBlockProps();
+  const { clientId, attributes, setAttributes } = props;
+  const { uid } = attributes;
+  const blockProps = useBlockProps({
+    className: `wp-block-css-box-${uid}`,
+  });
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
+
+  useEffect(() => {
+    if (!uid) {
+      setAttributes({ uid: clientId.slice(0, 8) });
+    }
+  }, [clientId, setAttributes, uid]);
 
   return (
     <div {...innerBlocksProps}>

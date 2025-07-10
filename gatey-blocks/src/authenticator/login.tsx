@@ -89,6 +89,7 @@ export const Login = (
 ) => {
   const {
     id,
+    className,
     store,
     screen,
     variation,
@@ -485,7 +486,7 @@ export const Login = (
   }, [route]);
 
   return (
-    <View ref={containerRef} style={{ margin: 0, padding: 0 }}>
+    <View ref={containerRef} className={className}>
       {visible && recaptchaIsReady && (
         <Flex justifyContent="center" direction="row" alignContent="middle">
           {

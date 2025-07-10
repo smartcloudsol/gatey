@@ -23,6 +23,7 @@ I18n.putVocabularies(translations);
 export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
+    className,
     isPreview,
     previewMode,
     setPreviewMode,
@@ -212,10 +213,15 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
             <Route
               path="*"
               element={
-                <>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
                   {showOpenButton && (
                     <Button
-                      className="amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener"
+                      className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
                       disabled={show}
                       isFullWidth={true}
                       onClick={() => {
@@ -233,7 +239,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
                       language={currentLanguage}
                     />
                   )}
-                </>
+                </div>
               }
             />
           </Routes>

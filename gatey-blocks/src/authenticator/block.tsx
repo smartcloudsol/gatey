@@ -7,11 +7,13 @@ import {
 } from "react";
 import { InspectorControls, BlockControls } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
+import { useLayoutEffect, useRef } from "@wordpress/element";
 import {
   ComboboxControl,
   CheckboxControl,
   RadioControl,
   TextControl,
+  TextareaControl,
   PanelBody,
   ToolbarGroup,
   ToolbarDropdownMenu,
@@ -59,7 +61,6 @@ export interface Attributes {
 }
 
 export interface EditorBlock {
-  clientId: string;
   attributes: Attributes;
   innerBlocks: EditorBlock[];
 }
@@ -75,6 +76,30 @@ const configUrl =
     : "https://wpsuite.io/static/config/prod.json";
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
+
+const useScopedCssCompat = (id: string, css: string) => {
+  const latestCss = useRef(css);
+  latestCss.current = css;
+
+  useLayoutEffect(() => {
+    const iframe = document.querySelector(
+      'iframe[name="editor-canvas"], iframe.block-editor-iframe'
+    ) as HTMLIFrameElement | null;
+    const doc = iframe?.contentDocument;
+    if (!doc?.head) return;
+
+    let tag = doc.getElementById(id) as HTMLStyleElement | null;
+    if (!tag) {
+      tag = doc.createElement("style");
+      tag.id = id;
+      doc.head.appendChild(tag);
+    }
+    if (tag.textContent !== latestCss.current) {
+      tag.textContent = latestCss.current;
+    }
+    return () => tag?.remove();
+  }, [id, css]);
+};
 
 export const Block: FunctionComponent<
   BlockEditProps<EditorBlockProps> & { children: ReactNode }
@@ -96,6 +121,8 @@ export const Block: FunctionComponent<
     signingOutMessage,
     redirectingMessage,
     totpIssuer,
+    uid,
+    customCSS,
   } = attributes;
 
   const [amplifyConfigured, setAmplifyConfigured] = useState(false);
@@ -118,6 +145,13 @@ export const Block: FunctionComponent<
   const [previewZIndex, setPreviewZIndex] = useState<number>();
 
   const editorRef = createRef<HTMLDivElement>();
+
+  const scopedCSS = attributes.customCSS?.replace(
+    /selector/g,
+    `.wp-block-css-box-${uid}`
+  );
+
+  useScopedCssCompat(`css-${uid}`, scopedCSS || "");
 
   useEffect(() => {
     if (amplifyConfigured && !loadingSubscription) {
@@ -447,6 +481,17 @@ export const Block: FunctionComponent<
             )}
           />
         </PanelBody>
+        <PanelBody title={__("Custom CSS", TEXT_DOMAIN)}>
+          <TextareaControl
+            __nextHasNoMarginBottom
+            value={customCSS || ""}
+            onChange={(v) => setAttributes({ customCSS: v })}
+            help={__(
+              "Add custom CSS styles for the authenticator. Use the `selector` keyword to target the authenticator block.",
+              TEXT_DOMAIN
+            )}
+          />
+        </PanelBody>{" "}
       </InspectorControls>
       <BlockControls>
         <ToolbarGroup>
@@ -552,6 +597,7 @@ export const Block: FunctionComponent<
               >
                 <App
                   id="gatey-authenticator-block"
+                  className={`wp-block-css-box-${uid}`}
                   screen={previewScreen}
                   variation={variation}
                   language={currentLanguage as Language}
@@ -577,6 +623,7 @@ export const Block: FunctionComponent<
             ) : (
               <App
                 id="gatey-authenticator-block"
+                className={`wp-block-css-box-${uid}`}
                 screen={previewScreen}
                 variation={variation}
                 language={currentLanguage as Language}

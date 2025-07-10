@@ -5,6 +5,7 @@
 [data-amplify-authenticator] [data-amplify-container] {
   display: flex;
   justify-content: center;
+  flex-direction: column;
 }
 
 @media (min-width: 30rem) {

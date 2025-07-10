@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.4.0
+ * Version:           1.4.1
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.4.0';
+const VERSION = '1.4.1';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -288,6 +288,8 @@ final class Gatey_Plugin
                 // parsing the block attributes
                 $attrs = array(
                     'id' => $id,
+                    'uid' => $block['attrs']['uid'] ?? '',
+                    'customCSS' => $block['attrs']['customCSS'] ?? '',
                     'screen' => $a['screen'] ?? $block['attrs']['screen'] ?? 'signIn',
                     'variation' => $a['variation'] ?? $block['attrs']['variation'] ?? 'default',
                     'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',

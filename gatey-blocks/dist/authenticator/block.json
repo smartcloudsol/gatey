@@ -39,6 +39,13 @@
     },
     "totpIssuer": {
       "type": "string"
+    },
+    "uid": {
+      "type": "string"
+    },
+    "customCSS": {
+      "type": "string",
+      "default": "selector {\n\t\n}"
     }
   },
   "supports": {

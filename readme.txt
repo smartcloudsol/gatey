@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.4.1 =
+Added a **Custom CSS** field to the Authenticator block: style any element inside the widget without touching theme files.
+
 = 1.4.0 =
 **Live form-builder in Gutenberg** – Sign-Up and Edit-Account screens are now edited directly in the block editor. Drag fields, Rows, Stacks and any other core layout blocks, and see your changes instantly.
 Field order, labels, visibility and full page layout are all controlled in one place—no more sidebar lists.
@@ -251,6 +254,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.1 =
+Update to apply per-block Custom CSS to the Authenticator—fine-tune colours, spacing, or hide elements right from the editor.
 
 = 1.4.0 =
 Update to design Sign-Up and Edit-Account forms visually inside Gutenberg: reorder fields, add layout rows or stacks, and preview the result in real time.
