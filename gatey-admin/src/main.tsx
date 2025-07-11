@@ -48,7 +48,6 @@ import {
   IconCheck,
   IconCircleNumber2,
   IconExclamationCircle,
-  /*IconForms,*/
   IconInfoCircle,
   IconLogin,
   IconPlus,
@@ -86,33 +85,12 @@ export interface ApiSettingsEditorProps {
   }) => JSX.Element;
 }
 
-export interface FormFieldEditorProps {
-  amplifyConfigured: boolean;
-  config: AuthenticatorConfig;
-  accountId: string;
-  siteId: string;
-  siteKey: string | undefined;
-  onSave: (config: AuthenticatorConfig) => void;
-  InfoLabelComponent: (props: {
-    text: string;
-    scrollToId: string;
-  }) => JSX.Element;
-}
-
 const ApiSettingsEditor = lazy(
   () =>
     import(
       process.env.GATEY_PREMIUM
         ? "./paid-features/ApiSettingsEditor"
         : "./free-features/ApiSettingsEditor"
-    )
-);
-const FormFieldEditor = lazy(
-  () =>
-    import(
-      process.env.GATEY_PREMIUM
-        ? "./paid-features/FormFieldEditor"
-        : "./free-features/FormFieldEditor"
     )
 );
 
@@ -269,11 +247,7 @@ const Main = (props: MainProps) => {
 
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
   const [activePage, setActivePage] = useState<
-    | "user-pools"
-    | "general"
-    | "wordpress-login"
-    | "api-settings"
-    | "form-fields"
+    "user-pools" | "general" | "wordpress-login" | "api-settings"
   >("general");
 
   // Add media query for responsive design
@@ -385,31 +359,7 @@ const Main = (props: MainProps) => {
       setOwnedAccountId(undefined);
     }
   }, [accountId]);
-  /*
-  const handleConfigChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      let obj: FormDataProperty =
-        settingsFormData.userPoolConfigurations as unknown as FormDataProperty;
-      const parts: string[] = e.target.name.split(".");
-      while (parts.length > 1) {
-        if (!Object.prototype.hasOwnProperty.call(obj, parts[0])) {
-          obj[parts[0]] = {};
-        }
-        const part = parts.shift();
-        if (part) {
-          obj = obj[part as keyof typeof obj] as FormDataProperty;
-        }
-      }
-      //obj[parts[0]] = e.target.value;
-      obj[parts[0]] =
-        parts[0] === "scopes"
-          ? (e.target.value as string).split(",").map((s) => s.trim())
-          : (e.target.value as unknown as FormDataProperty);
-      setSettingsFormData(Object.assign({}, settingsFormData));
-    },
-    [settingsFormData]
-  );
-*/
+
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSettingsFormData((prev) =>
@@ -744,19 +694,6 @@ const Main = (props: MainProps) => {
         label: "WordPress Login",
         icon: <IconLogin size={16} stroke={1.5} />,
       },
-      /*
-      {
-        value: "form-fields",
-        label: "Form Fields",
-        icon: <IconForms size={16} stroke={1.5} />,
-        badge: (
-          <Badge variant="light" color="blue" ml="4px" miw={35}>
-            BASIC
-          </Badge>
-        ),
-        disabled: paidSettingsDisabled,
-      },
-      */
       {
         value: "api-settings",
         label: "API Settings",
@@ -855,7 +792,6 @@ const Main = (props: MainProps) => {
                     | "user-pools"
                     | "wordpress-login"
                     | "api-settings"
-                    | "form-fields"
                 )
               }
             >
@@ -1516,41 +1452,6 @@ const Main = (props: MainProps) => {
                 )}
                 {(formConfig ?? decryptedConfig) && (
                   <ApiSettingsEditor
-                    amplifyConfigured={amplifyConfigured}
-                    config={formConfig ?? decryptedConfig}
-                    accountId={accountId!}
-                    siteId={siteId!}
-                    siteKey={siteKey!}
-                    onSave={handleConfigSave}
-                    InfoLabelComponent={InfoLabelComponent}
-                  />
-                )}
-              </Tabs.Panel>
-              <Tabs.Panel value="form-fields">
-                <Title order={2} mb="md">
-                  Form Fields
-                </Title>
-
-                <Text mb="md">
-                  Customize the fields shown on different screens. Add standard
-                  or custom Cognito attributes with full control.
-                </Text>
-
-                {!(formConfig ?? decryptedConfig)?.subscriptionType && (
-                  <Alert
-                    variant="light"
-                    color="yellow"
-                    title="BASIC Feature"
-                    icon={<IconExclamationCircle />}
-                    mb="md"
-                  >
-                    This feature is available in the <strong>BASIC</strong>{" "}
-                    version of the plugin. You can save your settings but they
-                    will not take effect until you upgrade your subscription.
-                  </Alert>
-                )}
-                {(formConfig ?? decryptedConfig) && (
-                  <FormFieldEditor
                     amplifyConfigured={amplifyConfigured}
                     config={formConfig ?? decryptedConfig}
                     accountId={accountId!}

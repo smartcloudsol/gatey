@@ -16,6 +16,7 @@ import {
   InspectorControls,
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
+import { useSelect, useDispatch, select } from "@wordpress/data";
 import {
   ComboboxControl,
   CheckboxControl,
@@ -56,7 +57,7 @@ export interface EditorBlockProps {
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   props: BlockEditProps<EditorBlockProps>
 ) => {
-  const { context, attributes, setAttributes } = props;
+  const { context, attributes, setAttributes, clientId } = props;
   const {
     attribute,
     custom,
@@ -78,6 +79,13 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const { "gatey/custom-block/component": component } = context;
 
   const [attributeName, setAttributeName] = useState<string>("");
+
+  const block = useSelect(
+    (s: typeof select) => s("core/block-editor").getBlock(clientId),
+    [clientId]
+  );
+
+  const { updateBlock } = useDispatch("core/block-editor");
 
   const blockProps = useBlockProps();
   const { ...innerBlocksProps } = useInnerBlocksProps(blockProps);
@@ -111,10 +119,10 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
         attribute: attributeValue as Attribute,
         custom: "",
         type: options?.type || "text",
-        required: options?.isRequired || false,
-        hidden: options?.hidden || false,
+        required: options?.isRequired ?? false,
+        hidden: options?.hidden ?? false,
         label: options?.label || "",
-        labelHidden: options?.labelHidden || false,
+        labelHidden: options?.labelHidden ?? false,
         placeholder: options?.placeholder || "",
         defaultValue: "",
         defaultChecked: false,
@@ -141,20 +149,33 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, []);
 
   useEffect(() => {
+    let attr = "";
     if (attribute) {
       if (
         authFieldsWithDefaults.includes(attribute as AuthFieldsWithDefaults)
       ) {
-        setAttributeName(attribute as string);
+        attr = attribute as string;
+        setAttributeName(attr);
       } else if (attribute === "custom") {
-        setAttributeName("custom:" + (custom || ""));
+        attr = "custom:" + (custom || "");
+        setAttributeName(attr);
       } else {
-        setAttributeName(custom || "");
+        attr = custom || "";
+        setAttributeName(attr);
       }
     } else {
-      setAttributeName(custom || "");
+      attr = custom || "";
+      setAttributeName(attr);
     }
-  }, [attribute, custom]);
+    if (block && attr && block.attributes.anchor !== attr) {
+      updateBlock(clientId, {
+        attributes: {
+          ...attributes,
+          anchor: attr,
+        },
+      });
+    }
+  }, [attribute, attributes, block, clientId, custom, updateBlock]);
 
   const ffOptions = [];
   ffOptions.push({ label: __("Username", TEXT_DOMAIN), value: "username" });
@@ -202,6 +223,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             value={type || "text"}
             options={[
               { label: __("Text", TEXT_DOMAIN), value: "text" },
+              { label: __("Email", TEXT_DOMAIN), value: "email" },
               { label: __("Password", TEXT_DOMAIN), value: "password" },
               { label: __("Checkbox", TEXT_DOMAIN), value: "checkbox" },
               { label: __("Radio", TEXT_DOMAIN), value: "radio" },
@@ -218,7 +240,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           {type === "checkbox" && (
             <CheckboxControl
               label={__("Checked by default", TEXT_DOMAIN)}
-              checked={defaultChecked || false}
+              checked={defaultChecked ?? false}
               onChange={(value) => {
                 setAttributes({ defaultChecked: value });
               }}
@@ -239,7 +261,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           )}
           <CheckboxControl
             label={__("Required", TEXT_DOMAIN)}
-            checked={required || false}
+            checked={required ?? false}
             onChange={(value) => {
               setAttributes({ required: value });
             }}
@@ -247,7 +269,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           />
           <CheckboxControl
             label={__("Hidden", TEXT_DOMAIN)}
-            checked={hidden || false}
+            checked={hidden ?? false}
             onChange={(value) => {
               setAttributes({ hidden: value });
             }}
@@ -265,7 +287,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           />
           <CheckboxControl
             label={__("Label Hidden", TEXT_DOMAIN)}
-            checked={labelHidden || false}
+            checked={labelHidden ?? false}
             onChange={(value) => {
               setAttributes({ labelHidden: value });
             }}

@@ -63,8 +63,8 @@ export const loadUser = async (
       };
       return acc;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
+    console.error(err);
     try {
       await signOut();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

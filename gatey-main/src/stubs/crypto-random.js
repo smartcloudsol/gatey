@@ -5,13 +5,13 @@ function fill(buf) {
   throw new Error("No secure random source available");
 }
 
-function randomBytes(size) {
+export function randomBytes(size) {
   const b = Buffer.allocUnsafe(size);
   fill(b);
   return b;
 }
 
-function randomFillSync(buf) {
+export function randomFillSync(buf) {
   fill(buf);
   return buf;
 }
@@ -19,4 +19,4 @@ function randomFillSync(buf) {
 export default {
   randomBytes,
   randomFillSync,
-};
+}

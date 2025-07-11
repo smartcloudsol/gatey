@@ -1,5 +1,6 @@
 import { select, dispatch } from "@wordpress/data";
-
+import { I18n } from "aws-amplify/utils";
+import { translations } from "@aws-amplify/ui-react";
 import { countries } from "country-data-list";
 import {
   store,
@@ -281,6 +282,8 @@ jQuery(() => {
       store,
       (state) => state.language,
       () => {
+        I18n.putVocabularies(translations);
+        I18n.putVocabularies(select(store).getCustomTranslations() || {});
         Gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));

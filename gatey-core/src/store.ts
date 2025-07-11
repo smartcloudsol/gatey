@@ -7,7 +7,6 @@ import {
   type FormFieldOptions,
   type SocialProvider,
 } from "@aws-amplify/ui";
-import { translations } from "@aws-amplify/ui-react";
 
 import {
   createReduxStore,
@@ -30,8 +29,6 @@ import {
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
-
-I18n.putVocabularies(translations);
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -68,9 +65,8 @@ export const getAccountFromStorage = async (
       ) {
         saved = true;
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      // ts-ignore
+      console.error(err);
     }
   }
   if (!saved && account?.username) {
@@ -217,7 +213,6 @@ const getDefaultState = async (): Promise<State> => {
       : config?.apiConfigurations?.default;
   const account = await getAccountFromStorage(apiConfiguration);
   const customTranslations = await getCustomTranslations();
-  I18n.putVocabularies(customTranslations || {});
 
   return {
     config: config,

@@ -19,33 +19,33 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
   },
   "dependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@smart-cloud/gatey-core": "^1.0.0",
-    "@wordpress/data": "^10.25.0",
+    "@wordpress/data": "^10.26.0",
     "asmcrypto.js": "^2.3.2",
+    "aws-amplify": "^6.15.3",
     "elliptic": "^6.6.1",
     "util": "^0.12.5",
     "webcrypto-liner": "^1.4.3"
   },
   "devDependencies": {
-    "@aws-amplify/ui-react": "^6.11.2",
     "@babel/core": "^7.27.4",
     "@types/jquery": "^3.5.32",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
-    "@typescript-eslint/parser": "^8.34.0",
-    "@wordpress/scripts": "^30.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "@wordpress/scripts": "^30.19.0",
     "ajv": "^8.17.1",
-    "aws-amplify": "^6.15.0",
     "buffer-browserify": "^0.2.5",
     "country-data-list": "^1.4.1",
-    "esbuild": "0.25.5",
-    "eslint": "^9.28.0",
+    "esbuild": "0.25.6",
+    "eslint": "^9.30.1",
     "jquery": "^3.7.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.0",
+    "typescript-eslint": "^8.36.0",
     "vm-browserify": "^1.1.2"
   }
 }

@@ -61,10 +61,11 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
   const blockProps = useBlockProps();
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
-  const block: EditorBlock | undefined = useSelect(
-    (s: typeof select) => s("core/block-editor").getBlock(clientId),
-    [clientId]
+  const coreEditor = useSelect(
+    (s: typeof select) => s("core/block-editor"),
+    []
   );
+
   const { insertBlocks, updateBlock } = useDispatch("core/block-editor");
 
   const addChild = useCallback(() => {
@@ -80,6 +81,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     if (!route) {
       return;
     }
+    const ids = coreEditor.getClientIdsOfDescendants([clientId]);
     const children = getSortedFormFields(route, {
       context: {
         config: {
@@ -87,14 +89,29 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
           signUpAttributes: Gatey.settings.signUpAttributes,
         },
       },
-    } as AuthMachineState).map(([field, options]) => {
-      return createBlock("gatey/form-field", {
-        attribute: field,
-        ...options,
+    } as AuthMachineState)
+      .filter(
+        ([field]) =>
+          !ids.find((id: string) => {
+            const b: { name: string; attributes: { attribute: string } } =
+              coreEditor.getBlock(id);
+            return (
+              b.name === "gatey/form-field" && b.attributes.attribute === field
+            );
+          })
+      )
+      .map(([field, options]) => {
+        return createBlock("gatey/form-field", {
+          ...options,
+          attribute: field,
+          required: options.isRequired,
+          type: options.type || "text",
+        });
       });
-    });
-    insertBlocks(children, undefined, clientId);
-  }, [component, insertBlocks, clientId]);
+    if (children.length > 0) {
+      insertBlocks(children, undefined, clientId);
+    }
+  }, [component, coreEditor, clientId, insertBlocks]);
 
   useEffect(() => {
     let attr: string | undefined;
@@ -104,6 +121,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     if (part) {
       attr = attr ? attr + "-" + part : part;
     }
+    const block: EditorBlock | undefined = coreEditor.getBlock(clientId);
     if (block && attr) {
       setCustomPart(attr);
       if (block.attributes.anchor !== attr) {
@@ -115,7 +133,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
         });
       }
     }
-  }, [attributes, clientId, component, part, updateBlock, block]);
+  }, [attributes, clientId, component, part, updateBlock, coreEditor]);
 
   return (
     <>
@@ -197,7 +215,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
                 onClick={addChild}
                 style={{ width: "100%" }}
               >
-                {__("Add Default Form Fields", TEXT_DOMAIN)}
+                {__("Add Missing Form Fields", TEXT_DOMAIN)}
               </Button>
             )}
         </PanelBody>

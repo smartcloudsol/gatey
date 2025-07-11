@@ -16,3 +16,7 @@
 .wp-core-ui .interface-complementary-area hr {
   margin: 0 0 1rem;
 }
+
+.block-editor-iframe__body input[type="checkbox"]:checked::before {
+  content: "";
+}
