@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.4.4 =
+Form Field blocks now honour Gutenberg alignment controls: set Dimensions › Width when the field sits in a Row, or Dimensions › Height when it’s inside a Stack, giving you finer layout control.
+
 = 1.4.3 =
 Fixed the **“Paid” preview** inside the Gutenberg editor when you’re running the free plan: the Authenticator block now stays visible and reflects your current styling instead of disappearing.
 
@@ -261,6 +264,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.4 =
+Update to adjust Form Field width in rows or height in stacks directly from the block’s Dimensions panel—no custom CSS required.
 
 = 1.4.3 =
 Update if the Authenticator block vanished in Gutenberg’s Paid preview; it now renders correctly with your customisation even on the free version.

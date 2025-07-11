@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/form-field",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Form Field",
   "category": "wpsuite-gatey",
   "description": "Form Field for Gatey Authenticator - display a form field on sign-up or edit-account page.",
@@ -63,6 +63,13 @@
         }
       }
     }
+  },
+  "supports": {
+    "align": true,
+    "__experimentalBorder": {
+      "width": true
+    },
+    "html": false
   },
   "usesContext": ["gatey/custom-block/component"],
   "editorScript": "file:./index.tsx",
