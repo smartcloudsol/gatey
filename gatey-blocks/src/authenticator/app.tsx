@@ -128,7 +128,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           fc = null;
           break;
         case "PAID":
-          fc = siteSettings ?? decryptedConfig;
+          fc = siteSettings ?? decryptedConfig ?? ({} as AuthenticatorConfig);
           break;
       }
       setFilteredConfig(undefined);

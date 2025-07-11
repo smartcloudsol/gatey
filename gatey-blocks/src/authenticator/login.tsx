@@ -464,11 +464,8 @@ export const Login = (
           : {
               ...config,
               formFields: {
-                ...config?.formFields,
                 setupTotp: {
-                  ...config?.formFields?.setupTotp,
                   QR: {
-                    ...config?.formFields?.setupTotp?.QR,
                     totpUsername: totpUsername,
                     totpIssuer: totpIssuer,
                   },

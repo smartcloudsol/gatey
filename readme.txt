@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -166,6 +166,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.4.3 =
+Fixed the **“Paid” preview** inside the Gutenberg editor when you’re running the free plan: the Authenticator block now stays visible and reflects your current styling instead of disappearing.
+
 = 1.4.2 =
 **Document Overview clarity**: each **Form Field** block now shows its target attribute in the Gutenberg Outline, so you can see at a glance which field is which.
 **One-click field generator**: in the **Custom Block → Settings → Block** tab (used for Sign Up and Edit Account screens) you’ll find an “**Add Missing Form Fields**” button. It auto-inserts every field required by your current loginMechanisms and signUpAttributes settings—no more dropping “Form Field” blocks one-by-one.
@@ -258,6 +261,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.3 =
+Update if the Authenticator block vanished in Gutenberg’s Paid preview; it now renders correctly with your customisation even on the free version.
 
 = 1.4.2 =
 Update to get attribute labels in the Outline and a new button that instantly adds all missing Sign-Up/Edit-Account fields, saving you time when building forms.
