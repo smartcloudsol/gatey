@@ -51,28 +51,39 @@ Activate the plugin through the “Plugins” screen in WordPress.
 
 Navigate to WP Admin > Gatey > Settings to configure your AWS Cognito user pool and integration settings.
 
+== Machine-readable resources ==
+
+* AI plugin manifest: https://wpsuite.io/.well-known/ai-plugin.json
+* OpenAPI spec: https://wpsuite.io/.well-known/openapi.yaml
+
 == Frequently Asked Questions ==
 
 = What is Gatey? =
-Gatey is a WordPress plugin that lets you integrate AWS Cognito authentication into your site — using Gutenberg blocks, shortcodes, or CSS. No coding required.
+Gatey is a server-free WordPress plugin that adds Amazon Cognito login and SSO in minutes. Drop in its Authenticator block, shortcode or CSS class—no coding required.
 
-= Is my user data stored or processed by Gatey? =
-No. All authentication runs through your own AWS Cognito setup. Gatey simply integrates it into WordPress. We do not access or store your end‑user data.
+= Does Gatey store any user data or client secret? =
+**No.** Gatey never stores your Cognito client secrets or your users’ personal data on the WordPress server. All authentication happens directly in the browser against your own Cognito User Pool. The plug-in only keeps non-sensitive settings (e.g., User Pool ID) in WordPress and does not proxy, log, or persist any JWT tokens or profile details.
 
 = Is my data shared with any third party? =
 Gatey never shares your personal data or WordPress site data with any third party. Authentication flows run directly between your site and your AWS Cognito user pool. If you enable premium features, subscription management is handled securely via Stripe using hosted forms and client‑side JavaScript. No payment data is stored or processed by Gatey.
 
+= Will it still work after a static export? =
+**Yes.** Because all authentication runs in the browser, Gatey talks straight to Amazon Cognito and keeps working even when WordPress is served as static files (Netlify, S3, CloudFront, etc.).
+
 = Do I need AWS or Cognito knowledge to use it? =
-Basic AWS Cognito setup is needed (e.g. user pool, app client). But the plugin handles all frontend logic — sign‑in, sign‑up, MFA, attribute access — visually.
+Only the basics. You’ll create a Cognito User Pool and App Client in the AWS console—that’s it. Gatey then takes over all front-end work — sign-in, sign-up, MFA, profile fields—through a visual block or shortcode, no coding required.
+
+= How long does setup take? =
+Usually less than **five minutes**: install, drop the block, paste your User Pool ID, App Client ID, and region.
 
 = Can I show or hide content based on the logged‑in user? =
-Yes. You can use shortcodes or CSS variables like --gatey-account-group-admin or --gatey-account-attribute-email to control visibility.
+**Yes.** You can use shortcodes or CSS variables like --gatey-account-group-admin or --gatey-account-attribute-email to control visibility.
 
 = Is Gatey compatible with my theme? =
-Yes. It works with all WordPress themes and builders like Elementor, using Gutenberg blocks or shortcodes.
+**Yes.** Gatey uses standard Gutenberg blocks and shortcodes, so it works with any WordPress theme or builder (Elementor, Divi, etc.).
 
 = Do I need to register or subscribe to use Gatey? =
-No. Gatey works fully offline out of the box and requires no registration or subscription to function. You can configure your AWS Cognito user pool directly inside WordPress and use login, registration, MFA, and profile features without ever connecting to wpsuite.io. Premium features are entirely optional and only become available after connecting your site using secure client‑side JavaScript.
+**No.** Gatey works fully offline out of the box and requires no registration or subscription to function. You can configure your AWS Cognito user pool directly inside WordPress and use login, registration, MFA, and profile features without ever connecting to wpsuite.io. Premium features are entirely optional and only become available after connecting your site using secure client‑side JavaScript.
 
 = What’s the difference between plans? =
 Free includes all core blocks, but frontend customizations are hidden. Basic shows custom blocks on live pages. Professional unlocks social login, JWT/IAM‑secured APIs, and advanced Gatey control.
@@ -83,7 +94,7 @@ The small licence file needed to decrypt that config are also stored in uploads.
 If you run a static export, you’ll still need that weekly refresh (a short tutorial covers this topic), but a normal WordPress install handles it for you automatically.
 
 = Can I cancel or upgrade later? =
-Yes, at any time. The plugin will still work in Free mode, and your site’s blocks won’t break — only premium features will deactivate.
+**Yes**, at any time. The plugin will still work in Free mode, and your site’s blocks won’t break — only premium features will deactivate.
 
 == Screenshots ==
 

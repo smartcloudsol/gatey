@@ -6,6 +6,10 @@ This repository contains the complete source code and frontend modules for the f
 ![PHP](https://img.shields.io/badge/PHP-%3E%3D8.1-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
+## Machine-readable resources
+* AI plugin manifest: https://wpsuite.io/.well-known/ai-plugin.json
+* OpenAPI spec: https://wpsuite.io/.well-known/openapi.yaml
+
 ## Project Structure
 
 - `gatey-core/`: Shared JavaScript modules (e.g. authentication logic)
