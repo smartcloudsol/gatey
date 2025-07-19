@@ -1,10 +1,6 @@
 import { type ResourcesConfig } from "aws-amplify";
 import { get, post, put, del, head, patch } from "aws-amplify/api";
-import {
-  translate,
-  type LoginMechanism,
-  type SignUpAttribute,
-} from "@aws-amplify/ui";
+import { type LoginMechanism, type SignUpAttribute } from "@aws-amplify/ui";
 import { dispatch } from "@wordpress/data";
 
 import {
@@ -109,7 +105,6 @@ export interface Cognito {
   readonly del: typeof del;
   readonly head: typeof head;
   readonly patch: typeof patch;
-  readonly translate: typeof translate;
   toSignIn?: () => void;
   toSignUp?: () => void;
   toForgotPassword?: () => void;
@@ -149,6 +144,7 @@ export {
 
 export {
   observeStore,
+  type FormField,
   type Store,
   type State,
   type CustomTranslations,
@@ -187,7 +183,6 @@ if (!initialized) {
     del,
     head,
     patch,
-    translate,
   };
 }
 initialized = true;

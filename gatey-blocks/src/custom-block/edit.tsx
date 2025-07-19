@@ -141,9 +141,9 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
         <PanelBody title={__("Settings", TEXT_DOMAIN)}>
           <ComboboxControl
             label={__("Component", TEXT_DOMAIN)}
-            value={component || ""}
+            value={component || "Global"}
             options={[
-              { label: "-", value: "Global" },
+              { label: __("Global", TEXT_DOMAIN), value: "Global" },
               {
                 label: __("Change Password", TEXT_DOMAIN),
                 value: "ChangePassword",

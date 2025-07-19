@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.4.4
+Stable tag: 1.5.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -177,6 +177,14 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.5.0 =
+- **New Elementor widgets**
+  - **Gatey Authenticator** – drag-and-drop the full authenticator without touching shortcodes; every pattern attribute (screen, variation, language, etc.) is editable via native Elementor controls.
+  - **Gatey Account Attribute** – display any Cognito user attribute with Elementor styling and attribute pickers, no shortcode required.
+
+= 1.4.5 =
+The **Authenticator** and **Account Attribute** blocks now default to font-family: inherit, so they automatically follow any typography set by your theme or the Gutenberg editor.
+
 = 1.4.4 =
 Form Field blocks now honour Gutenberg alignment controls: set Dimensions › Width when the field sits in a Row, or Dimensions › Height when it’s inside a Stack, giving you finer layout control.
 
@@ -275,6 +283,12 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Update to add two dedicated Gatey widgets to Elementor’s panel. Drop them into any layout and configure all options visually instead of writing shortcodes.
+
+= 1.4.5 =
+Update to let Gatey blocks pick up your theme’s font stack without extra CSS. If you previously forced a custom font, re-apply it in the block’s style panel after upgrading.
 
 = 1.4.4 =
 Update to adjust Form Field width in rows or height in stacks directly from the block’s Dimensions panel—no custom CSS required.

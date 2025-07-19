@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Amplify, type ResourcesConfig } from "aws-amplify";
 
 import { I18n } from "aws-amplify/utils";
+import { translate } from "@aws-amplify/ui";
 import { translations, Authenticator, Button } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
@@ -12,11 +13,10 @@ import {
   type CustomTranslations,
   type Store,
 } from "@smart-cloud/gatey-core";
+import { ConfigContext } from "../context/config";
 import { type Language } from "../index";
 import { type ThemeProps } from "./theme";
 import { Login } from "./login";
-
-import "./app.module.css";
 
 I18n.putVocabularies(translations);
 
@@ -152,9 +152,13 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   }, [nextFilteredConfig]);
 
   useEffect(() => {
-    if (!isPreview && amplifyConfig?.Auth) {
-      Amplify.configure(amplifyConfig);
-      setAmplifyConfigured(true);
+    if (isPreview) {
+      Amplify.configure({});
+    } else {
+      if (amplifyConfig?.Auth) {
+        Amplify.configure(amplifyConfig);
+        setAmplifyConfigured(true);
+      }
     }
   }, [amplifyConfig, isPreview, store]);
 
@@ -174,26 +178,26 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       if (!openButtonTitle) {
         switch (screen) {
           case "signIn":
-            setTitle(Gatey.cognito.translate("Sign In"));
+            setTitle(translate("Sign In"));
             break;
           case "signUp":
-            setTitle(Gatey.cognito.translate("Sign Up"));
+            setTitle(translate("Sign Up"));
             break;
           case "forgotPassword":
-            setTitle(Gatey.cognito.translate("Forgot Password"));
+            setTitle(translate("Forgot Password"));
             break;
           case "changePassword":
-            setTitle(Gatey.cognito.translate("Change Password"));
+            setTitle(translate("Change Password"));
             break;
           case "editAccount":
-            setTitle(Gatey.cognito.translate("Edit Account"));
+            setTitle(translate("Edit Account"));
             break;
           case "setupTotp":
-            setTitle(Gatey.cognito.translate("Setup TOTP"));
+            setTitle(translate("Setup TOTP"));
             break;
         }
       } else {
-        setTitle(Gatey.cognito.translate(openButtonTitle));
+        setTitle(translate(openButtonTitle));
       }
     }
   }, [screen, language, showOpenButton, openButtonTitle]);
@@ -207,44 +211,46 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   return (
     filteredConfig !== undefined &&
     (isPreview || amplifyConfigured) && (
-      <Authenticator.Provider>
-        <Router>
-          <Routes>
-            <Route
-              path="*"
-              element={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  {showOpenButton && (
-                    <Button
-                      className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
-                      disabled={show}
-                      isFullWidth={true}
-                      onClick={() => {
-                        setShow(true);
-                      }}
-                    >
-                      {title}
-                    </Button>
-                  )}
-                  {(!showOpenButton || show) && (
-                    <Login
-                      containerRef={containerRef}
-                      {...props}
-                      config={filteredConfig}
-                      language={currentLanguage}
-                    />
-                  )}
-                </div>
-              }
-            />
-          </Routes>
-        </Router>
-      </Authenticator.Provider>
+      <ConfigContext.Provider value={filteredConfig}>
+        <Authenticator.Provider>
+          <Router>
+            <Routes>
+              <Route
+                path="*"
+                element={
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {showOpenButton && (
+                      <Button
+                        className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
+                        disabled={show}
+                        isFullWidth={true}
+                        onClick={() => {
+                          setShow(true);
+                        }}
+                      >
+                        {title}
+                      </Button>
+                    )}
+                    {(!showOpenButton || show) && (
+                      <Login
+                        containerRef={containerRef}
+                        {...props}
+                        config={filteredConfig}
+                        language={currentLanguage}
+                      />
+                    )}
+                  </div>
+                }
+              />
+            </Routes>
+          </Router>
+        </Authenticator.Provider>
+      </ConfigContext.Provider>
     )
   );
 };

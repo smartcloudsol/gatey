@@ -1,3 +1,24 @@
+[data-amplify-theme],
+html {
+  --amplify-fonts-default-static: inherit !important;
+  --amplify-fonts-default-variable: inherit !important;
+}
+
+[gatey-authenticator] {
+  border-radius: 4px;
+}
+
+[data-amplify-authenticator] [data-amplify-container] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-amplify-authenticator] [data-amplify-container] [data-amplify-router] {
+  width: 100%;
+}
+
 .amplify-radiogroupfield {
   --amplify-components-radiogroup-legend-font-weight: 300;
 }

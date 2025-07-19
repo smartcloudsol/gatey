@@ -1,5 +1,10 @@
 import { select, dispatch } from "@wordpress/data";
 import { I18n } from "aws-amplify/utils";
+import {
+  defaultFormFieldOptions,
+  translate,
+  type AuthFieldsWithDefaults,
+} from "@aws-amplify/ui";
 import { translations } from "@aws-amplify/ui-react";
 import { countries } from "country-data-list";
 import {
@@ -53,9 +58,18 @@ jQuery(() => {
       []
     );
 
-  const replaceValues = (key: string, value: string) => {
-    jQuery("[" + key + "]:not(:has(*))").html(value);
-    jQuery("[" + key + "] *:not(:has(*))").html(value);
+  const replaceValues = (
+    key: string,
+    attribute: string,
+    custom: string,
+    value: string
+  ) => {
+    let attr = "[gatey-account-attribute][data-attribute='" + attribute + "']";
+    if (attribute === "custom") {
+      attr += "[data-custom='" + custom + "']";
+    }
+    jQuery(attr + ":not(:has(*))").html(value);
+    jQuery(attr + " *:not(:has(*))").html(value);
     jQuery("." + key + ":not(:has(*))").html(value);
     jQuery("." + key + " *:not(:has(*))").html(value);
   };
@@ -68,10 +82,12 @@ jQuery(() => {
         if (attrs) {
           Object.keys(attrs).forEach((attr) => {
             const field =
-              (decryptedConfig?.formFields?.signUp &&
-                decryptedConfig?.formFields?.signUp[attr]) ??
-              (decryptedConfig?.formFields?.editAccount &&
-                decryptedConfig?.formFields?.editAccount[attr]);
+              ((attr as AuthFieldsWithDefaults) &&
+                defaultFormFieldOptions[attr as AuthFieldsWithDefaults]) ??
+              (decryptedConfig?.formFields &&
+                decryptedConfig?.formFields?.find(
+                  (field) => field.name === attr
+                ));
             let value = attrs[attr] as string;
             if (value) {
               if (field?.type === "country") {
@@ -83,18 +99,20 @@ jQuery(() => {
                       value.toLocaleLowerCase()
                 );
                 if (country) {
-                  value = Gatey.cognito.translate(country.name);
+                  value = translate(country.name);
                 }
               } else if (field?.type === "select" || field?.type === "radio") {
                 const options = field?.values ?? [];
                 const option = options.find((option) => option.value === value);
                 if (option) {
-                  value = Gatey.cognito.translate(option.label);
+                  value = translate(option.label);
                 }
               }
             }
             replaceValues(
               "gatey-account-attribute-" + attr.replaceAll(":", "-"),
+              attr.startsWith("custom:") ? "custom" : attr,
+              attr.startsWith("custom:") ? attr.substring(7) : "",
               value ?? "&nbsp;"
             );
             root.style.setProperty(
@@ -108,6 +126,8 @@ jQuery(() => {
           if (!processedAttrs.includes(key)) {
             replaceValues(
               "gatey-account-attribute-" + key.replaceAll(":", "-"),
+              key.startsWith("custom:") ? "custom" : key,
+              key.startsWith("custom:") ? key.substring(7) : "",
               "&nbsp;"
             );
             root.style.setProperty(
@@ -178,11 +198,8 @@ jQuery(() => {
         ? decryptedConfig.apiConfigurations.secondary
         : decryptedConfig?.apiConfigurations?.default;
     const allAttrs = [];
-    if (decryptedConfig?.formFields?.signUp) {
-      allAttrs.push(...Object.keys(decryptedConfig.formFields.signUp));
-    }
-    if (decryptedConfig?.formFields?.editAccount) {
-      allAttrs.push(...Object.keys(decryptedConfig.formFields.editAccount));
+    if (decryptedConfig?.formFields) {
+      allAttrs.push(...Object.keys(decryptedConfig.formFields));
     }
     allAttributeKeys = Array.from(new Set(allAttrs));
     Gatey.settings.signUpAttributes.forEach((attr) => {

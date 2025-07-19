@@ -563,13 +563,13 @@ const pages = {
     </>
   ),
 
-  "form-fields": (
+  "social-providers": (
     <>
-      <Title order={2}>Form Field Editor</Title>
+      <Title order={2}>Social Providers Editor</Title>
       <Text>
-        Customise every field in the <em>Authenticator&nbsp;UI</em> — sign-in,
-        sign-up, password reset, MFA, etc. Change order, label, required flag or
-        even add custom Cognito attributes.
+        Select the social providers you want to offer—Facebook, Google, Apple,
+        and Amazon. Gatey will automatically place their login buttons at the
+        top of your Sign-In and Sign-Up screens.
       </Text>
 
       {/* ── Social providers ─────────────────────────────────────────────── */}
@@ -583,32 +583,44 @@ const pages = {
           corresponding Identity Provider in AWS console).
         </List.Item>
       </List>
+      <Alert
+        icon={<IconInfoCircle size="1rem" />}
+        title="PRO feature"
+        color="yellow"
+        radius="xs"
+        mt="sm"
+      >
+        Social provider editing is available in PROFESSIONAL plan. In free mode
+        your settings are saved, but the UI won’t generate the controls.
+      </Alert>
+    </>
+  ),
+  "custom-fields": (
+    <>
+      <Title order={2}>Custom Fields Editor</Title>
+      <Text>
+        Create custom fields once and reuse them everywhere: they can appear on
+        the <strong>Sign Up</strong> and <strong>Edit Account</strong> screens,
+        in the <strong>Account Attribute</strong> block/shortcode, and in the{" "}
+        <strong>Gatey Account Attribute Elementor</strong> widget. Just set a
+        <strong>name</strong> and <strong>type</strong>—and, for{" "}
+        <strong>select</strong> or <strong>radio</strong> inputs, list each
+        option as a value-label pair in the Options box. Gatey then shows the
+        user-friendly labels instead of raw values, giving you a consistent,
+        polished experience across all screens and front-end elements.
+      </Text>
 
-      {/* ── Per-screen fields ────────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="screen-groups">
-        <span className="highlightable">Per-screen fields</span>
+      {/* ── Custom fields ────────────────────────────────────────────── */}
+      <Title order={3} mt="md" id="custom-fields">
+        <span className="highlightable">Custom fields</span>
       </Title>
       <List size="sm" spacing="xs" withPadding>
-        <List.Item>
-          <Text fw={500}>Screens</Text>
-          Each screen (Sign In, Sign Up, Forgot Password…) maintains its own
-          field list.
-        </List.Item>
-
         <List.Item id="field-name">
           <Text fw={500}>
             <span className="highlightable">Name</span>
           </Text>
-          Cognito attribute key, e.g. <Code>username</Code>,
-          <Code ml="xs">preferred_username</Code>,
-          <Code ml="xs">confirmation_code</Code>
-        </List.Item>
-
-        <List.Item id="field-label">
-          <Text fw={500}>
-            <span className="highlightable">Label</span>
-          </Text>
-          Caption shown to the user.
+          Cognito custom attribute key without <Code>custom:</Code> prefix, e.g.{" "}
+          <Code>country</Code>
         </List.Item>
 
         <List.Item id="field-type">
@@ -616,14 +628,6 @@ const pages = {
             <span className="highlightable">Type</span>
           </Text>
           <List spacing="xs" size="sm" icon={<IconCircle size={12} />}>
-            <List.Item>
-              <Code>default</Code>&nbsp;– Uses Cognito’s built-in type for the
-              selected attribute (e.g.&nbsp;<Code>username</Code> →{" "}
-              <Code>text</Code>,<Code>confirm_password</Code> →{" "}
-              <Code>password</Code>). For custom attributes it falls back to{" "}
-              <Code>text</Code>.
-            </List.Item>
-
             <List.Item>
               <Code>text</Code>&nbsp;– Single-line text input.
             </List.Item>
@@ -634,6 +638,10 @@ const pages = {
 
             <List.Item>
               <Code>tel</Code>&nbsp;– Telephone / number-pad input.
+            </List.Item>
+
+            <List.Item>
+              <Code>country</Code>&nbsp;– Country selection (dropdown).
             </List.Item>
 
             <List.Item>
@@ -652,29 +660,6 @@ const pages = {
               <em>Options</em> list.
             </List.Item>
           </List>
-          <Text size="sm" c="dimmed" mt="sm">
-            <strong>Tip:</strong> If you’re unsure, keep the type on&nbsp;
-            <Code>default</Code>—Cognito will pick the correct control for
-            built-in attributes, and custom fields will appear as plain text
-            inputs.
-          </Text>{" "}
-        </List.Item>
-
-        <List.Item id="field-options">
-          <Text fw={500}>
-            <span className="highlightable">
-              Placeholder / Required / Hidden / Options
-            </span>
-          </Text>
-          Fine-grained UX options per field.
-        </List.Item>
-
-        <List.Item id="field-special">
-          <Text fw={500}>
-            <span className="highlightable">Special types</span>
-          </Text>
-          <Code mr="xs">phone_number</Code> (dial-code picker),
-          <Code ml="xs">QR</Code> (TOTP setup → issuer / username).
         </List.Item>
       </List>
 
@@ -685,9 +670,8 @@ const pages = {
         radius="xs"
         mt="sm"
       >
-        Custom field and screen editing is available in PRO plans. In free mode
-        your settings are saved, but the UI falls back to Cognito’s default
-        fields.
+        Custom field editing is available in PAID plans. In free mode your
+        settings are saved, but the UI falls back to Cognito’s default fields.
       </Alert>
     </>
   ),

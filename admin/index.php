@@ -153,7 +153,7 @@ class Admin
             return;
         }
 
-        $shortcode = sprintf('[gatey id="%d"]', $post_id);
+        $shortcode = sprintf('[gatey pattern="%d"]', $post_id);
 
         printf(
             '<span class="wpc-shortcode" id="wpc-sc-%1$d"><code>%2$s</code></span>

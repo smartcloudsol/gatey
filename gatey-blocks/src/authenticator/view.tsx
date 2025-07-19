@@ -11,8 +11,6 @@ import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
 import { ThemedApp } from "./theme";
 
-import "./index.css";
-
 const cache = new Map<string, string>();
 try {
   const call = async (id: string) => {

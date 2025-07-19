@@ -16,6 +16,17 @@ import "@mantine/notifications/styles.css";
 
 import Main from "./main";
 
+declare global {
+  interface Window {
+    Gatey?: {
+      siteSettings?: {
+        accountId?: string;
+        siteId?: string;
+      };
+    };
+  }
+}
+
 export const signUpAttributes = [
   "name",
   "family_name",

@@ -17,29 +17,24 @@ import {
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
 import { useSelect, useDispatch, select } from "@wordpress/data";
+import { useContext } from "@wordpress/element";
 import {
   ComboboxControl,
   CheckboxControl,
   PanelBody,
   TextControl,
-  TextareaControl,
-  Button,
-  Flex,
-  FlexBlock,
-  __experimentalDivider as Divider,
 } from "@wordpress/components";
-import { trash } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
 
-import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
+import { TEXT_DOMAIN, type AuthenticatorConfig } from "@smart-cloud/gatey-core";
 
-import { type Attribute } from "./index";
+import { ConfigContext } from "../context/config";
 import { formFieldOptions } from "../index";
+import { type Attribute } from "./index";
 
 export interface EditorBlockProps {
   attribute?: Attribute;
   custom?: string;
-  type?: string;
   required?: boolean;
   hidden?: boolean;
   label?: string;
@@ -51,7 +46,6 @@ export interface EditorBlockProps {
   dialCode?: string;
   dialCodeList?: string[];
   countryCodeList?: string[];
-  values?: { value: string; label: string }[];
 }
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
@@ -61,7 +55,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const {
     attribute,
     custom,
-    type,
     required,
     hidden,
     label,
@@ -73,11 +66,11 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     dialCode,
     dialCodeList,
     countryCodeList,
-    values = [],
   } = attributes;
 
   const { "gatey/custom-block/component": component } = context;
 
+  const [type, setType] = useState<string>("");
   const [attributeName, setAttributeName] = useState<string>("");
 
   const block = useSelect(
@@ -85,31 +78,12 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     [clientId]
   );
 
+  const ctx = useContext<AuthenticatorConfig | null>(ConfigContext);
+
   const { updateBlock } = useDispatch("core/block-editor");
 
   const blockProps = useBlockProps();
   const { ...innerBlocksProps } = useInnerBlocksProps(blockProps);
-
-  const updatePair = useCallback(
-    (index: number, field: string, newVal: string) => {
-      const next = values.map((item, i) =>
-        i === index ? { ...item, [field]: newVal } : item
-      );
-      setAttributes({ values: next });
-    },
-    [setAttributes, values]
-  );
-
-  const addPair = useCallback(() => {
-    setAttributes({ values: [...values, { value: "", label: "" }] });
-  }, [setAttributes, values]);
-
-  const removePair = useCallback(
-    (index: number) => {
-      setAttributes({ values: values.filter((_, i) => i !== index) });
-    },
-    [setAttributes, values]
-  );
 
   const changeAttributes = useCallback((attributeValue: string) => {
     if (defaultFormFieldOptions[attributeValue as AuthFieldsWithDefaults]) {
@@ -118,7 +92,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
       return {
         attribute: attributeValue as Attribute,
         custom: "",
-        type: options?.type || "text",
         required: options?.isRequired ?? false,
         hidden: options?.hidden ?? false,
         label: options?.label || "",
@@ -135,7 +108,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     return {
       attribute: attributeValue as Attribute,
       custom: "",
-      type: "text",
       required: false,
       hidden: false,
       label: "",
@@ -144,7 +116,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
       autocomplete: "off",
       defaultValue: "",
       defaultChecked: false,
-      values: [],
     };
   }, []);
 
@@ -167,7 +138,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
       attr = custom || "";
       setAttributeName(attr);
     }
-    if (block && attr && block.attributes.anchor !== attr) {
+    if (block && attr !== undefined && block.attributes.anchor !== attr) {
       updateBlock(clientId, {
         attributes: {
           ...attributes,
@@ -176,6 +147,19 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
       });
     }
   }, [attribute, attributes, block, clientId, custom, updateBlock]);
+
+  useEffect(() => {
+    if (attributeName in defaultFormFieldOptions) {
+      setType(
+        defaultFormFieldOptions[attributeName as AuthFieldsWithDefaults].type ||
+          "text"
+      );
+    } else if (ctx?.formFields) {
+      setType(
+        ctx?.formFields.find((ff) => ff.name === attributeName)?.type || "text"
+      );
+    }
+  }, [ctx, attributeName]);
 
   const ffOptions = [];
   ffOptions.push({ label: __("Username", TEXT_DOMAIN), value: "username" });
@@ -190,7 +174,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     });
   }
   formFieldOptions.forEach((option) => ffOptions.push(option));
-  ffOptions.push({ label: __("Transient", TEXT_DOMAIN), value: "transient" });
 
   return (
     <>
@@ -198,15 +181,15 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
         <PanelBody title={__("Settings", TEXT_DOMAIN)}>
           <ComboboxControl
             label={__("Attribute", TEXT_DOMAIN)}
-            value={attribute || "transient"}
+            value={attribute || ""}
             options={ffOptions}
             onChange={(value) => {
               setAttributes(changeAttributes(value as string));
             }}
+            placeholder={__("Select an attribute", TEXT_DOMAIN)}
+            allowReset
           />
-          {(!attribute ||
-            attribute === "custom" ||
-            attribute === "transient") && (
+          {attribute === "custom" && (
             <TextControl
               label={__("Custom Attribute", TEXT_DOMAIN)}
               value={custom ?? ""}
@@ -215,28 +198,9 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   custom: value as string,
                 });
               }}
-              placeholder={__("Enter custom attribute:", TEXT_DOMAIN)}
+              placeholder={__("Enter custom attribute", TEXT_DOMAIN)}
             />
           )}
-          <ComboboxControl
-            label={__("Type", TEXT_DOMAIN)}
-            value={type || "text"}
-            options={[
-              { label: __("Text", TEXT_DOMAIN), value: "text" },
-              { label: __("Email", TEXT_DOMAIN), value: "email" },
-              { label: __("Password", TEXT_DOMAIN), value: "password" },
-              { label: __("Checkbox", TEXT_DOMAIN), value: "checkbox" },
-              { label: __("Radio", TEXT_DOMAIN), value: "radio" },
-              { label: __("Select", TEXT_DOMAIN), value: "select" },
-              { label: __("Phone Number", TEXT_DOMAIN), value: "tel" },
-              { label: __("Country", TEXT_DOMAIN), value: "country" },
-            ]}
-            onChange={(value) => {
-              setAttributes({
-                type: value as string,
-              });
-            }}
-          />
           {type === "checkbox" && (
             <CheckboxControl
               label={__("Checked by default", TEXT_DOMAIN)}
@@ -256,7 +220,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   defaultValue: value as string,
                 });
               }}
-              placeholder={__("Enter default value:", TEXT_DOMAIN)}
+              placeholder={__("Enter default value", TEXT_DOMAIN)}
             />
           )}
           <CheckboxControl
@@ -283,7 +247,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 label: value as string,
               });
             }}
-            placeholder={__("Enter label:", TEXT_DOMAIN)}
+            placeholder={__("Enter label", TEXT_DOMAIN)}
           />
           <CheckboxControl
             label={__("Label Hidden", TEXT_DOMAIN)}
@@ -301,7 +265,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 placeholder: value as string,
               });
             }}
-            placeholder={__("Enter placeholder:", TEXT_DOMAIN)}
+            placeholder={__("Enter placeholder", TEXT_DOMAIN)}
           />
           <TextControl
             label={__("Auto Complete", TEXT_DOMAIN)}
@@ -321,7 +285,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                     dialCode: value as string,
                   });
                 }}
-                placeholder={__("Enter dial code:", TEXT_DOMAIN)}
+                placeholder={__("Enter dial code", TEXT_DOMAIN)}
                 help={__(
                   "Enter a single dial code starting with “+” (e.g., +1).",
                   TEXT_DOMAIN
@@ -360,7 +324,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 });
               }}
               placeholder={__(
-                "Enter country codes separated by commas:",
+                "Enter country codes separated by commas",
                 TEXT_DOMAIN
               )}
               help={__(
@@ -370,53 +334,11 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             />
           )}
         </PanelBody>
-        {(type === "select" || type === "radio") && (
-          <PanelBody title={__("Options", TEXT_DOMAIN)}>
-            {values.map((pair, index) => (
-              <Flex key={index} align="top" gap="8px" direction="column">
-                <FlexBlock style={{ display: "flex", alignItems: "center" }}>
-                  <TextControl
-                    label={__("Value", TEXT_DOMAIN)}
-                    value={pair.value}
-                    onChange={(v) => updatePair(index, "value", v)}
-                    placeholder={__("Enter value", TEXT_DOMAIN)}
-                    className="option-value"
-                  />
-                  <Button
-                    icon={trash}
-                    label="Remove"
-                    onClick={() => removePair(index)}
-                    isDestructive
-                    style={{ alignSelf: "end" }}
-                  />
-                </FlexBlock>
-                <FlexBlock>
-                  <TextareaControl
-                    label={__("Label", TEXT_DOMAIN)}
-                    value={pair.label}
-                    onChange={(v) => updatePair(index, "label", v)}
-                    placeholder={__("Enter label", TEXT_DOMAIN)}
-                    rows={4}
-                  />
-                </FlexBlock>
-                <Divider />
-              </Flex>
-            ))}
-            <Button
-              variant="secondary"
-              onClick={addPair}
-              style={{ marginTop: "12px" }}
-            >
-              Add option
-            </Button>
-          </PanelBody>
-        )}
       </InspectorControls>
       <div
         {...innerBlocksProps}
-        data-attribute={attribute || "transient"}
+        data-attribute={attribute}
         data-custom={custom}
-        data-type={type || "text"}
         data-default-checked={defaultChecked}
         data-required={required}
         data-hidden={hidden}
@@ -427,7 +349,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
         data-dial-code={dialCode || ""}
         data-dial-code-list={dialCodeList?.join(", ") || ""}
         data-country-code-list={countryCodeList?.join(", ") || ""}
-        data-values={values.length > 0 ? btoa(JSON.stringify(values)) : ""}
       >
         <Text as="p">{attributeName}</Text>{" "}
       </div>

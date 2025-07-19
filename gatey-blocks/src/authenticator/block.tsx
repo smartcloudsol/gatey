@@ -26,6 +26,8 @@ import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { get } from "@aws-amplify/api";
 
+import { translate } from "@aws-amplify/ui";
+
 import {
   defaultDarkModeOverride,
   ThemeProvider,
@@ -268,22 +270,22 @@ export const Block: FunctionComponent<
       switch (screen) {
         default:
         case "signIn":
-          title = Gatey.cognito.translate("Sign In");
+          title = translate("Sign In");
           break;
         case "signUp":
-          title = Gatey.cognito.translate("Sign Up");
+          title = translate("Sign Up");
           break;
         case "forgotPassword":
-          title = Gatey.cognito.translate("Forgot Password");
+          title = translate("Forgot Password");
           break;
         case "changePassword":
-          title = Gatey.cognito.translate("Change Password");
+          title = translate("Change Password");
           break;
         case "editAccount":
-          title = Gatey.cognito.translate("Edit Account");
+          title = translate("Edit Account");
           break;
         case "setupTotp":
-          title = Gatey.cognito.translate("Setup TOTP");
+          title = translate("Setup TOTP");
           break;
       }
       setTitle(title);
@@ -596,7 +598,7 @@ export const Block: FunctionComponent<
                 useRecaptchaNet={Gatey.settings?.useRecaptchaNet}
               >
                 <App
-                  id="gatey-authenticator-block"
+                  id={`gatey-authenticator-block-${uid}`}
                   className={`wp-block-css-box-${uid}`}
                   screen={previewScreen}
                   variation={variation}
@@ -622,7 +624,7 @@ export const Block: FunctionComponent<
               </RecaptchaProvider>
             ) : (
               <App
-                id="gatey-authenticator-block"
+                id={`gatey-authenticator-block-${uid}`}
                 className={`wp-block-css-box-${uid}`}
                 screen={previewScreen}
                 variation={variation}

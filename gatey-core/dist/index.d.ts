@@ -1,6 +1,6 @@
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { SocialProvider, FormFieldComponents, FormFieldOptions, LoginMechanism, SignUpAttribute, translate } from '@aws-amplify/ui';
+import { SocialProvider, FormFieldOptionValue, LoginMechanism, SignUpAttribute } from '@aws-amplify/ui';
 import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { StoreDescriptor, ReduxStoreConfig } from '@wordpress/data/build-types/types';
 
@@ -53,6 +53,11 @@ declare const selectors: {
     getDirection(state: State): "ltr" | "rtl" | "auto" | null | undefined;
     getState(state: State): State;
 };
+interface FormField {
+    name: string;
+    type: string;
+    values?: Array<FormFieldOptionValue>;
+}
 interface ApiOptions {
     headers?: Record<string, string>;
     queryParams?: Record<string, string>;
@@ -80,11 +85,7 @@ interface ApiConfiguration {
 }
 interface AuthenticatorConfig {
     socialProviders: SocialProvider[];
-    formFields: {
-        [key in FormFieldComponents]?: {
-            [field_name: string]: FormFieldOptions;
-        };
-    };
+    formFields: FormField[];
     apiConfigurations: {
         default: ApiConfiguration;
         secondary?: ApiConfiguration;
@@ -199,7 +200,6 @@ interface Cognito {
     readonly del: typeof del;
     readonly head: typeof head;
     readonly patch: typeof patch;
-    readonly translate: typeof translate;
     toSignIn?: () => void;
     toSignUp?: () => void;
     toForgotPassword?: () => void;
@@ -215,4 +215,4 @@ interface Gatey {
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

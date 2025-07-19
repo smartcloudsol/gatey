@@ -3,9 +3,8 @@ import { fetchAuthSession } from "aws-amplify/auth";
 import { I18n } from "aws-amplify/utils";
 import { type APIConfig } from "@aws-amplify/core";
 import {
-  type FormFieldComponents,
-  type FormFieldOptions,
   type SocialProvider,
+  type FormFieldOptionValue,
 } from "@aws-amplify/ui";
 
 import {
@@ -343,6 +342,12 @@ const resolvers = {
   */
 };
 
+export interface FormField {
+  name: string;
+  type: string;
+  values?: Array<FormFieldOptionValue>;
+}
+
 export interface ApiOptions {
   headers?: Record<string, string>;
   queryParams?: Record<string, string>;
@@ -373,11 +378,7 @@ export interface ApiConfiguration {
 
 export interface AuthenticatorConfig {
   socialProviders: SocialProvider[];
-  formFields: {
-    [key in FormFieldComponents]?: {
-      [field_name: string]: FormFieldOptions;
-    };
-  };
+  formFields: FormField[];
   apiConfigurations: {
     default: ApiConfiguration;
     secondary?: ApiConfiguration;

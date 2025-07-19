@@ -9,8 +9,6 @@ import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
 import { Block } from "./block";
 
-import "./index.css";
-
 export interface EditorBlockProps {
   screen?: Screen;
   variation?: Variation;

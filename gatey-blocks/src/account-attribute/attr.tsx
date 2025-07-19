@@ -1,6 +1,7 @@
 import { useEffect, useState, type FunctionComponent } from "react";
 
 import { I18n } from "aws-amplify/utils";
+import { translate } from "@aws-amplify/ui";
 import { translations, Text } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
@@ -65,11 +66,10 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       setValue(attributeName);
     } else if (account?.userAttributes) {
       const field =
-        (decryptedConfig?.formFields?.signUp &&
-          decryptedConfig?.formFields?.signUp[attributeName]) ??
-        (decryptedConfig?.formFields?.editAccount &&
-          decryptedConfig?.formFields?.editAccount[attributeName]);
-
+        decryptedConfig?.formFields &&
+        decryptedConfig?.formFields.find(
+          (field) => field.name === attributeName
+        );
       let value = account.userAttributes[attributeName];
 
       if (value) {
@@ -81,13 +81,13 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
               country.alpha2?.toLocaleLowerCase() === value?.toLocaleLowerCase()
           );
           if (country) {
-            value = Gatey.cognito.translate(country.name);
+            value = translate(country.name);
           }
         } else if (field?.type === "select" || field?.type === "radio") {
           const options = field?.values ?? [];
           const option = options.find((option) => option.value === value);
           if (option) {
-            value = Gatey.cognito.translate(option.label);
+            value = translate(option.label);
           }
         }
       }
@@ -98,7 +98,7 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   }, [decryptedConfig, isPreview, account, attribute, custom, language]);
 
   return (
-    <Text as={component} color="inherit" display="inherit">
+    <Text as={component} color="inherit">
       {value || <>&nbsp;</>}
     </Text>
   );

@@ -55,7 +55,6 @@
     "@vitejs/plugin-react-swc": "^3.10.2",
     "@wordpress/scripts": "^30.19.0",
     "ajv": "^8.17.1",
-    "aws-amplify": "^6.15.0",
     "buffer-browserify": "^0.2.5",
     "crypto-browserify": "^3.12.1",
     "eslint": "^9.30.1",

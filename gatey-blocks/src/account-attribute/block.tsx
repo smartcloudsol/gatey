@@ -112,6 +112,8 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 });
               }
             }}
+            placeholder={__("Select an attribute", TEXT_DOMAIN)}
+            allowReset
             help={__(
               "Select the account attribute to display—either a standard Cognito attribute (e.g., email, given_name) or a custom attribute.",
               TEXT_DOMAIN
@@ -128,7 +130,7 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   });
                 }
               }}
-              placeholder={__("Enter custom attribute:", TEXT_DOMAIN)}
+              placeholder={__("Enter custom attribute", TEXT_DOMAIN)}
               help={__(
                 "Enter the name of the custom attribute (e.g.,country).",
                 TEXT_DOMAIN

@@ -8,7 +8,6 @@ $bid = 'gatey_account_attribute_' . $hash;
 <div gatey-form-field
 	data-attribute="<?php echo esc_html(array_key_exists('attribute', $attributes) ? $attributes['attribute'] : 'transient') ?>"
 	data-custom="<?php echo esc_html(array_key_exists('custom', $attributes) ? $attributes['custom'] : '') ?>"
-	data-type="<?php echo esc_html(array_key_exists('type', $attributes) ? $attributes['type'] : 'default') ?>"
 	data-default-checked="<?php echo esc_html(array_key_exists('defaultChecked', $attributes) ? $attributes['defaultChecked'] : '0') ?>"
 	data-default-value="<?php echo esc_html(array_key_exists('defaultValue', $attributes) ? $attributes['defaultValue'] : '') ?>"
 	data-required="<?php echo esc_html(array_key_exists('required', $attributes) ? $attributes['required'] : '0') ?>"
@@ -20,5 +19,4 @@ $bid = 'gatey_account_attribute_' . $hash;
 	data-dial-code="<?php echo esc_html(array_key_exists('dialCode', $attributes) ? $attributes['dialCode'] : '') ?>"
 	data-dial-code-list="<?php echo esc_html(array_key_exists('dialCodeList', $attributes) ? implode(', ', $attributes['dialCodeList']) : '') ?>"
 	data-country-code-list="<?php echo esc_html(array_key_exists('countryCodeList', $attributes) ? implode(', ', $attributes['countryCodeList']) : '') ?>"
-	data-values="<?php echo esc_html(array_key_exists('values', $attributes) ? base64_encode(json_encode($attributes['values'])) : '') ?>"
 	<?php echo get_block_wrapper_attributes() ?>> &nbsp;</div>

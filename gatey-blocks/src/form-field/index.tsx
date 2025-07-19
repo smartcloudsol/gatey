@@ -22,8 +22,7 @@ export type Attribute =
   | "website"
   | "zoneinfo"
   | "locale"
-  | "custom"
-  | "transient";
+  | "custom";
 
 const icon = (
   <svg

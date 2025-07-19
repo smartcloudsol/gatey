@@ -19,9 +19,6 @@
     "hidden": {
       "type": "boolean"
     },
-    "type": {
-      "type": "string"
-    },
     "label": {
       "type": "string"
     },
@@ -51,17 +48,6 @@
     },
     "countryCodeList": {
       "type": "array"
-    },
-    "values": {
-      "type": "array",
-      "default": [],
-      "items": {
-        "type": "object",
-        "properties": {
-          "value": { "type": "string" },
-          "label": { "type": "string" }
-        }
-      }
     }
   },
   "supports": {

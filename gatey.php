@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.4.4
+ * Version:           1.5.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.4.4';
+const VERSION = '1.5.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -87,6 +87,12 @@ final class Gatey_Plugin
         if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
             $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();
         }
+
+        if (file_exists(__DIR__ . '/gatey-elementor-widgets.php')) {
+            add_action('elementor/init', static function () {
+                require_once __DIR__ . '/gatey-elementor-widgets.php';
+            });
+        }
     }
 
     /**
@@ -145,17 +151,6 @@ final class Gatey_Plugin
      */
     public function init(): void
     {
-        // Hooks.
-        add_action('admin_menu', array($this, 'createAdminMenu'));
-
-        // Front‑end assets + shortcodes
-        add_action('wp_enqueue_scripts', array($this, 'enqueueAssets'));
-        add_action('admin_init', array($this, 'enqueueAssets'));
-        add_action('elementor/editor/after_enqueue_scripts', array($this, 'enqueueAssets'));
-
-        add_shortcode('gatey', array($this, 'shortcode'));
-        add_shortcode('gatey-account', array($this, 'shortcodeAccount'));
-
         // Register Gutenberg blocks (authenticator etc.)
         if (function_exists('register_block_type')) {
             register_block_type(__DIR__ . '/gatey-blocks/dist/authenticator');
@@ -163,6 +158,17 @@ final class Gatey_Plugin
             register_block_type(__DIR__ . '/gatey-blocks/dist/account-attribute');
             register_block_type(__DIR__ . '/gatey-blocks/dist/form-field');
         }
+
+        // Hooks.
+        add_action('admin_menu', array($this, 'createAdminMenu'));
+
+        // Front‑end assets + shortcodes
+        add_action('wp_enqueue_scripts', array($this, 'enqueueAssets'));
+        add_action('admin_init', array($this, 'enqueueAssets'));
+        add_action('elementor/preview/after_enqueue_scripts', array($this, 'enqueueAssets'));
+
+        add_shortcode('gatey', array($this, 'shortcode'));
+        add_shortcode('gatey-account', array($this, 'shortcodeAccount'));
 
         // Category for custom blocks.
         add_filter('block_categories_all', array($this, 'register_block_category'), 10, 2);
@@ -194,13 +200,27 @@ final class Gatey_Plugin
         $settings = $this->admin->getSettings();
         $siteSettings = $this->admin->getSiteSettings();
 
-        $script_asset = array();
+        $main_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'gatey-main/dist/index.asset.php')) {
-            $script_asset = require(GATEY_PATH . 'gatey-main/dist/index.asset.php');
+            $main_script_asset = require(GATEY_PATH . 'gatey-main/dist/index.asset.php');
         }
-        wp_enqueue_script('gatey-main-script', GATEY_URL . 'gatey-main/dist/index.js', $script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_script('gatey-main-script', GATEY_URL . 'gatey-main/dist/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
         wp_enqueue_style('gatey-main-style', GATEY_URL . 'gatey-main/dist/index.css', array('wp-components'), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'gatey-main/dist/index.css');
+
+        $authenticator_script_asset = array();
+        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/authenticator/view.asset.php')) {
+            $authenticator_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/authenticator/view.asset.php');
+        }
+        wp_enqueue_script('gatey-authenticator-view-script', GATEY_URL . 'gatey-blocks/dist/authenticator/view.js', $authenticator_script_asset['dependencies'], $authenticator_script_asset['version'], false);
+        wp_enqueue_style('gatey-authenticator-style', GATEY_URL . 'gatey-blocks/dist/authenticator/view.css', array('wp-components'), $authenticator_script_asset['version']);
+
+        $account_attribute_script_asset = array();
+        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/account-attribute/view.asset.php')) {
+            $account_attribute_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/account-attribute/view.asset.php');
+        }
+        wp_enqueue_script('gatey-account-attribute-view-script', GATEY_URL . 'gatey-blocks/dist/account-attribute/view.js', $account_attribute_script_asset['dependencies'], $account_attribute_script_asset['version'], false);
+        wp_enqueue_style('gatey-account-attribute-style', GATEY_URL . 'gatey-blocks/dist/account-attribute/view.css', array('wp-components'), $account_attribute_script_asset['version']);
 
         $upload_info = wp_upload_dir();
         $data = array(
@@ -287,7 +307,6 @@ final class Gatey_Plugin
             if ('gatey/authenticator' === $block['blockName']) {
                 // parsing the block attributes
                 $attrs = array(
-                    'id' => $id,
                     'uid' => $block['attrs']['uid'] ?? '',
                     'customCSS' => $block['attrs']['customCSS'] ?? '',
                     'screen' => $a['screen'] ?? $block['attrs']['screen'] ?? 'signIn',
@@ -327,6 +346,9 @@ final class Gatey_Plugin
                 'component' => null,
                 'attribute' => null,
                 'custom' => null,
+                'colormode' => null,
+                'language' => null,
+                'direction' => null,
             ),
             $atts
         );

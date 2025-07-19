@@ -48,6 +48,8 @@ import {
   IconCheck,
   IconCircleNumber2,
   IconExclamationCircle,
+  IconForms,
+  IconSocial,
   IconInfoCircle,
   IconLogin,
   IconPlus,
@@ -72,7 +74,7 @@ import "jquery";
 
 import classes from "./main.module.css";
 
-export interface ApiSettingsEditorProps {
+export interface SettingsEditorProps {
   amplifyConfigured: boolean;
   config: AuthenticatorConfig;
   accountId: string;
@@ -90,7 +92,23 @@ const ApiSettingsEditor = lazy(
     import(
       process.env.GATEY_PREMIUM
         ? "./paid-features/ApiSettingsEditor"
-        : "./free-features/ApiSettingsEditor"
+        : "./free-features/NullEditor"
+    )
+);
+const CustomFieldsEditor = lazy(
+  () =>
+    import(
+      process.env.GATEY_PREMIUM
+        ? "./paid-features/CustomFieldsEditor"
+        : "./free-features/NullEditor"
+    )
+);
+const SocialProvidersEditor = lazy(
+  () =>
+    import(
+      process.env.GATEY_PREMIUM
+        ? "./paid-features/SocialProvidersEditor"
+        : "./free-features/NullEditor"
     )
 );
 
@@ -247,7 +265,12 @@ const Main = (props: MainProps) => {
 
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
   const [activePage, setActivePage] = useState<
-    "user-pools" | "general" | "wordpress-login" | "api-settings"
+    | "user-pools"
+    | "general"
+    | "wordpress-login"
+    | "custom-fields"
+    | "social-providers"
+    | "api-settings"
   >("general");
 
   // Add media query for responsive design
@@ -681,22 +704,44 @@ const Main = (props: MainProps) => {
     setNavigationOptions([
       {
         value: "general",
-        label: "General",
+        label: __("General", TEXT_DOMAIN),
         icon: <IconSettings size={16} stroke={1.5} />,
       },
       {
         value: "user-pools",
-        label: "User Pools",
+        label: __("User Pools", TEXT_DOMAIN),
         icon: <IconUsersGroup size={16} stroke={1.5} />,
       },
       {
         value: "wordpress-login",
-        label: "WordPress Login",
+        label: __("WordPress Login", TEXT_DOMAIN),
         icon: <IconLogin size={16} stroke={1.5} />,
       },
       {
+        value: "custom-fields",
+        label: __("Custom Fields", TEXT_DOMAIN),
+        icon: <IconForms size={16} stroke={1.5} />,
+        badge: (
+          <Badge variant="light" color="blue" ml="4px" miw={35}>
+            BASIC
+          </Badge>
+        ),
+        disabled: paidSettingsDisabled,
+      },
+      {
+        value: "social-providers",
+        label: __("Social Providers", TEXT_DOMAIN),
+        icon: <IconSocial size={16} stroke={1.5} />,
+        badge: (
+          <Badge variant="light" color="red" ml="4px" miw={35}>
+            PRO
+          </Badge>
+        ),
+        disabled: paidSettingsDisabled,
+      },
+      {
         value: "api-settings",
-        label: "API Settings",
+        label: __("API Settings", TEXT_DOMAIN),
         icon: <IconApi size={16} stroke={1.5} />,
         badge: (
           <Badge variant="light" color="red" ml="4px" miw={35}>
@@ -794,6 +839,7 @@ const Main = (props: MainProps) => {
                     | "api-settings"
                 )
               }
+              w="100%"
             >
               <Tabs.List>
                 {navigationOptions?.map((item) => (
@@ -808,7 +854,7 @@ const Main = (props: MainProps) => {
                   </Tabs.Tab>
                 ))}
               </Tabs.List>
-              <Tabs.Panel value="user-pools">
+              <Tabs.Panel value="user-pools" w="100%">
                 <form name="user-pools" onSubmit={handleUpdateSettings}>
                   <Title order={2} mb="md">
                     User Pools
@@ -997,7 +1043,7 @@ const Main = (props: MainProps) => {
                   </Group>
                 </form>
               </Tabs.Panel>
-              <Tabs.Panel value="general">
+              <Tabs.Panel value="general" w="100%">
                 <form name="general" onSubmit={handleUpdateSettings}>
                   <Title order={2} mb="md">
                     General
@@ -1258,7 +1304,7 @@ const Main = (props: MainProps) => {
                   </Group>
                 </form>
               </Tabs.Panel>
-              <Tabs.Panel value="wordpress-login">
+              <Tabs.Panel value="wordpress-login" w="100%">
                 <form name="wordpress-login" onSubmit={handleUpdateSettings}>
                   <Title order={2} mb="md">
                     WordPress Login
@@ -1422,7 +1468,84 @@ const Main = (props: MainProps) => {
                   </Group>
                 </form>
               </Tabs.Panel>
-              <Tabs.Panel value="api-settings">
+              <Tabs.Panel value="custom-fields" w="100%">
+                <Title order={2} mb="md">
+                  <InfoLabelComponent
+                    text="Custom Fields"
+                    scrollToId="custom-fields"
+                  />
+                </Title>
+
+                <Text mb="md">
+                  Manage and configure custom form fields for both the admin
+                  screens and the front-end.
+                </Text>
+
+                {!(formConfig ?? decryptedConfig)?.subscriptionType && (
+                  <Alert
+                    variant="light"
+                    color="yellow"
+                    title="BASIC Feature"
+                    icon={<IconExclamationCircle />}
+                    mb="md"
+                  >
+                    This feature is available in the <strong>BASIC</strong>{" "}
+                    version of the plugin. You can save your settings but they
+                    will not take effect until you upgrade your subscription.
+                  </Alert>
+                )}
+                {(formConfig ?? decryptedConfig) && (
+                  <CustomFieldsEditor
+                    amplifyConfigured={amplifyConfigured}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Tabs.Panel>
+              <Tabs.Panel value="social-providers" w="100%">
+                <Title order={2} mb="md">
+                  <InfoLabelComponent
+                    text="Social Providers"
+                    scrollToId="social-providers"
+                  />
+                </Title>
+
+                <Text mb="md">
+                  Enable the social login providers shown on the sign-in and
+                  sign-up screens.
+                </Text>
+
+                {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                  "PROFESSIONAL" && (
+                  <Alert
+                    variant="light"
+                    color="yellow"
+                    title="PRO Feature"
+                    icon={<IconExclamationCircle />}
+                    mb="md"
+                  >
+                    This feature is available in the <strong>PRO</strong>{" "}
+                    version of the plugin. You can save your settings but they
+                    will not take effect until you upgrade your subscription.
+                  </Alert>
+                )}
+                {(formConfig ?? decryptedConfig) && (
+                  <SocialProvidersEditor
+                    amplifyConfigured={amplifyConfigured}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Tabs.Panel>
+              <Tabs.Panel value="api-settings" w="100%">
                 <Title order={2} mb="md">
                   <InfoLabelComponent
                     text="API Settings"

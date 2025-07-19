@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
-import { type AuthContext } from "@aws-amplify/ui";
+import { translate, type AuthContext } from "@aws-amplify/ui";
 
 import {
   Authenticator,
@@ -111,9 +111,6 @@ export const Login = (
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
-  const [authenticatorConfig, setAuthenticatorConfig] = useState<
-    AuthenticatorConfig | null | undefined
-  >();
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
 
@@ -264,6 +261,7 @@ export const Login = (
       parseCustomBlocks.then((pcb) =>
         setComponents(
           pcb.default(
+            config,
             isPreview,
             account,
             children,
@@ -450,46 +448,27 @@ export const Login = (
   ]);
 
   useEffect(() => {
-    if (config !== undefined) {
-      let totpUsername =
-        account?.userAttributes?.preferred_username ?? account?.username;
-      if (!Gatey.settings?.loginMechanisms.includes("username")) {
-        totpUsername = Gatey.settings?.loginMechanisms.includes("email")
-          ? account?.userAttributes?.email
-          : account?.userAttributes?.phone_number;
-      }
-      setAuthenticatorConfig(
-        config === null
-          ? null
-          : {
-              ...config,
-              formFields: {
-                setupTotp: {
-                  QR: {
-                    totpUsername: totpUsername,
-                    totpIssuer: totpIssuer,
-                  },
-                },
-              },
-            }
-      );
-    }
-  }, [config, account, totpIssuer]);
-
-  useEffect(() => {
     if (route === "setup") {
       setScreenChanged(true);
     }
   }, [route]);
 
+  let totpUsername =
+    account?.userAttributes?.preferred_username ?? account?.username;
+  if (!Gatey.settings?.loginMechanisms.includes("username")) {
+    totpUsername = Gatey.settings?.loginMechanisms.includes("email")
+      ? account?.userAttributes?.email
+      : account?.userAttributes?.phone_number;
+  }
+
   return (
-    <View ref={containerRef} className={className}>
+    <View ref={containerRef} className={className} width="100%">
       {visible && recaptchaIsReady && (
-        <Flex justifyContent="center" direction="row" alignContent="middle">
+        <Flex>
           {
             /*!loggingOut &&*/
             components &&
-              authenticatorConfig !== undefined &&
+              config !== undefined &&
               (screen === "changePassword" ? (
                 <View data-amplify-authenticator data-variation={variation}>
                   <View data-amplify-container>
@@ -511,7 +490,13 @@ export const Login = (
                   </View>
                 </View>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "100%",
+                  }}
+                >
                   <Authenticator
                     loginMechanisms={Gatey.settings?.loginMechanisms}
                     language={language}
@@ -519,11 +504,12 @@ export const Login = (
                     services={services}
                     initialState={screen}
                     signUpAttributes={Gatey.settings?.signUpAttributes}
-                    socialProviders={authenticatorConfig?.socialProviders}
-                    formFields={authenticatorConfig?.formFields}
+                    socialProviders={config?.socialProviders}
                     components={components}
                     forceInitialState={isPreview}
                     variation={variation}
+                    totpIssuer={totpIssuer}
+                    totpUsername={totpUsername}
                   >
                     {((redirecting && redirectingMessage) ||
                       (!redirecting && message)) && (
@@ -531,10 +517,7 @@ export const Login = (
                         data-amplify-authenticator
                         data-variation={variation}
                       >
-                        <View
-                          data-amplify-container
-                          style={{ placeSelf: "stretch" }}
-                        >
+                        <View data-amplify-container>
                           <View data-amplify-router>
                             <View
                               data-amplify-form
@@ -545,11 +528,11 @@ export const Login = (
                             >
                               {redirecting ? (
                                 <Heading level={4}>
-                                  {Gatey.cognito.translate(redirectingMessage!)}
+                                  {translate(redirectingMessage!)}
                                 </Heading>
                               ) : (
                                 <Heading level={4}>
-                                  {Gatey.cognito.translate(message!)}
+                                  {translate(message!)}
                                 </Heading>
                               )}
                             </View>

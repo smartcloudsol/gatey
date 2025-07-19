@@ -16,14 +16,13 @@ if ($uid) {
 } else {
 	$style = '';
 }
-echo $style;
 ?>
 <div gatey-authenticator id="<?php echo esc_html($bid) ?>" data-is-preview="gatey-is-preview"
 	data-class="wp-block-css-box-<?php echo esc_attr($uid) ?>"
 	data-screen="<?php echo esc_html(array_key_exists('screen', $attributes) ? $attributes['screen'] : 'signIn') ?>"
 	data-variation="<?php echo esc_html(array_key_exists('variation', $attributes) ? $attributes['variation'] : 'default') ?>"
 	data-color-mode="<?php echo esc_html(array_key_exists('colorMode', $attributes) ? $attributes['colorMode'] : 'system') ?>"
-	data-language="<?php echo esc_html(array_key_exists('language', $attributes) ? $attributes['language'] : 'en') ?>"
+	data-language="<?php echo esc_html(array_key_exists('language', $attributes) ? $attributes['language'] : 'system') ?>"
 	data-direction="<?php echo esc_html(array_key_exists('direction', $attributes) ? $attributes['direction'] : 'auto') ?>"
 	data-show-open-button="<?php echo esc_html(array_key_exists('showOpenButton', $attributes) ? ($attributes['showOpenButton'] ? 'true' : 'false') : '') ?>"
 	data-open-button-title="<?php echo esc_html(array_key_exists('openButtonTitle', $attributes) ? $attributes['openButtonTitle'] : '') ?>"
@@ -36,3 +35,4 @@ echo $style;
 		<?php echo esc_html($content) ?>
 	</div>
 </div>
+<?php echo $style; ?>

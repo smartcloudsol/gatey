@@ -4,6 +4,8 @@ import { Edit } from "./edit";
 import { Save } from "./save";
 import metadata from "./block.json";
 
+import "./index.css";
+
 export type Screen =
   | "signIn"
   | "signUp"
