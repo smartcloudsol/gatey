@@ -23,6 +23,7 @@ import {
   Modal,
   Pagination,
   Radio,
+  SegmentedControl,
   Select,
   Skeleton,
   Stack,
@@ -37,7 +38,11 @@ import {
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { useForm, zodResolver } from "@mantine/form";
-import { useMediaQuery, useViewportSize } from "@mantine/hooks";
+import {
+  useMediaQuery,
+  useViewportSize,
+  useDebouncedValue,
+} from "@mantine/hooks";
 import { __ } from "@wordpress/i18n";
 import {
   TEXT_DOMAIN,
@@ -815,7 +820,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
         <Modal
           {...stack.register("connect-your-site")}
           withCloseButton
-          size="auto"
+          size={400}
           centered
           zIndex={100000}
           title={
@@ -1455,6 +1460,7 @@ const CreateSiteSchema = z.object({
   name: z.string(),
   domain: z.string(),
   prodDomain: z.string().optional(),
+  subscriptionType: z.string().optional(),
 });
 
 type CreateSiteInput = z.infer<typeof CreateSiteSchema>;
@@ -1501,9 +1507,15 @@ function SiteSelector({
     boolean | undefined
   >(subscriber);
 
+  const [filter, setFilter] = useState("");
+  const [order, setOrder] = useState<"name" | "domain">("name"); // ÚJ
+
+  const [debouncedFilter] = useDebouncedValue(filter, 200);
+
   const form = useForm<CreateSiteInput>({
     mode: "uncontrolled",
     initialValues: {
+      subscriptionType: "",
       siteId: "",
       name: "",
       domain: "",
@@ -1540,11 +1552,15 @@ function SiteSelector({
               queryParams: {
                 limit: String(PAGE_SIZE),
                 last_key: pageParam,
+                order,
+                ...(debouncedFilter ? { search: debouncedFilter } : {}),
               },
             }
           : {
               queryParams: {
                 limit: String(PAGE_SIZE),
+                order,
+                ...(debouncedFilter ? { search: debouncedFilter } : {}),
               },
             },
       })
@@ -1557,7 +1573,7 @@ function SiteSelector({
         .finally(() => {
           setSitesReloading(false);
         }),
-    [selectedAccountId]
+    [selectedAccountId, debouncedFilter, order]
   );
 
   const {
@@ -1578,7 +1594,7 @@ function SiteSelector({
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["sites", selectedAccountId],
+    queryKey: ["sites", selectedAccountId, debouncedFilter, order],
     queryFn: fetchSites,
     initialPageParam: null,
     getNextPageParam: (lastPage) => lastPage.lastKey ?? undefined,
@@ -1734,13 +1750,11 @@ function SiteSelector({
     setCurrentPage(sites?.slice(start, start + PAGE_SIZE));
   }, [sites, activePage]);
 
-  if (
-    accountsPending ||
-    isFetchingNextPage ||
-    (!!selectedAccountId &&
-      authStatus === "authenticated" &&
-      (sitesPending || sitesReloading))
-  ) {
+  useEffect(() => {
+    setActivePage(1);
+  }, [debouncedFilter]);
+
+  if (accountsPending) {
     return <SiteSelectorSkeleton />;
   }
 
@@ -1755,6 +1769,8 @@ function SiteSelector({
             <Select
               label="Select a workspace"
               description="Select a workspace to manage sites"
+              w={{ base: "100%", xs: 350 }}
+              height={80}
               mb="md"
               value={selectedAccountId}
               onChange={(value) => {
@@ -1767,6 +1783,7 @@ function SiteSelector({
                   );
                   setCurrentPage(undefined);
                   setActivePage(1);
+                  setSiteEditing(false);
                 }
               }}
               data={accountsRecord.map((account) => ({
@@ -1801,26 +1818,341 @@ function SiteSelector({
               }
             }}
           >
-            <Stack pt="md" mb="md" gap="xs">
-              {(!currentPage?.length || currentPage.length === 0) &&
-                !siteEditing && (
-                  <Stack
-                    align="center"
-                    gap="md"
-                    py="xl"
-                    mb="lg"
+            <Group gap="xs" mt="xs">
+              <SegmentedControl
+                size="xs"
+                data={[
+                  { label: "Name", value: "name" },
+                  { label: "Domain", value: "domain" },
+                ]}
+                value={order}
+                onChange={(val) => setOrder(val as "name" | "domain")}
+              />
+              <TextInput
+                placeholder="Filter…"
+                size="xs"
+                value={filter}
+                onChange={(e) => setFilter(e.currentTarget.value)}
+              />
+            </Group>
+            <Skeleton
+              visible={
+                isFetchingNextPage ||
+                (!!selectedAccountId &&
+                  authStatus === "authenticated" &&
+                  (sitesPending || sitesReloading))
+              }
+              mt="md"
+              mb="md"
+            >
+              <Stack pt="md" mb="md" gap="xs">
+                <Group
+                  gap="xs"
+                  style={{ alignContent: "flex-start", overflowY: "auto" }}
+                >
+                  {(!currentPage?.length || currentPage.length === 0) &&
+                    !siteEditing && (
+                      <Stack
+                        align="center"
+                        gap="md"
+                        py="xl"
+                        mb="lg"
+                        w={{ base: "100%", xs: 350 }}
+                      >
+                        <Title order={4}>No Sites Found</Title>
+                        <Text c="dimmed" size="sm" ta="center">
+                          You haven't added any sites yet.
+                        </Text>
+                        <Button
+                          variant="gradient"
+                          size="xs"
+                          leftSection={<IconPlus size={16} />}
+                          onClick={() => {
+                            form.setValues({
+                              subscriptionType: "",
+                              siteId: "",
+                              name: "",
+                              domain: location.hostname.split(":")[0],
+                              prodDomain: "",
+                            });
+                            setSiteEditing(true);
+                          }}
+                        >
+                          Add a new site
+                        </Button>
+                      </Stack>
+                    )}
+                  {!siteEditing &&
+                    currentPage?.map((site) => (
+                      <Radio.Card
+                        className={classes.radioCard}
+                        component="div"
+                        p="md"
+                        radius="md"
+                        value={
+                          site.siteId +
+                          "|" +
+                          site.siteKey +
+                          "|" +
+                          (site.subscription !== undefined)
+                        }
+                        key={site.siteId}
+                        disabled={siteEditing}
+                      >
+                        <Group wrap="nowrap" align="flex-start">
+                          <Radio.Indicator />
+                          <Stack gap="xs" style={{ flexGrow: 1 }}>
+                            <Text
+                              component="div"
+                              fw={700}
+                              lh={1.3}
+                              size="md"
+                              c="bright"
+                            >
+                              {site.name}
+                              {site.domain ===
+                                location.hostname.split(":")[0] && (
+                                <Badge size="xs" ml="xs" variant="light">
+                                  Current domain
+                                </Badge>
+                              )}
+                            </Text>
+                            <Text c="dimmed" size="xs">
+                              {site.prodDomain ? site.prodDomain : site.domain}{" "}
+                              {site.prodDomain && <>({site.domain})</>}
+                            </Text>
+                          </Stack>
+                          <Tooltip label="Edit site">
+                            <ActionIcon
+                              variant="subtle"
+                              size="xs"
+                              aria-label="Edit site"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                form.setValues({
+                                  subscriptionType: site.subscriptionType,
+                                  siteId: site.siteId,
+                                  name: site.name,
+                                  domain: site.domain,
+                                  prodDomain: site.prodDomain,
+                                });
+                                setSiteEditing(true);
+                              }}
+                            >
+                              <IconEdit size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip
+                            label={
+                              site.subscriptionType !== undefined
+                                ? "Cannot delete site with active subscription"
+                                : "Delete site"
+                            }
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              size="xs"
+                              color="red"
+                              aria-label={
+                                site.subscriptionType !== undefined
+                                  ? "Cannot delete site with active subscription"
+                                  : "Delete site"
+                              }
+                              disabled={site.subscriptionType !== undefined}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                modals.openConfirmModal({
+                                  children: (
+                                    <>
+                                      <Heading
+                                        level={3}
+                                        marginBottom="var(--mantine-spacing-md)"
+                                      >
+                                        Delete {site.name}?
+                                      </Heading>{" "}
+                                      <Text mb="sm">
+                                        This site does not have an active
+                                        subscription, but it may still contain
+                                        saved configuration settings from
+                                        another WordPress instance.
+                                      </Text>
+                                      <Text mb="sm">
+                                        Deleting this site will permanently
+                                        remove all saved settings, and this
+                                        action cannot be undone.
+                                      </Text>
+                                      <Text fw={500}>
+                                        Are you sure you want to delete this
+                                        site?
+                                      </Text>
+                                    </>
+                                  ),
+                                  labels: {
+                                    confirm: "Yes, Delete",
+                                    cancel: "No",
+                                  },
+                                  confirmProps: {
+                                    className: classes["console-button"],
+                                  },
+                                  cancelProps: {
+                                    variant: "outline",
+                                    className:
+                                      classes["console-button-outline"],
+                                  },
+                                  withCloseButton: false,
+                                  onConfirm: () =>
+                                    deleteSiteMutation.mutate(site.siteId),
+                                  zIndex: 100000,
+                                  xOffset: "1dvh",
+                                  yOffset: "1dvh",
+                                  centered: true,
+                                });
+                              }}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Radio.Card>
+                    ))}
+                </Group>
+                {!siteEditing && (
+                  <Pagination
+                    classNames={{
+                      root: classes["pagination"],
+                      control: classes["pagination-control"],
+                    }}
+                    total={
+                      hasNextPage
+                        ? Math.max(totalPages, activePage + 1)
+                        : totalPages
+                    }
+                    value={activePage}
+                    onChange={handleNextPage}
+                    mt="md"
+                  />
+                )}
+                {siteEditing && (
+                  <Card
+                    component="form"
+                    withBorder
                     w={{ base: "100%", xs: 350 }}
+                    onSubmit={form.onSubmit((values) => {
+                      updateSiteMutation.mutate({
+                        siteId: values.siteId,
+                        name: values.name,
+                        domain: values.domain,
+                        prodDomain: values.prodDomain,
+                      });
+                    })}
                   >
-                    <Title order={4}>No Sites Found</Title>
-                    <Text c="dimmed" size="sm" ta="center">
-                      You haven't added any sites yet.
-                    </Text>
+                    <LoadingOverlay
+                      visible={updateSiteMutation.isPending}
+                      zIndex={1000}
+                      overlayProps={{ radius: "md", blur: 2 }}
+                    />
+                    <VisuallyHidden>
+                      <TextInput
+                        key={form.key("siteId")}
+                        {...form.getInputProps("siteId")}
+                      />
+                    </VisuallyHidden>
+                    <TextInput
+                      label="Site name"
+                      placeholder="My WordPress site"
+                      key={form.key("name")}
+                      required
+                      {...form.getInputProps("name")}
+                    />
+                    <TextInput
+                      label="Domain"
+                      placeholder="dev.my-wordpress-site.com"
+                      disabled
+                      key={form.key("domain")}
+                      {...form.getInputProps("domain")}
+                      classNames={{
+                        input:
+                          siteHasSettings &&
+                          form.getValues()["domain"] !==
+                            location.hostname.split(":")[0]
+                            ? classes["warning"]
+                            : classes["input"],
+                      }}
+                    />
+                    <TextInput
+                      label="Secondary domain"
+                      placeholder={
+                        /*!form.getValues().subscriptionType
+                          ? "my-wordpress-site.com"
+                          : ""*/
+                        "my-wordpress-site.com"
+                      }
+                      key={form.key("prodDomain")}
+                      {...form.getInputProps("prodDomain")}
+                      /*disabled={!!form.getValues().subscriptionType}*/
+                    />
+
+                    {/*!!form.getValues().subscriptionType && (
+                      <Text c="dimmed" size="xs" mt="xs" fs="italic">
+                        You cannot change the secondary domain of a site with an
+                        active subscription.
+                      </Text>
+                    )*/}
+                    <Group justify="space-between" mt="md">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        leftSection={<IconX size={16} />}
+                        onClick={() => setSiteEditing(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Flex gap={0}>
+                        <Button
+                          type="submit"
+                          variant="gradient"
+                          size="xs"
+                          leftSection={<IconCheck size={16} />}
+                        >
+                          Save
+                        </Button>
+                        {siteHasSettings &&
+                          form.getValues()["domain"] !==
+                            location.hostname.split(":")[0] && (
+                            <HoverCard>
+                              <HoverCard.Target>
+                                <ActionIcon variant="subtle" size="xs">
+                                  <IconAlertCircle size={16} color="red" />
+                                </ActionIcon>
+                              </HoverCard.Target>
+                              <HoverCard.Dropdown
+                                maw={300}
+                                style={{ zIndex: 100000 }}
+                              >
+                                <Text size="sm">
+                                  ⚠️ <strong>Warning</strong>: The current
+                                  WordPress domain differs from the one stored
+                                  for this site. Saving changes will update the
+                                  stored domain to the current one. This may
+                                  break the WordPress configuration on the
+                                  previous domain.
+                                </Text>
+                              </HoverCard.Dropdown>
+                            </HoverCard>
+                          )}
+                      </Flex>
+                    </Group>
+                  </Card>
+                )}
+                {currentPage && (
+                  <Group justify="center">
                     <Button
-                      variant="gradient"
+                      variant="subtle"
                       size="xs"
                       leftSection={<IconPlus size={16} />}
                       onClick={() => {
                         form.setValues({
+                          subscriptionType: "",
                           siteId: "",
                           name: "",
                           domain: location.hostname.split(":")[0],
@@ -1828,273 +2160,14 @@ function SiteSelector({
                         });
                         setSiteEditing(true);
                       }}
+                      disabled={siteEditing}
                     >
                       Add a new site
                     </Button>
-                  </Stack>
-                )}
-              {!siteEditing &&
-                currentPage?.map((site) => (
-                  <Radio.Card
-                    className={classes.radioCard}
-                    component="div"
-                    p="md"
-                    radius="md"
-                    value={
-                      site.siteId +
-                      "|" +
-                      site.siteKey +
-                      "|" +
-                      (site.subscription !== undefined)
-                    }
-                    key={site.siteId}
-                    disabled={siteEditing}
-                  >
-                    <Group wrap="nowrap" align="flex-start">
-                      <Radio.Indicator />
-                      <Stack gap="xs" style={{ flexGrow: 1 }}>
-                        <Text
-                          component="div"
-                          fw={700}
-                          lh={1.3}
-                          size="md"
-                          c="bright"
-                        >
-                          {site.name}
-                          {site.domain === location.hostname.split(":")[0] && (
-                            <Badge size="xs" ml="xs" variant="light">
-                              Current domain
-                            </Badge>
-                          )}
-                        </Text>
-                        <Text c="dimmed" size="xs">
-                          {site.prodDomain ? site.prodDomain : site.domain}{" "}
-                          {site.prodDomain && <>({site.domain})</>}
-                        </Text>
-                      </Stack>
-                      <Tooltip label="Edit site">
-                        <ActionIcon
-                          variant="subtle"
-                          size="xs"
-                          aria-label="Edit site"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            form.setValues({
-                              siteId: site.siteId,
-                              name: site.name,
-                              domain: site.domain,
-                              prodDomain: site.prodDomain,
-                            });
-                            setSiteEditing(true);
-                          }}
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip
-                        label={
-                          site.subscriptionType !== undefined
-                            ? "Cannot delete site with active subscription"
-                            : "Delete site"
-                        }
-                      >
-                        <ActionIcon
-                          variant="subtle"
-                          size="xs"
-                          color="red"
-                          aria-label={
-                            site.subscriptionType !== undefined
-                              ? "Cannot delete site with active subscription"
-                              : "Delete site"
-                          }
-                          disabled={site.subscriptionType !== undefined}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            modals.openConfirmModal({
-                              children: (
-                                <>
-                                  <Heading
-                                    level={3}
-                                    marginBottom="var(--mantine-spacing-md)"
-                                  >
-                                    Delete {site.name}?
-                                  </Heading>{" "}
-                                  <Text mb="sm">
-                                    This site does not have an active
-                                    subscription, but it may still contain saved
-                                    configuration settings from another
-                                    WordPress instance.
-                                  </Text>
-                                  <Text mb="sm">
-                                    Deleting this site will permanently remove
-                                    all saved settings, and this action cannot
-                                    be undone.
-                                  </Text>
-                                  <Text fw={500}>
-                                    Are you sure you want to delete this site?
-                                  </Text>
-                                </>
-                              ),
-                              labels: { confirm: "Yes, Delete", cancel: "No" },
-                              confirmProps: {
-                                className: classes["console-button"],
-                              },
-                              cancelProps: {
-                                variant: "outline",
-                                className: classes["console-button-outline"],
-                              },
-                              withCloseButton: false,
-                              onConfirm: () =>
-                                deleteSiteMutation.mutate(site.siteId),
-                              zIndex: 100000,
-                              xOffset: "1dvh",
-                              yOffset: "1dvh",
-                              centered: true,
-                            });
-                          }}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Radio.Card>
-                ))}
-              {!siteEditing && (
-                <Pagination
-                  classNames={{
-                    root: classes["pagination"],
-                    control: classes["pagination-control"],
-                  }}
-                  total={
-                    hasNextPage
-                      ? Math.max(totalPages, activePage + 1)
-                      : totalPages
-                  }
-                  value={activePage}
-                  onChange={handleNextPage}
-                  mt="md"
-                />
-              )}
-              {siteEditing && (
-                <Card
-                  component="form"
-                  withBorder
-                  w={{ base: "100%", xs: 350 }}
-                  onSubmit={form.onSubmit((values) => {
-                    updateSiteMutation.mutate({
-                      siteId: values.siteId,
-                      name: values.name,
-                      domain: values.domain,
-                      prodDomain: values.prodDomain,
-                    });
-                  })}
-                >
-                  <LoadingOverlay
-                    visible={updateSiteMutation.isPending}
-                    zIndex={1000}
-                    overlayProps={{ radius: "md", blur: 2 }}
-                  />
-                  <VisuallyHidden>
-                    <TextInput
-                      key={form.key("siteId")}
-                      {...form.getInputProps("siteId")}
-                    />
-                  </VisuallyHidden>
-                  <TextInput
-                    label="Site name"
-                    placeholder="My WordPress site"
-                    key={form.key("name")}
-                    required
-                    {...form.getInputProps("name")}
-                  />
-                  <TextInput
-                    label="Domain"
-                    placeholder="dev.my-wordpress-site.com"
-                    disabled
-                    key={form.key("domain")}
-                    {...form.getInputProps("domain")}
-                    classNames={{
-                      input:
-                        siteHasSettings &&
-                        form.getValues()["domain"] !==
-                          location.hostname.split(":")[0]
-                          ? classes["warning"]
-                          : classes["input"],
-                    }}
-                  />
-                  <TextInput
-                    label="Secondary domain"
-                    placeholder="my-wordpress-site.com"
-                    key={form.key("prodDomain")}
-                    {...form.getInputProps("prodDomain")}
-                  />
-                  <Group justify="space-between" mt="md">
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      leftSection={<IconX size={16} />}
-                      onClick={() => setSiteEditing(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Flex gap={0}>
-                      <Button
-                        type="submit"
-                        variant="gradient"
-                        size="xs"
-                        leftSection={<IconCheck size={16} />}
-                      >
-                        Save
-                      </Button>
-                      {siteHasSettings &&
-                        form.getValues()["domain"] !==
-                          location.hostname.split(":")[0] && (
-                          <HoverCard>
-                            <HoverCard.Target>
-                              <ActionIcon variant="subtle" size="xs">
-                                <IconAlertCircle size={16} color="red" />
-                              </ActionIcon>
-                            </HoverCard.Target>
-                            <HoverCard.Dropdown
-                              maw={300}
-                              style={{ zIndex: 100000 }}
-                            >
-                              <Text size="sm">
-                                ⚠️ <strong>Warning</strong>: The current
-                                WordPress domain differs from the one stored for
-                                this site. Saving changes will update the stored
-                                domain to the current one. This may break the
-                                WordPress configuration on the previous domain.
-                              </Text>
-                            </HoverCard.Dropdown>
-                          </HoverCard>
-                        )}
-                    </Flex>
                   </Group>
-                </Card>
-              )}
-              {currentPage && (
-                <Group justify="center">
-                  <Button
-                    variant="subtle"
-                    size="xs"
-                    leftSection={<IconPlus size={16} />}
-                    onClick={() => {
-                      form.setValues({
-                        siteId: "",
-                        name: "",
-                        domain: location.hostname.split(":")[0],
-                        prodDomain: "",
-                      });
-                      setSiteEditing(true);
-                    }}
-                    disabled={siteEditing}
-                  >
-                    Add a new site
-                  </Button>
-                </Group>
-              )}
-            </Stack>
+                )}
+              </Stack>
+            </Skeleton>
           </Radio.Group>
         </>
       )}

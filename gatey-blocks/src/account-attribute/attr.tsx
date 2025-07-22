@@ -2,7 +2,7 @@ import { useEffect, useState, type FunctionComponent } from "react";
 
 import { I18n } from "aws-amplify/utils";
 import { translate } from "@aws-amplify/ui";
-import { translations, Text } from "@aws-amplify/ui-react";
+import { translations, Text, View } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
 
@@ -97,9 +97,5 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     }
   }, [decryptedConfig, isPreview, account, attribute, custom, language]);
 
-  return (
-    <Text as={component} color="inherit">
-      {value || <>&nbsp;</>}
-    </Text>
-  );
+  return <View as={component}>{value || <>&nbsp;</>}</View>;
 };

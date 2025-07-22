@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -177,6 +177,10 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.5.1 =
+- **Account Attribute block** – now fully inherits typography from the parent page/template; no more manual font overrides.
+- **Admin site selector** – added a filter that lets you search your site list by name or primary domain, ideal for agencies with many projects.
+
 = 1.5.0 =
 - **New Elementor widgets**
   - **Gatey Authenticator** – drag-and-drop the full authenticator without touching shortcodes; every pattern attribute (screen, variation, language, etc.) is editable via native Elementor controls.
@@ -283,6 +287,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.5.1 =
+Update to get automatic theme fonts on Account Attribute blocks and a new name/domain filter in the admin’s site list for quicker site management.
 
 = 1.5.0 =
 Update to add two dedicated Gatey widgets to Elementor’s panel. Drop them into any layout and configure all options visually instead of writing shortcodes.
