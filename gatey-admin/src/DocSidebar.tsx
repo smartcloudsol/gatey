@@ -568,10 +568,9 @@ const pages = {
       <Title order={2}>Social Providers Editor</Title>
       <Text>
         Select the social providers you want to offer—Facebook, Google, Apple,
-        and Amazon. Gatey will automatically place their login buttons at the
-        top of your Sign-In and Sign-Up screens.
+        Amazon, or Custom. Gatey will automatically place their login buttons at
+        the top of your Sign-In and Sign-Up screens.
       </Text>
-
       {/* ── Social providers ─────────────────────────────────────────────── */}
       <Title order={3} mt="md" id="social-providers">
         <span className="highlightable">Social providers</span>
@@ -583,6 +582,31 @@ const pages = {
           corresponding Identity Provider in AWS console).
         </List.Item>
       </List>
+      {/* ── Custom Provider Name ─────────────────────────────────────────────── */}
+      <Title order={3} mt="md" id="custom-provider-name">
+        <span className="highlightable">Custom Identity Provider Name</span>
+      </Title>
+      <Text>
+        Type the <strong>exact</strong> name of the SAML or OIDC provider you
+        added to your Cognito user pool. The value is case-sensitive and must
+        match the <em>Provider name</em> shown in the AWS console.
+      </Text>
+      <List size="sm" spacing="xs" withPadding mt="sm">
+        <List.Item>
+          <Text fw={500}>When is it shown?</Text>
+          This field appears only after you tick the&nbsp;
+          <code>Custom</code> provider checkbox.
+        </List.Item>
+
+        <List.Item>
+          <Text fw={500}>Where to find the name?</Text>
+          In the AWS Cognito console, go to&nbsp;
+          <em>
+            User pools → [Your pool] → Federated identities → Identity providers
+          </em>
+          , then copy the provider’s <em>Name</em> value verbatim.
+        </List.Item>
+      </List>{" "}
       <Alert
         icon={<IconInfoCircle size="1rem" />}
         title="PRO feature"
