@@ -73,7 +73,7 @@ export const getAccountFromStorage = async (
     Gatey.cognito.store.then(async (store) => {
       await logout(apiConfiguration?.signOutHook);
       await dispatch(store).clearAccount();
-      window.location.assign("");
+      //window.location.assign("");
     });
   }
   return account;
@@ -378,6 +378,7 @@ export interface ApiConfiguration {
 
 export interface AuthenticatorConfig {
   socialProviders: SocialProvider[];
+  customProviderName?: string;
   formFields: FormField[];
   apiConfigurations: {
     default: ApiConfiguration;

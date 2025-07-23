@@ -36,6 +36,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     editorRef,
     screen,
     language,
+    variation,
   } = props;
 
   const [currentLanguage, setCurrentLanguage] = useState<Language>();
@@ -224,7 +225,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
                       justifyContent: "center",
                     }}
                   >
-                    {showOpenButton && (
+                    {showOpenButton && (variation === "modal" || !show) && (
                       <Button
                         className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
                         disabled={show}

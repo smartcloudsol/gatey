@@ -453,6 +453,10 @@ export const Login = (
     }
   }, [route]);
 
+  useEffect(() => {
+    dispatchEvent("open");
+  }, [dispatchEvent]);
+
   let totpUsername =
     account?.userAttributes?.preferred_username ?? account?.username;
   if (!Gatey.settings?.loginMechanisms.includes("username")) {
@@ -462,7 +466,11 @@ export const Login = (
   }
 
   return (
-    <View ref={containerRef} className={className} width="100%">
+    <View
+      ref={containerRef}
+      className={className}
+      width={variation === "default" ? "100%" : "0"}
+    >
       {visible && recaptchaIsReady && (
         <Flex>
           {
@@ -505,6 +513,7 @@ export const Login = (
                     initialState={screen}
                     signUpAttributes={Gatey.settings?.signUpAttributes}
                     socialProviders={config?.socialProviders}
+                    providerName={config?.customProviderName}
                     components={components}
                     forceInitialState={isPreview}
                     variation={variation}

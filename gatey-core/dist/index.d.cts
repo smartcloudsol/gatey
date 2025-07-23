@@ -85,6 +85,7 @@ interface ApiConfiguration {
 }
 interface AuthenticatorConfig {
     socialProviders: SocialProvider[];
+    customProviderName?: string;
     formFields: FormField[];
     apiConfigurations: {
         default: ApiConfiguration;

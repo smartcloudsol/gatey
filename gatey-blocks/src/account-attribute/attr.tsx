@@ -2,7 +2,7 @@ import { useEffect, useState, type FunctionComponent } from "react";
 
 import { I18n } from "aws-amplify/utils";
 import { translate } from "@aws-amplify/ui";
-import { translations, Text, View } from "@aws-amplify/ui-react";
+import { translations, View } from "@aws-amplify/ui-react";
 
 import { useSelect } from "@wordpress/data";
 

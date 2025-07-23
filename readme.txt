@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -177,6 +177,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.6.0 =
+**Bring your own IdP**: Gatey now works with **any** identity provider configured in Amazon Cognito—SAML or OIDC—alongside the built-in Facebook, Google, Amazon, and Apple options. Just add the provider in Cognito and it appears automatically in the Authenticator settings.
+
 = 1.5.1 =
 - **Account Attribute block** – now fully inherits typography from the parent page/template; no more manual font overrides.
 - **Admin site selector** – added a filter that lets you search your site list by name or primary domain, ideal for agencies with many projects.
@@ -287,6 +290,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Update to enable sign-in with any Cognito-supported SAML or OIDC provider. After upgrading, open your Authenticator block (or shortcode/widget) to select newly added IdPs—no extra code required.
 
 = 1.5.1 =
 Update to get automatic theme fonts on Account Attribute blocks and a new name/domain filter in the admin’s site list for quicker site management.
