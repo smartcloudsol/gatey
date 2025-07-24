@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -177,6 +177,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.6.2 =
+Removed the “Powered by Gatey” footer from the free version’s Sign-In and Sign-Up screens; all plans now show a clean, unbranded interface.
+
 = 1.6.1 =
 Help docs updated: added a concise note explaining the **Custom provider name** field.
 
@@ -293,6 +296,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.2 =
+Update to eliminate the “Powered by Gatey” label on Sign-In / Sign-Up pages—no branding, even on the free tier.
 
 = 1.6.1 =
 Update to see a clear description of what “Custom provider name” is and where to find it in the Cognito console.

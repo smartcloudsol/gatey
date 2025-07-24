@@ -469,7 +469,7 @@ export const Login = (
     <View
       ref={containerRef}
       className={className}
-      width={variation === "default" ? "100%" : "0"}
+      width={!variation || variation === "default" ? "100%" : "0"}
     >
       {visible && recaptchaIsReady && (
         <Flex>
@@ -550,34 +550,6 @@ export const Login = (
                       </View>
                     )}
                   </Authenticator>
-                  {config === null &&
-                    (route === "signIn" || route === "signUp") && (
-                      <View data-amplify-authenticator>
-                        <View data-amplify-container>
-                          <View
-                            data-amplify-router={route}
-                            style={{ border: 0, boxShadow: "none" }}
-                          >
-                            <Text
-                              as="p"
-                              variation="tertiary"
-                              textAlign="right"
-                              fontSize="var(--amplify-components-textfield-font-size)"
-                            >
-                              Powered by{" "}
-                              <Link
-                                as="a"
-                                href="https://wpsuite.io/gatey/"
-                                isExternal={true}
-                                fontWeight={400}
-                              >
-                                WPSuite Gatey
-                              </Link>
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                    )}
                 </div>
               ))
           }
