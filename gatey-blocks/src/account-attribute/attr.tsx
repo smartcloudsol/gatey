@@ -19,7 +19,17 @@ import { type ThemeProps } from "./theme";
 I18n.putVocabularies(translations);
 
 export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
-  const { isPreview, store, component, attribute, custom, language } = props;
+  const {
+    isPreview,
+    store,
+    component,
+    attribute,
+    custom,
+    language,
+    link,
+    prefix,
+    postfix,
+  } = props;
 
   const [value, setValue] = useState<string>();
 
@@ -97,5 +107,33 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     }
   }, [decryptedConfig, isPreview, account, attribute, custom, language]);
 
-  return <View as={component}>{value || <>&nbsp;</>}</View>;
+  const rel =
+    "" +
+    (link?.nofollow ? "nofollow " : "") +
+    (link?.opensInNewTab ? "noopener noreferrer" : "");
+
+  return link?.url ? (
+    <a
+      href={link.url}
+      target={link.opensInNewTab ? "_blank" : undefined}
+      rel={rel}
+      onClick={(e) => {
+        if (isPreview) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <View as={component}>
+        {prefix}
+        {value || <>&nbsp;</>}
+        {postfix}
+      </View>
+    </a>
+  ) : (
+    <View as={component}>
+      {prefix}
+      {value || <>&nbsp;</>}
+      {postfix}
+    </View>
+  );
 };

@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.6.2
+ * Version:           1.6.3
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.6.2';
+const VERSION = '1.6.3';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -175,6 +175,7 @@ final class Gatey_Plugin
 
         if ($this->admin->getSettings()->integrateWpLogin && $this->admin->getSettings()->signInPage) {
             add_filter('login_url', array($this, 'login_page'), 10, 3);
+            add_filter('logout_url', array($this, 'logout_page'), 10, 3);
         }
     }
 
@@ -345,6 +346,8 @@ final class Gatey_Plugin
             array(
                 'component' => null,
                 'attribute' => null,
+                'prefix' => null,
+                'postfix' => null,
                 'custom' => null,
                 'colormode' => null,
                 'language' => null,
@@ -363,6 +366,8 @@ final class Gatey_Plugin
             'component' => $a['component'] ?? $block['attrs']['component'] ?? 'div',
             'attribute' => $a['attribute'] ?? $block['attrs']['attribute'] ?? 'sub',
             'custom' => $a['custom'] ?? $block['attrs']['custom'] ?? '',
+            'prefix' => $a['prefix'] ?? $block['attrs']['prefix'] ?? '',
+            'postfix' => $a['postfix'] ?? $block['attrs']['postfix'] ?? '',
             'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
             'language' => $a['language'] ?? $block['attrs']['language'] ?? 'en',
             'direction' => $a['direction'] ?? $block['attrs']['direction'] ?? 'auto',
@@ -386,6 +391,15 @@ final class Gatey_Plugin
             return site_url($settings->signInPage) . ($redirect ? '?redirect_to=' . urlencode($redirect) : '') . ($force_reauth ? '&reauth=1' : '');
         }
         return $login_url;
+    }
+
+    public function logout_page(string $logout_url, string $redirect): string
+    {
+        $settings = $this->admin->getSettings();
+        if (!empty($settings->signInPage)) {
+            return site_url($settings->signInPage) . '?loggedout=true' . ($redirect ? '&redirect_to=' . urlencode($redirect) : '');
+        }
+        return $logout_url;
     }
 
     /**

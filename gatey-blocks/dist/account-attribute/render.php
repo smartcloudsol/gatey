@@ -12,4 +12,6 @@ $bid = 'gatey_account_attribute_' . $hash;
 	data-color-mode="<?php echo esc_html(array_key_exists('colorMode', $attributes) ? $attributes['colorMode'] : 'system') ?>"
 	data-language="<?php echo esc_html(array_key_exists('language', $attributes) ? $attributes['language'] : 'en') ?>"
 	data-direction="<?php echo esc_html(array_key_exists('direction', $attributes) ? $attributes['direction'] : 'auto') ?>"
-	<?php echo get_block_wrapper_attributes() ?>> &nbsp;</div>
+	data-link="<?php echo esc_html(array_key_exists('link', $attributes) ? json_encode($attributes['link']) : '') ?>"
+	data-prefix="<?php echo esc_html(array_key_exists('prefix', $attributes) ? $attributes['prefix'] : '') ?>"
+	data-postfix="<?php echo esc_html(array_key_exists('postfix', $attributes) ? $attributes['postfix'] : '') ?>" <?php echo get_block_wrapper_attributes() ?>> &nbsp;</div>

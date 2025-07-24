@@ -195,7 +195,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               value={custom ?? ""}
               onChange={(value) => {
                 setAttributes({
-                  custom: value as string,
+                  custom: value,
                 });
               }}
               placeholder={__("Enter custom attribute", TEXT_DOMAIN)}
@@ -217,7 +217,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               value={defaultValue || ""}
               onChange={(value) => {
                 setAttributes({
-                  defaultValue: value as string,
+                  defaultValue: value,
                 });
               }}
               placeholder={__("Enter default value", TEXT_DOMAIN)}
@@ -244,7 +244,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             value={label || ""}
             onChange={(value) => {
               setAttributes({
-                label: value as string,
+                label: value,
               });
             }}
             placeholder={__("Enter label", TEXT_DOMAIN)}
@@ -262,7 +262,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             value={placeholder || ""}
             onChange={(value) => {
               setAttributes({
-                placeholder: value as string,
+                placeholder: value,
               });
             }}
             placeholder={__("Enter placeholder", TEXT_DOMAIN)}
@@ -271,7 +271,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             label={__("Auto Complete", TEXT_DOMAIN)}
             value={autocomplete || "off"}
             onChange={(value) => {
-              setAttributes({ autocomplete: value as string });
+              setAttributes({ autocomplete: value });
             }}
             help={__("Desired autocomplete HTML attribute.", TEXT_DOMAIN)}
           />
@@ -282,12 +282,12 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 value={dialCode || ""}
                 onChange={(value) => {
                   setAttributes({
-                    dialCode: value as string,
+                    dialCode: value,
                   });
                 }}
                 placeholder={__("Enter dial code", TEXT_DOMAIN)}
                 help={__(
-                  "Enter a single dial code starting with “+” (e.g., +1).",
+                  "Enter a single dial code starting with “+” (e.g., “+1”).",
                   TEXT_DOMAIN
                 )}
               />

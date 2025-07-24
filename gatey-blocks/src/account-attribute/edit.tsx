@@ -1,5 +1,9 @@
 import { type FunctionComponent } from "react";
-import { useBlockProps, useInnerBlocksProps } from "@wordpress/block-editor";
+import {
+  useBlockProps,
+  useInnerBlocksProps,
+  type LinkControlValue,
+} from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
 import { type ColorMode, type Direction } from "@aws-amplify/ui-react";
 
@@ -14,6 +18,9 @@ export interface EditorBlockProps {
   colorMode?: ColorMode;
   language?: Language;
   direction?: Direction | "auto";
+  link?: LinkControlValue;
+  prefix?: string;
+  postfix?: string;
 }
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (

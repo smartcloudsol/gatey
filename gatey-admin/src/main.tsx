@@ -452,7 +452,7 @@ const Main = (props: MainProps) => {
           credentials: "same-origin",
         });
         if (response.ok) {
-          let message = __("Settings saved successfully.", TEXT_DOMAIN);
+          let message: string = __("Settings saved successfully.", TEXT_DOMAIN);
           const target = e.target as typeof e.target & {
             name: string;
           };

@@ -190,7 +190,7 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $allowed = ['screen', 'variation', 'colormode', 'language', 'direction', 'totp', 'showopen', 'open', 'signingin', 'signingout', 'redirecting'];
         $atts = array_intersect_key($all, array_flip($allowed));
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v) && $v != '');
-		$atts['id'] = $all['pattern'];
+        $atts['id'] = $all['pattern'];
 
         echo gatey_do_shortcode('gatey', $atts);
     }
@@ -235,6 +235,16 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
             'label' => __('Custom', 'gatey'),
             'type' => \Elementor\Controls_Manager::TEXT,
             'condition' => ['attribute' => 'custom'],
+        ]);
+        $this->add_control('prefix', [
+            'label' => __('Prefix', 'gatey'),
+            'type' => \Elementor\Controls_Manager::TEXT,
+            'default' => '',
+        ]);
+        $this->add_control('postfix', [
+            'label' => __('Postfix', 'gatey'),
+            'type' => \Elementor\Controls_Manager::TEXT,
+            'default' => '',
         ]);
         $this->add_control('colormode', [
             'label' => __('Color mode', 'gatey'),
@@ -316,7 +326,7 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
     {
         $all = $this->get_settings_for_display();
 
-        $allowed = ['attribute', 'custom', 'component', 'colormode', 'language', 'direction'];
+        $allowed = ['attribute', 'custom', 'prefix', 'postfix', 'component', 'colormode', 'language', 'direction'];
         $atts = array_intersect_key($all, array_flip($allowed));
 
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v));

@@ -31,6 +31,13 @@ export interface ThemeProps extends PropsWithChildren {
   colorMode?: ColorMode;
   language?: Language;
   direction?: Direction | "auto";
+  link?: {
+    url?: string;
+    opensInNewTab?: boolean;
+    nofollow?: boolean;
+  };
+  prefix?: string;
+  postfix?: string;
 }
 
 export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
@@ -44,6 +51,9 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     colorMode,
     language,
     direction,
+    link = {},
+    prefix,
+    postfix,
   } = props;
 
   const theme = {
@@ -115,6 +125,9 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         custom={custom}
         language={currentLanguage as Language}
         direction={currentDirection}
+        link={link}
+        prefix={prefix}
+        postfix={postfix}
       />
     </ThemeProvider>
   );

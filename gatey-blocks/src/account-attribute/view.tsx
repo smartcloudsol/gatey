@@ -23,6 +23,11 @@ try {
       const colorMode = el.getAttribute("data-color-mode") as ColorMode;
       const language = el.getAttribute("data-language") as Language;
       const direction = el.getAttribute("data-direction") as Direction | "auto";
+      const link = el.getAttribute("data-link")
+        ? JSON.parse(el.getAttribute("data-link") || "{}")
+        : {};
+      const prefix = el.getAttribute("data-prefix") || "";
+      const postfix = el.getAttribute("data-postfix") || "";
       const root = createRoot(el);
       const fulfilledStore = await store;
       if (cache.has(id)) {
@@ -42,6 +47,9 @@ try {
             colorMode={colorMode}
             language={language}
             direction={direction}
+            link={link}
+            prefix={prefix}
+            postfix={postfix}
           />
         </StrictMode>
       );

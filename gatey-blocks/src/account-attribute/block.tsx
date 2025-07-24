@@ -1,13 +1,22 @@
 import { createRef, useState, useEffect, type FunctionComponent } from "react";
-import { InspectorControls } from "@wordpress/block-editor";
+import {
+  InspectorControls,
+  BlockControls,
+  LinkControl,
+  type LinkControlValue,
+} from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
 import {
+  ToolbarGroup,
+  ToolbarButton,
   ComboboxControl,
   RadioControl,
   SelectControl,
   TextControl,
   PanelBody,
+  Popover,
 } from "@wordpress/components";
+import { link as linkOn, linkOff } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
 
 import {
@@ -38,8 +47,19 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   props: BlockEditProps<EditorBlockProps>
 ) => {
   const { attributes, setAttributes } = props;
-  const { component, attribute, custom, colorMode, language, direction } =
-    attributes;
+  const {
+    component,
+    attribute,
+    custom,
+    colorMode,
+    language,
+    direction,
+    link = {},
+    prefix,
+    postfix,
+  } = attributes;
+
+  const [isEditing, setIsEditing] = useState(false);
 
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
 
@@ -115,7 +135,7 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             placeholder={__("Select an attribute", TEXT_DOMAIN)}
             allowReset
             help={__(
-              "Select the account attribute to display—either a standard Cognito attribute (e.g., email, given_name) or a custom attribute.",
+              "Select the account attribute to display—either a standard Cognito attribute (e.g., “email”, “given_name”) or a custom attribute.",
               TEXT_DOMAIN
             )}
           />
@@ -132,11 +152,37 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               placeholder={__("Enter custom attribute", TEXT_DOMAIN)}
               help={__(
-                "Enter the name of the custom attribute (e.g.,country).",
+                "Enter the name of the custom attribute (e.g., “country”).",
                 TEXT_DOMAIN
               )}
             />
           )}
+          <TextControl
+            label={__("Prefix", TEXT_DOMAIN)}
+            value={prefix ?? ""}
+            onChange={(value) => {
+              if (value as string) {
+                setAttributes({
+                  prefix: value as string,
+                });
+              }
+            }}
+            placeholder={__("Enter prefix", TEXT_DOMAIN)}
+            help={__("Enter the prefix (e.g., “Hi, ”).", TEXT_DOMAIN)}
+          />
+          <TextControl
+            label={__("Postfix", TEXT_DOMAIN)}
+            value={postfix ?? ""}
+            onChange={(value) => {
+              if (value as string) {
+                setAttributes({
+                  postfix: value as string,
+                });
+              }
+            }}
+            placeholder={__("Enter postfix", TEXT_DOMAIN)}
+            help={__("Enter the postfix (e.g., “!”).", TEXT_DOMAIN)}
+          />
           <RadioControl
             label={__("Color Mode", TEXT_DOMAIN)}
             selected={colorMode || "system"}
@@ -181,6 +227,51 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           />
         </PanelBody>
       </InspectorControls>
+      <BlockControls>
+        <ToolbarGroup>
+          {link.url && (
+            <ToolbarButton
+              icon={linkOff}
+              label="Remove link"
+              onClick={() => setAttributes({ link: { url: "" } })}
+            />
+          )}
+          <ToolbarButton
+            icon={linkOn}
+            label={link.url ? "Edit link" : "Add link"}
+            onClick={() => setIsEditing(true)}
+            isPressed={isEditing}
+          />
+        </ToolbarGroup>
+      </BlockControls>
+      {isEditing && (
+        <Popover
+          onClose={() => setIsEditing(false)}
+          focusOnMount="firstElement"
+        >
+          <LinkControl
+            label={__("Link", TEXT_DOMAIN)}
+            value={link}
+            onChange={(value) => {
+              if (value as LinkControlValue) {
+                setAttributes({
+                  link: value as LinkControlValue,
+                });
+              }
+            }}
+            settings={[
+              {
+                id: "opensInNewTab",
+                title: __("Open in new tab", TEXT_DOMAIN),
+              },
+              {
+                id: "nofollow",
+                title: __("Add nofollow", TEXT_DOMAIN),
+              },
+            ]}
+          />
+        </Popover>
+      )}
       {fulfilledStore && (
         <ThemeProvider
           theme={theme}
@@ -196,6 +287,9 @@ export const Block: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             custom={custom}
             language={currentLanguage as Language}
             direction={themeDirection}
+            link={link}
+            prefix={prefix}
+            postfix={postfix}
           />
         </ThemeProvider>
       )}

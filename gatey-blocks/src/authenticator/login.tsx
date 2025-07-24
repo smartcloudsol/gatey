@@ -10,8 +10,6 @@ import {
   Flex,
   View,
   Heading,
-  Text,
-  Link,
   AccountSettings,
   useAuthenticator,
   type Direction,

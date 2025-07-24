@@ -26,7 +26,7 @@ const pages = {
         <Anchor href="https://aws.amazon.com/pm/cognito" target="_blank">
           AWS Cognito
         </Anchor>{" "}
-        for user authentication. To get started, you'll need to set up resources
+        for user authentication. To get started, you’ll need to set up resources
         within your AWS account:
       </Text>
       <List size="sm" spacing="xs">
@@ -69,7 +69,7 @@ const pages = {
       <List size="sm" spacing="xs" withPadding>
         <List.Item>
           <strong>Default User Pool:</strong> This configuration is used when
-          users authenticate directly on your WordPress domain. It's the
+          users authenticate directly on your WordPress domain. It’s the
           standard setup for dynamic WordPress sites. If you also have a static
           export, this pool typically handles the development version served
           from the WordPress backend.
@@ -79,7 +79,7 @@ const pages = {
           exported sites hosted on a <strong>different domain</strong> than your
           WordPress installation. Since Cognito requires precise redirect URIs
           based on the domain, a separate configuration (and potentially a
-          separate App Client or even User Pool) is needed for the static site's
+          separate App Client or even User Pool) is needed for the static site’s
           domain.
         </List.Item>
       </List>
@@ -109,9 +109,9 @@ const pages = {
             <span className="highlightable">App Client ID</span>
           </Text>
           The unique ID for the App Client you created within your User Pool.
-          Find this under "App integration" &gt; "App client list" in your User
+          Find this under “App integration” &gt; “App client list” in your User
           Pool settings. Ensure this App Client is configured correctly for your
-          website's domain(s) and callback URLs.
+          website’s domain(s) and callback URLs.
         </List.Item>
         <List.Item id="region">
           <Text fw={500}>
@@ -132,10 +132,10 @@ const pages = {
           <Text fw={500}>
             <span className="highlightable">OAuth Domain</span>
           </Text>
-          The full domain used for Cognito's hosted UI and OAuth endpoints. This
+          The full domain used for Cognito’s hosted UI and OAuth endpoints. This
           is often in the format{" "}
           <Code>your-domain-prefix.auth.your-region.amazoncognito.com</Code>.
-          Find this under "App integration" &gt; "Domain name" in your User Pool
+          Find this under “App integration” &gt; “Domain name” in your User Pool
           settings.
         </List.Item>
         <List.Item id="oauth-scopes">
@@ -152,7 +152,7 @@ const pages = {
           your application requests during authentication. Common scopes include{" "}
           <Code>openid</Code>, <Code>email</Code>, <Code>profile</Code>, and{" "}
           <Code>aws.cognito.signin.user.admin</Code>. Ensure these match the
-          scopes enabled in your App Client settings under "Hosted UI".
+          scopes enabled in your App Client settings under “Hosted UI”.
         </List.Item>
       </List>
     </>
@@ -187,7 +187,7 @@ const pages = {
       </List>
       <Text size="sm" mt="xs">
         Ensure your Cognito User Pool is configured to support the selected
-        mechanisms under "Sign-in options".
+        mechanisms under “Sign-in options”.
       </Text>
       {/* ── Sign-up attributes ───────────────────────────────────────────── */}
       <Title order={3} mt="md" id="signup-attributes">
@@ -411,8 +411,8 @@ const pages = {
           controls how long the user stays logged into the WordPress backend
           portion of their session. For example, <Code>86400</Code> represents
           24 hours. Leave blank or set to <Code>0</Code> to use the WordPress
-          default (typically session-based or 2 days, extendable with "Remember
-          Me").
+          default (typically session-based or 2 days, extendable with “Remember
+          Me”).
         </List.Item>
       </List>
 
