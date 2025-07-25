@@ -68,10 +68,19 @@ jQuery(() => {
     if (attribute === "custom") {
       attr += "[data-custom='" + custom + "']";
     }
-    jQuery(attr + ":not(:has(*))").html(value);
-    jQuery(attr + " *:not(:has(*))").html(value);
-    jQuery("." + key + ":not(:has(*))").html(value);
-    jQuery("." + key + " *:not(:has(*))").html(value);
+    let valueToDisplay = value || "";
+    const prefix = jQuery(attr).attr("data-prefix");
+    const postfix = jQuery(attr).attr("data-postfix");
+    if (prefix) {
+      valueToDisplay = prefix + valueToDisplay;
+    }
+    if (postfix) {
+      valueToDisplay += postfix;
+    }
+    jQuery(attr + ":not(:has(*))").html(valueToDisplay);
+    jQuery(attr + " *:not(:has(*))").html(valueToDisplay);
+    jQuery("." + key + ":not(:has(*))").html(valueToDisplay);
+    jQuery("." + key + " *:not(:has(*))").html(valueToDisplay);
   };
 
   const refresh = async (signedIn: boolean) => {

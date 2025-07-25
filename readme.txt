@@ -4,7 +4,7 @@ Tags: cognito, login, user management, mfa, sso
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.6.3
+Stable tag: 1.6.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -177,6 +177,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.6.4 =
+Fixed the Account Attribute block: after a user updates the underlying data, your configured **prefix** and **postfix** are now retained instead of being replaced by the raw attribute value.
+
 = 1.6.3 =
 The **Account Attribute** block now supports **link**, **prefix**, and **postfix** attributes (prefix/postfix also available in the Elementor widget), letting you add links and extra text right in Gutenberg. The plugin also rewrites logout_url in WordPress integration mode, not just login_url.
 
@@ -299,6 +302,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.4 =
+Update if you use prefix/postfix on Account Attribute blocks; they now remain visible after profile changes.
 
 = 1.6.3 =
 Update to style Account Attribute fields with prefix/postfix text or make them clickable, and to get automatic handling of logout_url alongside login_url.
