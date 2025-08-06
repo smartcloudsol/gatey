@@ -1,7 +1,8 @@
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { SocialProvider, FormFieldOptionValue, LoginMechanism, SignUpAttribute } from '@aws-amplify/ui';
+import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
 import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
+import { CustomProvider } from '@aws-amplify/ui-react';
 import { StoreDescriptor, ReduxStoreConfig } from '@wordpress/data/build-types/types';
 
 declare const actions: {
@@ -84,8 +85,7 @@ interface ApiConfiguration {
     };
 }
 interface AuthenticatorConfig {
-    socialProviders: SocialProvider[];
-    customProviderName?: string;
+    customProviders: CustomProvider[];
     formFields: FormField[];
     apiConfigurations: {
         default: ApiConfiguration;
@@ -158,6 +158,7 @@ interface Settings {
     mappings: RoleMapping[];
     loginMechanisms: LoginMechanism[];
     signUpAttributes: SignUpAttribute[];
+    socialProviders?: SocialProvider[];
     integrateWpLogin: boolean;
     cookieExpiration?: number;
     signInPage?: string;
@@ -167,6 +168,7 @@ interface Settings {
     customTranslationsUrl?: string;
     useRecaptchaNet?: boolean;
     useRecaptchaEnterprise?: boolean;
+    enablePoweredBy?: boolean;
 }
 interface SiteSettings {
     accountId?: string;

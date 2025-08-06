@@ -9,6 +9,8 @@ import {
   Authenticator,
   Flex,
   View,
+  Text,
+  Link,
   Heading,
   AccountSettings,
   useAuthenticator,
@@ -510,8 +512,8 @@ export const Login = (
                     services={services}
                     initialState={screen}
                     signUpAttributes={Gatey.settings?.signUpAttributes}
-                    socialProviders={config?.socialProviders}
-                    providerName={config?.customProviderName}
+                    socialProviders={Gatey.settings?.socialProviders}
+                    customProviders={config?.customProviders}
                     components={components}
                     forceInitialState={isPreview}
                     variation={variation}
@@ -548,6 +550,39 @@ export const Login = (
                       </View>
                     )}
                   </Authenticator>
+                  {(route === "signIn" || route === "signUp") && (
+                    <View
+                      data-amplify-authenticator
+                      hidden={!Gatey.settings?.enablePoweredBy}
+                      className={
+                        Gatey.settings?.enablePoweredBy ? undefined : "sr-only"
+                      }
+                    >
+                      <View data-amplify-container>
+                        <View
+                          data-amplify-router={route}
+                          style={{ border: 0, boxShadow: "none" }}
+                        >
+                          <Text
+                            as="p"
+                            variation="tertiary"
+                            textAlign="right"
+                            fontSize="var(--amplify-components-textfield-font-size)"
+                          >
+                            Powered by{" "}
+                            <Link
+                              as="a"
+                              href="https://wpsuite.io/gatey/"
+                              isExternal={true}
+                              fontWeight={400}
+                            >
+                              WPSuite Gatey
+                            </Link>
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
                 </div>
               ))
           }

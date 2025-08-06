@@ -22,3 +22,13 @@ html {
 .amplify-radiogroupfield {
   --amplify-components-radiogroup-legend-font-weight: 300;
 }
+
+[data-amplify-authenticator].sr-only {
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

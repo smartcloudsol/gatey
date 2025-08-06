@@ -47,6 +47,8 @@ class Admin
             signUpAttributes: [],
             useRecaptchaEnterprise: false,
             useRecaptchaNet: false,
+            socialProviders: [],
+            enablePoweredBy: false,
         );
         $defaultSiteSettings = new SiteSettings(
             accountId: '',
@@ -79,6 +81,8 @@ class Admin
             $this->settings->signUpAttributes ??= [];
             $this->settings->useRecaptchaEnterprise ??= false;
             $this->settings->useRecaptchaNet ??= false;
+            $this->settings->socialProviders ??= [];
+            $this->settings->enablePoweredBy ??= false;
             $this->siteSettings = get_option(GATEY_SLUG . '/site-settings', $defaultSiteSettings);
             $this->siteSettings->accountId ??= '';
             $this->siteSettings->siteId ??= '';
@@ -549,6 +553,8 @@ class Admin
             $settings_param->signUpAttributes ?? [],
             $settings_param->useRecaptchaEnterprise ?? false,
             $settings_param->useRecaptchaNet ?? false,
+            $settings_param->socialProviders ?? [],
+            $settings_param->enablePoweredBy ?? false,
         );
 
         // Frissített beállítások mentése

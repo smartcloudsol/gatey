@@ -201,6 +201,27 @@ const pages = {
           fields are rendered automatically by Cognito.
         </List.Item>
       </List>
+      "social-providers": (
+      <>
+        <Title order={2}>Social Providers Editor</Title>
+        <Text>
+          Select the social providers you want to offer—Facebook, Google, Apple,
+          Amazon, or Custom. Gatey will automatically place their login buttons
+          at the top of your Sign-In and Sign-Up screens.
+        </Text>
+        {/* ── Social providers ─────────────────────────────────────────────── */}
+        <Title order={3} mt="md" id="social-providers">
+          <span className="highlightable">Social providers</span>
+        </Title>
+        <List size="sm" spacing="xs" withPadding>
+          <List.Item>
+            <Text fw={500}>Providers</Text>
+            Toggle Google, Facebook, Apple or Amazon buttons (requires
+            corresponding Identity Provider in AWS console).
+          </List.Item>
+        </List>
+      </>
+      ),
       <Title order={3} mt="md" id="custom-translations-url">
         <span className="highlightable">Custom Translations</span>
       </Title>
@@ -563,41 +584,29 @@ const pages = {
     </>
   ),
 
-  "social-providers": (
+  "custom-providers": (
     <>
-      <Title order={2}>Social Providers Editor</Title>
+      <Title order={2}>Custom Providers Editor</Title>
       <Text>
-        Select the social providers you want to offer—Facebook, Google, Apple,
-        Amazon, or Custom. Gatey will automatically place their login buttons at
-        the top of your Sign-In and Sign-Up screens.
+        Select the custom OIDC / SAML providers you want to offer. Gatey will
+        automatically place their login buttons at the top of your Sign-In and
+        Sign-Up screens.
       </Text>
-      {/* ── Social providers ─────────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="social-providers">
-        <span className="highlightable">Social providers</span>
-      </Title>
-      <List size="sm" spacing="xs" withPadding>
-        <List.Item>
-          <Text fw={500}>Providers</Text>
-          Toggle Google, Facebook, Apple or Amazon buttons (requires
-          corresponding Identity Provider in AWS console).
-        </List.Item>
-      </List>
-      {/* ── Custom Provider Name ─────────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="custom-provider-name">
-        <span className="highlightable">Custom Identity Provider Name</span>
-      </Title>
       <Text>
         Type the <strong>exact</strong> name of the SAML or OIDC provider you
         added to your Cognito user pool. The value is case-sensitive and must
         match the <em>Provider name</em> shown in the AWS console.
       </Text>
+      <Text>
+        You can optionally add a <strong>Title</strong> to display on the login
+        button, and an <strong>Icon</strong> to show next to the button. The
+        icon should be a square PNG or SVG image, encoded in base64 format. For
+        example, a 24x24 pixel icon might look like this:
+        <Code>
+          data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgZmlsbD0iIzAwMDAwMCIgd2lkdGg9IjEyOHB4IiBoZWlnaHQ9IjEyOHB4IiB2aWV3Qm94PSIwIDAgMzYgMzYiIHZlcnNpb249IjEuMCIgIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPg0KICAgIDx0aXRsZT5zaGllbGQtc29saWQ8L3RpdGxlPg0KCTxkZWZzPg0KCQk8bGluZWFyR3JhZGllbnQgaWQ9ImdyZWVuIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDApIj4NCgkJCTxzdG9wIG9mZnNldD0iMi4zOSUiIHN0b3AtY29sb3I9IiM0RUZGQUEiIC8+DQoJCQk8c3RvcCBvZmZzZXQ9Ijk4LjUlIiBzdG9wLWNvbG9yPSIjMkFDRDRFIiAvPg0KCQk8L2xpbmVhckdyYWRpZW50Pg0KCTwvZGVmcz4NCgk8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCQkucGF0aHtmaWxsOnVybCgnI2dyZWVuJyk7fQ0KCTwvc3R5bGU+DQogICAgPHBhdGggY2xhc3M9InBhdGgiIGQ9Ik0zMS4yNSw3LjRhNDMuNzksNDMuNzksMCwwLDEtNi42Mi0yLjM1LDQ1LDQ1LDAsMCwxLTYuMDgtMy4yMUwxOCwxLjVsLS41NC4zNWE0NSw0NSwwLDAsMS02LjA4LDMuMjFBNDMuNzksNDMuNzksMCwwLDEsNC43NSw3LjRMNCw3LjU5djguMzRjMCwxMy4zOSwxMy41MywxOC40LDEzLjY2LDE4LjQ1bC4zNC4xMi4zNC0uMTJjLjE0LDAsMTMuNjYtNS4wNSwxMy42Ni0xOC40NVY3LjU5WiI+PC9wYXRoPg0KICAgIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMzYiIGZpbGwtb3BhY2l0eT0iMCIvPg0KCTx0ZXh0IGZpbGw9IiMwRTE2MjUiIGZvbnQtZmFtaWx5PSJBcmNoaXZvLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNjAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxOCIgeT0iMjYiPkc8L3RleHQ+DQo8L3N2Zz4=
+        </Code>
+      </Text>
       <List size="sm" spacing="xs" withPadding mt="sm">
-        <List.Item>
-          <Text fw={500}>When is it shown?</Text>
-          This field appears only after you tick the&nbsp;
-          <code>Custom</code> provider checkbox.
-        </List.Item>
-
         <List.Item>
           <Text fw={500}>Where to find the name?</Text>
           In the AWS Cognito console, go to&nbsp;

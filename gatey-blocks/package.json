@@ -22,7 +22,6 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.11.2",
     "@smart-cloud/gatey-core": "^1.0.0",
     "@wordpress/block-editor": ">=15.0.0",
     "@wordpress/blocks": "^15.0.0",
@@ -38,6 +37,7 @@
     "use-detector-hook": "^1.0.8"
   },
   "devDependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@types/he": "^1.2.3",
     "@types/jquery": "^3.5.32",
     "@types/node-sass": "^4.11.8",

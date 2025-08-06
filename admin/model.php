@@ -95,6 +95,8 @@ class Settings
         public array $signUpAttributes = [],
         public bool $useRecaptchaEnterprise = false,
         public bool $useRecaptchaNet = false,
+        public array $socialProviders = [],
+        public bool $enablePoweredBy = false,
     ) {
     }
 }

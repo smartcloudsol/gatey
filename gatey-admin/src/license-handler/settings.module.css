@@ -34,3 +34,9 @@
 .dropdown {
   z-index: 100001 !important;
 }
+
+@media (min-width: 30rem) {
+  [data-amplify-authenticator] [data-amplify-container] {
+    width: 100%;
+  }
+}

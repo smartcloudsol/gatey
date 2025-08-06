@@ -1,25 +1,27 @@
 === Gatey - Login & SSO with Amazon Cognito ===
 Contributors: smartcloud
-Tags: cognito, login, user management, mfa, sso
+Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.6.4
+Stable tag: 1.7.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
 
-Drag-and-drop Amazon Cognito integration for WordPress: 22-language Authenticator screens, SSO, MFA, secure API access, and more—in minutes.
+Drag-and-drop Amazon Cognito integration: 22-language screens, Single Sign-on, Multi-Factor Authentication, secure JWT tokens, and more.
 
 == Description ==
 
 Gatey provides a seamless integration with Amazon Cognito for secure, scalable authentication in WordPress. This plugin supports both dynamic WordPress sites and statically generated WordPress frontends.
 
+https://www.youtube.com/watch?v=rhVtNvBo9FU
+
 Key features include:
   - Amazon Cognito user pool **login** and **registration**
   - Fully translatable Authenticator screens — **22 built-in languages** plus a custom-JSON option for overriding any string or **adding new languages**
-  - **SSO support** with customizable pages
-  - **Gutenberg block** and Elementor **shortcode** support
+  - Single Sign-On (**SSO**) integration with Social login, SAML, and OIDC providers
+  - **Gutenberg block**, Elementor **widget**, and **shortcode** support
   - Multi-factor authentication (**MFA**)
   - **Profile editing** and **password reset** features
   - Secure API access with **JWT** or **AWS IAM** Signature authorization
@@ -177,6 +179,11 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.7.0 =
+Social-login overhaul
+- **Google**, **Facebook**, **Apple**, and **Amazon** sign-in buttons are now available on the **free** plan.
+- On **PRO** you can display any number of custom **OIDC** / **SAML** identity-provider buttons on the Sign-In and Sign-Up screens.
+
 = 1.6.4 =
 Fixed the Account Attribute block: after a user updates the underlying data, your configured **prefix** and **postfix** are now retained instead of being replaced by the raw attribute value.
 
@@ -302,6 +309,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+Update to unlock the four built-in social providers on every site and, if you’re on PRO, add multiple custom OIDC or SAML IdPs with a few clicks.
 
 = 1.6.4 =
 Update if you use prefix/postfix on Account Attribute blocks; they now remain visible after profile changes.

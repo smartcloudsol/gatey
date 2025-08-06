@@ -1,6 +1,10 @@
 import { type ResourcesConfig } from "aws-amplify";
 import { get, post, put, del, head, patch } from "aws-amplify/api";
-import { type LoginMechanism, type SignUpAttribute } from "@aws-amplify/ui";
+import {
+  SocialProvider,
+  type LoginMechanism,
+  type SignUpAttribute,
+} from "@aws-amplify/ui";
 import { dispatch } from "@wordpress/data";
 
 import {
@@ -36,6 +40,7 @@ export interface Settings {
   mappings: RoleMapping[];
   loginMechanisms: LoginMechanism[];
   signUpAttributes: SignUpAttribute[];
+  socialProviders?: SocialProvider[];
   integrateWpLogin: boolean;
   cookieExpiration?: number;
   signInPage?: string;
@@ -45,6 +50,7 @@ export interface Settings {
   customTranslationsUrl?: string;
   useRecaptchaNet?: boolean;
   useRecaptchaEnterprise?: boolean;
+  enablePoweredBy?: boolean;
 }
 
 export interface SiteSettings {

@@ -2,10 +2,8 @@ import { type ResourcesConfig } from "aws-amplify";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { I18n } from "aws-amplify/utils";
 import { type APIConfig } from "@aws-amplify/core";
-import {
-  type SocialProvider,
-  type FormFieldOptionValue,
-} from "@aws-amplify/ui";
+import { type FormFieldOptionValue } from "@aws-amplify/ui";
+import { type CustomProvider } from "@aws-amplify/ui-react";
 
 import {
   createReduxStore,
@@ -377,8 +375,7 @@ export interface ApiConfiguration {
 }
 
 export interface AuthenticatorConfig {
-  socialProviders: SocialProvider[];
-  customProviderName?: string;
+  customProviders: CustomProvider[];
   formFields: FormField[];
   apiConfigurations: {
     default: ApiConfiguration;

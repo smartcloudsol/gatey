@@ -103,11 +103,11 @@ const CustomFieldsEditor = lazy(
         : "./free-features/NullEditor"
     )
 );
-const SocialProvidersEditor = lazy(
+const CustomProvidersEditor = lazy(
   () =>
     import(
       process.env.GATEY_PREMIUM
-        ? "./paid-features/SocialProvidersEditor"
+        ? "./paid-features/CustomProvidersEditor"
         : "./free-features/NullEditor"
     )
 );
@@ -249,6 +249,7 @@ const Main = (props: MainProps) => {
     reCaptchaPublicKey: settings.reCaptchaPublicKey,
     customTranslationsUrl: settings.customTranslationsUrl,
     signUpAttributes: settings.signUpAttributes || [],
+    socialProviders: settings.socialProviders || [],
     useRecaptchaEnterprise: settings.useRecaptchaEnterprise || false,
     useRecaptchaNet: settings.useRecaptchaNet || false,
   });
@@ -269,7 +270,7 @@ const Main = (props: MainProps) => {
     | "general"
     | "wordpress-login"
     | "custom-fields"
-    | "social-providers"
+    | "custom-providers"
     | "api-settings"
   >("general");
 
@@ -729,8 +730,8 @@ const Main = (props: MainProps) => {
         disabled: paidSettingsDisabled,
       },
       {
-        value: "social-providers",
-        label: __("Social Providers", TEXT_DOMAIN),
+        value: "custom-providers",
+        label: __("Custom Providers", TEXT_DOMAIN),
         icon: <IconSocial size={16} stroke={1.5} />,
         badge: (
           <Badge variant="light" color="red" ml="4px" miw={35}>
@@ -1152,6 +1153,104 @@ const Main = (props: MainProps) => {
                       searchable
                       hidePickedOptions
                     />
+                    <Fieldset
+                      legend={
+                        <InfoLabelComponent
+                          text="Social Providers"
+                          scrollToId="social-providers"
+                        />
+                      }
+                      fw={500}
+                    >
+                      <Checkbox
+                        label="Google"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "google"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("google");
+                          if (!e.target.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.target.checked && index === -1) {
+                            socialProviders.push("google");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Facebook"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "facebook"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("facebook");
+                          if (!e.target.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.target.checked && index === -1) {
+                            socialProviders.push("facebook");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Apple"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "apple"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("apple");
+                          if (!e.target.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.target.checked && index === -1) {
+                            socialProviders.push("apple");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Amazon"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "amazon"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("amazon");
+                          if (!e.target.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.target.checked && index === -1) {
+                            socialProviders.push("amazon");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                    </Fieldset>
                     <TextInput
                       disabled={savingSettings}
                       label={
@@ -1506,16 +1605,16 @@ const Main = (props: MainProps) => {
                   />
                 )}
               </Tabs.Panel>
-              <Tabs.Panel value="social-providers" w="100%">
+              <Tabs.Panel value="custom-providers" w="100%">
                 <Title order={2} mb="md">
                   <InfoLabelComponent
-                    text="Social Providers"
-                    scrollToId="social-providers"
+                    text="Custom Providers"
+                    scrollToId="custom-providers"
                   />
                 </Title>
 
                 <Text mb="md">
-                  Enable the social login providers shown on the sign-in and
+                  Enable the custom login providers shown on the sign-in and
                   sign-up screens.
                 </Text>
 
@@ -1534,7 +1633,7 @@ const Main = (props: MainProps) => {
                   </Alert>
                 )}
                 {(formConfig ?? decryptedConfig) && (
-                  <SocialProvidersEditor
+                  <CustomProvidersEditor
                     amplifyConfigured={amplifyConfigured}
                     config={formConfig ?? decryptedConfig}
                     accountId={accountId!}

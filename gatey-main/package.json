@@ -19,7 +19,6 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.11.2",
     "@smart-cloud/gatey-core": "^1.0.0",
     "@wordpress/data": "^10.27.0",
     "asmcrypto.js": "^2.3.2",
@@ -29,6 +28,7 @@
     "webcrypto-liner": "^1.4.3"
   },
   "devDependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@babel/core": "^7.28.0",
     "@types/jquery": "^3.5.32",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
