@@ -1,3 +1,7 @@
+:root {
+  --mantine-cursor-type: pointer;
+}
+
 input[readonly].mantine-Select-input {
   background-color: #fff;
 }

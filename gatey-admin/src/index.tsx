@@ -46,7 +46,9 @@ if (!production) {
   import("./index.css");
 }
 
-const theme = createTheme({ respectReducedMotion: true });
+const theme = createTheme({
+  respectReducedMotion: true,
+});
 
 declare global {
   const wp: {

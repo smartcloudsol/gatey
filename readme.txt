@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -179,6 +179,10 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.7.1 =
+- General tab tidy-up — settings are now grouped in a clearer order.
+- New switch: Hide **“Powered by Gatey”** text (enabled by default, so the link stays hidden unless you turn it off).
+
 = 1.7.0 =
 Social-login overhaul
 - **Google**, **Facebook**, **Apple**, and **Amazon** sign-in buttons are now available on the **free** plan.
@@ -309,6 +313,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.7.1 =
+Update to see the reorganised General tab.
 
 = 1.7.0 =
 Update to unlock the four built-in social providers on every site and, if you’re on PRO, add multiple custom OIDC or SAML IdPs with a few clicks.

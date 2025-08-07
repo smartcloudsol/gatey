@@ -13,6 +13,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Switch,
   Fieldset,
   Group,
   HoverCard,
@@ -252,6 +253,7 @@ const Main = (props: MainProps) => {
     socialProviders: settings.socialProviders || [],
     useRecaptchaEnterprise: settings.useRecaptchaEnterprise || false,
     useRecaptchaNet: settings.useRecaptchaNet || false,
+    enablePoweredBy: settings.enablePoweredBy || false,
   });
 
   const [resolvedConfig, setResolvedConfig] = useState<
@@ -1063,6 +1065,7 @@ const Main = (props: MainProps) => {
                           scrollToId="login-mechanisms"
                         />
                       }
+                      fw={500}
                     >
                       <Checkbox
                         disabled={savingSettings}
@@ -1076,9 +1079,9 @@ const Main = (props: MainProps) => {
                             ...settingsFormData.loginMechanisms,
                           ];
                           const index = loginMechanisms.indexOf("username");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             loginMechanisms.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             loginMechanisms.push("username");
                           }
                           setSettingsFormData({
@@ -1099,9 +1102,9 @@ const Main = (props: MainProps) => {
                             ...settingsFormData.loginMechanisms,
                           ];
                           const index = loginMechanisms.indexOf("email");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             loginMechanisms.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             loginMechanisms.push("email");
                           }
                           setSettingsFormData({
@@ -1122,9 +1125,9 @@ const Main = (props: MainProps) => {
                             ...settingsFormData.loginMechanisms,
                           ];
                           const index = loginMechanisms.indexOf("phone_number");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             loginMechanisms.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             loginMechanisms.push("phone_number");
                           }
                           setSettingsFormData({
@@ -1173,9 +1176,9 @@ const Main = (props: MainProps) => {
                               ? [...settingsFormData.socialProviders]
                               : [];
                           const index = socialProviders.indexOf("google");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             socialProviders.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             socialProviders.push("google");
                           }
                           setSettingsFormData({
@@ -1195,9 +1198,9 @@ const Main = (props: MainProps) => {
                               ? [...settingsFormData.socialProviders]
                               : [];
                           const index = socialProviders.indexOf("facebook");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             socialProviders.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             socialProviders.push("facebook");
                           }
                           setSettingsFormData({
@@ -1217,9 +1220,9 @@ const Main = (props: MainProps) => {
                               ? [...settingsFormData.socialProviders]
                               : [];
                           const index = socialProviders.indexOf("apple");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             socialProviders.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             socialProviders.push("apple");
                           }
                           setSettingsFormData({
@@ -1239,9 +1242,9 @@ const Main = (props: MainProps) => {
                               ? [...settingsFormData.socialProviders]
                               : [];
                           const index = socialProviders.indexOf("amazon");
-                          if (!e.target.checked && index > -1) {
+                          if (!e.currentTarget.checked && index > -1) {
                             socialProviders.splice(index, 1);
-                          } else if (e.target.checked && index === -1) {
+                          } else if (e.currentTarget.checked && index === -1) {
                             socialProviders.push("amazon");
                           }
                           setSettingsFormData({
@@ -1251,90 +1254,6 @@ const Main = (props: MainProps) => {
                         }}
                       />
                     </Fieldset>
-                    <TextInput
-                      disabled={savingSettings}
-                      label={
-                        <InfoLabelComponent
-                          text="Custom Translations URL"
-                          scrollToId="custom-translations-url"
-                        />
-                      }
-                      description={
-                        <>
-                          <Text size="sm" m={0}>
-                            If you want to use custom translations, enter the
-                            URL here. The URL should point to a JSON file.
-                            Download{" "}
-                            <a
-                              href="https://wpsuite.io/static/plugins/gatey-translations.json"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                            >
-                              sample translations
-                            </a>
-                            , modify it, and upload it to your server or a
-                            public file hosting service.
-                          </Text>
-                        </>
-                      }
-                      value={settingsFormData.customTranslationsUrl}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          customTranslationsUrl: e.target.value,
-                        })
-                      }
-                    />
-                    <TextInput
-                      disabled={savingSettings}
-                      label={
-                        <InfoLabelComponent
-                          text="Google reCAPTCHA (v3) Site Key"
-                          scrollToId="recaptcha-site-key"
-                        />
-                      }
-                      description="Create the key in your reCAPTCHA project, then paste it here."
-                      value={settingsFormData.reCaptchaPublicKey}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          reCaptchaPublicKey: e.target.value,
-                        })
-                      }
-                    />
-                    <Checkbox
-                      disabled={savingSettings}
-                      label={
-                        <InfoLabelComponent
-                          text="Use reCAPTCHA Enterprise"
-                          scrollToId="use-recaptcha-enterprise"
-                        />
-                      }
-                      checked={settingsFormData.useRecaptchaEnterprise}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          useRecaptchaEnterprise: e.target.checked,
-                        })
-                      }
-                    />
-                    <Checkbox
-                      disabled={savingSettings}
-                      label={
-                        <InfoLabelComponent
-                          text="Use recaptcha.net"
-                          scrollToId="use-recaptcha-net"
-                        />
-                      }
-                      checked={settingsFormData.useRecaptchaNet}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          useRecaptchaNet: e.target.checked,
-                        })
-                      }
-                    />
                     <Select
                       disabled={savingSettings}
                       label={
@@ -1389,6 +1308,110 @@ const Main = (props: MainProps) => {
                       }
                       data={pageOptions}
                     />
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Google reCAPTCHA (v3) Site Key"
+                          scrollToId="recaptcha-site-key"
+                        />
+                      }
+                      description="Create the key in your reCAPTCHA project, then paste it here."
+                      value={settingsFormData.reCaptchaPublicKey}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          reCaptchaPublicKey: e.target.value,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use reCAPTCHA Enterprise"
+                          scrollToId="use-recaptcha-enterprise"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaEnterprise}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaEnterprise: e.currentTarget.checked,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use recaptcha.net"
+                          scrollToId="use-recaptcha-net"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaNet}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaNet: e.currentTarget.checked,
+                        })
+                      }
+                    />
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Custom Translations URL"
+                          scrollToId="custom-translations-url"
+                        />
+                      }
+                      description={
+                        <>
+                          <Text size="sm" m={0}>
+                            If you want to use custom translations, enter the
+                            URL here. The URL should point to a JSON file.
+                            Download{" "}
+                            <a
+                              href="https://wpsuite.io/static/plugins/gatey-translations.json"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                            >
+                              sample translations
+                            </a>
+                            , modify it, and upload it to your server or a
+                            public file hosting service.
+                          </Text>
+                        </>
+                      }
+                      value={settingsFormData.customTranslationsUrl}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          customTranslationsUrl: e.target.value,
+                        })
+                      }
+                    />
+                    <Switch.Group
+                      defaultValue={
+                        settingsFormData.enablePoweredBy ? [] : ["hide"]
+                      }
+                      label={
+                        <InfoLabelComponent
+                          text="Hide 'Powered by Gatey' text"
+                          scrollToId="hide-powered-by-gatey"
+                        />
+                      }
+                      description="Hide the 'Powered by Gatey' text in the login and sign-up forms."
+                      onChange={(values: string[]) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          enablePoweredBy: !values.includes("hide"),
+                        })
+                      }
+                    >
+                      <Switch label="Hide" value="hide" mt="xs" />
+                    </Switch.Group>
                   </Stack>
 
                   <Group justify="flex-end" mt="lg">
@@ -1426,7 +1449,7 @@ const Main = (props: MainProps) => {
                       }
                       checked={settingsFormData.integrateWpLogin}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleIntegrationChange(e.target.checked)
+                        handleIntegrationChange(e.currentTarget.checked)
                       }
                     />
                     {settingsFormData.integrateWpLogin && (
