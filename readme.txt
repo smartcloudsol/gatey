@@ -88,7 +88,7 @@ Usually less than **five minutes**: install, drop the block, paste your User Poo
 **No.** Gatey works fully offline out of the box and requires no registration or subscription to function. You can configure your AWS Cognito user pool directly inside WordPress and use login, registration, MFA, and profile features without ever connecting to wpsuite.io. Premium features are entirely optional and only become available after connecting your site using secure client‑side JavaScript.
 
 = What’s the difference between plans? =
-Free includes all core blocks, but frontend customizations are hidden. Basic shows custom blocks on live pages. Professional unlocks social login, JWT/IAM‑secured APIs, and advanced Gatey control.
+Free includes all core blocks, social login (Facebook, Google, Amazon, Apple), but frontend customizations are hidden. Basic shows custom blocks on live pages. Professional unlocks custom SAML/OIDC providers, JWT/IAM‑secured APIs, and advanced Gatey control.
 
 = Where are the subscription-based configuration files stored, and how often are they refreshed? =
 All Pro settings you create in the Gatey Settings—API Settings, custom Form Fields—are saved server-side and, whenever you hit Save, an encrypted copy is written to your site’s wp-content/uploads/ folder.

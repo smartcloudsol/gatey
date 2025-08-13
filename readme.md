@@ -1,10 +1,14 @@
 # Gatey Plugin Suite
 
-This repository contains the complete source code and frontend modules for the free version of Gatey WordPress plugin. The plugin provides a modular authentication and administration interface for WordPress-based systems.
+This repository contains the complete source code and frontend modules for the free version of [Gatey WordPress plugin](https://wordpress.org/plugins/gatey/). The plugin provides a modular authentication and administration interface for WordPress-based systems.
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D16.x-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-%3E%3D8.1-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+## Documentation
+
+You can find the plugin’s continuously expanding, detailed documentation at: [WP Suite – Gatey Docs](https://wpsuite.io/gatey/docs/)
 
 ## Machine-readable resources
 * AI plugin manifest: https://wpsuite.io/.well-known/ai-plugin.json
