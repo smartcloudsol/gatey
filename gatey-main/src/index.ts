@@ -69,16 +69,19 @@ jQuery(() => {
       attr += "[data-custom='" + custom + "']";
     }
     let valueToDisplay = value || "";
-    const prefix = jQuery(attr).attr("data-prefix");
-    const postfix = jQuery(attr).attr("data-postfix");
-    if (prefix) {
-      valueToDisplay = prefix + valueToDisplay;
-    }
-    if (postfix) {
-      valueToDisplay += postfix;
-    }
-    jQuery(attr + ":not(:has(*))").html(valueToDisplay);
-    jQuery(attr + " *:not(:has(*))").html(valueToDisplay);
+    // iterate through all the elements that matches the attribute
+    jQuery(attr).each((_, element) => {
+      const prefix = jQuery(element).attr("data-prefix");
+      const postfix = jQuery(element).attr("data-postfix");
+      if (prefix) {
+        valueToDisplay = prefix + valueToDisplay;
+      }
+      if (postfix) {
+        valueToDisplay += postfix;
+      }
+      jQuery(element).children(":not(:has(*))").html(valueToDisplay);
+      jQuery(element).children(" *:not(:has(*))").html(valueToDisplay);
+    });
     jQuery("." + key + ":not(:has(*))").html(valueToDisplay);
     jQuery("." + key + " *:not(:has(*))").html(valueToDisplay);
   };

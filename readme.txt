@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -179,6 +179,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.7.2 =
+Fixed an Account Attribute scoping bug: when multiple blocks displayed the same attribute on a page (e.g., first name in the header and on the profile page), updating the data no longer applies the first block’s prefix/postfix to all others. Each instance now retains its own settings.
+
 = 1.7.1 =
 - General tab tidy-up — settings are now grouped in a clearer order.
 - New switch: Hide **“Powered by Gatey”** text (enabled by default, so the link stays hidden unless you turn it off).
@@ -313,6 +316,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.7.2 =
+Update if you use multiple Account Attribute blocks for the same attribute—each block will keep its own prefix/postfix after profile changes.
 
 = 1.7.1 =
 Update to see the reorganised General tab.
