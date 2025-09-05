@@ -110,7 +110,7 @@ interface State {
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
 }
-type SubscriptionType = "BASIC" | "PROFESSIONAL" | "AGENCY";
+type SubscriptionType = "PROFESSIONAL" | "AGENCY";
 type Store = StoreDescriptor<ReduxStoreConfig<State, typeof actions, typeof selectors>>;
 declare const observeStore: (observableStore: Store, selector: (state: State) => ResourcesConfig | Account | boolean | number | string | null | undefined, onChange: (nextValue: ResourcesConfig | Account | boolean | number | string | null | undefined, previousValue: ResourcesConfig | Account | boolean | number | string | null | undefined) => void) => any;
 

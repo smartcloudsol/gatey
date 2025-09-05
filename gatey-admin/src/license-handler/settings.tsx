@@ -864,7 +864,7 @@ export const Settings: FunctionComponent<SettingsProps> = (
         <Modal
           {...stack.register("prices")}
           withCloseButton
-          size={1050}
+          size="xl"
           zIndex={100000}
           centered
           title={
@@ -879,6 +879,16 @@ export const Settings: FunctionComponent<SettingsProps> = (
             siteId && (
               <Group justify="center" mt={20}>
                 <Stack w="100%" gap={20}>
+                  <Text>Choose the plan that fits your WordPress site!</Text>
+                  <Text size="sm">
+                    Start free with WP Suite core features. Upgrade to Pro to
+                    unlock advanced customization, integrations, and premium
+                    support across all WP Suite plugins.{" "}
+                    <a className="dark-link" href="/pricing/">
+                      Pricing
+                    </a>{" "}
+                    page.
+                  </Text>
                   {clientSecret ? (
                     <stripe-pricing-table
                       pricing-table-id={props.pricingTable}
@@ -907,10 +917,6 @@ export const Settings: FunctionComponent<SettingsProps> = (
                           All prices are net amounts. Applicable taxes (e.g.,
                           VAT, Sales Tax) may be added depending on your
                           location and circumstances.
-                        </List.Item>
-                        <List.Item className={classes.item}>
-                          FREE plan includes full AWS Cognito support (except
-                          for social providers) and WordPress integration.
                         </List.Item>
                       </List>
                     </Flex>
@@ -1321,11 +1327,6 @@ export const Settings: FunctionComponent<SettingsProps> = (
                       FREE
                     </Badge>
                   )}
-                  {subscriptionType === "BASIC" && (
-                    <Badge color="blue" miw={60}>
-                      BASIC
-                    </Badge>
-                  )}
                   {subscriptionType === "PROFESSIONAL" && (
                     <Badge color="red" miw={35}>
                       PRO
@@ -1352,11 +1353,6 @@ export const Settings: FunctionComponent<SettingsProps> = (
                   {subscriptionType === null && (
                     <Badge color="grey" miw={45}>
                       FREE
-                    </Badge>
-                  )}
-                  {subscriptionType === "BASIC" && (
-                    <Badge color="blue" miw={60}>
-                      BASIC
                     </Badge>
                   )}
                   {subscriptionType === "PROFESSIONAL" && (

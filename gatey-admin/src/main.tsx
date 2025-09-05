@@ -725,8 +725,8 @@ const Main = (props: MainProps) => {
         label: __("Custom Fields", TEXT_DOMAIN),
         icon: <IconForms size={16} stroke={1.5} />,
         badge: (
-          <Badge variant="light" color="blue" ml="4px" miw={35}>
-            BASIC
+          <Badge variant="light" color="red" ml="4px" miw={35}>
+            PRO
           </Badge>
         ),
         disabled: paidSettingsDisabled,
@@ -888,8 +888,8 @@ const Main = (props: MainProps) => {
                         disabled={!formConfig}
                       >
                         Secondary
-                        <Badge variant="light" color="blue" ml="4px" miw={60}>
-                          BASIC
+                        <Badge variant="light" color="red" ml="4px" miw={60}>
+                          PRO
                         </Badge>
                       </Tabs.Tab>
                     </Tabs.List>
@@ -1607,11 +1607,11 @@ const Main = (props: MainProps) => {
                   <Alert
                     variant="light"
                     color="yellow"
-                    title="BASIC Feature"
+                    title="PRO Feature"
                     icon={<IconExclamationCircle />}
                     mb="md"
                   >
-                    This feature is available in the <strong>BASIC</strong>{" "}
+                    This feature is available in the <strong>PRO</strong>{" "}
                     version of the plugin. You can save your settings but they
                     will not take effect until you upgrade your subscription.
                   </Alert>

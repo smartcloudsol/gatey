@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -29,7 +29,7 @@ Key features include:
 
 You can find the plugin’s continuously expanding, detailed documentation at:
 
-[WP Suite – Gatey Docs](https://wpsuite.io/gatey/docs/)
+[WP Suite – Docs](https://wpsuite.io/docs/)
 
 What’s on the site?
   - Get Started guide — quick start, installation, first‑time setup.
@@ -179,6 +179,10 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.7.3 =
+Removed the outdated BASIC plan and updated the pricing table to reflect the new WP Suite model (Free + Pro across all plugins). 
+Dependencies have been refreshed in the React/Node.js subprojects.
+
 = 1.7.2 =
 Fixed an Account Attribute scoping bug: when multiple blocks displayed the same attribute on a page (e.g., first name in the header and on the profile page), updating the data no longer applies the first block’s prefix/postfix to all others. Each instance now retains its own settings.
 
@@ -316,6 +320,10 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.7.3 =
+Update to stay aligned with the new WP Suite pricing (Free + Pro). 
+The BASIC plan no longer exists; your site continues to work in Free mode unless upgraded to Pro.
 
 = 1.7.2 =
 Update if you use multiple Account Attribute blocks for the same attribute—each block will keep its own prefix/postfix after profile changes.

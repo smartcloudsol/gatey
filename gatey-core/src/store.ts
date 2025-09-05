@@ -403,7 +403,7 @@ export interface State {
   reloadMFAPreferences: number;
 }
 
-export type SubscriptionType = "BASIC" | "PROFESSIONAL" | "AGENCY";
+export type SubscriptionType = "PROFESSIONAL" | "AGENCY";
 
 export type Store = StoreDescriptor<
   ReduxStoreConfig<State, typeof actions, typeof selectors>

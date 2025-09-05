@@ -20,22 +20,22 @@
     "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/41/packages/npm/"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.11.2",
-    "@wordpress/data": "^10.27.0",
+    "@aws-amplify/ui-react": "^6.12.0",
+    "@wordpress/data": "^10.30.0",
     "aws-amplify": "^6.15.5",
-    "jose": "^6.0.12",
+    "jose": "^6.1.0",
     "js-cookie": "^3.0.5"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.862.0",
     "@types/js-cookie": "^3.0.6",
-    "@types/node": "^24.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.39.0",
-    "@typescript-eslint/parser": "^8.39.0",
-    "eslint": "^9.31.0",
+    "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.35.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.0"
+    "typescript-eslint": "^8.42.0"
   }
 }
