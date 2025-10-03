@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@aws-amplify/analytics@7.0.86":
-  version "7.0.86"
-  resolved "https://registry.npmjs.org/@aws-amplify/analytics/-/analytics-7.0.86.tgz#3188c8ed95b309aa4251514fa6f679c4cde0cd3a"
-  integrity sha512-1CEaP6hA1kdBcDbXOg0MFw7Kpwu6Lt93S7r0/Oy/vu9bR3AzKPe/muT8euljmCFl/bY16zqZvY6vUW+WeA0jIw==
+"@aws-amplify/analytics@7.0.87":
+  version "7.0.87"
+  resolved "https://registry.npmjs.org/@aws-amplify/analytics/-/analytics-7.0.87.tgz#32405d022e4bbca0f854337b41c75a03878daba6"
+  integrity sha512-Kkehhc1PIE9lGXUtq4vm9dcV4HmfXkDXoBmmLeaax3YVbJMjmyvXw7Mdvp1P+zURdb3p+EALmKii0pKgfMe5FQ==
   dependencies:
     "@aws-sdk/client-firehose" "3.621.0"
     "@aws-sdk/client-kinesis" "3.621.0"
@@ -13,13 +13,13 @@
     "@smithy/util-utf8" "2.0.0"
     tslib "^2.5.0"
 
-"@aws-amplify/api-graphql@4.7.21":
-  version "4.7.21"
-  resolved "https://registry.npmjs.org/@aws-amplify/api-graphql/-/api-graphql-4.7.21.tgz#d60a37b05cbd789b29e2e2afc82c755e75aa46e4"
-  integrity sha512-rSfXtFyCJQeevDGE7TbDgH2xQKvukc+zO+Q9YinevPkGpL9zY4kl9Y5BfxKB/vPCvxR2DQTjeNu4fMlsjt9Zgw==
+"@aws-amplify/api-graphql@4.7.22":
+  version "4.7.22"
+  resolved "https://registry.npmjs.org/@aws-amplify/api-graphql/-/api-graphql-4.7.22.tgz#ea1e7863ebc0a3cf3aa360829eda1f02b1ade27f"
+  integrity sha512-zHOeh/Yfogss4+35GTCLrxKTfCMvFmtYuUKbBftfJ5BSrAsppMBA5yPr03Mea3xNhZLFunkFJj8tkgXAoADeKA==
   dependencies:
-    "@aws-amplify/api-rest" "4.3.0"
-    "@aws-amplify/core" "6.13.1"
+    "@aws-amplify/api-rest" "4.4.0"
+    "@aws-amplify/core" "6.13.2"
     "@aws-amplify/data-schema" "^1.7.0"
     "@aws-sdk/types" "3.387.0"
     graphql "15.8.0"
@@ -27,37 +27,37 @@
     tslib "^2.5.0"
     uuid "^11.0.0"
 
-"@aws-amplify/api-rest@4.3.0":
-  version "4.3.0"
-  resolved "https://registry.npmjs.org/@aws-amplify/api-rest/-/api-rest-4.3.0.tgz#b8b83811063fdeb83cb73bc9dfe1e9dbdcf1838b"
-  integrity sha512-gU8/uFOM5iwMN/FJV6UHSMij3tXQXO/cdtQsTuw5XfcwIeauAIefu5MUY6lTyJbIUny8IRbmjs8DjCUsms13Dw==
+"@aws-amplify/api-rest@4.4.0":
+  version "4.4.0"
+  resolved "https://registry.npmjs.org/@aws-amplify/api-rest/-/api-rest-4.4.0.tgz#8995243c7cf3fd39ed61bc5bba500106e1de0e80"
+  integrity sha512-woly6TqB6z+LoB2UoVut11Sg+HauuXIUQAbnnjPp18lWIyO2SYLp5EqgczAUP/AC0WP8/SCLOPSZnJkDnKT4QA==
   dependencies:
     tslib "^2.5.0"
 
-"@aws-amplify/api@6.3.17":
-  version "6.3.17"
-  resolved "https://registry.npmjs.org/@aws-amplify/api/-/api-6.3.17.tgz#ccebda213d520393ad05cf53ee83cf59556a087c"
-  integrity sha512-r7nmL7F8w60CAaSoOlX0YAUPCtxfHflhObe4XXGsAmXipcRi8xah/+ybGmwVLDp4J40dLir4bUaA84A/BW3doA==
+"@aws-amplify/api@6.3.18":
+  version "6.3.18"
+  resolved "https://registry.npmjs.org/@aws-amplify/api/-/api-6.3.18.tgz#a020b56f449e9c8b46af86b6fbf116b27e141e39"
+  integrity sha512-9R5yhx/7SOadrmFch1Z33yh/Pyye1N6tk9E6u8yLLv1dkbeeRAXAwiTSICT5kBXB7X+9CfGGFA8GMxWjMgEC0w==
   dependencies:
-    "@aws-amplify/api-graphql" "4.7.21"
-    "@aws-amplify/api-rest" "4.3.0"
+    "@aws-amplify/api-graphql" "4.7.22"
+    "@aws-amplify/api-rest" "4.4.0"
     "@aws-amplify/data-schema" "^1.7.0"
     rxjs "^7.8.1"
     tslib "^2.5.0"
 
-"@aws-amplify/auth@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.npmjs.org/@aws-amplify/auth/-/auth-6.15.0.tgz#022dc41d6aeab476159713b1466ee27a855ae529"
-  integrity sha512-VahO4aN/jxufP225bpWBfX4LCK9lram3mSNQsCSs2hJdDnEKvFdpd90cQz6XXRybyYOmkhjNeAgGp4qLwv5BHg==
+"@aws-amplify/auth@6.15.1":
+  version "6.15.1"
+  resolved "https://registry.npmjs.org/@aws-amplify/auth/-/auth-6.15.1.tgz#2ab61777ab243301e495c5bdbb3aafa2b7dbbdfb"
+  integrity sha512-lbvtABrUye0eQiHj5l7tRPIcrTchSUfA2UyBv48vz9YQDuQjwGNAFbFs074N7zaib6PQqO9QOJ8EQBskLypHcg==
   dependencies:
     "@aws-crypto/sha256-js" "5.2.0"
     "@smithy/types" "^3.3.0"
     tslib "^2.5.0"
 
-"@aws-amplify/core@6.13.1":
-  version "6.13.1"
-  resolved "https://registry.npmjs.org/@aws-amplify/core/-/core-6.13.1.tgz#c0427c1594d2210ebd469b4534077d5baa269cd4"
-  integrity sha512-PtSGhC7pv+xdr4Ozy6jzeZraB/kjBZiK9tOLOaBH5Trt0pBuLbh2mneE7a72xHGf64XJbl7v3MWPaVscb8KXkw==
+"@aws-amplify/core@6.13.2":
+  version "6.13.2"
+  resolved "https://registry.npmjs.org/@aws-amplify/core/-/core-6.13.2.tgz#fc6e0bbfe227fa00a745d34e2a2ca39467534856"
+  integrity sha512-nxetCeXgfMalkEUXb0gkYEnAkz9oi2tFIT9e/rng/68GsNGbJTAhbsjAeDdQJXNPbVOAeg7j2ILrJeSuxpV09A==
   dependencies:
     "@aws-crypto/sha256-js" "5.2.0"
     "@aws-sdk/types" "3.398.0"
@@ -87,32 +87,32 @@
     "@types/json-schema" "^7.0.15"
     rxjs "^7.8.1"
 
-"@aws-amplify/datastore@5.0.88":
-  version "5.0.88"
-  resolved "https://registry.npmjs.org/@aws-amplify/datastore/-/datastore-5.0.88.tgz#d6d0e815fdc7635546b7e1a0b7e3fcefa29ddad4"
-  integrity sha512-kpmat3af05QBe488pv3Zo07iFVZjA9SkIa3ZJTb8OQYZw+iV717G94fnHnpGrt7+RyyMkxLsxN8NKbEsta9Xcg==
+"@aws-amplify/datastore@5.0.89":
+  version "5.0.89"
+  resolved "https://registry.npmjs.org/@aws-amplify/datastore/-/datastore-5.0.89.tgz#5af0eff4e5d511d5ade123c16ad109e6f8aab184"
+  integrity sha512-8Mku5ZAeGWEjH6UHjycbIgjrVAg2JSyx8q9ZBbqcY1AhXpZ7y4r8PzY46FVAdmUq6jzhlSjGycZ6KSg7TRaY1A==
   dependencies:
-    "@aws-amplify/api" "6.3.17"
-    "@aws-amplify/api-graphql" "4.7.21"
+    "@aws-amplify/api" "6.3.18"
+    "@aws-amplify/api-graphql" "4.7.22"
     buffer "4.9.2"
     idb "5.0.6"
     immer "9.0.6"
     rxjs "^7.8.1"
     ulid "^2.3.0"
 
-"@aws-amplify/notifications@2.0.86":
-  version "2.0.86"
-  resolved "https://registry.npmjs.org/@aws-amplify/notifications/-/notifications-2.0.86.tgz#1b51605e99b3dba322764e4a4adbbe0d7dc0c365"
-  integrity sha512-OEf1JGSC8r8EtqORRgpE6aG67TjhV5sWyEM/DakXu8ZqYgErqfrSxiVjLsutIz8LJA4tvjGUFgLheZ3IjEtE8Q==
+"@aws-amplify/notifications@2.0.87":
+  version "2.0.87"
+  resolved "https://registry.npmjs.org/@aws-amplify/notifications/-/notifications-2.0.87.tgz#1eba9e520f5226e9066a68c8fe2e64617190bce3"
+  integrity sha512-GB/gYS9V9dj8gYpSVaf0JrnSv9Rd3g3sFGSCqFBSQjutGrPWAHHBMIQrQwr1p5Jt8QfCBoFN8CWcBvFlW7D/wQ==
   dependencies:
     "@aws-sdk/types" "3.398.0"
     lodash "^4.17.21"
     tslib "^2.5.0"
 
-"@aws-amplify/storage@6.9.5":
-  version "6.9.5"
-  resolved "https://registry.npmjs.org/@aws-amplify/storage/-/storage-6.9.5.tgz#d622ce38eb97f07989f1442f1fc7542ea7381c63"
-  integrity sha512-wUKg/gffDRdJ3P08HQ7HTTfmB8+WBS8lPxXAzMk67LD4yaFNfIrzQCExTO5uz6at1rmZeN4eHvQicxcwCR9m1Q==
+"@aws-amplify/storage@6.9.6":
+  version "6.9.6"
+  resolved "https://registry.npmjs.org/@aws-amplify/storage/-/storage-6.9.6.tgz#ba351d105ea4549bbb8d506acbe18a90a224cc6d"
+  integrity sha512-bCpiToPwPgpgvH15T9ezI3uZCk/u+6JA0l5fqJDw3LUbU/UVXD7/P2pP7pFdES12NpAYkVQOUAjVlXk3VZ2+Dw==
   dependencies:
     "@aws-sdk/types" "3.398.0"
     "@smithy/md5-js" "2.0.7"
@@ -121,24 +121,24 @@
     fast-xml-parser "^4.4.1"
     tslib "^2.5.0"
 
-"@aws-amplify/ui-react-core@3.4.3":
-  version "3.4.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.3.tgz#b766609c0f53f558adc6d09b1e147e8e1b29ba14"
-  integrity sha1-t2ZgnA9T9VitxtCbHhR+jhspuhQ=
+"@aws-amplify/ui-react-core@3.4.5":
+  version "3.4.5"
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react-core/-/@aws-amplify/ui-react-core-3.4.5.tgz#e422bb6164e010c7d10482e43cd4110562e37370"
+  integrity sha1-5CK7YWTgEMfRBILkPNQRBWLjc3A=
   dependencies:
-    "@aws-amplify/ui" "6.10.3"
+    "@aws-amplify/ui" "6.12.0"
     "@xstate/react" "^3.2.2"
     lodash "4.17.21"
     react-hook-form "^7.53.2"
     xstate "^4.33.6"
 
-"@aws-amplify/ui-react@^6.12.0":
-  version "6.12.0"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.12.0.tgz#bbb67486d25ea3f8b39599468a14cd3e648a7821"
-  integrity sha1-u7Z0htJeo/izlZlGihTNPmSKeCE=
+"@aws-amplify/ui-react@^6.13.0":
+  version "6.13.0"
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui-react/-/@aws-amplify/ui-react-6.13.0.tgz#9630da2a7d6688981ae2e5be4b47881f03bdd0b6"
+  integrity sha1-ljDaKn1miJga4uW+S0eIHwO90LY=
   dependencies:
-    "@aws-amplify/ui" "6.10.3"
-    "@aws-amplify/ui-react-core" "3.4.3"
+    "@aws-amplify/ui" "6.12.0"
+    "@aws-amplify/ui-react-core" "3.4.5"
     "@radix-ui/react-direction" "^1.1.0"
     "@radix-ui/react-dropdown-menu" "^2.1.10"
     "@radix-ui/react-slider" "^1.3.2"
@@ -149,10 +149,10 @@
     qrcode "1.5.0"
     tslib "^2.5.2"
 
-"@aws-amplify/ui@6.10.3":
-  version "6.10.3"
-  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.10.3.tgz#140295fc1692169646b1104986ad2825ef80873f"
-  integrity sha1-FAKV/BaSFpZGsRBJhq0oJe+Ahz8=
+"@aws-amplify/ui@6.12.0":
+  version "6.12.0"
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/24/packages/npm/@aws-amplify/ui/-/@aws-amplify/ui-6.12.0.tgz#0d700915a80a04c3e1db5ad1ca55217eb53ec777"
+  integrity sha1-DXAJFagKBMPh21rRylUhfrU+x3c=
   dependencies:
     csstype "^3.1.1"
     lodash "4.17.21"
@@ -689,14 +689,6 @@
     "@smithy/types" "^4.3.1"
     tslib "^2.6.2"
 
-"@aws-sdk/types@^3.862.0":
-  version "3.862.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/types/-/types-3.862.0.tgz#2f5622e1aa3a5281d4f419f5d2c90f87dd5ff0cf"
-  integrity sha512-Bei+RL0cDxxV+lW2UezLbCYYNeJm6Nzee0TpW0FfyTRBhH9C1XQh4+x+IClriXvgBnRquTMMYsmJfvx8iyLKrg==
-  dependencies:
-    "@smithy/types" "^4.3.2"
-    tslib "^2.6.2"
-
 "@aws-sdk/util-endpoints@3.614.0":
   version "3.614.0"
   resolved "https://registry.npmjs.org/@aws-sdk/util-endpoints/-/util-endpoints-3.614.0.tgz#6564b0ffd7dc3728221e9f9821f5aab1cc58468e"
@@ -928,10 +920,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@eslint/js@9.35.0":
-  version "9.35.0"
-  resolved "https://registry.npmjs.org/@eslint/js/-/js-9.35.0.tgz#ffbc7e13cf1204db18552e9cd9d4a8e17c692d07"
-  integrity sha512-30iXE9whjlILfWobBkNerJo+TXYsgVM5ERQwMcMKCHckHflCmf7wXDAHlARoWnh0s1U72WqlbeyE7iAcCzuCPw==
+"@eslint/js@9.36.0":
+  version "9.36.0"
+  resolved "https://registry.npmjs.org/@eslint/js/-/js-9.36.0.tgz#b1a3893dd6ce2defed5fd49de805ba40368e8fef"
+  integrity sha512-uhCbYtYynH30iZErszX78U+nR3pJU3RHGQ57NXy5QupD4SBVwDeU8TNBy+MjMngc1UyIW9noKqsRqfjQTBU2dw==
 
 "@eslint/object-schema@^2.1.6":
   version "2.1.6"
@@ -1424,6 +1416,15 @@
   resolved "https://registry.npmjs.org/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.41.1.tgz#848f99b0d9936d92221bb6070baeff4db6947a30"
   integrity sha512-Wq2zpapRYLfi4aKxf2Xff0tN+7slj2d4R87WEzqw7ZLsVvO5zwYCIuEGSZYiK41+GlwUo1HiR+GdkLEJnCKTCw==
 
+"@smart-cloud/wpsuite-core@^1.0.0":
+  version "1.0.0"
+  resolved "https://gitlab.smart-cloud-solutions.com/api/v4/projects/48/packages/npm/@smart-cloud/wpsuite-core/-/@smart-cloud/wpsuite-core-1.0.0.tgz#3f14a1553649eb5a484946b32465c9d81f8883d0"
+  integrity sha1-PxShVTZJ61pISUazJGXJ2B+Ig9A=
+  dependencies:
+    "@wordpress/data" "^10.31.0"
+    jose "^6.1.0"
+    tldts "^7.0.16"
+
 "@smithy/abort-controller@^3.1.9":
   version "3.1.9"
   resolved "https://registry.npmjs.org/@smithy/abort-controller/-/abort-controller-3.1.9.tgz#47d323f754136a489e972d7fd465d534d72fcbff"
@@ -1747,13 +1748,6 @@
   dependencies:
     tslib "^2.6.2"
 
-"@smithy/types@^4.3.2":
-  version "4.3.2"
-  resolved "https://registry.npmjs.org/@smithy/types/-/types-4.3.2.tgz#66ac513e7057637de262e41ac15f70cf464c018a"
-  integrity sha512-QO4zghLxiQ5W9UZmX2Lo0nta2PuE1sSrXUYDoaB6HMR762C0P7v/HEPHf6ZdglTVssJG1bsrSBxdc3quvDSihw==
-  dependencies:
-    tslib "^2.6.2"
-
 "@smithy/url-parser@^3.0.11", "@smithy/url-parser@^3.0.3":
   version "3.0.11"
   resolved "https://registry.npmjs.org/@smithy/url-parser/-/url-parser-3.0.11.tgz#e5f5ffabfb6230159167cf4cc970705fca6b8b2d"
@@ -1987,11 +1981,6 @@
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.7.tgz#4158d3105276773d5b7695cd4834b1722e4f37a8"
   integrity sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==
 
-"@types/js-cookie@^3.0.6":
-  version "3.0.6"
-  resolved "https://registry.npmjs.org/@types/js-cookie/-/js-cookie-3.0.6.tgz#a04ca19e877687bd449f5ad37d33b104b71fdf95"
-  integrity sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==
-
 "@types/json-schema@^7.0.15":
   version "7.0.15"
   resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
@@ -2002,12 +1991,12 @@
   resolved "https://registry.npmjs.org/@types/mousetrap/-/mousetrap-1.6.15.tgz#f144a0c539a4cef553a631824651d48267e53c86"
   integrity sha512-qL0hyIMNPow317QWW/63RvL1x5MVMV+Ru3NaY9f/CuEpCqrmb7WeuK2071ZY5hczOnm38qExWM2i2WtkXLSqFw==
 
-"@types/node@^24.3.1":
-  version "24.3.1"
-  resolved "https://registry.npmjs.org/@types/node/-/node-24.3.1.tgz#b0a3fb2afed0ef98e8d7f06d46ef6349047709f3"
-  integrity sha512-3vXmQDXy+woz+gnrTvuvNrPzekOi+Ds0ReMxw0LzBiK3a+1k0kQn9f2NWk+lgD4rJehFUmYy2gMhJ2ZI+7YP9g==
+"@types/node@^24.5.2":
+  version "24.5.2"
+  resolved "https://registry.npmjs.org/@types/node/-/node-24.5.2.tgz#52ceb83f50fe0fcfdfbd2a9fab6db2e9e7ef6446"
+  integrity sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==
   dependencies:
-    undici-types "~7.10.0"
+    undici-types "~7.12.0"
 
 "@types/prop-types@*":
   version "15.7.14"
@@ -2032,79 +2021,79 @@
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-9.0.8.tgz#7545ba4fc3c003d6c756f651f3bf163d8f0f29ba"
   integrity sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==
 
-"@typescript-eslint/eslint-plugin@8.42.0", "@typescript-eslint/eslint-plugin@^8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.42.0.tgz#2172d0496c42eee8c7294b6661681100953fa88f"
-  integrity sha512-Aq2dPqsQkxHOLfb2OPv43RnIvfj05nw8v/6n3B2NABIPpHnjQnaLo9QGMTvml+tv4korl/Cjfrb/BYhoL8UUTQ==
+"@typescript-eslint/eslint-plugin@8.44.1", "@typescript-eslint/eslint-plugin@^8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.44.1.tgz#011a2b5913d297b3d9d77f64fb78575bab01a1b3"
+  integrity sha512-molgphGqOBT7t4YKCSkbasmu1tb1MgrZ2szGzHbclF7PNmOkSTQVHy+2jXOSnxvR3+Xe1yySHFZoqMpz3TfQsw==
   dependencies:
     "@eslint-community/regexpp" "^4.10.0"
-    "@typescript-eslint/scope-manager" "8.42.0"
-    "@typescript-eslint/type-utils" "8.42.0"
-    "@typescript-eslint/utils" "8.42.0"
-    "@typescript-eslint/visitor-keys" "8.42.0"
+    "@typescript-eslint/scope-manager" "8.44.1"
+    "@typescript-eslint/type-utils" "8.44.1"
+    "@typescript-eslint/utils" "8.44.1"
+    "@typescript-eslint/visitor-keys" "8.44.1"
     graphemer "^1.4.0"
     ignore "^7.0.0"
     natural-compare "^1.4.0"
     ts-api-utils "^2.1.0"
 
-"@typescript-eslint/parser@8.42.0", "@typescript-eslint/parser@^8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.42.0.tgz#20ea66f4867981fb5bb62cbe1454250fc4a440ab"
-  integrity sha512-r1XG74QgShUgXph1BYseJ+KZd17bKQib/yF3SR+demvytiRXrwd12Blnz5eYGm8tXaeRdd4x88MlfwldHoudGg==
+"@typescript-eslint/parser@8.44.1", "@typescript-eslint/parser@^8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.44.1.tgz#d4c85791389462823596ad46e2b90d34845e05eb"
+  integrity sha512-EHrrEsyhOhxYt8MTg4zTF+DJMuNBzWwgvvOYNj/zm1vnaD/IC5zCXFehZv94Piqa2cRFfXrTFxIvO95L7Qc/cw==
   dependencies:
-    "@typescript-eslint/scope-manager" "8.42.0"
-    "@typescript-eslint/types" "8.42.0"
-    "@typescript-eslint/typescript-estree" "8.42.0"
-    "@typescript-eslint/visitor-keys" "8.42.0"
+    "@typescript-eslint/scope-manager" "8.44.1"
+    "@typescript-eslint/types" "8.44.1"
+    "@typescript-eslint/typescript-estree" "8.44.1"
+    "@typescript-eslint/visitor-keys" "8.44.1"
     debug "^4.3.4"
 
-"@typescript-eslint/project-service@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.42.0.tgz#636eb3418b6c42c98554dce884943708bf41a583"
-  integrity sha512-vfVpLHAhbPjilrabtOSNcUDmBboQNrJUiNAGoImkZKnMjs2TIcWG33s4Ds0wY3/50aZmTMqJa6PiwkwezaAklg==
+"@typescript-eslint/project-service@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.44.1.tgz#1bccd9796d25032b190f355f55c5fde061158abb"
+  integrity sha512-ycSa60eGg8GWAkVsKV4E6Nz33h+HjTXbsDT4FILyL8Obk5/mx4tbvCNsLf9zret3ipSumAOG89UcCs/KRaKYrA==
   dependencies:
-    "@typescript-eslint/tsconfig-utils" "^8.42.0"
-    "@typescript-eslint/types" "^8.42.0"
+    "@typescript-eslint/tsconfig-utils" "^8.44.1"
+    "@typescript-eslint/types" "^8.44.1"
     debug "^4.3.4"
 
-"@typescript-eslint/scope-manager@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.42.0.tgz#36016757bc85b46ea42bae47b61f9421eddedde3"
-  integrity sha512-51+x9o78NBAVgQzOPd17DkNTnIzJ8T/O2dmMBLoK9qbY0Gm52XJcdJcCl18ExBMiHo6jPMErUQWUv5RLE51zJw==
+"@typescript-eslint/scope-manager@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.44.1.tgz#31c27f92e4aed8d0f4d6fe2b9e5187d1d8797bd7"
+  integrity sha512-NdhWHgmynpSvyhchGLXh+w12OMT308Gm25JoRIyTZqEbApiBiQHD/8xgb6LqCWCFcxFtWwaVdFsLPQI3jvhywg==
   dependencies:
-    "@typescript-eslint/types" "8.42.0"
-    "@typescript-eslint/visitor-keys" "8.42.0"
+    "@typescript-eslint/types" "8.44.1"
+    "@typescript-eslint/visitor-keys" "8.44.1"
 
-"@typescript-eslint/tsconfig-utils@8.42.0", "@typescript-eslint/tsconfig-utils@^8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.42.0.tgz#21a3e74396fd7443ff930bc41b27789ba7e9236e"
-  integrity sha512-kHeFUOdwAJfUmYKjR3CLgZSglGHjbNTi1H8sTYRYV2xX6eNz4RyJ2LIgsDLKf8Yi0/GL1WZAC/DgZBeBft8QAQ==
+"@typescript-eslint/tsconfig-utils@8.44.1", "@typescript-eslint/tsconfig-utils@^8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.44.1.tgz#e1d9d047078fac37d3e638484ab3b56215963342"
+  integrity sha512-B5OyACouEjuIvof3o86lRMvyDsFwZm+4fBOqFHccIctYgBjqR3qT39FBYGN87khcgf0ExpdCBeGKpKRhSFTjKQ==
 
-"@typescript-eslint/type-utils@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.42.0.tgz#d6733e7a9fbdf5af60c09c6038dffde13f4e4253"
-  integrity sha512-9KChw92sbPTYVFw3JLRH1ockhyR3zqqn9lQXol3/YbI6jVxzWoGcT3AsAW0mu1MY0gYtsXnUGV/AKpkAj5tVlQ==
+"@typescript-eslint/type-utils@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.44.1.tgz#be9d31e0f911d17ee8ac99921bb74cf1f9df3906"
+  integrity sha512-KdEerZqHWXsRNKjF9NYswNISnFzXfXNDfPxoTh7tqohU/PRIbwTmsjGK6V9/RTYWau7NZvfo52lgVk+sJh0K3g==
   dependencies:
-    "@typescript-eslint/types" "8.42.0"
-    "@typescript-eslint/typescript-estree" "8.42.0"
-    "@typescript-eslint/utils" "8.42.0"
+    "@typescript-eslint/types" "8.44.1"
+    "@typescript-eslint/typescript-estree" "8.44.1"
+    "@typescript-eslint/utils" "8.44.1"
     debug "^4.3.4"
     ts-api-utils "^2.1.0"
 
-"@typescript-eslint/types@8.42.0", "@typescript-eslint/types@^8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/types/-/types-8.42.0.tgz#ae15c09cebda20473772902033328e87372db008"
-  integrity sha512-LdtAWMiFmbRLNP7JNeY0SqEtJvGMYSzfiWBSmx+VSZ1CH+1zyl8Mmw1TT39OrtsRvIYShjJWzTDMPWZJCpwBlw==
+"@typescript-eslint/types@8.44.1", "@typescript-eslint/types@^8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/types/-/types-8.44.1.tgz#85d1cad1290a003ff60420388797e85d1c3f76ff"
+  integrity sha512-Lk7uj7y9uQUOEguiDIDLYLJOrYHQa7oBiURYVFqIpGxclAFQ78f6VUOM8lI2XEuNOKNB7XuvM2+2cMXAoq4ALQ==
 
-"@typescript-eslint/typescript-estree@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.42.0.tgz#593c3af87d4462252c0d7239d1720b84a1b56864"
-  integrity sha512-ku/uYtT4QXY8sl9EDJETD27o3Ewdi72hcXg1ah/kkUgBvAYHLwj2ofswFFNXS+FL5G+AGkxBtvGt8pFBHKlHsQ==
+"@typescript-eslint/typescript-estree@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.44.1.tgz#4f17650e5adabecfcc13cd8c517937a4ef5cd424"
+  integrity sha512-qnQJ+mVa7szevdEyvfItbO5Vo+GfZ4/GZWWDRRLjrxYPkhM+6zYB2vRYwCsoJLzqFCdZT4mEqyJoyzkunsZ96A==
   dependencies:
-    "@typescript-eslint/project-service" "8.42.0"
-    "@typescript-eslint/tsconfig-utils" "8.42.0"
-    "@typescript-eslint/types" "8.42.0"
-    "@typescript-eslint/visitor-keys" "8.42.0"
+    "@typescript-eslint/project-service" "8.44.1"
+    "@typescript-eslint/tsconfig-utils" "8.44.1"
+    "@typescript-eslint/types" "8.44.1"
+    "@typescript-eslint/visitor-keys" "8.44.1"
     debug "^4.3.4"
     fast-glob "^3.3.2"
     is-glob "^4.0.3"
@@ -2112,56 +2101,56 @@
     semver "^7.6.0"
     ts-api-utils "^2.1.0"
 
-"@typescript-eslint/utils@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.42.0.tgz#95f8e0c697ff2f7da5f72e16135011f878d815c0"
-  integrity sha512-JnIzu7H3RH5BrKC4NoZqRfmjqCIS1u3hGZltDYJgkVdqAezl4L9d1ZLw+36huCujtSBSAirGINF/S4UxOcR+/g==
+"@typescript-eslint/utils@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.44.1.tgz#f23d48eb90791a821dc17d4f67bb96faeb75d63d"
+  integrity sha512-DpX5Fp6edTlocMCwA+mHY8Mra+pPjRZ0TfHkXI8QFelIKcbADQz1LUPNtzOFUriBB2UYqw4Pi9+xV4w9ZczHFg==
   dependencies:
     "@eslint-community/eslint-utils" "^4.7.0"
-    "@typescript-eslint/scope-manager" "8.42.0"
-    "@typescript-eslint/types" "8.42.0"
-    "@typescript-eslint/typescript-estree" "8.42.0"
+    "@typescript-eslint/scope-manager" "8.44.1"
+    "@typescript-eslint/types" "8.44.1"
+    "@typescript-eslint/typescript-estree" "8.44.1"
 
-"@typescript-eslint/visitor-keys@8.42.0":
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.42.0.tgz#87c6caaa1ac307bc73a87c1fc469f88f0162f27e"
-  integrity sha512-3WbiuzoEowaEn8RSnhJBrxSwX8ULYE9CXaPepS2C2W3NSA5NNIvBaslpBSBElPq0UGr0xVJlXFWOAKIkyylydQ==
+"@typescript-eslint/visitor-keys@8.44.1":
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.44.1.tgz#1d96197a7fcceaba647b3bd6a8594df8dc4deb5a"
+  integrity sha512-576+u0QD+Jp3tZzvfRfxon0EA2lzcDt3lhUbsC6Lgzy9x2VR4E+JUiNyGHi5T8vk0TV+fpJ5GLG1JsJuWCaKhw==
   dependencies:
-    "@typescript-eslint/types" "8.42.0"
+    "@typescript-eslint/types" "8.44.1"
     eslint-visitor-keys "^4.2.1"
 
-"@wordpress/compose@^7.30.0":
-  version "7.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/compose/-/compose-7.30.0.tgz#c5182d2c00e1bed803a3a7acb9fef93eb3c9768a"
-  integrity sha512-2OkdbhGiNWI4A8VXrawZcnqU8dSty3B3KvSLV1YK/TktW4qCGDNvp4W++NO5BY0d/zaSMgDUJryxyk3ejKTfzA==
+"@wordpress/compose@^7.31.0":
+  version "7.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/compose/-/compose-7.31.0.tgz#a9460d205fd0b42b89b4871e9757c990683496bd"
+  integrity sha512-kxb1qHhiFwUDifBM9r4JZ3gYC1ZUvck5tgjmaWeg8EqIEnVn+Z7C+ntNA9ySLWrmDYc4Gki7YJZbfVHzrtcDLg==
   dependencies:
     "@babel/runtime" "7.25.7"
     "@types/mousetrap" "^1.6.8"
-    "@wordpress/deprecated" "^4.30.0"
-    "@wordpress/dom" "^4.30.0"
-    "@wordpress/element" "^6.30.0"
-    "@wordpress/is-shallow-equal" "^5.30.0"
-    "@wordpress/keycodes" "^4.30.0"
-    "@wordpress/priority-queue" "^3.30.0"
-    "@wordpress/undo-manager" "^1.30.0"
+    "@wordpress/deprecated" "^4.31.0"
+    "@wordpress/dom" "^4.31.0"
+    "@wordpress/element" "^6.31.0"
+    "@wordpress/is-shallow-equal" "^5.31.0"
+    "@wordpress/keycodes" "^4.31.0"
+    "@wordpress/priority-queue" "^3.31.0"
+    "@wordpress/undo-manager" "^1.31.0"
     change-case "^4.1.2"
     clipboard "^2.0.11"
     mousetrap "^1.6.5"
     use-memo-one "^1.1.1"
 
-"@wordpress/data@^10.30.0":
-  version "10.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/data/-/data-10.30.0.tgz#155376aa41ffb18d42686138328a0ed5c6b0ddf1"
-  integrity sha512-lHvL78H6JI56sFVyLRuk+fJTIQ7XKiy14d0/kH2rWStmqKDQnniUXM4kVT3MUUOKtL0Mh59CVoiA9J4dlxJ6Ww==
+"@wordpress/data@^10.31.0":
+  version "10.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/data/-/data-10.31.0.tgz#619ccac248db18ac05e3fd0d2586a21de0421323"
+  integrity sha512-iuQxrmbW55q+xy7lnXH8D6qHFAoG0/YcnjZ6jvqpDekRhdgl4kAPE+crx/kJ5RkrIIo38a+cLgVskCaKo+9E3w==
   dependencies:
     "@babel/runtime" "7.25.7"
-    "@wordpress/compose" "^7.30.0"
-    "@wordpress/deprecated" "^4.30.0"
-    "@wordpress/element" "^6.30.0"
-    "@wordpress/is-shallow-equal" "^5.30.0"
-    "@wordpress/priority-queue" "^3.30.0"
-    "@wordpress/private-apis" "^1.30.0"
-    "@wordpress/redux-routine" "^5.30.0"
+    "@wordpress/compose" "^7.31.0"
+    "@wordpress/deprecated" "^4.31.0"
+    "@wordpress/element" "^6.31.0"
+    "@wordpress/is-shallow-equal" "^5.31.0"
+    "@wordpress/priority-queue" "^3.31.0"
+    "@wordpress/private-apis" "^1.31.0"
+    "@wordpress/redux-routine" "^5.31.0"
     deepmerge "^4.3.0"
     equivalent-key-map "^0.2.2"
     is-plain-object "^5.0.0"
@@ -2170,109 +2159,109 @@
     rememo "^4.0.2"
     use-memo-one "^1.1.1"
 
-"@wordpress/deprecated@^4.30.0":
-  version "4.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/deprecated/-/deprecated-4.30.0.tgz#9c4bdfa921f7383c5173500a983c557c204535fe"
-  integrity sha512-QfzUOCANmcrdsViEpdqh4eD4OTkG2ZGpWDuA7lSJvnVB4rcupzHpDsukmKtz6gr/AZnBDXYBoHLUwZ44G4bx0g==
+"@wordpress/deprecated@^4.31.0":
+  version "4.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/deprecated/-/deprecated-4.31.0.tgz#930d5569066c885e4fb30542a05f89c3d68607f2"
+  integrity sha512-bbDrL2lp7crFfvmJ1EYVxPDcheTIwimt3gVzqQWCDr0SSCQw4fii5NEKOrUnWhz51YCuPbfWXUBaFlbAMS2CXw==
   dependencies:
     "@babel/runtime" "7.25.7"
-    "@wordpress/hooks" "^4.30.0"
+    "@wordpress/hooks" "^4.31.0"
 
-"@wordpress/dom@^4.30.0":
-  version "4.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/dom/-/dom-4.30.0.tgz#315c9c0002a0736a402261a0a721f07f4076382b"
-  integrity sha512-t+Q4ahm0joocIle1Wb9BpwykXjItk3xsAfIj8yNiCehBRC8z0b9uJHZLzcvs5iP4iDfRooDejAHDeNY26yPP2Q==
+"@wordpress/dom@^4.31.0":
+  version "4.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/dom/-/dom-4.31.0.tgz#eacc4db19b4334d9afef29118823e2ec18e0fd0b"
+  integrity sha512-5/RBy9OreQktnBE75cB3R6Lva5c6hUlXvPo1NFfAebLeXX+7swZBmLYZnyf7dZbARRdqSwkundHZoKLcHa+20A==
   dependencies:
     "@babel/runtime" "7.25.7"
-    "@wordpress/deprecated" "^4.30.0"
+    "@wordpress/deprecated" "^4.31.0"
 
-"@wordpress/element@^6.30.0":
-  version "6.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/element/-/element-6.30.0.tgz#4775252f11e9d25512f0decf57f929b37969c328"
-  integrity sha512-hPbnaPcnD1pbLqCmrjNnuFuAIAmyB8JPmD2GpywOXnWaHbtEVX0GaC6iPQSIHShnPqoUBESXXwS3Z8KFz8MBHA==
+"@wordpress/element@^6.31.0":
+  version "6.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/element/-/element-6.31.0.tgz#5a2314500e38ce3fd5f0e03e4430c4780f3a5db6"
+  integrity sha512-KOier6Y4b4Y5yEV1GYen81R9gCEOvJT6eVbsc93w2fFEKi2FK/oI7IKzGv9GeJMkoCWvTSX6C/ZYTWk6fCUfeA==
   dependencies:
     "@babel/runtime" "7.25.7"
     "@types/react" "^18.2.79"
     "@types/react-dom" "^18.2.25"
-    "@wordpress/escape-html" "^3.30.0"
+    "@wordpress/escape-html" "^3.31.0"
     change-case "^4.1.2"
     is-plain-object "^5.0.0"
     react "^18.3.0"
     react-dom "^18.3.0"
 
-"@wordpress/escape-html@^3.30.0":
-  version "3.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/escape-html/-/escape-html-3.30.0.tgz#335a9538a0368efa1ab2163d417fd8e770f3d1c1"
-  integrity sha512-qlyyPKiize/uEyqL1nRMce9GuReZyOum81tOTR14YAngvyRIGz3K3hGwWWf9VrITZrjwuZgqMJc2udSC1uKmKg==
+"@wordpress/escape-html@^3.31.0":
+  version "3.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/escape-html/-/escape-html-3.31.0.tgz#5bdf748bf93e8a1c9e84aa6ab3d245b697e77790"
+  integrity sha512-9g9qd7Q16PWDeYEa2dU+84d1SvjP4LfS7n7AuXkwl5+F7KfL2nZTmDTHWutw9jVjdDAGmjm1VNIj4ydQk9vaLA==
   dependencies:
     "@babel/runtime" "7.25.7"
 
-"@wordpress/hooks@^4.30.0":
-  version "4.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/hooks/-/hooks-4.30.0.tgz#089331ff3ca8cecad1ed83660b9380084b705c50"
-  integrity sha512-uo3H4KneQSVxFU98jvbw1jN3aYQ/1fPTGqDXZh4NyZx5qras1hE3QhtQU0cO2A8o5/ZNbk/Oek06TnhwsXQPBQ==
+"@wordpress/hooks@^4.31.0":
+  version "4.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/hooks/-/hooks-4.31.0.tgz#58dd8091872f4949a320ef45e6b3f690345915d7"
+  integrity sha512-8YOftWP54V4hvO46/FgXnpiB/fAC72CWD/F1JYtcfZcrWgbR96MGZxKXNvn5BgLx6juO36QQuFhJ5y2ZUEulkw==
   dependencies:
     "@babel/runtime" "7.25.7"
 
-"@wordpress/i18n@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.npmjs.org/@wordpress/i18n/-/i18n-6.3.0.tgz#897a6114e6b92d1870f32fdadb0e78c1ca100f56"
-  integrity sha512-5Dw5JOWlF8JM0hOZnli7MbVshHi9wFPrBkB4CeeJm//arGGYYxw5IYaPJN5jnlMxFAVtCOaXgrxGJoC9mxQBng==
+"@wordpress/i18n@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.npmjs.org/@wordpress/i18n/-/i18n-6.4.0.tgz#70dd4a887aaac0d65744df2d2baea344cad695a3"
+  integrity sha512-tLTjdLw8H778K4fmEo5NDLYJOAgvHxgfLU5N7lPuBy2TKi8tQl24xgmJOlDLiMzbmbSEwvUBZ/4xWJsGq9ITDQ==
   dependencies:
     "@babel/runtime" "7.25.7"
     "@tannin/sprintf" "^1.3.2"
-    "@wordpress/hooks" "^4.30.0"
+    "@wordpress/hooks" "^4.31.0"
     gettext-parser "^1.3.1"
     memize "^2.1.0"
     tannin "^1.2.0"
 
-"@wordpress/is-shallow-equal@^5.30.0":
-  version "5.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/is-shallow-equal/-/is-shallow-equal-5.30.0.tgz#57a233562025b30dc521cef14199cde3b62c3e07"
-  integrity sha512-Q9xoIrxxsNuiaftBciAsHmUU3IVa7V1Es0pzKmwDa3ZFBFeBn3dgrY6iWzeQ4Fe4pBaiG3NagH0qE5Iz3PuG2g==
+"@wordpress/is-shallow-equal@^5.31.0":
+  version "5.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/is-shallow-equal/-/is-shallow-equal-5.31.0.tgz#f9b29f942e672e974fc34f3b08a26f55bae325b0"
+  integrity sha512-jqGEw+5DLNf2kNbjaNxIKWQGYkqxygRYDYTdhZ+f+Btw/gMKILJq0sZGRD8YjJFGG0cOC2qxtJnr9oF36Iu96Q==
   dependencies:
     "@babel/runtime" "7.25.7"
 
-"@wordpress/keycodes@^4.30.0":
-  version "4.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/keycodes/-/keycodes-4.30.0.tgz#f083cfe8b7245904e81f5d69f1c7d88c1e51e3a7"
-  integrity sha512-IoC7FPADDc5UfjasKRT8YtaLr9WUBDqb8GJpYtiuYjHpDBDgJJPnJwKUMBweCjMl93Zzf7JAHpF7LAkICHDE1A==
+"@wordpress/keycodes@^4.31.0":
+  version "4.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/keycodes/-/keycodes-4.31.0.tgz#4f93895c23d0bfb0564fdb3a2e9fa10ec474ab35"
+  integrity sha512-TmweVWZKUu3DreU9SAX69h7wGNnsl5cnN5S3RTVK3aMNOGhJabC7j7rueCmBgqgOFvzNEXeIL+SuYtWpIyEVsA==
   dependencies:
     "@babel/runtime" "7.25.7"
-    "@wordpress/i18n" "^6.3.0"
+    "@wordpress/i18n" "^6.4.0"
 
-"@wordpress/priority-queue@^3.30.0":
-  version "3.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/priority-queue/-/priority-queue-3.30.0.tgz#ff2510b821497b44806189a06a8772231af692eb"
-  integrity sha512-XScxqCjlLnijcZdoon9tUpBqw7BDBqNZQT1pgLcy0Pe661hDDvhsQ7fSapZ/KjrNnecE1uuxKQXQBXDNoJA0Eg==
+"@wordpress/priority-queue@^3.31.0":
+  version "3.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/priority-queue/-/priority-queue-3.31.0.tgz#17c15219d7d44951a6e3f186cfc4b3bb8b4446b4"
+  integrity sha512-OuHq9iGB8wppHfoMHs4g07Cc2yh2DyyqySDn+bpyXPbDcuqxU9s9EgjY08ZVjJEYMuFz2sjC16HlOFqv3NBYAg==
   dependencies:
     "@babel/runtime" "7.25.7"
     requestidlecallback "^0.3.0"
 
-"@wordpress/private-apis@^1.30.0":
-  version "1.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/private-apis/-/private-apis-1.30.0.tgz#333bc82a444130c701257b9b11a564f6a974aa1d"
-  integrity sha512-0EaWB+JxJ4t3Bylzk3xXu7Khqi0TOXYX9qDOm9W0Wy+J6xGzlkz8rSF73MvT+6JQTNNwietWHqkkHcn6dFGIXQ==
+"@wordpress/private-apis@^1.31.0":
+  version "1.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/private-apis/-/private-apis-1.31.0.tgz#1ea13fe700f1455477c0056753eb9f51d1718e50"
+  integrity sha512-OS/OvnUFj2QKeAsPGwgzETLPQhN8Ek1AC3q7rpuu+kZhZxB5hOsHDF/759XxH0fGPL/n0/Xqo4ZlnVYwPwqMPg==
   dependencies:
     "@babel/runtime" "7.25.7"
 
-"@wordpress/redux-routine@^5.30.0":
-  version "5.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/redux-routine/-/redux-routine-5.30.0.tgz#0da1c68e6711a361cb52bbc60743928a523f7e15"
-  integrity sha512-1cabT7u4pryjnsAe5uG6hV1Rwhh1HC+VIMz41wuMQCZ3Te1xYIjj4uWAf+u1H2Vrcz6an0pijh4OLXq/S/AB5A==
+"@wordpress/redux-routine@^5.31.0":
+  version "5.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/redux-routine/-/redux-routine-5.31.0.tgz#7a29a6c62ec09f23f7f3b102d1b9265beb77fcce"
+  integrity sha512-J16NmvIxWMU4lJMWrAshLCac5qjIs1QZnSzQXNKBXxg78ZjB7sa5Q9Qb8/aYxFVIIzTvpvDQVyHhHPcUnB4KYA==
   dependencies:
     "@babel/runtime" "7.25.7"
     is-plain-object "^5.0.0"
     is-promise "^4.0.0"
     rungen "^0.3.2"
 
-"@wordpress/undo-manager@^1.30.0":
-  version "1.30.0"
-  resolved "https://registry.npmjs.org/@wordpress/undo-manager/-/undo-manager-1.30.0.tgz#df037061cce041a92ba6ff7f41bdfdc3561ed653"
-  integrity sha512-pbvkzMLJrozAoaB+KOVSiRFvKvfxDrSt0jWmWCDnobbDRsmrSJRQaANw4RcoNShHuMOzd1wJ1KruK4Dtypf5MQ==
+"@wordpress/undo-manager@^1.31.0":
+  version "1.31.0"
+  resolved "https://registry.npmjs.org/@wordpress/undo-manager/-/undo-manager-1.31.0.tgz#0a7d4eec79a698797667aa48d95ba7fc4acf860c"
+  integrity sha512-4jsvLaf+O/AMX/2m34BHS4Jz/Z+9vfxkNLP0mhuqftOWRC66XFseMqU19VszQypL7VxWKMahenYqZw4O22JNnQ==
   dependencies:
     "@babel/runtime" "7.25.7"
-    "@wordpress/is-shallow-equal" "^5.30.0"
+    "@wordpress/is-shallow-equal" "^5.31.0"
 
 "@xstate/react@^3.2.2":
   version "3.2.2"
@@ -2358,18 +2347,18 @@ aria-hidden@^1.2.4:
   dependencies:
     tslib "^2.0.0"
 
-aws-amplify@^6.15.5:
-  version "6.15.5"
-  resolved "https://registry.npmjs.org/aws-amplify/-/aws-amplify-6.15.5.tgz#de0379f5bb71c8e0211b6eae1a9e8e3ebdeadb9e"
-  integrity sha512-FdH2V4z/mkBkVRBb1Mk9jBxM1ieoW+6kmVSS8V1lLQP4v91ImBa5Kc+BEek+Fo++eNzfgtZD7cLUTEqQzbkvWw==
+aws-amplify@^6.15.6:
+  version "6.15.6"
+  resolved "https://registry.npmjs.org/aws-amplify/-/aws-amplify-6.15.6.tgz#d4c11090beeab70529177166596545015ec40b2a"
+  integrity sha512-beQ7afqfb/I2888GQVQ4olhQeEiJpFyqfZ8aSwpwz16CpfS918VvnUyqtwJ5jY4G3hxA5VLk7n1FL28TwQB2Mw==
   dependencies:
-    "@aws-amplify/analytics" "7.0.86"
-    "@aws-amplify/api" "6.3.17"
-    "@aws-amplify/auth" "6.15.0"
-    "@aws-amplify/core" "6.13.1"
-    "@aws-amplify/datastore" "5.0.88"
-    "@aws-amplify/notifications" "2.0.86"
-    "@aws-amplify/storage" "6.9.5"
+    "@aws-amplify/analytics" "7.0.87"
+    "@aws-amplify/api" "6.3.18"
+    "@aws-amplify/auth" "6.15.1"
+    "@aws-amplify/core" "6.13.2"
+    "@aws-amplify/datastore" "5.0.89"
+    "@aws-amplify/notifications" "2.0.87"
+    "@aws-amplify/storage" "6.9.6"
     tslib "^2.5.0"
 
 balanced-match@^1.0.0:
@@ -2724,10 +2713,10 @@ eslint-visitor-keys@^4.2.1:
   resolved "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-4.2.1.tgz#4cfea60fe7dd0ad8e816e1ed026c1d5251b512c1"
   integrity sha512-Uhdk5sfqcee/9H/rCOJikYz67o0a2Tw2hGRPOG2Y1R2dg7brRe1uG0yaNQDHu+TO/uQPF/5eCapvYSmHUjt7JQ==
 
-eslint@^9.35.0:
-  version "9.35.0"
-  resolved "https://registry.npmjs.org/eslint/-/eslint-9.35.0.tgz#7a89054b7b9ee1dfd1b62035d8ce75547773f47e"
-  integrity sha512-QePbBFMJFjgmlE+cXAlbHZbHpdFVS2E/6vzCy7aKlebddvl1vadiC4JFV5u/wqTkNUwEV8WrQi257jf5f06hrg==
+eslint@^9.36.0:
+  version "9.36.0"
+  resolved "https://registry.npmjs.org/eslint/-/eslint-9.36.0.tgz#9cc5cbbfb9c01070425d9bfed81b4e79a1c09088"
+  integrity sha512-hB4FIzXovouYzwzECDcUkJ4OcfOEkXTv2zRY6B9bkwjx/cprAq0uvm1nl7zvQ0/TsUk0zQiN4uPfJpB9m+rPMQ==
   dependencies:
     "@eslint-community/eslint-utils" "^4.8.0"
     "@eslint-community/regexpp" "^4.12.1"
@@ -2735,7 +2724,7 @@ eslint@^9.35.0:
     "@eslint/config-helpers" "^0.3.1"
     "@eslint/core" "^0.15.2"
     "@eslint/eslintrc" "^3.3.1"
-    "@eslint/js" "9.35.0"
+    "@eslint/js" "9.36.0"
     "@eslint/plugin-kit" "^0.3.5"
     "@humanfs/node" "^0.16.6"
     "@humanwhocodes/module-importer" "^1.0.1"
@@ -3820,6 +3809,18 @@ tinyglobby@^0.2.11:
     fdir "^6.4.4"
     picomatch "^4.0.2"
 
+tldts-core@^7.0.16:
+  version "7.0.16"
+  resolved "https://registry.npmjs.org/tldts-core/-/tldts-core-7.0.16.tgz#f94a42b1f571ee7e4d5c58a4a3486d557b093c14"
+  integrity sha512-XHhPmHxphLi+LGbH0G/O7dmUH9V65OY20R7vH8gETHsp5AZCjBk9l8sqmRKLaGOxnETU7XNSDUPtewAy/K6jbA==
+
+tldts@^7.0.16:
+  version "7.0.16"
+  resolved "https://registry.npmjs.org/tldts/-/tldts-7.0.16.tgz#8eecb4c15608a23e5b360d64d74f937fb9dbe6aa"
+  integrity sha512-5bdPHSwbKTeHmXrgecID4Ljff8rQjv7g8zKQPkCozRo2HWWni+p310FSn5ImI+9kWw9kK4lzOB5q/a6iv0IJsw==
+  dependencies:
+    tldts-core "^7.0.16"
+
 to-regex-range@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz#1648c44aae7c8d988a326018ed72f5b4dd0392e4"
@@ -3903,15 +3904,15 @@ type-check@^0.4.0, type-check@~0.4.0:
   dependencies:
     prelude-ls "^1.2.1"
 
-typescript-eslint@^8.42.0:
-  version "8.42.0"
-  resolved "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.42.0.tgz#e92f6c88569e202b361d5ca1655ad8e33a0554ea"
-  integrity sha512-ozR/rQn+aQXQxh1YgbCzQWDFrsi9mcg+1PM3l/z5o1+20P7suOIaNg515bpr/OYt6FObz/NHcBstydDLHWeEKg==
+typescript-eslint@^8.44.1:
+  version "8.44.1"
+  resolved "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.44.1.tgz#00506d12db48112cbb43030c5b810e6117670010"
+  integrity sha512-0ws8uWGrUVTjEeN2OM4K1pLKHK/4NiNP/vz6ns+LjT/6sqpaYzIVFajZb1fj/IDwpsrrHb3Jy0Qm5u9CPcKaeg==
   dependencies:
-    "@typescript-eslint/eslint-plugin" "8.42.0"
-    "@typescript-eslint/parser" "8.42.0"
-    "@typescript-eslint/typescript-estree" "8.42.0"
-    "@typescript-eslint/utils" "8.42.0"
+    "@typescript-eslint/eslint-plugin" "8.44.1"
+    "@typescript-eslint/parser" "8.44.1"
+    "@typescript-eslint/typescript-estree" "8.44.1"
+    "@typescript-eslint/utils" "8.44.1"
 
 typescript@^5.9.2:
   version "5.9.2"
@@ -3928,10 +3929,10 @@ ulid@^2.3.0:
   resolved "https://registry.npmjs.org/ulid/-/ulid-2.4.0.tgz#9d9ee22e63f4390ee1bcd9ad09fca39d8ae0afed"
   integrity sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==
 
-undici-types@~7.10.0:
-  version "7.10.0"
-  resolved "https://registry.npmjs.org/undici-types/-/undici-types-7.10.0.tgz#4ac2e058ce56b462b056e629cc6a02393d3ff350"
-  integrity sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==
+undici-types@~7.12.0:
+  version "7.12.0"
+  resolved "https://registry.npmjs.org/undici-types/-/undici-types-7.12.0.tgz#15c5c7475c2a3ba30659529f5cdb4674b622fafb"
+  integrity sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==
 
 upper-case-first@^2.0.2:
   version "2.0.2"

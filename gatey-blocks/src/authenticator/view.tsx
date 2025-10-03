@@ -39,6 +39,7 @@ try {
       } else {
         cache.set(id, el.innerHTML || "");
       }
+      console.log("Rendering Gatey Authenticator block", id);
       root.render(
         <StrictMode>
           <ThemedApp

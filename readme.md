@@ -1,6 +1,7 @@
 # Gatey Plugin Suite
 
-This repository contains the complete source code and frontend modules for the free version of [Gatey WordPress plugin](https://wordpress.org/plugins/gatey/). The plugin provides a modular authentication and administration interface for WordPress-based systems.
+This repository contains the complete source code and frontend modules for the free version of [Gatey WordPress plugin](https://wordpress.org/plugins/gatey/). 
+The plugin provides a modular authentication and administration interface for WordPress-based systems.
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D16.x-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-%3E%3D8.1-blue)
@@ -8,7 +9,7 @@ This repository contains the complete source code and frontend modules for the f
 
 ## Documentation
 
-You can find the plugin’s continuously expanding, detailed documentation at: [WP Suite – Gatey Docs](https://wpsuite.io/gatey/docs/)
+You can find the plugin’s continuously expanding, detailed documentation at: [WP Suite Docs](https://wpsuite.io/docs/)
 
 ## Machine-readable resources
 * AI plugin manifest: https://wpsuite.io/.well-known/ai-plugin.json
@@ -16,12 +17,16 @@ You can find the plugin’s continuously expanding, detailed documentation at: [
 
 ## Project Structure
 
-- `gatey-core/`: Shared JavaScript modules (e.g. authentication logic)
+- `gatey-core/`: Shared JavaScript modules (authentication logic, requires `wpsuite-core`)
 - `gatey-main/`: Base JavaScript (Gatey.cognito namespace) and CSS features, loaded on every page
 - `gatey-admin/`: Logic for the WordPress admin interface
 - `gatey-blocks/`: Authenticator screens and Gutenberg blocks
 - `dist/` folders: Contain compiled and minified frontend output
 - Plugin PHP code and metadata (e.g. `composer.json`, `readme.txt`) are located in the **project root**
+
+⚠️ **Note:**  
+The `wpsuite-core/` package is not part of this repository.  
+It lives in the separate [Hub for WPSuite.io](https://github.com/smartcloudsol/hub-for-wpsuiteio) repository and must be built and linked before building Gatey.
 
 ## Installation and Build Guide
 
@@ -32,17 +37,38 @@ You can find the plugin’s continuously expanding, detailed documentation at: [
 - Composer
 - Git
 
-### 1. Clone the Repository
+### 1. Clone the Repositories
+You need both Gatey and Hub (for `wpsuite-core`). Place them side by side:
+
 ```bash
+git clone https://github.com/smartcloudsol/hub-for-wpsuiteio.git
 git clone https://github.com/smartcloudsol/gatey.git
-cd gatey
+```
+
+Your folder structure should look like:
+```
+/projects/
+  hub-for-wpsuiteio/
+    wpsuite-core/
+    wpsuite-admin/
+  gatey/
+    gatey-core/
+    gatey-main/
+    gatey-admin/
+    gatey-blocks/
 ```
 
 ### 2. Install JavaScript Dependencies
-Each frontend project (`gatey-core`, `gatey-main`, `gatey-admin`, `gatey-blocks`) requires its own dependency installation:
-
 ```bash
-cd gatey-core
+# Hub repo
+cd hub-for-wpsuiteio/wpsuite-core
+yarn install
+
+cd ../wpsuite-admin
+yarn install
+
+# Gatey repo
+cd ../../gatey/gatey-core
 yarn install
 
 cd ../gatey-main
@@ -54,30 +80,34 @@ yarn install
 cd ../gatey-blocks
 yarn install
 ```
-(Use `npm install` instead of `yarn` if you prefer NPM.)
 
-### 3. Build `gatey-core`
-Start by building the core module:
+### 3. Build and Link `wpsuite-core` and `gatey-core`
+First, build and link `wpsuite-core` from the Hub repo:
 
 ```bash
-cd gatey-core
+cd ../hub-for-wpsuiteio/wpsuite-core
 yarn run build
+npm link
 ```
 
-#### Optional: Link `gatey-core`
-To ensure the other modules can import shared logic from `gatey-core`, link it locally:
+Then build and link `gatey-core`, which depends on `wpsuite-core`:
 
 ```bash
-# Inside gatey-core
+cd ../../gatey/gatey-core
+yarn run build
+npm link @smart-cloud/wpsuite-core
 npm link
+```
 
+### 4. Link `gatey-core` in Other Gatey Projects
+The remaining Gatey modules only need `gatey-core` (which already pulls in `wpsuite-core`):
+
+```bash
 # Inside each of gatey-main, gatey-admin, gatey-blocks
 npm link @smart-cloud/gatey-core
 ```
 
-### 4. Build Other Frontend Modules
-You can now build the remaining frontend projects in any order:
-
+### 5. Build Other Frontend Modules
 ```bash
 cd gatey-main
 yarn run build-wp dist
@@ -89,23 +119,23 @@ cd ../gatey-blocks
 yarn run build-wp dist
 ```
 
-### 5. Install PHP Dependencies
-From the **root directory**, run:
+### 6. Install PHP Dependencies
+From the **root directory** of Gatey:
 
 ```bash
 composer install --no-dev --no-scripts --optimize-autoloader --classmap-authoritative
 ```
 
-### 5. Clear PHP Dependencies
-From the **root directory**, run:
+### 7. Clear PHP Dependencies
+From the **root directory**:
 
 ```bash
 ./clean.sh
 ```
 
-### 7. Development Workflow
+### 8. Development Workflow
 - During development, rebuild JS projects after changes (`yarn run build` or watch mode if supported).
-- Ensure `gatey-core` is re-built and re-linked if modified.
+- Ensure `wpsuite-core` (Hub repo) and `gatey-core` (Gatey repo) are re-built and re-linked if modified.
 - PHP changes are loaded automatically by WordPress, no recompilation needed.
 - You may use tools like `wp-env` or a local WordPress install for testing.
 
@@ -121,6 +151,8 @@ This uses rules defined in the `.gitattributes` file to include only required `d
 
 ## Dependencies
 
+- **wpsuite-core** (from Hub for WPSuite.io repo; must be built locally)
+- **gatey-core** (from Gatey repo; must be built locally)
 - **Node.js / Yarn or NPM**: For building frontend assets
 - **Composer**: For PHP dependency management
 - **PHP >= 8.1**

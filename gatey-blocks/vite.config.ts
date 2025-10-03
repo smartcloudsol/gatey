@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
-console.log("VITE PREMIUM BUILD:", process.env.GATEY_PREMIUM === "true");
+console.log("PREMIUM BUILD:", process.env.WPSUITE_PREMIUM === "true");
 
 // https://vitejs.dev/config/
 export default defineConfig({

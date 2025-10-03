@@ -96,6 +96,17 @@ const pages = {
         fields:
       </Text>
       <List type="ordered" size="sm" spacing="sm" mt="xs" withPadding>
+        {/* ── Domains ────────────────────────────────────────────────────── */}
+        <List.Item id="user-pool-domains">
+          <Text fw={500}>
+            <span className="highlightable">User Pool Domains</span>
+          </Text>
+          Specify the domains as a regular expression that should use the
+          secondary User Pool configuration. Requests from other domains will
+          use the default User Pool configuration. For example, to match&nbsp;
+          <Code>example.com</Code> and <Code>www.example.com</Code>, use&nbsp;{" "}
+          <Code>^(www\.)?example\.com$</Code>.
+        </List.Item>
         <List.Item id="user-pool-id">
           <Text fw={500}>
             <span className="highlightable">User Pool ID</span>
@@ -518,7 +529,17 @@ const pages = {
         the user is authenticated, and register optional hooks that fire
         immediately after <em>sign-in</em> or <em>sign-out</em>.
       </Text>
-
+      {/* ── Domains ────────────────────────────────────────────────────── */}
+      <Title order={3} mt="md" id="api-domains">
+        <span className="highlightable">Domains</span>
+      </Title>
+      <Text>
+        Specify the domains as a regular expression that should use the
+        secondary API configuration. Requests from other domains will use the
+        default API configuration. For example, to match&nbsp;
+        <Code>example.com</Code> and <Code>www.example.com</Code>, use&nbsp;{" "}
+        <Code>^(www\.)?example\.com$</Code>.
+      </Text>
       {/* ── API definitions ─────────────────────────────────────────────── */}
       <Title order={3} mt="md" id="api-definitaions">
         <span className="highlightable">API definitions</span>
@@ -558,7 +579,6 @@ const pages = {
           send a Cognito&nbsp;JWT in the <code>Authorization</code> header.
         </List.Item>
       </List>
-
       {/* ── Hooks ────────────────────────────────────────────────────────── */}
       <Title order={3} mt="md" id="api-hooks">
         <span className="highlightable">Sign-in / Sign-out hooks</span>

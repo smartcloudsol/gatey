@@ -21,7 +21,7 @@ require_once GATEY_PATH . 'admin/model.php';
 class Admin
 {
     private Settings $settings;
-    private SiteSettings $siteSettings;
+    private string $parent_slug;
     public function __construct()
     {
         $defaultSettings = new Settings(
@@ -35,6 +35,7 @@ class Admin
                     new ApiConfiguration(new RestConfiguration(''))
                 )
             ),
+            secondaryUserPoolDomains: '',
             mappings: [],
             loginMechanisms: [],
             integrateWpLogin: false,
@@ -50,13 +51,6 @@ class Admin
             socialProviders: [],
             enablePoweredBy: false,
         );
-        $defaultSiteSettings = new SiteSettings(
-            accountId: '',
-            siteId: '',
-            lastUpdate: 0,
-            subscriber: false,
-            siteKey: '',
-        );
         try {
             $this->settings = get_option(GATEY_SLUG, $defaultSettings);
             $this->settings->userPoolConfigurations ??= new UserPoolConfigurations(
@@ -69,6 +63,7 @@ class Admin
                     new ApiConfiguration(new RestConfiguration(''))
                 )
             );
+            $this->settings->secondaryUserPoolDomains ??= '';
             $this->settings->mappings ??= [];
             $this->settings->loginMechanisms ??= [];
             $this->settings->integrateWpLogin ??= false;
@@ -83,15 +78,8 @@ class Admin
             $this->settings->useRecaptchaNet ??= false;
             $this->settings->socialProviders ??= [];
             $this->settings->enablePoweredBy ??= false;
-            $this->siteSettings = get_option(GATEY_SLUG . '/site-settings', $defaultSiteSettings);
-            $this->siteSettings->accountId ??= '';
-            $this->siteSettings->siteId ??= '';
-            $this->siteSettings->lastUpdate ??= 0;
-            $this->siteSettings->subscriber ??= false;
-            $this->siteSettings->siteKey ??= '';
         } catch (TypeError | Exception $e) {
             $this->settings = $defaultSettings;
-            $this->siteSettings = $defaultSiteSettings;
         }
         $this->registerRestRoutes();
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
@@ -101,36 +89,35 @@ class Admin
         return $this->settings;
     }
 
-    public function getSiteSettings(): SiteSettings
-    {
-        return $this->siteSettings;
-    }
-
     function addMenu()
     {
+        /*
         $icon_url = 'data:image/svg+xml;base64,PHN2ZwogICAgd2lkdGg9IjIwcHgiCiAgICBoZWlnaHQ9IjIwcHgiCiAgICB2aWV3Qm94PSIwIDAgNDggNDgiCiAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCglmaWxsPSIjYTdhYWFkIgogID4KICAgIDx0aXRsZT5BdXRoZW50aWNhdG9yPC90aXRsZT4KICAgIDxnIGlkPSJMYXllcl8yIiBkYXRhLW5hbWU9IkxheWVyIDIiPgogICAgICA8ZyBpZD0iYXV0aGVudGljYXRvciIgZGF0YS1uYW1lPSJpY29ucyBRMiI+CiAgICAgICAgPHBhdGggZD0iTTI0LDJTNiw3LjEsNiw4VjI2LjJjMCw5LjIsMTMuMywxNy4zLDE3LDE5LjVhMS44LDEuOCwwLDAsMCwyLDBjMy44LTIuMSwxNy0xMC4zLDE3LTE5LjVWOEM0Miw3LjEsMjQsMiwyNCwyWm0wLDM5LjZhNTQsNTQsMCwwLDEtOC40LTYuMUEyNS4zLDI1LjMsMCwwLDEsMjQsMzRhMjQuOCwyNC44LDAsMCwxLDguNCwxLjVBNDQuNyw0NC43LDAsMCwxLDI0LDQxLjZaTTM4LDI2LjJjMCwxLjYtLjgsMy43LTIuNiw2LjFBMzAuOSwzMC45LDAsMCwwLDI0LDMwYTMwLDMwLDAsMCwwLTExLjMsMi4zYy0xLjktMi40LTIuNy00LjUtMi43LTYuMVYxMC41YzIuOS0xLjEsOC43LTIuOCwxNC00LjMsNS4zLDEuNSwxMS4xLDMuMywxNCw0LjNaIiAvPgogICAgICAgIDxwYXRoIGQ9Ik0yNCwxNGE0LDQsMCwxLDEtNCw0LDQsNCwwLDAsMSw0LTRtMC00YTgsOCwwLDEsMCw4LDgsOCw4LDAsMCwwLTgtOFoiIC8+CiAgICAgIDwvZz4KICAgIDwvZz4KICA8L3N2Zz4=';
         add_menu_page(
-            __('Gatey', 'gatey'),
-            __('Gatey', 'gatey'),
+            __('WP Suite', 'hub-for-wpsuiteio'),
+            __('WP Suite', 'hub-for-wpsuiteio'),
             'manage_options',
-            GATEY_SLUG,
+            WPSUITE_SLUG,
             null,
             $icon_url,
         );
+        */
+
+        $this->parent_slug = $this->getParentSlug();
 
         $generate_suffix = add_submenu_page(
-            GATEY_SLUG,
-            __('Settings', 'gatey'),
-            __('Settings', 'gatey'),
+            $this->parent_slug,
+            __('Gatey Settings', 'gatey'),
+            __('Gatey Settings', 'gatey'),
             'manage_options',
             GATEY_SLUG,
             array($this, 'renderCognitoSettingsPage'),
         );
 
         add_submenu_page(
-            GATEY_SLUG,
-            __('Patterns', 'gatey'),
-            __('Patterns', 'gatey'),
+            $this->parent_slug,
+            __('Gatey Patterns', 'gatey'),
+            __('Gatey Patterns', 'gatey'),
             'edit_posts',
             admin_url('edit.php?post_type=wp_block&s=gatey'),
         );
@@ -240,7 +227,7 @@ class Admin
     function highlightMenu($parent_file)
     {
         if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
-            return GATEY_SLUG;
+            return $this->parent_slug;
         }
         return $parent_file;
     }
@@ -251,6 +238,63 @@ class Admin
             return admin_url("edit.php?post_type=wp_block&s=gatey");
         }
         return $submenu_file;
+    }
+
+    function getParentSlug(): string
+    {
+        if (!empty($GLOBALS['wpsuitehub_menu_parent'])) {
+            return (string) $GLOBALS['wpsuitehub_menu_parent'];
+        }
+
+        // 2) If Hub is not present, try to create a single common top-level menu
+        //    Mutex: first writer wins on the option
+        $fallback_parent = 'hub-for-wpsuiteio'; // common top-level slug
+        $owner_option = 'hub-for-wpsuiteio/top-menu-owner';
+        $me = 'gatey/gatey.php';
+        if (!function_exists('is_plugin_active')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $owner = get_option($owner_option); // may be string or false/null
+        $owner_missing = empty($owner);
+        $owner_is_me = ($owner === $me);
+        $owner_inactive = ($owner && !is_plugin_active($owner));
+
+        // If there is no owner yet, try to claim it
+        if ($owner_missing || $owner_is_me || $owner_inactive) {
+            // add_option atomic: only one can win in case of multiple concurrent requests
+            if (empty($GLOBALS['wpsuite_fallback_parent_added'])) {
+                // We became the "owner": create the top-level
+                $icon_url = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyMHB4IiBoZWlnaHQ9IjIwcHgiIHZpZXdCb3g9IjAgMCAyNzguMDAwMDAwIDI1NC4wMDAwMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmVlbiIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSg0NSkiPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzJBQ0Q0RSI+PC9zdG9wPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0RUZGQUEiPjwvc3RvcD4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+CgkJLnBhdGh7ZmlsbDp1cmwoJyNncmVlbicpO30KCTwvc3R5bGU+CiAgPGcgY2xhc3M9InBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMDAwMDAwLDI1NC4wMDAwMDApIHNjYWxlKDAuMTAwMDAwLC0wLjEwMDAwMCkiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0ibm9uZSI+CiAgICA8cGF0aCBkPSJNNDk1IDI1MDQgYy0xODQgLTY1IC0zMzEgLTE4NyAtNDA0IC0zMzUgLTUyIC0xMDUgLTcyIC0yMDMgLTczIC0zNDQgIDAgLTg4IDQgLTEyMyAyMiAtMTc1IDQxIC0xMjIgODkgLTIwMCAxODAgLTI5MSA3MSAtNzIgMTAxIC05NCAxODQgLTEzNSBsOTggIC00OSAxNTIgLTYgYzgzIC00IDQ1OSAtMTEgODM2IC0xNCA2NDMgLTcgNjg5IC05IDc0NSAtMjcgNzkgLTI2IDEzMyAtNTkgMTg4ICAtMTE0IDU4IC02MCA5NCAtMTMxIDExNSAtMjMyIDE5IC05MSAxMCAtMTcyIC0yOSAtMjc2IC00MCAtMTEwIC0xNjkgLTIxNyAgLTMwMyAtMjUyIC00MSAtMTEgLTIxNCAtMTQgLTg5NyAtMTQgbC04NDYgMCAtNjEgMzEgYy05MCA0NCAtMTQwIDExNCAtMTU3ICAyMTUgLTUgMzEgLTIgNDUgMTIgNjIgbDE4IDIxIDkxOSA3IDkxOSA3IDM5IDM1IGMyMSAxOSA0MSA0NSA0NCA1NyA3IDI3IC0xNCAgNzEgLTQ4IDEwMSAtMjMgMjEgLTMxIDIyIC01NDkgMjcgLTI5MCAzIC03NjUgMyAtMTA1OCAwIGwtNTMxIC02IDAgLTE1NyBjMCAgLTE4OSA5IC0yNDIgNTcgLTM0MCA2NCAtMTMyIDE4MyAtMjMwIDMzMiAtMjc0IDQ4IC0xNCAxNTIgLTE2IDkxNSAtMTYgOTY0IDAgIDkzOCAtMSAxMDg0IDcxIDY1IDMyIDEwMiA1OSAxNjUgMTIyIDE0NyAxNDcgMTk3IDI2MyAyMDUgNDc0IDQgMTE3IDIgMTM5IC0xOCAgMjAwIC04NCAyNTQgLTI1MiA0MTYgLTUwMCA0ODIgLTcwIDE4IC0xMjMgMjAgLTczMCAyNiAtMzYwIDQgLTcyNSAxMCAtODEwIDE0ICAtMTQ5IDYgLTE1OSA4IC0yMjEgMzggLTE0OSA3NCAtMjQ5IDIzNyAtMjQ5IDQwNiAwIDE4NSA5MSAzMzYgMjQ4IDQxMyA1NCAyNiAgNjcgMjggMjUyIDM1IDEwNyA0IDUwNiA4IDg4NSA4IGw2OTAgMSA2MCAtMjkgYzcxIC0zNCAxMTYgLTc5IDE0NCAtMTQxIDMwICAtNjkgMzQgLTExMSAxNCAtMTM3IGwtMTggLTIyIC05MTUgLTcgYy0xMDE3IC03IC05NTcgLTMgLTk5MCAtNzYgLTIxIC00OCAtMTMgIC04OSAyNSAtMTI4IGwyNSAtMjUgMTA0NCAwIGM1NzUgMCAxMDQ4IDQgMTA1MyA4IDQgNSA5IDg4IDExIDE4NSA0IDE3MSAzIDE3OSAgLTIyIDI0NyAtMzUgOTAgLTc0IDE1MSAtMTM5IDIxMiAtNjQgNjAgLTEyMiA5NSAtMjA2IDEyMiAtNjMgMjEgLTc5IDIxIC05NTAgIDIxIGwtODg2IC0xIC03MCAtMjV6Ij48L3BhdGg+CiAgPC9nPgo8L3N2Zz4K';
+                add_menu_page(
+                    __('WPSuite.io', 'hub-for-wpsuiteio'),
+                    __('WPSuite.io', 'hub-for-wpsuiteio'),
+                    'manage_options',
+                    $fallback_parent,
+                    null,
+                    $icon_url,
+                    58
+                );
+                $GLOBALS['wpsuite_fallback_parent_added'] = true;
+
+                add_action('admin_menu', function () {
+                    $fallback_parent = 'hub-for-wpsuiteio'; // common top-level slug
+                    $owner_option = 'hub-for-wpsuiteio/top-menu-owner';
+                    $me = 'gatey/gatey.php';
+                    $hub_active = !empty($GLOBALS['wpsuitehub_menu_parent']);
+                    if (!$hub_active && get_option($owner_option) === $me) {
+                        // Eltávolítja az automatikusan létrejött első almenüt,
+                        // ami ugyanazzal a sluggal fut, mint a parent.
+                        remove_submenu_page($fallback_parent, $fallback_parent);
+                    }
+                }, 99);
+            }
+            if (get_option($owner_option) !== $me) {
+                update_option($owner_option, $me, false);
+            }
+        }
+
+        return $fallback_parent;
     }
 
     function addScripts()
@@ -327,20 +371,6 @@ class Admin
             array(
                 'methods' => 'POST',
                 'callback' => array($this, 'updateSettings'),
-                'permission_callback' => function () {
-                    if (!current_user_can('manage_options')) {
-                        return new WP_Error('rest_forbidden', esc_html__('Forbidden', 'gatey'), array('status' => 403));
-                    }
-                    return true;
-                },
-            )
-        );
-        register_rest_route(
-            GATEY_SLUG . '/v1',
-            '/update-site-settings',
-            array(
-                'methods' => 'POST',
-                'callback' => array($this, 'updateSiteSettings'),
                 'permission_callback' => function () {
                     if (!current_user_can('manage_options')) {
                         return new WP_Error('rest_forbidden', esc_html__('Forbidden', 'gatey'), array('status' => 403));
@@ -541,6 +571,7 @@ class Admin
                     ),
                 ),
             ),
+            $settings_param->secondaryUserPoolDomains ?? "",
             $settings_param?->mappings,
             $settings_param->loginMechanisms ?? [],
             $settings_param->integrateWpLogin ?? false,
@@ -560,112 +591,6 @@ class Admin
         // Frissített beállítások mentése
         update_option(GATEY_SLUG, $this->settings);
         return new WP_REST_Response(array('success' => true, 'message' => __('Settings updated successfully.', 'gatey')), 200);
-    }
-
-    function updateSiteSettings(WP_REST_Request $request)
-    {
-        $settings_param = json_decode($request->get_body());
-
-        if ($settings_param->accountId) {
-            $this->siteSettings = new SiteSettings(
-                $settings_param->accountId,
-                $settings_param->siteId,
-                $settings_param->lastUpdate,
-                $settings_param->subscriber,
-                $settings_param->siteKey
-            );
-
-            update_option(GATEY_SLUG . '/site-settings', $this->siteSettings);
-        } else {
-            $this->siteSettings = new SiteSettings(
-                accountId: '',
-                siteId: '',
-                lastUpdate: 0,
-                subscriber: false,
-                siteKey: '',
-            );
-            delete_option(GATEY_SLUG . '/site-settings');
-        }
-
-        if ($settings_param->subscriber) {
-            $this->reloadConfig(
-                $settings_param->accountId,
-                $settings_param->siteId,
-                $settings_param->siteKey
-            );
-        } else {
-            $this->deleteConfig();
-        }
-
-        return new WP_REST_Response(array('success' => true, 'message' => __('Site settings updated successfully.', 'gatey')), 200);
-    }
-
-    function reloadConfig($accountId, $siteId, $siteKey)
-    {
-        $api_base = 'https://api.wpsuite.io';
-
-        // Ha a WordPress-URL tartalmazza a dev-domaint, akkor /dev-et fűzünk hozzá
-        if (strpos(get_site_url(), 'dev.wpsuite.io') !== false) {
-            $api_base .= '/dev';
-        }
-
-        $endpoint = sprintf(
-            '%s/account/%s/site/%s/license',
-            $api_base,
-            $accountId,
-            $siteId
-        );
-
-        $args = [
-            'headers' => [
-                'Accept' => 'application/json',
-                'X-Site-Key' => $siteKey,
-            ],
-            'timeout' => 10,
-        ];
-
-        $response = wp_remote_get($endpoint, $args);
-
-        if (!is_wp_error($response)) {
-            $status = wp_remote_retrieve_response_code($response);
-            if (200 === $status) {
-                $body = wp_remote_retrieve_body($response);
-                $data = json_decode($body, true);
-                if (is_array($data) && isset($data['config'], $data['jws'])) {
-                    $upload_dir_info = wp_upload_dir();
-                    $base_dir = trailingslashit($upload_dir_info['basedir']);
-                    $plugin_subdir = trailingslashit($base_dir . GATEY_SLUG);
-
-                    wp_mkdir_p($plugin_subdir);
-
-                    $config_path = $plugin_subdir . 'config.enc';
-                    $jws_path = $plugin_subdir . 'lic.jws';
-
-                    // Biztonságosabb fájl-írás WP_Filesystem-mel, de röviden:
-                    file_put_contents($config_path, sanitize_text_field($data['config']));
-                    file_put_contents($jws_path, sanitize_text_field($data['jws']));
-
-                    update_option(GATEY_SLUG . '/license-last-refresh', time());
-                }
-            }
-        }
-    }
-
-    function deleteConfig()
-    {
-        $upload_dir_info = wp_upload_dir();
-        $base_dir = trailingslashit($upload_dir_info['basedir']);
-        $plugin_subdir = trailingslashit($base_dir . GATEY_SLUG);
-
-        $config_path = $plugin_subdir . 'config.enc';
-        $jws_path = $plugin_subdir . 'lic.jws';
-
-        if (file_exists($config_path)) {
-            unlink($config_path);
-        }
-        if (file_exists($jws_path)) {
-            unlink($jws_path);
-        }
     }
 
     function setAuthCookieExpiration($length, $user_id, $remember)

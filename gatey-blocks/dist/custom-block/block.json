@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/custom-block",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "title": "Custom Block",
   "category": "wpsuite-gatey",
   "description": "Custom Block for Gatey Authenticator",
@@ -20,6 +20,7 @@
   "providesContext": {
     "gatey/custom-block/component": "component"
   },
+  "textdomain": "gatey",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./index.css",

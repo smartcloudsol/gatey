@@ -17,6 +17,8 @@ import {
   type ReduxStoreConfig,
 } from "@wordpress/data/build-types/types";
 
+import { getConfig, type SiteSettings } from "@smart-cloud/wpsuite-core";
+
 import {
   configureAmplify,
   loadAuthSession,
@@ -26,6 +28,13 @@ import {
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
+
+let siteSettings: SiteSettings;
+if (typeof WpSuite !== "undefined") {
+  siteSettings = WpSuite.siteSettings;
+} else {
+  siteSettings = {} as SiteSettings;
+}
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -82,7 +91,10 @@ const initAmplify = async (
 ): Promise<void> => {
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const rc =
-    hostname.toLowerCase() === config?.secondaryDomain?.toLowerCase().trim() &&
+    Gatey.settings?.secondaryUserPoolDomains &&
+    hostname
+      .toLowerCase()
+      .match(Gatey.settings.secondaryUserPoolDomains.toLowerCase()) &&
     Gatey.settings?.userPoolConfigurations.secondary?.Auth?.Cognito?.userPoolId
       ? Gatey.settings?.userPoolConfigurations.secondary
       : Gatey.settings?.userPoolConfigurations.default;
@@ -120,7 +132,10 @@ const initAmplify = async (
     },
   };
   const apiConfiguration =
-    hostname.toLowerCase() === config?.secondaryDomain?.toLowerCase().trim() &&
+    config?.apiConfigurations?.secondary?.domains &&
+    hostname
+      .toLowerCase()
+      .match(config.apiConfigurations.secondary?.domains.toLowerCase()) &&
     config.apiConfigurations?.secondary?.apis?.length
       ? config.apiConfigurations.secondary
       : config?.apiConfigurations?.default;
@@ -185,7 +200,7 @@ const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
       Gatey.settings.customTranslationsUrl +
         (Gatey.settings.customTranslationsUrl.includes("?") ? "&" : "?") +
         "t=" +
-        Gatey.siteSettings.lastUpdate
+        siteSettings.lastUpdate
     )
       .then((response) => (response.ok ? response.text() : null))
       .then((response) =>
@@ -197,14 +212,14 @@ const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
 };
 
 const getDefaultState = async (): Promise<State> => {
-  const configLoader = await import(
-    __GATEY_PREMIUM__ ? "./paid-features/config" : "./free-features/config"
-  );
-  const config = await configLoader.getConfigFromStorage();
+  const config = (await getConfig("gatey")) as unknown as AuthenticatorConfig;
   initAmplify(config);
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const apiConfiguration =
-    hostname === config?.secondaryDomain?.toLowerCase().trim() &&
+    config?.apiConfigurations?.secondary?.domains &&
+    hostname
+      .toLowerCase()
+      .match(config.apiConfigurations.secondary?.domains.toLowerCase()) &&
     config.apiConfigurations?.secondary?.apis?.length
       ? config.apiConfigurations.secondary
       : config?.apiConfigurations?.default;
@@ -361,6 +376,7 @@ export interface API {
 }
 
 export interface ApiConfiguration {
+  domains?: string;
   apis: API[];
   signInHook?: {
     apiName: string;
@@ -382,7 +398,6 @@ export interface AuthenticatorConfig {
     secondary?: ApiConfiguration;
   };
   subscriptionType?: SubscriptionType;
-  secondaryDomain?: string;
 }
 
 export interface CustomTranslations {

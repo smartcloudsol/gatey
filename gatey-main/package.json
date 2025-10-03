@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -15,37 +15,34 @@
     "start": "wp-scripts start --webpack-copy-php --output-path",
     "check-licenses": "wp-scripts check-licenses --prod"
   },
-  "publishConfig": {
-    "registry": "https://gitlab.smart-cloud-solutions.com/api/v4/projects/22/packages/npm/"
-  },
   "dependencies": {
     "@smart-cloud/gatey-core": "^1.0.0",
-    "@wordpress/data": "^10.30.0",
+    "@wordpress/data": "^10.31.0",
     "asmcrypto.js": "^2.3.2",
-    "aws-amplify": "^6.15.5",
+    "aws-amplify": "^6.15.6",
     "elliptic": "^6.6.1",
     "util": "^0.12.5",
     "webcrypto-liner": "^1.4.3"
   },
   "devDependencies": {
-    "@aws-amplify/ui-react": "^6.12.0",
+    "@aws-amplify/ui-react": "^6.13.0",
     "@babel/core": "^7.28.4",
     "@types/jquery": "^3.5.33",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "@typescript-eslint/parser": "^8.42.0",
-    "@wordpress/scripts": "^30.23.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "@wordpress/scripts": "^30.24.0",
     "ajv": "^8.17.1",
     "buffer-browserify": "^0.2.5",
-    "country-data-list": "^1.5.4",
-    "esbuild": "0.25.9",
-    "eslint": "^9.35.0",
+    "country-data-list": "^1.5.5",
+    "esbuild": "0.25.10",
+    "eslint": "^9.36.0",
     "jquery": "^3.7.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.42.0",
+    "typescript-eslint": "^8.44.1",
     "vm-browserify": "^1.1.2"
   }
 }

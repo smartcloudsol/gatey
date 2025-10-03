@@ -1,7 +1,7 @@
 const defaultConfig = require("@wordpress/scripts/config/webpack.config");
 const webpack = require("webpack");
 
-console.log("WEBPACK PREMIUM BUILD:", process.env.GATEY_PREMIUM === "true");
+console.log("PREMIUM BUILD:", process.env.WPSUITE_PREMIUM === "true");
 
 module.exports = function () {
   const config = {
@@ -27,7 +27,7 @@ module.exports = function () {
         process: "process/browser",
       }),
       new webpack.EnvironmentPlugin({
-        GATEY_PREMIUM: false,
+        WPSUITE_PREMIUM: false,
       }),
     ],
   };

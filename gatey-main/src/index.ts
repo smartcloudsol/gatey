@@ -204,8 +204,12 @@ jQuery(() => {
   store.then(async (store) => {
     decryptedConfig = select(store).getConfig();
     const apiConfiguration =
-      window.location.hostname.toLowerCase() ===
-        decryptedConfig?.secondaryDomain?.toLowerCase().trim() &&
+      decryptedConfig?.apiConfigurations?.secondary?.domains &&
+      window.location.hostname
+        .toLowerCase()
+        .match(
+          decryptedConfig.apiConfigurations.secondary?.domains.toLowerCase()
+        ) &&
       decryptedConfig.apiConfigurations?.secondary?.apis?.length
         ? decryptedConfig.apiConfigurations.secondary
         : decryptedConfig?.apiConfigurations?.default;

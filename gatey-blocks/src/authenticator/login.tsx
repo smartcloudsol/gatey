@@ -31,7 +31,7 @@ import { type ThemeProps } from "./theme";
 import { useRecaptcha } from "./recaptcha";
 
 const parseCustomBlocks = import(
-  process.env.GATEY_PREMIUM
+  process.env.WPSUITE_PREMIUM
     ? "./paid-features/custom-blocks"
     : "./free-features/custom-blocks"
 );

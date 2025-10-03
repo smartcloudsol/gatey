@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/authenticator",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "title": "Authenticator",
   "category": "wpsuite-gatey",
   "description": "Gatey Authenticator",
@@ -61,7 +61,7 @@
   "allowedBlocks": [
     "gatey/custom-block"
   ],
-  "textdomain": "auth-with-amazon-cognito",
+  "textdomain": "gatey",
   "editorScript": "file:./index.js",
   "style": "file:./index.css",
   "render": "file:./render.php",

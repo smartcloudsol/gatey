@@ -83,6 +83,7 @@ class Settings
 {
     public function __construct(
         public UserPoolConfigurations $userPoolConfigurations,
+        public string $secondaryUserPoolDomains,
         public array $mappings,
         public array $loginMechanisms = [],
         public bool $integrateWpLogin = false,

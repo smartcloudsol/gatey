@@ -32,6 +32,7 @@ import { notifications } from "@mantine/notifications";
 import { useQuery } from "@tanstack/react-query";
 import { Amplify } from "aws-amplify";
 import { Hub } from "aws-amplify/utils";
+import { get } from "@aws-amplify/api";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { type SignUpAttribute } from "@aws-amplify/ui";
 import { Authenticator } from "@aws-amplify/ui-react";
@@ -67,13 +68,43 @@ import { __ } from "@wordpress/i18n";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { signUpAttributes } from "./index";
 import DocSidebar from "./DocSidebar";
-import { LicenseHandler } from "./license-handler";
 import { OnboardingBanner } from "./onboarding";
 import { NoRegistrationRequiredBanner } from "./noregistration";
+
+import { SubscriptionType, SiteSettings } from "@smart-cloud/wpsuite-core";
 
 import "jquery";
 
 import classes from "./main.module.css";
+
+interface Account {
+  accountId: string;
+  name: string;
+  owner: string;
+  ownerEmail: string;
+  customerId?: string;
+  customer: unknown;
+}
+
+export interface Site {
+  accountId: string;
+  siteId: string;
+  siteKey?: string;
+  name: string;
+  domain: string;
+  subscriptionType?: SubscriptionType;
+  subscription?: {
+    id: string;
+    active: boolean;
+    currentPeriodStart: number;
+    currentPeriodEnd: number;
+    cancelAtPeriodEnd: boolean;
+    subscriptionScheduleId?: string;
+    nextSubscriptionType?: SubscriptionType;
+  };
+  settings: AuthenticatorConfig;
+  account?: Account;
+}
 
 export interface SettingsEditorProps {
   amplifyConfigured: boolean;
@@ -88,10 +119,19 @@ export interface SettingsEditorProps {
   }) => JSX.Element;
 }
 
+let wpSuiteInstalled: boolean = false;
+let wpRestUrl: string | undefined;
+let wpSuiteSiteSettings: SiteSettings = {} as SiteSettings;
+if (typeof WpSuite !== "undefined") {
+  wpSuiteInstalled = true;
+  wpSuiteSiteSettings = WpSuite.siteSettings;
+  wpRestUrl = WpSuite.restUrl;
+}
+
 const ApiSettingsEditor = lazy(
   () =>
     import(
-      process.env.GATEY_PREMIUM
+      process.env.WPSUITE_PREMIUM
         ? "./paid-features/ApiSettingsEditor"
         : "./free-features/NullEditor"
     )
@@ -99,7 +139,7 @@ const ApiSettingsEditor = lazy(
 const CustomFieldsEditor = lazy(
   () =>
     import(
-      process.env.GATEY_PREMIUM
+      process.env.WPSUITE_PREMIUM
         ? "./paid-features/CustomFieldsEditor"
         : "./free-features/NullEditor"
     )
@@ -107,7 +147,7 @@ const CustomFieldsEditor = lazy(
 const CustomProvidersEditor = lazy(
   () =>
     import(
-      process.env.GATEY_PREMIUM
+      process.env.WPSUITE_PREMIUM
         ? "./paid-features/CustomProvidersEditor"
         : "./free-features/NullEditor"
     )
@@ -167,6 +207,35 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
           the default WordPress login page with a Cognito-based flow.
         </Text>
         <NoRegistrationRequiredBanner />
+        {!wpSuiteSiteSettings.siteId &&
+          (wpSuiteInstalled ? (
+            <>
+              <Text c="dimmed" size="xs">
+                To use Pro features, please connect this WordPress instance to a{" "}
+                <strong>WPSuite.io</strong> site. Go to the{" "}
+                <strong>WPSuite.io → Connect your Site</strong> menu in your
+                dashboard and complete the linking process.
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text c="dimmed" size="xs">
+                To unlock Pro features, you need to install the{" "}
+                <strong>Hub for WPSuite.io</strong> plugin. You can find it on
+                WordPress.org (expected slug: <code>hub-for-wpsuiteio</code>) or
+                download the ZIP directly from{" "}
+                <a
+                  href="https://wpsuite.io/static/plugins/hub-for-wpsuiteio.zip"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  here
+                </a>
+                . After installing, connect your WordPress instance to a
+                WPSuite.io site to activate your subscription.
+              </Text>
+            </>
+          ))}
         <OnboardingBanner settings={settings} />
       </Group>
     </Card>
@@ -224,22 +293,20 @@ const Main = (props: MainProps) => {
   const [wpRolesLoaded, setWpRolesLoaded] = useState<boolean>(false);
   const [pages, setPages] = useState<Page[]>([]);
   const [scrollToId, setScrollToId] = useState<string>("");
-  const [ownedAccountId, setOwnedAccountId] = useState<string>();
-  const [accountId, setAccountId] = useState<string | undefined>(
-    Gatey.siteSettings.accountId
+  const [accountId] = useState<string | undefined>(
+    wpSuiteSiteSettings.accountId
   );
-  const [siteId, setSiteId] = useState<string | undefined>(
-    Gatey.siteSettings.siteId
-  );
-  const [siteKey, setSiteKey] = useState<string | undefined>(
-    Gatey.siteSettings.siteKey
-  );
+  const [siteId] = useState<string | undefined>(wpSuiteSiteSettings.siteId);
+  const [siteKey] = useState<string | undefined>(wpSuiteSiteSettings.siteKey);
   const [opened, { open, close }] = useDisclosure(false);
+
+  const [site, setSite] = useState<Site | null>();
 
   const [settingsFormData, setSettingsFormData] = useState<Settings>({
     userPoolConfigurations: JSON.parse(
       JSON.stringify(settings.userPoolConfigurations || {})
     ),
+    secondaryUserPoolDomains: settings.secondaryUserPoolDomains || "",
     mappings: settings.mappings || [],
     loginMechanisms: settings.loginMechanisms || [],
     integrateWpLogin: settings.integrateWpLogin || false,
@@ -286,6 +353,9 @@ const Main = (props: MainProps) => {
     []
   );
 
+  const loadSiteEnabled =
+    !!accountId && !!siteId && !!siteKey && amplifyConfigured !== undefined;
+
   const { data: configuration, error: configurationError } = useQuery({
     queryKey: ["config"],
     queryFn: async () => {
@@ -331,10 +401,20 @@ const Main = (props: MainProps) => {
     },
   });
 
+  const {
+    data: siteRecord,
+    isError: isSiteError,
+    isPending: isSitePending,
+  } = useQuery({
+    queryKey: ["site", accountId, siteId],
+    queryFn: () => fetchSite(accountId!, siteId!, siteKey),
+    enabled: loadSiteEnabled,
+  });
+
   const clearCache = useCallback(
     (subscriber: boolean) => {
-      if (accountId && siteId && siteKey) {
-        fetch(Gatey.restUrl + "/update-site-settings", {
+      if (wpSuiteInstalled && wpRestUrl && accountId && siteId && siteKey) {
+        fetch(wpRestUrl + "/update-site-settings", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -359,7 +439,6 @@ const Main = (props: MainProps) => {
       const authSession = await fetchAuthSession();
       const scopes =
         authSession.tokens?.accessToken.payload["scope"]?.split(" ") ?? [];
-      setOwnedAccountId(undefined);
       if (
         accountId &&
         !scopes.includes("sc.account.owner." + accountId) &&
@@ -368,21 +447,9 @@ const Main = (props: MainProps) => {
         console.error(
           "You do not have permission to access this resource. Please contact site owner."
         );
-        const accId = scopes
-          .find(
-            (scope) =>
-              scope.startsWith("sc.account.owner.") ||
-              scope.startsWith("sc.account.admin.")
-          )
-          ?.split(".")[3];
-
-        if (accId) {
-          setOwnedAccountId(accId);
-        }
       }
     } catch (err) {
       console.error(err);
-      setOwnedAccountId(undefined);
     }
   }, [accountId]);
 
@@ -536,17 +603,35 @@ const Main = (props: MainProps) => {
       setFormConfig({
         ...config,
         subscriptionType: formConfig?.subscriptionType,
-        secondaryDomain: formConfig?.secondaryDomain,
       });
       clearCache(!!formConfig?.subscriptionType);
     },
-    [clearCache, formConfig]
+    [clearCache, formConfig?.subscriptionType]
   );
 
   const shouldLoadGroups =
     activePage === "wordpress-login" &&
     settingsFormData.integrateWpLogin &&
     !cognitoGroupsLoaded;
+
+  useEffect(() => {
+    if (isSiteError || !isSitePending || !loadSiteEnabled) {
+      setSite(isSiteError ? null : siteRecord ?? null);
+    }
+  }, [siteRecord, loadSiteEnabled, isSitePending, isSiteError]);
+
+  useEffect(() => {
+    if (site) {
+      setResolvedConfig({
+        ...JSON.parse(JSON.stringify(site.settings ?? {})),
+        subscriptionType: site.subscriptionType,
+      });
+    } else {
+      if ((!accountId && !siteId) || isSiteError) {
+        setResolvedConfig(null);
+      }
+    }
+  }, [accountId, isSiteError, site, siteId]);
 
   useEffect(() => {
     if (shouldLoadGroups) {
@@ -778,11 +863,11 @@ const Main = (props: MainProps) => {
       if (
         resolvedConfig !== null &&
         ((!!resolvedConfig.subscriptionType &&
-          !Gatey.siteSettings.subscriber) ||
-          (!resolvedConfig.subscriptionType && Gatey.siteSettings.subscriber))
+          !wpSuiteSiteSettings.subscriber) ||
+          (!resolvedConfig.subscriptionType && wpSuiteSiteSettings.subscriber))
       ) {
         const subscriber = !!resolvedConfig.subscriptionType;
-        Gatey.siteSettings.subscriber = subscriber;
+        wpSuiteSiteSettings.subscriber = subscriber;
         clearCache(subscriber);
       }
     }
@@ -799,22 +884,6 @@ const Main = (props: MainProps) => {
             scrollToId={scrollToId}
           />
           <SettingsTitle settings={settingsFormData} />
-          <LicenseHandler
-            apiUrl={apiUrl}
-            amplifyConfigured={amplifyConfigured}
-            nonce={nonce}
-            config={decryptedConfig}
-            stripePublicKey={configuration?.stripePublicKey}
-            pricingTable={configuration?.pricingTable}
-            accountId={accountId}
-            ownedAccountId={ownedAccountId ?? accountId}
-            siteId={siteId}
-            siteKey={siteKey}
-            setAccountId={setAccountId}
-            setSiteId={setSiteId}
-            setSiteKey={setSiteKey}
-            setResolvedConfig={setResolvedConfig}
-          />
           <Group
             align="flex-start"
             mt="lg"
@@ -896,6 +965,27 @@ const Main = (props: MainProps) => {
                   </Tabs>
 
                   <Stack gap="sm" p="md" bg="gray.1">
+                    {currentConfig === "secondary" && (
+                      <TextInput
+                        disabled={savingSettings}
+                        name="secondaryUserPoolDomains"
+                        label={
+                          <InfoLabelComponent
+                            text="User Pool Domains"
+                            scrollToId="user-pool-domains"
+                          />
+                        }
+                        description="Regular expression of domains for the secondary user pool"
+                        value={settingsFormData.secondaryUserPoolDomains}
+                        onChange={(e) =>
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            secondaryUserPoolDomains: e.currentTarget.value!,
+                          })
+                        }
+                      />
+                    )}
+
                     <TextInput
                       disabled={savingSettings}
                       name={
@@ -1714,5 +1804,26 @@ const Main = (props: MainProps) => {
     )
   );
 };
+async function fetchSite(accountId: string, siteId: string, siteKey?: string) {
+  try {
+    const options = {
+      apiName: "backend",
+      path: `/account/${accountId}/site/${siteId}${siteKey ? "/settings" : ""}`,
+      options: {
+        headers: {},
+      },
+    };
+    if (siteKey) {
+      (options.options.headers as Record<string, string>)["X-Site-Key"] =
+        siteKey;
+    }
+    const response = await get(options).response;
+    const body = await response.body.json();
+    return body as unknown as Site;
+  } catch (err) {
+    console.error("fetchSite error:", err);
+    throw err;
+  }
+}
 
 export default Main;

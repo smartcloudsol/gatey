@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.7.3
+Stable tag: 1.8.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -15,7 +15,7 @@ Drag-and-drop Amazon Cognito integration: 22-language screens, Single Sign-on, M
 
 Gatey provides a seamless integration with Amazon Cognito for secure, scalable authentication in WordPress. This plugin supports both dynamic WordPress sites and statically generated WordPress frontends.
 
-https://www.youtube.com/watch?v=rhVtNvBo9FU
+https://www.youtube.com/watch?v=xFjEg-LbgHA
 
 Key features include:
   - Amazon Cognito user pool **login** and **registration**
@@ -179,6 +179,11 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.8.0 =
+- New integration with the **Hub for WPSuite.io** plugin: licence validation and site connection have been moved into a shared component.
+- Gatey’s admin pages (Settings and Patterns) now appear under the central **WPSuite.io** menu in wp-admin, alongside other WPSuite plugins.
+- Minor UI refinements and code clean-up to support the new menu structure.
+
 = 1.7.3 =
 Removed the outdated BASIC plan and updated the pricing table to reflect the new WP Suite model (Free + Pro across all plugins). 
 Dependencies have been refreshed in the React/Node.js subprojects.
@@ -320,6 +325,11 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Update to migrate licence and site-connection handling into the shared **Hub for WPSuite.io** plugin. 
+Gatey now appears under the central WPSuite.io menu in wp-admin, and will show clear guidance if the Hub plugin is missing or not connected. 
+Install the Hub plugin to continue using Pro features.
 
 = 1.7.3 =
 Update to stay aligned with the new WP Suite pricing (Free + Pro). 

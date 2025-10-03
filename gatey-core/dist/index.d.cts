@@ -72,6 +72,7 @@ interface API {
     authorization: "IAM" | "ID_TOKEN" | "ACCESS_TOKEN";
 }
 interface ApiConfiguration {
+    domains?: string;
     apis: API[];
     signInHook?: {
         apiName: string;
@@ -92,7 +93,6 @@ interface AuthenticatorConfig {
         secondary?: ApiConfiguration;
     };
     subscriptionType?: SubscriptionType;
-    secondaryDomain?: string;
 }
 interface CustomTranslations {
     [key: string]: Record<string, string>;
@@ -155,6 +155,7 @@ interface Settings {
         default: ResourcesConfig;
         secondary?: ResourcesConfig;
     };
+    secondaryUserPoolDomains?: string;
     mappings: RoleMapping[];
     loginMechanisms: LoginMechanism[];
     signUpAttributes: SignUpAttribute[];
