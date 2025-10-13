@@ -1,7 +1,8 @@
 # Gatey Plugin Suite
 
+Gatey is a WordPress plugin that connects Amazon Cognito to your site in minutes — providing secure login, SSO, and MFA without any PHP backend. Built for Gutenberg and Elementor with native AWS Amplify support.
+
 This repository contains the complete source code and frontend modules for the free version of [Gatey WordPress plugin](https://wordpress.org/plugins/gatey/). 
-The plugin provides a modular authentication and administration interface for WordPress-based systems.
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D16.x-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-%3E%3D8.1-blue)
