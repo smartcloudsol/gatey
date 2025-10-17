@@ -159,8 +159,6 @@ export {
   type SubscriptionType,
 } from "./store";
 
-export { deobfuscate, decryptData } from "./utils";
-
 export { TEXT_DOMAIN } from "./constants";
 
 let initialized = !!Gatey.cognito?.store;

@@ -33,9 +33,9 @@ export const NoRegistrationRequiredBanner = () => {
           <strong>
             All essential features work out of the box without registration.
           </strong>{" "}
-          Premium options like frontend customization (available on the BASIC
-          plan), advanced forms, and social login become available after
-          connecting your site and choosing a plan.
+          Premium options like frontend customization, advanced forms, and
+          custom identity providers become available after connecting your site
+          and choosing a plan.
         </Text>
         <Text size="sm">
           Enjoy a <strong>14-day free trial</strong> with full access —{" "}

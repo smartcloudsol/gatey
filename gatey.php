@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.8
  * Requires PHP:      8.1
- * Version:           1.8.1
+ * Version:           1.8.2
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.8.1';
+const VERSION = '1.8.2';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -36,25 +36,25 @@ if (version_compare(PHP_VERSION, '8.1', '<')) {
 /**
  * Main plugin class.
  */
-final class Gatey_Plugin
+final class Gatey
 {
 
     /** Singleton instance */
-    private static ?Gatey_Plugin $instance = null;
+    private static ?Gatey $instance = null;
 
     /** Admin instance */
     private Admin $admin;
 
     private function __construct()
     {
-        $this->define_constants();
+        $this->defineConstants();
         $this->includes();
     }
 
     /**
      * Access the singleton instance.
      */
-    public static function instance(): Gatey_Plugin
+    public static function instance(): Gatey
     {
         return self::$instance ?? (self::$instance = new self());
     }
@@ -62,12 +62,13 @@ final class Gatey_Plugin
     /**
      * Define required constants.
      */
-    private function define_constants(): void
+    private function defineConstants(): void
     {
         define('GATEY_VERSION', VERSION);
+        define('GATEY_SLUG', 'gatey');
+
         define('GATEY_PATH', plugin_dir_path(__FILE__));
         define('GATEY_URL', plugin_dir_url(__FILE__));
-        define('GATEY_SLUG', 'gatey');
     }
 
     /**
@@ -76,13 +77,18 @@ final class Gatey_Plugin
     private function includes(): void
     {
         // Composer autoloader if shipped.
-        if (file_exists(__DIR__ . '/vendor/autoload.php') && !class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
-            require_once __DIR__ . '/vendor/autoload.php';
+        if (file_exists(GATEY_PATH . 'vendor/autoload.php') && !class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
+            require_once GATEY_PATH . 'vendor/autoload.php';
         }
 
-        // Admin classes (refactored earlier).
-        if (file_exists(__DIR__ . '/admin/index.php')) {
-            require_once __DIR__ . '/admin/index.php';
+        // Hub admin classes.
+        if (file_exists(GATEY_PATH . 'wpsuite-admin/loader.php')) {
+            require_once GATEY_PATH . 'wpsuite-admin/loader.php';
+        }
+
+        // Admin classes.
+        if (file_exists(GATEY_PATH . 'gatey-admin/index.php')) {
+            require_once GATEY_PATH . 'gatey-admin/index.php';
         }
         if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
             $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();
@@ -96,10 +102,10 @@ final class Gatey_Plugin
     {
         // Register Gutenberg blocks (authenticator etc.)
         if (function_exists('register_block_type')) {
-            register_block_type(__DIR__ . '/gatey-blocks/dist/authenticator');
-            register_block_type(__DIR__ . '/gatey-blocks/dist/custom-block');
-            register_block_type(__DIR__ . '/gatey-blocks/dist/account-attribute');
-            register_block_type(__DIR__ . '/gatey-blocks/dist/form-field');
+            register_block_type(GATEY_PATH . 'gatey-blocks/dist/authenticator');
+            register_block_type(GATEY_PATH . 'gatey-blocks/dist/custom-block');
+            register_block_type(GATEY_PATH . 'gatey-blocks/dist/account-attribute');
+            register_block_type(GATEY_PATH . 'gatey-blocks/dist/form-field');
         }
 
         // Hooks.
@@ -114,22 +120,22 @@ final class Gatey_Plugin
         add_shortcode('gatey-account', array($this, 'shortcodeAccount'));
 
         // Category for custom blocks.
-        add_filter('block_categories_all', array($this, 'register_block_category'), 10, 2);
+        add_filter('block_categories_all', array($this, 'registerBlockCategory'), 20, 2);
 
         if ($this->admin->getSettings()->integrateWpLogin && $this->admin->getSettings()->signInPage) {
-            add_filter('login_url', array($this, 'login_page'), 10, 3);
-            add_filter('logout_url', array($this, 'logout_page'), 10, 3);
+            add_filter('login_url', array($this, 'loginPage'), 20, 3);
+            add_filter('logout_url', array($this, 'logoutPage'), 20, 3);
         }
     }
 
     /**
      * Include admin classes or additional files.
      */
-    public function register_widgets(): void
+    public function registerWidgets(): void
     {
-        if (file_exists(__DIR__ . '/gatey-elementor-widgets.php')) {
+        if (file_exists(GATEY_PATH . 'gatey-elementor-widgets.php')) {
             add_action('elementor/init', static function () {
-                require_once __DIR__ . '/gatey-elementor-widgets.php';
+                require_once GATEY_PATH . 'gatey-elementor-widgets.php';
             });
         }
     }
@@ -137,7 +143,7 @@ final class Gatey_Plugin
     /**
      * Register custom block category.
      */
-    public function register_block_category(array $categories, \WP_Block_Editor_Context $context): array
+    public function registerBlockCategory(array $categories, \WP_Block_Editor_Context $context): array
     {
         $categories[] = array(
             'slug' => 'wpsuite-gatey',
@@ -329,7 +335,7 @@ final class Gatey_Plugin
     /**
      * Filter login URL to optionally point to a Cognito-driven page.
      */
-    public function login_page(string $login_url, string $redirect, bool $force_reauth): string
+    public function loginPage(string $login_url, string $redirect, bool $force_reauth): string
     {
         $settings = $this->admin->getSettings();
         if (!empty($settings->signInPage)) {
@@ -338,7 +344,7 @@ final class Gatey_Plugin
         return $login_url;
     }
 
-    public function logout_page(string $logout_url, string $redirect): string
+    public function logoutPage(string $logout_url, string $redirect): string
     {
         $settings = $this->admin->getSettings();
         if (!empty($settings->signInPage)) {
@@ -354,6 +360,7 @@ final class Gatey_Plugin
     {
         $this->admin->addMenu();
     }
+
 }
 
 // Bootstrap plugin.
@@ -362,25 +369,44 @@ if (defined('GATEY_BOOTSTRAPPED')) {
 }
 define('GATEY_BOOTSTRAPPED', true);
 
-add_action('init', 'SmartCloud\WPSuite\Gatey\gatey_init');
-add_action('plugins_loaded', 'SmartCloud\WPSuite\Gatey\gatey_loaded', 20);
-function gatey_init()
+add_action('init', 'SmartCloud\WPSuite\Gatey\gateyInit', 15);
+add_action('plugins_loaded', 'SmartCloud\WPSuite\Gatey\gateyLoaded', 20);
+function gateyInit()
 {
     $instance = gatey();
+    if (class_exists('\SmartCloud\WPSuite\Hub\Loader')) {
+        $loader = loader();
+        $loader->init();
+    }
     $instance->init();
 }
-function gatey_loaded()
+function gateyLoaded()
 {
     $instance = gatey();
-    $instance->register_widgets();
+    if (class_exists('\SmartCloud\WPSuite\Hub\Loader')) {
+        $loader = loader();
+        $loader->check();
+    }
+
+    $instance->registerWidgets();
 }
 
 /**
  * Accessor function
  *
- * @return \SmartCloud\WPSuite\Gatey\Gatey_Plugin
+ * @return \SmartCloud\WPSuite\Gatey\Gatey
  */
 function gatey()
 {
-    return Gatey_Plugin::instance();
+    return Gatey::instance();
+}
+
+/**
+ * Accessor function
+ *
+ * @return \SmartCloud\WPSuite\Hub\Loader
+ */
+function loader()
+{
+    return \SmartCloud\WPSuite\Hub\Loader::instance('gatey/gatey.php');
 }

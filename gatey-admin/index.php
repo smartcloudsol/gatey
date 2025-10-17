@@ -17,11 +17,12 @@ use UQI\Cognito\Tokens\CognitoTokenVerifier;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
-require_once GATEY_PATH . 'admin/model.php';
+if (file_exists(filename: GATEY_PATH . 'gatey-admin/model.php')) {
+    require_once GATEY_PATH . 'gatey-admin/model.php';
+}
 class Admin
 {
     private Settings $settings;
-    private string $parent_slug;
     public function __construct()
     {
         $defaultSettings = new Settings(
@@ -103,10 +104,8 @@ class Admin
         );
         */
 
-        $this->parent_slug = $this->getParentSlug();
-
         $generate_suffix = add_submenu_page(
-            $this->parent_slug,
+            WPSUITE_SLUG,
             __('Gatey Settings', 'gatey'),
             __('Gatey Settings', 'gatey'),
             'manage_options',
@@ -115,7 +114,7 @@ class Admin
         );
 
         add_submenu_page(
-            $this->parent_slug,
+            WPSUITE_SLUG,
             __('Gatey Patterns', 'gatey'),
             __('Gatey Patterns', 'gatey'),
             'edit_posts',
@@ -227,7 +226,7 @@ class Admin
     function highlightMenu($parent_file)
     {
         if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
-            return $this->parent_slug;
+            return WPSUITE_SLUG;
         }
         return $parent_file;
     }
@@ -238,63 +237,6 @@ class Admin
             return admin_url("edit.php?post_type=wp_block&s=gatey");
         }
         return $submenu_file;
-    }
-
-    function getParentSlug(): string
-    {
-        if (!empty($GLOBALS['wpsuitehub_menu_parent'])) {
-            return (string) $GLOBALS['wpsuitehub_menu_parent'];
-        }
-
-        // 2) If Hub is not present, try to create a single common top-level menu
-        //    Mutex: first writer wins on the option
-        $fallback_parent = 'hub-for-wpsuiteio'; // common top-level slug
-        $owner_option = 'hub-for-wpsuiteio/top-menu-owner';
-        $me = 'gatey/gatey.php';
-        if (!function_exists('is_plugin_active')) {
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        }
-
-        $owner = get_option($owner_option); // may be string or false/null
-        $owner_missing = empty($owner);
-        $owner_is_me = ($owner === $me);
-        $owner_inactive = ($owner && !is_plugin_active($owner));
-
-        // If there is no owner yet, try to claim it
-        if ($owner_missing || $owner_is_me || $owner_inactive) {
-            // add_option atomic: only one can win in case of multiple concurrent requests
-            if (empty($GLOBALS['wpsuite_fallback_parent_added'])) {
-                // We became the "owner": create the top-level
-                $icon_url = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyMHB4IiBoZWlnaHQ9IjIwcHgiIHZpZXdCb3g9IjAgMCAyNzguMDAwMDAwIDI1NC4wMDAwMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmVlbiIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSg0NSkiPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzJBQ0Q0RSI+PC9zdG9wPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0RUZGQUEiPjwvc3RvcD4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+CgkJLnBhdGh7ZmlsbDp1cmwoJyNncmVlbicpO30KCTwvc3R5bGU+CiAgPGcgY2xhc3M9InBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMDAwMDAwLDI1NC4wMDAwMDApIHNjYWxlKDAuMTAwMDAwLC0wLjEwMDAwMCkiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0ibm9uZSI+CiAgICA8cGF0aCBkPSJNNDk1IDI1MDQgYy0xODQgLTY1IC0zMzEgLTE4NyAtNDA0IC0zMzUgLTUyIC0xMDUgLTcyIC0yMDMgLTczIC0zNDQgIDAgLTg4IDQgLTEyMyAyMiAtMTc1IDQxIC0xMjIgODkgLTIwMCAxODAgLTI5MSA3MSAtNzIgMTAxIC05NCAxODQgLTEzNSBsOTggIC00OSAxNTIgLTYgYzgzIC00IDQ1OSAtMTEgODM2IC0xNCA2NDMgLTcgNjg5IC05IDc0NSAtMjcgNzkgLTI2IDEzMyAtNTkgMTg4ICAtMTE0IDU4IC02MCA5NCAtMTMxIDExNSAtMjMyIDE5IC05MSAxMCAtMTcyIC0yOSAtMjc2IC00MCAtMTEwIC0xNjkgLTIxNyAgLTMwMyAtMjUyIC00MSAtMTEgLTIxNCAtMTQgLTg5NyAtMTQgbC04NDYgMCAtNjEgMzEgYy05MCA0NCAtMTQwIDExNCAtMTU3ICAyMTUgLTUgMzEgLTIgNDUgMTIgNjIgbDE4IDIxIDkxOSA3IDkxOSA3IDM5IDM1IGMyMSAxOSA0MSA0NSA0NCA1NyA3IDI3IC0xNCAgNzEgLTQ4IDEwMSAtMjMgMjEgLTMxIDIyIC01NDkgMjcgLTI5MCAzIC03NjUgMyAtMTA1OCAwIGwtNTMxIC02IDAgLTE1NyBjMCAgLTE4OSA5IC0yNDIgNTcgLTM0MCA2NCAtMTMyIDE4MyAtMjMwIDMzMiAtMjc0IDQ4IC0xNCAxNTIgLTE2IDkxNSAtMTYgOTY0IDAgIDkzOCAtMSAxMDg0IDcxIDY1IDMyIDEwMiA1OSAxNjUgMTIyIDE0NyAxNDcgMTk3IDI2MyAyMDUgNDc0IDQgMTE3IDIgMTM5IC0xOCAgMjAwIC04NCAyNTQgLTI1MiA0MTYgLTUwMCA0ODIgLTcwIDE4IC0xMjMgMjAgLTczMCAyNiAtMzYwIDQgLTcyNSAxMCAtODEwIDE0ICAtMTQ5IDYgLTE1OSA4IC0yMjEgMzggLTE0OSA3NCAtMjQ5IDIzNyAtMjQ5IDQwNiAwIDE4NSA5MSAzMzYgMjQ4IDQxMyA1NCAyNiAgNjcgMjggMjUyIDM1IDEwNyA0IDUwNiA4IDg4NSA4IGw2OTAgMSA2MCAtMjkgYzcxIC0zNCAxMTYgLTc5IDE0NCAtMTQxIDMwICAtNjkgMzQgLTExMSAxNCAtMTM3IGwtMTggLTIyIC05MTUgLTcgYy0xMDE3IC03IC05NTcgLTMgLTk5MCAtNzYgLTIxIC00OCAtMTMgIC04OSAyNSAtMTI4IGwyNSAtMjUgMTA0NCAwIGM1NzUgMCAxMDQ4IDQgMTA1MyA4IDQgNSA5IDg4IDExIDE4NSA0IDE3MSAzIDE3OSAgLTIyIDI0NyAtMzUgOTAgLTc0IDE1MSAtMTM5IDIxMiAtNjQgNjAgLTEyMiA5NSAtMjA2IDEyMiAtNjMgMjEgLTc5IDIxIC05NTAgIDIxIGwtODg2IC0xIC03MCAtMjV6Ij48L3BhdGg+CiAgPC9nPgo8L3N2Zz4K';
-                add_menu_page(
-                    __('WPSuite.io', 'hub-for-wpsuiteio'),
-                    __('WPSuite.io', 'hub-for-wpsuiteio'),
-                    'manage_options',
-                    $fallback_parent,
-                    null,
-                    $icon_url,
-                    58
-                );
-                $GLOBALS['wpsuite_fallback_parent_added'] = true;
-
-                add_action('admin_menu', function () {
-                    $fallback_parent = 'hub-for-wpsuiteio'; // common top-level slug
-                    $owner_option = 'hub-for-wpsuiteio/top-menu-owner';
-                    $me = 'gatey/gatey.php';
-                    $hub_active = !empty($GLOBALS['wpsuitehub_menu_parent']);
-                    if (!$hub_active && get_option($owner_option) === $me) {
-                        // Eltávolítja az automatikusan létrejött első almenüt,
-                        // ami ugyanazzal a sluggal fut, mint a parent.
-                        remove_submenu_page($fallback_parent, $fallback_parent);
-                    }
-                }, 99);
-            }
-            if (get_option($owner_option) !== $me) {
-                update_option($owner_option, $me, false);
-            }
-        }
-
-        return $fallback_parent;
     }
 
     function addScripts()
@@ -311,7 +253,7 @@ class Admin
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('gatey-admin-script', 'gatey', GATEY_PATH . '/languages');
+            wp_set_script_translations('gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
         }
 
         wp_enqueue_style('gatey-admin-style', GATEY_URL . 'gatey-admin/dist/index.css', array('wp-components'), GATEY_VERSION);
@@ -416,7 +358,11 @@ class Admin
             return new WP_REST_Response(array('success' => false, 'message' => __('Invalid token.', 'gatey')), 401);
         }
         $updated = false;
-        $user = array_key_exists('email', $t) ? get_user_by('email', $t['email']) : get_user_by('login', $t['cognito:username']);
+        $getByEmail = array_key_exists('email', $t);
+        $user = $getByEmail ? get_user_by('email', $t['email']) : get_user_by('login', $t['cognito:username']);
+        if ($getByEmail && !$user) {
+            $user = get_user_by('login', $t['cognito:username']);
+        }
         if (!$user) {
             $userdata = array(
                 'user_login' => $t['cognito:username'],

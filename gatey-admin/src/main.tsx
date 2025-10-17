@@ -207,35 +207,18 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
           the default WordPress login page with a Cognito-based flow.
         </Text>
         <NoRegistrationRequiredBanner />
-        {!wpSuiteSiteSettings.siteId &&
-          (wpSuiteInstalled ? (
-            <>
-              <Text c="dimmed" size="xs">
-                To use Pro features, please connect this WordPress instance to a{" "}
-                <strong>WPSuite.io</strong> site. Go to the{" "}
-                <strong>WPSuite.io → Connect your Site</strong> menu in your
-                dashboard and complete the linking process.
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text c="dimmed" size="xs">
-                To unlock Pro features, you need to install the{" "}
-                <strong>Hub for WPSuite.io</strong> plugin. You can find it on
-                WordPress.org (expected slug: <code>hub-for-wpsuiteio</code>) or
-                download the ZIP directly from{" "}
-                <a
-                  href="https://wpsuite.io/static/plugins/hub-for-wpsuiteio.zip"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  here
-                </a>
-                . After installing, connect your WordPress instance to a
-                WPSuite.io site to activate your subscription.
-              </Text>
-            </>
-          ))}
+        {!wpSuiteSiteSettings.siteId && (
+          <>
+            <Text c="dimmed" size="xs">
+              To use Pro features, please connect this WordPress instance to a{" "}
+              <strong>WPSuite.io</strong> site. Go to the{" "}
+              <a href="?page=hub-for-wpsuiteio">
+                <strong>WPSuite.io → Connect your Site</strong>
+              </a>{" "}
+              menu and complete the linking process.
+            </Text>
+          </>
+        )}
         <OnboardingBanner settings={settings} />
       </Group>
     </Card>

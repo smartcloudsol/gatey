@@ -22,12 +22,18 @@ You can find the plugin’s continuously expanding, detailed documentation at: [
 - `gatey-main/`: Base JavaScript (Gatey.cognito namespace) and CSS features, loaded on every page
 - `gatey-admin/`: Logic for the WordPress admin interface
 - `gatey-blocks/`: Authenticator screens and Gutenberg blocks
+- `wpsuite-admin/`: Logic for the WordPress Hub admin interface
 - `dist/` folders: Contain compiled and minified frontend output
 - Plugin PHP code and metadata (e.g. `composer.json`, `readme.txt`) are located in the **project root**
 
 ⚠️ **Note:**  
 The `wpsuite-core/` package is not part of this repository.  
 It lives in the separate [Hub for WPSuite.io](https://github.com/smartcloudsol/hub-for-wpsuiteio) repository and must be built and linked before building Gatey.
+
+### Source of WPSuite Admin Code
+
+The code under the `wpsuite-admin/` directory originates from the [Hub for WPSuite.io](https://github.com/smartcloudsol/hub-for-wpsuiteio) repository.  
+That repository hosts the shared administrative interface used across all future WPSuite plugins, including Gatey.
 
 ## Installation and Build Guide
 

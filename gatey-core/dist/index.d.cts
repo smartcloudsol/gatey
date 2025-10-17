@@ -138,9 +138,6 @@ declare const getScopes: () => Promise<string[] | undefined>;
 declare const login: (signInHook: ApiConfiguration["signInHook"]) => Promise<string | undefined>;
 declare const logout: (signOutHook: ApiConfiguration["signOutHook"]) => Promise<string | undefined>;
 
-declare const deobfuscate: (blob: string, key: number) => string;
-declare const decryptData: (encryptedText: string, salt: number) => Promise<AuthenticatorConfig | undefined>;
-
 declare const TEXT_DOMAIN = "gatey";
 
 declare global {
@@ -219,4 +216,4 @@ interface Gatey {
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, decryptData, deobfuscate, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

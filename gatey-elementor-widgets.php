@@ -5,17 +5,29 @@ if (!defined('ABSPATH')) {
 }
 
 if (!function_exists('gatey_do_shortcode')) {
-    function gatey_do_shortcode(string $tag, array $atts = []): string
+    function gatey_do_shortcode(string $tag, array $atts = [], string $link = '')
     {
-        return do_shortcode(sprintf(
-            '[%s %s]',
-            esc_attr($tag),
-            implode(' ', array_map(
-                fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
-                array_keys($atts),
-                $atts
-            ))
-        ));
+        if (empty($link)) {
+            echo do_shortcode(sprintf(
+                '[%s %s]',
+                esc_attr($tag),
+                implode(' ', array_map(
+                    fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
+                    array_keys($atts),
+                    $atts
+                ))
+            ));
+        } else {
+            echo '<a' . wp_kses_post($link) . '>' . do_shortcode(sprintf(
+                '[%s %s]',
+                esc_attr($tag),
+                implode(' ', array_map(
+                    fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
+                    array_keys($atts),
+                    $atts
+                ))
+            )) . '</a>';
+        }
     }
 }
 
@@ -28,81 +40,87 @@ add_action('elementor/elements/categories_registered', static function ($manager
 
 abstract class Gatey_Base_Widget extends \Elementor\Widget_Base
 {
+    protected static array $COLOR_MODES;
+    protected static array $LANGUAGES;
+    protected static array $DIRECTIONS;
+
+    public function __construct($data = [], $args = null)
+    {
+        parent::__construct($data, $args);
+
+        self::$COLOR_MODES = [
+            '' => '',
+            'system' => __('System', 'gatey'),
+            'light' => __('Light', 'gatey'),
+            'dark' => __('Dark', 'gatey'),
+        ];
+
+        self::$LANGUAGES = [
+            '' => '',
+            'system' => __('System', 'gatey'),
+            'ar' => __('Arabic', 'gatey'),
+            'zh' => __('Chinese', 'gatey'),
+            'nl' => __('Dutch', 'gatey'),
+            'en' => __('English', 'gatey'),
+            'fr' => __('French', 'gatey'),
+            'de' => __('German', 'gatey'),
+            'he' => __('Hebrew', 'gatey'),
+            'hi' => __('Hindi', 'gatey'),
+            'hu' => __('Hungarian', 'gatey'),
+            'id' => __('Indonesian', 'gatey'),
+            'it' => __('Italian', 'gatey'),
+            'ja' => __('Japanese', 'gatey'),
+            'ko' => __('Korean', 'gatey'),
+            'nb' => __('Norwegian', 'gatey'),
+            'pl' => __('Polish', 'gatey'),
+            'pt' => __('Portuguese', 'gatey'),
+            'ru' => __('Russian', 'gatey'),
+            'es' => __('Spanish', 'gatey'),
+            'sv' => __('Swedish', 'gatey'),
+            'th' => __('Thai', 'gatey'),
+            'tr' => __('Turkish', 'gatey'),
+            'ua' => __('Ukrainian', 'gatey'),
+        ];
+
+        self::$DIRECTIONS = [
+            '' => '',
+            'auto' => __('Auto (by language)', 'gatey'),
+            'ltr' => __('Left to Right', 'gatey'),
+            'rtl' => __('Right to Left', 'gatey'),
+        ];
+
+    }
 
     public function get_categories()
     {
         return ['gatey'];
-    }
-
-    protected const COLOR_MODES = [
-        '' => '',
-        'system' => 'System',
-        'light' => 'Light',
-        'dark' => 'Dark'
-    ];
-
-    protected const LANGUAGES = [
-        '' => '',
-        'system' => 'System',
-        'ar' => 'Arabic',
-        'zh' => 'Chinese',
-        'nl' => 'Dutch',
-        'en' => 'English',
-        'fr' => 'French',
-        'de' => 'German',
-        'he' => 'Hebrew',
-        'hi' => 'Hindi',
-        'hu' => 'Hungarian',
-        'id' => 'Indonesian',
-        'it' => 'Italian',
-        'ja' => 'Japanese',
-        'ko' => 'Korean',
-        'nb' => 'Norwegian',
-        'pl' => 'Polish',
-        'pt' => 'Portuguese',
-        'ru' => 'Russian',
-        'es' => 'Spanish',
-        'sv' => 'Swedish',
-        'th' => 'Thai',
-        'tr' => 'Turkish',
-        'ua' => 'Ukrainian'
-    ];
-
-    protected const DIRECTIONS = [
-        '' => '',
-        'auto' => 'Auto (by language)',
-        'ltr' => 'Left to Right',
-        'rtl' => 'Right to Left'
-    ];
-
-    protected static function get_translated_options(array $options, string $domain = 'gatey'): array
-    {
-        $out = [];
-        foreach ($options as $key => $rawLabel) {
-            $out[$key] = __($rawLabel, $domain);
-        }
-        return $out;
     }
 }
 
 class Gatey_Authenticator_Widget extends Gatey_Base_Widget
 {
 
-    private const SCREENS = [
-        '' => '',
-        'signIn' => 'Sign In',
-        'signUp' => 'Sign Up',
-        'forgotPassword' => 'Forgot Password',
-        'setupTotp' => 'Setup TOTP',
-        'editAccount' => 'Edit Account',
-        'changePassword' => 'Change Password'
-    ];
-    private const VARIATIONS = [
-        '' => '',
-        'default' => 'Default',
-        'modal' => 'Modal'
-    ];
+    private static array $SCREENS;
+    private static array $VARIATIONS;
 
+    public function __construct($data = [], $args = null)
+    {
+        parent::__construct($data, $args);
+        self::$SCREENS = [
+            '' => '',
+            'signIn' => __('Sign In', 'gatey'),
+            'signUp' => __('Sign Up', 'gatey'),
+            'forgotPassword' => __('Forgot Password', 'gatey'),
+            'setupTotp' => __('Setup TOTP', 'gatey'),
+            'editAccount' => __('Edit Account', 'gatey'),
+            'changePassword' => __('Change Password', 'gatey'),
+        ];
+        self::$VARIATIONS = [
+            '' => '',
+            'default' => __('Default', 'gatey'),
+            'modal' => __('Modal', 'gatey'),
+        ];
+    }
     public function get_name()
     {
         return 'gatey_authenticator';
@@ -149,27 +167,27 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $this->add_control('screen', [
             'label' => __('Screen', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::SCREENS),
+            'options' => self::$SCREENS,
         ]);
         $this->add_control('variation', [
             'label' => __('Variation', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::VARIATIONS),
+            'options' => self::$VARIATIONS,
         ]);
         $this->add_control('colormode', [
             'label' => __('Color mode', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::COLOR_MODES),
+            'options' => self::$COLOR_MODES,
         ]);
         $this->add_control('language', [
             'label' => __('Language', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::LANGUAGES),
+            'options' => self::$LANGUAGES,
         ]);
         $this->add_control('direction', [
             'label' => __('Direction', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::DIRECTIONS),
+            'options' => self::$DIRECTIONS,
         ]);
         $this->add_control('totp', ['label' => __('TOTP Issuer', 'gatey'), 'type' => \Elementor\Controls_Manager::TEXT]);
 
@@ -192,7 +210,7 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v) && $v != '');
         $atts['id'] = $all['pattern'];
 
-        echo gatey_do_shortcode('gatey', $atts);
+        gatey_do_shortcode('gatey', $atts);
     }
 }
 
@@ -249,17 +267,17 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
         $this->add_control('colormode', [
             'label' => __('Color mode', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::COLOR_MODES),
+            'options' => self::$COLOR_MODES,
         ]);
         $this->add_control('language', [
             'label' => __('Language', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::LANGUAGES),
+            'options' => self::$LANGUAGES,
         ]);
         $this->add_control('direction', [
             'label' => __('Direction', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
-            'options' => self::get_translated_options(self::DIRECTIONS),
+            'options' => self::$DIRECTIONS,
         ]);
         $this->add_control('link', ['label' => __('Link', 'gatey'), 'type' => \Elementor\Controls_Manager::URL, 'placeholder' => 'https://', 'show_external' => true]);
 
@@ -331,12 +349,11 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
 
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v));
 
-        $html = gatey_do_shortcode('gatey-account', $atts);
         if (!empty($all['link']['url'])) {
             $lnk = $all['link'];
-            $attr = ' href="' . esc_url($lnk['url']) . '"';
+            $link = ' href="' . esc_url($lnk['url']) . '"';
             if ($lnk['is_external']) {
-                $attr .= ' target="_blank"';
+                $link .= ' target="_blank"';
             }
             $rels = [];
             if ($lnk['is_external']) {
@@ -349,15 +366,15 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
                 $cust_attrs = explode(',', $lnk['custom_attributes']);
                 foreach ($cust_attrs as $pair) {
                     [$key, $value] = explode('|', $pair, 2);
-                    $attr .= ' ' . esc_attr($key) . '="' . esc_attr($value) . '"';
+                    $link .= ' ' . esc_attr($key) . '="' . esc_attr($value) . '"';
                 }
             }
             if ($rels) {
-                $attr .= ' rel="' . esc_attr(implode(' ', $rels)) . '"';
+                $link .= ' rel="' . esc_attr(implode(' ', $rels)) . '"';
             }
-            echo '<a' . $attr . '>' . $html . '</a>';
+            gatey_do_shortcode('gatey-account', $atts, $link);
         } else {
-            echo $html;
+            gatey_do_shortcode('gatey-account', $atts);
         }
     }
 }

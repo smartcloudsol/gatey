@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -174,10 +174,20 @@ All references to “Amazon Cognito” are made purely to describe this plugin�
 **Public (free) source code:**  
 All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/gatey
 
+**WPSuite Admin source code:**  
+The `wpsuite-admin/` directory contains modules originating from the Hub for WPSuite.io project: https://github.com/smartcloudsol/hub-for-wpsuiteio  
+This shared component handles WPSuite workspace linking, licence validation, and subscription management, and will be included in all upcoming WPSuite plugins.
+
 **Premium-only features:**
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 1.8.2 =
+Re-enabled the **Hub for WPSuite.io** functionality directly inside Gatey.  
+This component reconnects your WordPress instance with wpsuite.io for subscription and licence management — previously released as a separate plugin, but re-integrated here following WordPress.org review guidelines.  
+Also improved wp-login synchronization: changing an email address in Cognito no longer prevents successful WordPress login when the WP-login integration is enabled.
+text
 
 = 1.8.1 =
 Removed an unnecessary debug log entry from the authentication flow to keep browser and server logs clean.
@@ -328,6 +338,10 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.8.2 =
+Update to restore the built-in Hub for WPSuite.io component (site connection, subscription, and licence management) and to fix a wp-login sync issue where Cognito email changes blocked login.
+If you previously installed the standalone “Hub for WPSuite.io” plugin (available from wpsuite.io), you can now safely deactivate and delete it — the same functionality is now included in Gatey.
 
 = 1.8.1 =
 Update to remove an obsolete log line — no functional change, but results in cleaner logs during sign-in and sign-up operations.
