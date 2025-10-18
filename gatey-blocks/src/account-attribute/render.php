@@ -14,4 +14,4 @@ $bid = 'gatey_account_attribute_' . $hash;
 	data-direction="<?php echo esc_html(array_key_exists('direction', $attributes) ? $attributes['direction'] : 'auto') ?>"
 	data-link="<?php echo esc_html(array_key_exists('link', $attributes) ? json_encode($attributes['link']) : '') ?>"
 	data-prefix="<?php echo esc_html(array_key_exists('prefix', $attributes) ? $attributes['prefix'] : '') ?>"
-	data-postfix="<?php echo esc_html(array_key_exists('postfix', $attributes) ? $attributes['postfix'] : '') ?>" <?php echo esc_attr(get_block_wrapper_attributes()) ?>> &nbsp;</div>
+	data-postfix="<?php echo esc_html(array_key_exists('postfix', $attributes) ? $attributes['postfix'] : '') ?>" <?php echo wp_kses_data(get_block_wrapper_attributes()) ?>> &nbsp;</div>

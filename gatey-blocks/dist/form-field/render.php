@@ -19,4 +19,4 @@ $bid = 'gatey_account_attribute_' . $hash;
 	data-dial-code="<?php echo esc_html(array_key_exists('dialCode', $attributes) ? $attributes['dialCode'] : '') ?>"
 	data-dial-code-list="<?php echo esc_html(array_key_exists('dialCodeList', $attributes) ? implode(', ', $attributes['dialCodeList']) : '') ?>"
 	data-country-code-list="<?php echo esc_html(array_key_exists('countryCodeList', $attributes) ? implode(', ', $attributes['countryCodeList']) : '') ?>"
-	<?php echo esc_attr(get_block_wrapper_attributes()) ?>> &nbsp;</div>
+	<?php echo wp_kses_data(get_block_wrapper_attributes()) ?>> &nbsp;</div>

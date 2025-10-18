@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -183,6 +183,11 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.8.3 =
+Fixed broken styling and attributes in multiple Gutenberg blocks.
+The previous release escaped `get_block_wrapper_attributes()` incorrectly, which
+prevented proper rendering of class names, inline styles, and data attributes.
+
 = 1.8.2 =
 Re-enabled the **Hub for WPSuite.io** functionality directly inside Gatey.  
 This component reconnects your WordPress instance with wpsuite.io for subscription and licence management — previously released as a separate plugin, but re-integrated here following WordPress.org review guidelines.  
@@ -338,6 +343,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.8.3 =
+Important fix — update immediately if your Gatey blocks (Authenticator, Account Attribute, or Form Field) lost styling or alignment. The previous version escaped wrapper attributes incorrectly; this update restores proper class, style, and data-* handling while keeping the output secure.
 
 = 1.8.2 =
 Update to restore the built-in Hub for WPSuite.io component (site connection, subscription, and licence management) and to fix a wp-login sync issue where Cognito email changes blocked login.

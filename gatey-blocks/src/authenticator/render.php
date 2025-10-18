@@ -28,7 +28,7 @@ if ($uid) {
 	data-signing-out-message="<?php echo esc_html(array_key_exists('signingOutMessage', $attributes) ? $attributes['signingOutMessage'] : '') ?>"
 	data-redirecting-message="<?php echo esc_html(array_key_exists('redirectingMessage', $attributes) ? $attributes['redirectingMessage'] : '') ?>"
 	data-totp-issuer="<?php echo esc_html(array_key_exists('totpIssuer', $attributes) ? $attributes['totpIssuer'] : '') ?>"
-	<?php echo esc_attr(get_block_wrapper_attributes()) ?>>
+	<?php echo wp_kses_data(get_block_wrapper_attributes()) ?>>
 	<div style="display: none;">
 		<?php echo esc_html($content) ?>
 	</div>
