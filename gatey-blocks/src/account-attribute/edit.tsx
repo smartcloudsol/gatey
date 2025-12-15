@@ -1,25 +1,31 @@
-import { createRef, useState, useEffect, type FunctionComponent } from "react";
 import {
+  BlockControls,
+  InspectorControls,
+  LinkControl,
   useBlockProps,
   useInnerBlocksProps,
-  InspectorControls,
-  BlockControls,
-  LinkControl,
   type LinkControlValue,
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
 import {
-  ToolbarGroup,
-  ToolbarButton,
   ComboboxControl,
+  PanelBody,
+  Popover,
   RadioControl,
   SelectControl,
   TextControl,
-  PanelBody,
-  Popover,
+  ToolbarButton,
+  ToolbarGroup,
 } from "@wordpress/components";
-import { link as linkOn, linkOff } from "@wordpress/icons";
 import { __ } from "@wordpress/i18n";
+import { linkOff, link as linkOn } from "@wordpress/icons";
+import {
+  createRef,
+  useEffect,
+  useMemo,
+  useState,
+  type FunctionComponent,
+} from "react";
 
 import {
   defaultDarkModeOverride,
@@ -31,9 +37,9 @@ import {
 import { store, TEXT_DOMAIN, type Store } from "@smart-cloud/gatey-core";
 
 import {
-  formFieldOptions,
   colorModeOptions,
   directionOptions,
+  formFieldOptions,
   languageOptions,
   type Language,
 } from "../index";
@@ -79,26 +85,17 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
 
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
 
-  const [themeDirection, setThemeDirection] = useState<Direction>();
-  const [currentLanguage, setCurrentLanguage] = useState<string>();
-
   const editorRef = createRef<HTMLDivElement>();
 
   const blockProps = useBlockProps();
   const { ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
-  useEffect(() => {
-    if (language) {
-      setCurrentLanguage(language);
-    }
-  }, [language]);
-
-  useEffect(() => {
+  const themeDirection = useMemo(() => {
     let td = direction;
     if (!direction || direction === "auto") {
       td = language === "ar" || language === "he" ? "rtl" : "ltr";
     }
-    setThemeDirection(td as Direction);
+    return td as Direction;
   }, [direction, language]);
 
   useEffect(() => {
@@ -289,7 +286,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               component={component || "div"}
               attribute={attribute || "sub"}
               custom={custom}
-              language={currentLanguage as Language}
+              language={language}
               direction={themeDirection}
               link={link}
               prefix={prefix}

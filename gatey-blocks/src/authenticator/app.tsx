@@ -1,22 +1,27 @@
-import { useEffect, useState, useRef, type FunctionComponent } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Amplify, type ResourcesConfig } from "aws-amplify";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FunctionComponent,
+} from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-import { I18n } from "aws-amplify/utils";
 import { translate } from "@aws-amplify/ui";
-import { translations, Authenticator, Button } from "@aws-amplify/ui-react";
+import { Authenticator, Button, translations } from "@aws-amplify/ui-react";
+import { I18n } from "aws-amplify/utils";
 
 import { useSelect } from "@wordpress/data";
 
 import {
+  getStoreSelect,
   type AuthenticatorConfig,
   type CustomTranslations,
-  type Store,
 } from "@smart-cloud/gatey-core";
 import { ConfigContext } from "../context/config";
-import { type Language } from "../index";
-import { type ThemeProps } from "./theme";
 import { Login } from "./login";
+import { type ThemeProps } from "./theme";
 
 I18n.putVocabularies(translations);
 
@@ -39,48 +44,22 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     variation,
   } = props;
 
-  const [currentLanguage, setCurrentLanguage] = useState<Language>();
-
-  const [title, setTitle] = useState<string>();
-
-  const [filteredConfig, setFilteredConfig] = useState<
-    AuthenticatorConfig | null | undefined
-  >(undefined);
-
-  const [nextFilteredConfig, setNextFilteredConfig] = useState<
-    AuthenticatorConfig | null | undefined
-  >(undefined);
-
-  const [amplifyConfigured, setAmplifyConfigured] = useState(false);
-
   const [show, setShow] = useState(false);
 
   const containerRef = useRef(null);
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
-    (
-      select: (store: Store) => {
-        getConfig: () => AuthenticatorConfig | null;
-      }
-    ) => select(store).getConfig(),
+    () => getStoreSelect(store).getConfig(),
     []
   );
 
   const amplifyConfig: ResourcesConfig | undefined = useSelect(
-    (
-      select: (store: Store) => {
-        getAmplifyConfig: () => ResourcesConfig | undefined;
-      }
-    ) => select(store).getAmplifyConfig(),
+    () => getStoreSelect(store).getAmplifyConfig(),
     []
   );
 
   const customTranslations: CustomTranslations | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getCustomTranslations: () => CustomTranslations | undefined | null;
-      }
-    ) => select(store).getCustomTranslations(),
+    () => getStoreSelect(store).getCustomTranslations(),
     []
   );
 
@@ -106,11 +85,9 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   useEffect(() => {
     if (decryptedConfig) {
       if (setPreviewMode) {
-        setNextFilteredConfig(undefined);
         setPreviewMode(decryptedConfig?.subscriptionType ? "PAID" : "FREE");
       }
     } else if (setPreviewMode) {
-      setNextFilteredConfig(undefined);
       setPreviewMode(siteSubscriptionType ? "PAID" : "FREE");
     }
   }, [
@@ -121,9 +98,9 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     decryptedConfig?.subscriptionType,
   ]);
 
-  useEffect(() => {
+  const previewFilteredConfig = useMemo(() => {
+    let fc = undefined;
     if (isPreview && previewMode) {
-      let fc = undefined;
       switch (previewMode) {
         case "FREE":
           fc = null;
@@ -132,76 +109,59 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           fc = siteSettings ?? decryptedConfig ?? ({} as AuthenticatorConfig);
           break;
       }
-      setFilteredConfig(undefined);
-      setNextFilteredConfig(fc);
-    } else {
-      setFilteredConfig(decryptedConfig);
     }
-  }, [
-    siteSettings,
-    siteSubscriptionType,
-    decryptedConfig,
-    previewMode,
-    setPreviewMode,
-    isPreview,
-  ]);
+    return fc;
+  }, [siteSettings, decryptedConfig, previewMode, isPreview]);
 
-  useEffect(() => {
-    if (nextFilteredConfig !== undefined) {
-      setFilteredConfig(nextFilteredConfig);
-    }
-  }, [nextFilteredConfig]);
+  const filteredConfig = useMemo(() => {
+    return isPreview && previewMode ? previewFilteredConfig : decryptedConfig;
+  }, [decryptedConfig, isPreview, previewFilteredConfig, previewMode]);
 
-  useEffect(() => {
+  const amplifyConfigured = useMemo(() => {
     if (isPreview) {
       Amplify.configure({});
-    } else {
-      if (amplifyConfig?.Auth) {
-        Amplify.configure(amplifyConfig);
-        setAmplifyConfigured(true);
-      }
+      return true;
     }
-  }, [amplifyConfig, isPreview, store]);
+    if (amplifyConfig?.Auth) {
+      Amplify.configure(amplifyConfig);
+      return true;
+    }
+    return false;
+  }, [amplifyConfig, isPreview]);
 
-  useEffect(() => {
+  const currentLanguage = useMemo(() => {
     I18n.putVocabularies(customTranslations || {});
     if (!language || language === "system") {
       I18n.setLanguage("");
-      setCurrentLanguage(undefined);
-    } else {
-      I18n.setLanguage(language);
-      setCurrentLanguage(language);
+      return undefined;
     }
+    I18n.setLanguage(language);
+    return language;
   }, [language, customTranslations]);
 
-  useEffect(() => {
+  const title = useMemo(() => {
     if (showOpenButton) {
       if (!openButtonTitle) {
         switch (screen) {
           case "signIn":
-            setTitle(translate("Sign In"));
-            break;
+            return translate("Sign In");
           case "signUp":
-            setTitle(translate("Sign Up"));
-            break;
+            return translate("Sign Up");
           case "forgotPassword":
-            setTitle(translate("Forgot Password"));
-            break;
+            return translate("Forgot Password");
           case "changePassword":
-            setTitle(translate("Change Password"));
+            return translate("Change Password");
             break;
           case "editAccount":
-            setTitle(translate("Edit Account"));
-            break;
+            return translate("Edit Account");
           case "setupTotp":
-            setTitle(translate("Setup TOTP"));
-            break;
+            return translate("Setup TOTP");
         }
       } else {
-        setTitle(translate(openButtonTitle));
+        return translate(openButtonTitle);
       }
     }
-  }, [screen, language, showOpenButton, openButtonTitle]);
+  }, [screen, showOpenButton, openButtonTitle]);
 
   useEffect(() => {
     if (isPreview && setPreviewZIndex) {
@@ -211,7 +171,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   return (
     filteredConfig !== undefined &&
-    (isPreview || amplifyConfigured) && (
+    amplifyConfigured && (
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
           <Router>

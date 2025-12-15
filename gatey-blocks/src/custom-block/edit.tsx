@@ -1,23 +1,18 @@
 import {
-  useCallback,
-  useEffect,
-  useState,
-  type FunctionComponent,
-} from "react";
-import {
+  InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  InspectorControls,
 } from "@wordpress/block-editor";
 import { createBlock, type BlockEditProps } from "@wordpress/blocks";
 import {
-  ComboboxControl,
-  RadioControl,
-  PanelBody,
   Button,
+  ComboboxControl,
+  PanelBody,
+  RadioControl,
 } from "@wordpress/components";
-import { __ } from "@wordpress/i18n";
 import { select, useDispatch, useSelect } from "@wordpress/data";
+import { __ } from "@wordpress/i18n";
+import { useCallback, useEffect, useMemo, type FunctionComponent } from "react";
 
 import {
   AuthMachineState,
@@ -55,8 +50,6 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
 ) => {
   const { clientId, attributes, setAttributes } = props;
   const { component, part } = attributes;
-
-  const [customPart, setCustomPart] = useState<string>();
 
   const blockProps = useBlockProps();
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
@@ -123,7 +116,6 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     }
     const block: EditorBlock | undefined = coreEditor.getBlock(clientId);
     if (block && attr) {
-      setCustomPart(attr);
       if (block.attributes.anchor !== attr) {
         updateBlock(clientId, {
           attributes: {
@@ -134,6 +126,17 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
       }
     }
   }, [attributes, clientId, component, part, updateBlock, coreEditor]);
+
+  const customPart = useMemo(() => {
+    let attr: string | undefined;
+    if (component && component !== "Global") {
+      attr = component;
+    }
+    if (part) {
+      attr = attr ? attr + "-" + part : part;
+    }
+    return attr;
+  }, [component, part]);
 
   return (
     <>

@@ -1,30 +1,25 @@
 import {
-  useCallback,
-  useState,
-  useEffect,
-  type FunctionComponent,
-} from "react";
-import {
-  defaultFormFieldOptions,
   authFieldsWithDefaults,
+  defaultFormFieldOptions,
   type AuthFieldsWithDefaults,
 } from "@aws-amplify/ui";
 import { Text } from "@aws-amplify/ui-react";
 import {
+  InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  InspectorControls,
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
-import { useSelect, useDispatch, select } from "@wordpress/data";
-import { useContext } from "@wordpress/element";
 import {
-  ComboboxControl,
   CheckboxControl,
+  ComboboxControl,
   PanelBody,
   TextControl,
 } from "@wordpress/components";
+import { select, useDispatch, useSelect } from "@wordpress/data";
+import { useContext } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
+import { useCallback, useEffect, useMemo, type FunctionComponent } from "react";
 
 import { TEXT_DOMAIN, type AuthenticatorConfig } from "@smart-cloud/gatey-core";
 
@@ -69,9 +64,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   } = attributes;
 
   const { "gatey/custom-block/component": component } = context;
-
-  const [type, setType] = useState<string>("");
-  const [attributeName, setAttributeName] = useState<string>("");
 
   const block = useSelect(
     (s: typeof select) => s("core/block-editor").getBlock(clientId),
@@ -126,17 +118,13 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
         authFieldsWithDefaults.includes(attribute as AuthFieldsWithDefaults)
       ) {
         attr = attribute as string;
-        setAttributeName(attr);
       } else if (attribute === "custom") {
         attr = "custom:" + (custom || "");
-        setAttributeName(attr);
       } else {
         attr = custom || "";
-        setAttributeName(attr);
       }
     } else {
       attr = custom || "";
-      setAttributeName(attr);
     }
     if (block && attr !== undefined && block.attributes.anchor !== attr) {
       updateBlock(clientId, {
@@ -148,14 +136,32 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     }
   }, [attribute, attributes, block, clientId, custom, updateBlock]);
 
-  useEffect(() => {
+  const attributeName = useMemo(() => {
+    let attr = "";
+    if (attribute) {
+      if (
+        authFieldsWithDefaults.includes(attribute as AuthFieldsWithDefaults)
+      ) {
+        attr = attribute as string;
+      } else if (attribute === "custom") {
+        attr = "custom:" + (custom || "");
+      } else {
+        attr = custom || "";
+      }
+    } else {
+      attr = custom || "";
+    }
+    return attr;
+  }, [attribute, custom]);
+
+  const type = useMemo(() => {
     if (attributeName in defaultFormFieldOptions) {
-      setType(
+      return (
         defaultFormFieldOptions[attributeName as AuthFieldsWithDefaults].type ||
-          "text"
+        "text"
       );
     } else if (ctx?.formFields) {
-      setType(
+      return (
         ctx?.formFields.find((ff) => ff.name === attributeName)?.type || "text"
       );
     }

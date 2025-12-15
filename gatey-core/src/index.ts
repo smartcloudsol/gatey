@@ -1,27 +1,31 @@
-import { type ResourcesConfig } from "aws-amplify";
-import { get, post, put, del, head, patch } from "aws-amplify/api";
 import {
-  SocialProvider,
   type LoginMechanism,
   type SignUpAttribute,
+  type SocialProvider,
 } from "@aws-amplify/ui";
-import { dispatch } from "@wordpress/data";
+import { type ResourcesConfig } from "aws-amplify";
+import { del, get, head, patch, post, put } from "aws-amplify/api";
 
 import {
+  clearMfaPreferences,
   getAmplifyConfig,
+  getGroups,
+  getMfaPreferences,
+  getPreferredRole,
+  getRoles,
+  getScopes,
+  getUserAttributes,
+  getUsername,
   isAuthenticated,
   isInGroup,
-  getUsername,
-  getUserAttributes,
-  getMfaPreferences,
-  getGroups,
-  getRoles,
-  getPreferredRole,
-  getScopes,
-  clearMfaPreferences,
 } from "./auth";
 
-import { createStore, observeStore, type Store } from "./store";
+import {
+  createStore,
+  getStoreDispatch,
+  observeStore,
+  type Store,
+} from "./store";
 
 declare global {
   const Gatey: Gatey;
@@ -54,14 +58,6 @@ export interface Settings {
   enablePoweredBy?: boolean;
 }
 
-export interface SiteSettings {
-  accountId?: string;
-  siteId?: string;
-  lastUpdate?: number;
-  subscriber?: boolean;
-  siteKey?: string;
-}
-
 const signOut = () => {
   Gatey.cognito.store.then((store) => {
     observeStore(
@@ -73,19 +69,19 @@ const signOut = () => {
         }
       }
     );
-    dispatch(store).clearAccount();
+    getStoreDispatch(store).clearAccount();
   });
 };
 
 const setLanguage = (language?: string) => {
   Gatey.cognito.store.then((store) => {
-    dispatch(store).setLanguage(language ?? "en");
+    getStoreDispatch(store).setLanguage(language ?? "en");
   });
 };
 
 const setDirection = (direction?: "ltr" | "rtl" | "auto") => {
   Gatey.cognito.store.then((store) => {
-    dispatch(store).setDirection(direction ?? "auto");
+    getStoreDispatch(store).setDirection(direction ?? "auto");
   });
 };
 
@@ -120,49 +116,49 @@ export interface Cognito {
 export interface Gatey {
   cognito: Cognito;
   settings: Settings;
-  siteSettings: SiteSettings;
   nonce: string;
   restUrl: string;
-  uploadUrl: string;
 }
 
 export {
-  isAuthenticated,
-  isInGroup,
-  getUserAttributes,
-  getMfaPreferences,
   clearMfaPreferences,
   getGroups,
+  getMfaPreferences,
+  getPreferredRole,
   getRoles,
   getScopes,
-  getPreferredRole,
+  getUserAttributes,
+  isAuthenticated,
+  isInGroup,
 };
 
 export {
   configureAmplify,
   getAmplifyConfig,
   loadAuthSession,
-  loadUserAttributes,
   loadMFAPreferences,
+  loadUserAttributes,
   login,
   logout,
   type Account,
 } from "./auth";
 
 export {
+  getStoreDispatch,
+  getStoreSelect,
   observeStore,
-  type FormField,
-  type Store,
-  type State,
-  type CustomTranslations,
   type AuthenticatorConfig,
+  type CustomTranslations,
+  type FormField,
+  type State,
+  type Store,
   type SubscriptionType,
 } from "./store";
 
 export { TEXT_DOMAIN } from "./constants";
 
 let initialized = !!Gatey.cognito?.store;
-export const store = Gatey.cognito?.store ?? createStore();
+export const store: Promise<Store> = Gatey.cognito?.store ?? createStore();
 
 if (!initialized) {
   Gatey.cognito = {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, ReactNode, FC } from "react";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
 
 import { RecaptchaContext } from "./useRecaptcha";
 
@@ -48,11 +48,17 @@ export const RecaptchaProvider: FC<RecaptchaProviderProps> = ({
   const [isReady, setIsReady] = useState(false);
   const readyResolverRef = useRef<() => void>();
   // Promise that resolves the moment grecaptcha is ready (singleton)
-  const readyPromiseRef = useRef<Promise<void>>(
-    new Promise((res) => {
-      readyResolverRef.current = res;
-    })
-  );
+  const readyPromiseRef = useRef<Promise<void> | null>(null);
+
+  // Lazy getter to avoid accessing ref.current during render
+  const getReadyPromise = () => {
+    if (!readyPromiseRef.current) {
+      readyPromiseRef.current = new Promise((res) => {
+        readyResolverRef.current = res;
+      });
+    }
+    return readyPromiseRef.current;
+  };
   /* ----------------------
    * 1) Script injection
    * ---------------------*/
@@ -114,8 +120,8 @@ export const RecaptchaProvider: FC<RecaptchaProviderProps> = ({
   const executeRecaptcha = async (action = "default"): Promise<string> => {
     // Wait until library is ready
     if (!isReady || !grecaptchaRef.current) {
-      // Wait for the promise to
-      await readyPromiseRef.current;
+      // Wait for the promise to resolve
+      await getReadyPromise();
     }
     return grecaptchaRef.current!.execute(siteKey, { action });
   };

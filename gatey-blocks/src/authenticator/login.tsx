@@ -1,36 +1,43 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
-import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
 import { translate, type AuthContext } from "@aws-amplify/ui";
+import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
 
 import {
+  AccountSettings,
   Authenticator,
   Flex,
-  View,
-  Text,
-  Link,
   Heading,
-  AccountSettings,
+  Link,
+  Text,
   useAuthenticator,
+  View,
   type Direction,
 } from "@aws-amplify/ui-react";
 
 import "@aws-amplify/ui-react/styles.css";
 
-import { useDispatch, useSelect } from "@wordpress/data";
+import { useSelect } from "@wordpress/data";
 
 import {
+  getStoreDispatch,
+  getStoreSelect,
   type Account,
   type AuthenticatorConfig,
-  type Store,
 } from "@smart-cloud/gatey-core";
 
-import { type ThemeProps } from "./theme";
 import { useRecaptcha } from "./recaptcha";
+import { type ThemeProps } from "./theme";
 
-const parseCustomBlocks = import(
+const parseCustomBlocks = await import(
   process.env.WPSUITE_PREMIUM
     ? "./paid-features/custom-blocks"
     : "./free-features/custom-blocks"
@@ -106,32 +113,27 @@ export const Login = (
     containerRef,
   } = props;
 
-  const [components, setComponents] = useState<DefaultComponents>();
-  const [screenChanged, setScreenChanged] = useState<boolean>(false);
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
-  const [visible, setVisible] = useState(false);
+  const [componentVisible, setComponentVisible] = useState(true);
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
+  const [editorContent, setEditorContent] = useState<string | undefined>();
 
   const { executeRecaptcha, isReady: recaptchaIsReady } = recaptchaHook();
 
   const account: Account | undefined = useSelect(
-    (select: (store: Store) => { getAccount: () => Account | undefined }) =>
-      select(store).getAccount(),
+    () => getStoreSelect(store).getAccount(),
     []
   );
 
   const nextUrl: string | undefined | null = useSelect(
-    (
-      select: (store: Store) => { getNextUrl: () => string | undefined | null }
-    ) => select(store).getNextUrl(),
+    () => getStoreSelect(store).getNextUrl(),
     []
   );
 
   const signedIn: boolean = useSelect(
-    (select: (store: Store) => { isSignedIn: () => boolean }) =>
-      select(store).isSignedIn(),
+    () => getStoreSelect(store).isSignedIn(),
     []
   );
 
@@ -145,7 +147,7 @@ export const Login = (
     reloadUserAttributes: () => void;
     reloadMFAPreferences: () => void;
     setSignedIn: (signedIn: boolean) => void;
-  } = useDispatch(store);
+  } = getStoreDispatch(store);
 
   const [params] = useSearchParams();
 
@@ -175,7 +177,7 @@ export const Login = (
     containerRef,
     { threshold: 0 },
     {
-      onTriggerExit: () => setVisible(jQuery("#" + id).length > 0),
+      onTriggerExit: () => setComponentVisible(jQuery("#" + id).length > 0),
     }
   );
 
@@ -243,66 +245,58 @@ export const Login = (
     ]
   );
 
-  useEffect(() => {
-    setScreenChanged(true);
-  }, [screen]);
+  const visible = useMemo(() => {
+    return isVisible && componentVisible;
+  }, [isVisible, componentVisible]);
 
-  useEffect(() => {
-    if (isVisible) {
-      setVisible(true);
+  useLayoutEffect(() => {
+    if (editorRef?.current) {
+      setEditorContent(editorRef.current.innerHTML);
     }
-  }, [isVisible]);
+  }, [children, editorRef]);
 
-  useEffect(() => {
+  const components = useMemo(() => {
     if (config === undefined) {
-      return;
+      return undefined;
     }
     if (children && config !== null) {
-      parseCustomBlocks.then((pcb) =>
-        setComponents(
-          pcb.default(
-            config,
-            isPreview,
-            account,
-            children,
-            editorRef?.current?.innerHTML,
-            direction
-          )
-        )
+      const pcb = parseCustomBlocks;
+      return pcb.default(
+        config,
+        isPreview,
+        account,
+        children,
+        editorContent,
+        direction
       );
-    } else {
-      setComponents({});
     }
-  }, [children, editorRef, config, language, account, direction, isPreview]);
+    return {};
+  }, [config, children, isPreview, account, editorContent, direction]);
 
   useEffect(() => {
-    if (screenChanged) {
-      switch (screen) {
+    if (screen || route === "setup") {
+      const sc = route === "setup" ? screen : route;
+      switch (sc) {
         case "signUp":
-          toSignIn();
           toSignUp();
           break;
         case "forgotPassword":
-          toSignIn();
           toForgotPassword();
           break;
         case "setupTotp":
-          toSignIn();
           toSetupTotp();
           break;
         case "editAccount":
-          toSignIn();
           toEditAccount();
           break;
         case "signIn":
           toSignIn();
           break;
       }
-      setScreenChanged(false);
     }
   }, [
     screen,
-    screenChanged,
+    route,
     toForgotPassword,
     toSignIn,
     toSignUp,
@@ -320,25 +314,25 @@ export const Login = (
     if (screen !== "signIn" || isPreview || logoutHandled || !loggingOut) {
       return;
     }
-    if (wasSignedIn) {
-      setLogoutHandled(true);
-      setMessage(signingOutMessage);
-      dispatchEvent("signing-out");
-      clearAccount();
-    } else {
-      dispatchEvent("signed-out");
-
-      const url =
-        redirectTo ||
-        nextUrl ||
-        Gatey.settings.redirectSignOut ||
-        Gatey.settings.signInPage;
-      if (url) {
-        setRedirecting(true);
-        window.location.assign(url);
+    queueMicrotask(() => {
+      if (wasSignedIn) {
+        setMessage(signingOutMessage);
+        dispatchEvent("signing-out");
+        clearAccount();
+      } else {
+        dispatchEvent("signed-out");
+        const url =
+          redirectTo ||
+          nextUrl ||
+          Gatey.settings.redirectSignOut ||
+          Gatey.settings.signInPage;
+        if (url) {
+          setRedirecting(true);
+          window.location.assign(url);
+        }
       }
       setLogoutHandled(true);
-    }
+    });
   }, [
     redirectTo,
     loggingOut,
@@ -360,34 +354,36 @@ export const Login = (
       authStatus === "authenticated" &&
       !loginHandled
     ) {
-      if (!wasSignedIn) {
-        setLoginHandled(true);
-        setSignedIn(true);
-        setMessage(signingInMessage);
-        dispatchEvent("signing-in");
-      } else {
-        dispatchEvent("signed-in");
-
-        let url =
-          redirectTo ||
-          nextUrl ||
-          Gatey.settings.redirectSignIn ||
-          Gatey.settings.signInPage;
-        // prevent redirect loop
-        if (url?.endsWith("/")) {
-          url = url.substring(0, url.length - 1);
-        }
-        let path = location.pathname;
-        if (path.endsWith("/")) {
-          path = path.substring(0, path.length - 1);
-        }
-        if (url && url !== path + location.search) {
-          setRedirecting(true);
-          window.location.assign(url);
-        } else {
+      queueMicrotask(() => {
+        if (!wasSignedIn) {
           setLoginHandled(true);
+          setSignedIn(true);
+          setMessage(signingInMessage);
+          dispatchEvent("signing-in");
+        } else {
+          dispatchEvent("signed-in");
+
+          let url =
+            redirectTo ||
+            nextUrl ||
+            Gatey.settings.redirectSignIn ||
+            Gatey.settings.signInPage;
+          // prevent redirect loop
+          if (url?.endsWith("/")) {
+            url = url.substring(0, url.length - 1);
+          }
+          let path = location.pathname;
+          if (path.endsWith("/")) {
+            path = path.substring(0, path.length - 1);
+          }
+          if (url && url !== path + location.search) {
+            setRedirecting(true);
+            window.location.assign(url);
+          } else {
+            setLoginHandled(true);
+          }
         }
-      }
+      });
     }
   }, [
     authStatus,
@@ -406,37 +402,41 @@ export const Login = (
     if (screen !== "signIn") {
       return;
     }
-    if (loginHandled) {
-      if (route === "authenticated") {
-        dispatchEvent("signed-in");
-        if (nextUrl !== undefined) {
-          const url =
-            redirectTo ||
-            nextUrl ||
-            Gatey.settings.redirectSignIn ||
-            Gatey.settings.signInPage;
-          if (url) {
-            setRedirecting(true);
-            window.location.assign(url);
+    queueMicrotask(() => {
+      if (loginHandled) {
+        if (route === "authenticated") {
+          dispatchEvent("signed-in");
+          if (nextUrl !== undefined) {
+            const url =
+              redirectTo ||
+              nextUrl ||
+              Gatey.settings.redirectSignIn ||
+              Gatey.settings.signInPage;
+            if (url) {
+              setRedirecting(true);
+              window.location.assign(url);
+            }
           }
+        } else if (route !== "transition") {
+          setMessage(undefined);
+          dispatchEvent("reset");
         }
-      } else if (route !== "transition") {
-        setMessage(undefined);
-        dispatchEvent("reset");
       }
-    }
-    if (logoutHandled && nextUrl !== undefined) {
-      dispatchEvent("signed-out");
-      const url =
-        redirectTo ||
-        nextUrl ||
-        Gatey.settings.redirectSignOut ||
-        Gatey.settings.signInPage;
-      if (url) {
-        setRedirecting(true);
-        window.location.assign(url);
+      /*
+      if (logoutHandled && nextUrl !== undefined) {
+        dispatchEvent("signed-out");
+        const url =
+          redirectTo ||
+          nextUrl ||
+          Gatey.settings.redirectSignOut ||
+          Gatey.settings.signInPage;
+        if (url) {
+          setRedirecting(true);
+          window.location.assign(url);
+        }
       }
-    }
+      */
+    });
   }, [
     redirectTo,
     route,
@@ -446,12 +446,6 @@ export const Login = (
     dispatchEvent,
     screen,
   ]);
-
-  useEffect(() => {
-    if (route === "setup") {
-      setScreenChanged(true);
-    }
-  }, [route]);
 
   useEffect(() => {
     dispatchEvent("open");
@@ -505,83 +499,106 @@ export const Login = (
                     width: "100%",
                   }}
                 >
-                  <Authenticator
-                    loginMechanisms={Gatey.settings?.loginMechanisms}
-                    language={language}
-                    textDirection={direction as Direction}
-                    services={services}
-                    initialState={screen}
-                    signUpAttributes={Gatey.settings?.signUpAttributes}
-                    socialProviders={Gatey.settings?.socialProviders}
-                    customProviders={config?.customProviders}
-                    components={components}
-                    forceInitialState={isPreview}
-                    variation={variation}
-                    totpIssuer={totpIssuer}
-                    totpUsername={totpUsername}
-                  >
-                    {((redirecting && redirectingMessage) ||
-                      (!redirecting && message)) && (
-                      <View
-                        data-amplify-authenticator
-                        data-variation={variation}
-                      >
-                        <View data-amplify-container>
-                          <View data-amplify-router>
-                            <View
-                              data-amplify-form
-                              data-amplify-authenticator-message
-                              style={{
-                                textAlign: "center",
-                              }}
-                            >
-                              {redirecting ? (
-                                <Heading level={4}>
-                                  {translate(redirectingMessage!)}
-                                </Heading>
-                              ) : (
-                                <Heading level={4}>
-                                  {translate(message!)}
-                                </Heading>
-                              )}
-                            </View>
+                  {redirecting && redirectingMessage ? (
+                    <View data-amplify-authenticator data-variation={variation}>
+                      <View data-amplify-container>
+                        <View data-amplify-router>
+                          <View
+                            data-amplify-form
+                            data-amplify-authenticator-message
+                            style={{
+                              textAlign: "center",
+                            }}
+                          >
+                            <Heading level={4}>
+                              {translate(redirectingMessage!)}
+                            </Heading>
                           </View>
                         </View>
                       </View>
-                    )}
-                  </Authenticator>
-                  {(route === "signIn" || route === "signUp") && (
-                    <View
-                      data-amplify-authenticator
-                      hidden={!Gatey.settings?.enablePoweredBy}
-                      className={
-                        Gatey.settings?.enablePoweredBy ? undefined : "sr-only"
-                      }
-                    >
-                      <View data-amplify-container>
-                        <View
-                          data-amplify-router={route}
-                          style={{ border: 0, boxShadow: "none" }}
-                        >
-                          <Text
-                            as="p"
-                            variation="tertiary"
-                            textAlign="right"
-                            fontSize="var(--amplify-components-textfield-font-size)"
-                          >
-                            Powered by{" "}
-                            <Link
-                              as="a"
-                              href="https://wpsuite.io/gatey/"
-                              isExternal={true}
-                              fontWeight={400}
-                            >
-                              WPSuite Gatey
-                            </Link>
-                          </Text>
-                        </View>
-                      </View>
                     </View>
+                  ) : (
+                    <>
+                      <Authenticator
+                        loginMechanisms={Gatey.settings?.loginMechanisms}
+                        language={language}
+                        textDirection={direction as Direction}
+                        services={services}
+                        initialState={screen}
+                        signUpAttributes={Gatey.settings?.signUpAttributes}
+                        socialProviders={Gatey.settings?.socialProviders}
+                        customProviders={config?.customProviders}
+                        components={components}
+                        forceInitialState={isPreview}
+                        variation={variation}
+                        totpIssuer={totpIssuer}
+                        totpUsername={totpUsername}
+                      >
+                        {!redirecting && message && (
+                          <View
+                            data-amplify-authenticator
+                            data-variation={variation}
+                          >
+                            <View data-amplify-container>
+                              <View data-amplify-router>
+                                <View
+                                  data-amplify-form
+                                  data-amplify-authenticator-message
+                                  style={{
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {redirecting ? (
+                                    <Heading level={4}>
+                                      {translate(redirectingMessage!)}
+                                    </Heading>
+                                  ) : (
+                                    <Heading level={4}>
+                                      {translate(message!)}
+                                    </Heading>
+                                  )}
+                                </View>
+                              </View>
+                            </View>
+                          </View>
+                        )}
+                      </Authenticator>
+                      {(route === "signIn" || route === "signUp") && (
+                        <View
+                          data-amplify-authenticator
+                          hidden={!Gatey.settings?.enablePoweredBy}
+                          className={
+                            Gatey.settings?.enablePoweredBy
+                              ? undefined
+                              : "sr-only"
+                          }
+                        >
+                          <View data-amplify-container>
+                            <View
+                              data-amplify-router={route}
+                              style={{ border: 0, boxShadow: "none" }}
+                            >
+                              <Text
+                                as="p"
+                                variation="tertiary"
+                                textAlign="right"
+                                fontSize="var(--amplify-components-textfield-font-size)"
+                              >
+                                Powered by{" "}
+                                <Link
+                                  as="a"
+                                  href="https://wpsuite.io/gatey/"
+                                  isExternal={true}
+                                  fontWeight={400}
+                                >
+                                  WPSuite Gatey
+                                </Link>
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      )}
+                    </>
                   )}
                 </div>
               ))

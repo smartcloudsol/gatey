@@ -1,9 +1,9 @@
-import { type ReactNode } from "react";
-import { registerBlockType, type BlockAttributes } from "@wordpress/blocks";
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
+import { registerBlockType, type BlockAttributes } from "@wordpress/blocks";
+import { type ReactNode } from "react";
+import metadata from "./block.json";
 import { Edit } from "./edit";
 import { Save } from "./save";
-import metadata from "./block.json";
 
 export type ComponentAttributes = {
   component?:

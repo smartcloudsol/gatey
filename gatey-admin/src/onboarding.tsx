@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Alert, List, ListItem, Stack, Text } from "@mantine/core";
 import { IconCircleCheck, IconInfoCircle } from "@tabler/icons-react";
 
@@ -7,31 +7,22 @@ import classes from "./onboarding.module.css";
 
 const LOCAL_STORAGE_KEY = "gatey_onboarding_dismissed";
 
+const dismissed = localStorage.getItem(LOCAL_STORAGE_KEY);
+
 export const OnboardingBanner = ({ settings }: { settings: Settings }) => {
-  const [userPoolOk, setUserPoolOk] = useState(false);
-  const [signInPageOk, setSignInPageOk] = useState(false);
-  const [wpIntegrationOk, setWpIntegrationOk] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const userPoolOk = useState(
+    !!settings.userPoolConfigurations.default.Auth?.Cognito?.userPoolId &&
+      !!settings.userPoolConfigurations.default.Auth?.Cognito?.userPoolClientId
+  );
+  const signInPageOk = useState(
+    !!settings.loginMechanisms.length && !!settings.signInPage
+  );
+  const wpIntegrationOk = useState(settings.integrateWpLogin);
+  const [visible, setVisible] = useState(!dismissed);
 
   const handleDismiss = useCallback(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, "true");
     setVisible(false);
-  }, []);
-
-  useEffect(() => {
-    setUserPoolOk(
-      !!settings.userPoolConfigurations.default.Auth?.Cognito?.userPoolId &&
-        !!settings.userPoolConfigurations.default.Auth?.Cognito
-          ?.userPoolClientId
-    );
-
-    setSignInPageOk(!!settings.loginMechanisms.length && !!settings.signInPage);
-    setWpIntegrationOk(settings.integrateWpLogin);
-  }, [settings]);
-
-  useEffect(() => {
-    const dismissed = localStorage.getItem(LOCAL_STORAGE_KEY);
-    setVisible(!dismissed);
   }, []);
 
   if (!visible) return null;

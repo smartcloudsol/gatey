@@ -1,29 +1,29 @@
-import { createRef, useState, useEffect, type FunctionComponent } from "react";
 import {
+  BlockControls,
+  InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  InspectorControls,
-  BlockControls,
 } from "@wordpress/block-editor";
 import { type BlockEditProps } from "@wordpress/blocks";
-import { useLayoutEffect, useRef } from "@wordpress/element";
 import {
-  ComboboxControl,
   CheckboxControl,
-  RadioControl,
-  TextControl,
-  TextareaControl,
+  ComboboxControl,
   PanelBody,
-  ToolbarGroup,
-  ToolbarDropdownMenu,
+  RadioControl,
+  TextareaControl,
+  TextControl,
   ToolbarButton,
+  ToolbarDropdownMenu,
+  ToolbarGroup,
 } from "@wordpress/components";
-import { seen, check, settings, currencyDollar, close } from "@wordpress/icons";
+import { useLayoutEffect, useRef } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
+import { check, close, currencyDollar, seen, settings } from "@wordpress/icons";
+import { createRef, useEffect, useState, type FunctionComponent } from "react";
 
-import { Amplify } from "aws-amplify";
+import { get } from "aws-amplify/api";
 import { fetchAuthSession } from "@aws-amplify/auth";
-import { get } from "@aws-amplify/api";
+import { Amplify } from "aws-amplify";
 
 import { translate } from "@aws-amplify/ui";
 
@@ -41,7 +41,7 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { SiteSettings } from "@smart-cloud/wpsuite-core";
+import { SiteSettings, SubscriptionType } from "@smart-cloud/wpsuite-core";
 
 import {
   colorModeOptions,
@@ -49,10 +49,10 @@ import {
   languageOptions,
   type Language,
 } from "../index";
-import { type Screen, type Variation } from "./index";
-import { type PreviewType } from "./theme";
 import { App } from "./app";
+import { type Screen, type Variation } from "./index";
 import { RecaptchaProvider } from "./recaptcha";
+import { type PreviewType } from "./theme";
 
 const theme = {
   name: "gatey-theme",
@@ -97,8 +97,11 @@ const configUrl =
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
 
 const useScopedCssCompat = (id: string, css: string) => {
-  const latestCss = useRef(css);
-  latestCss.current = css;
+  const latestCssRef = useRef(css);
+
+  useLayoutEffect(() => {
+    latestCssRef.current = css;
+  }, [css]);
 
   useLayoutEffect(() => {
     const iframe = document.querySelector(
@@ -113,8 +116,8 @@ const useScopedCssCompat = (id: string, css: string) => {
       tag.id = id;
       doc.head.appendChild(tag);
     }
-    if (tag.textContent !== latestCss.current) {
-      tag.textContent = latestCss.current;
+    if (tag.textContent !== latestCssRef.current) {
+      tag.textContent = latestCssRef.current;
     }
     return () => tag?.remove();
   }, [id, css]);
@@ -151,9 +154,8 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [siteSettings, setSiteSettings] =
     useState<AuthenticatorConfig | null>();
-  const [siteSubscriptionType, setSiteSubscriptionType] = useState<
-    string | null
-  >();
+  const [siteSubscriptionType, setSiteSubscriptionType] =
+    useState<SubscriptionType | null>();
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
   const [previewMode, setPreviewMode] = useState<PreviewType>();
   const [previewScreen, setPreviewScreen] = useState<Screen>(
@@ -204,7 +206,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           .then((response) => {
             const site = response as unknown as {
               settings: AuthenticatorConfig;
-              subscriptionType: string;
+              subscriptionType: SubscriptionType;
             };
             setSiteSettings(site?.settings ?? null);
             setSiteSubscriptionType(site?.subscriptionType ?? null);
@@ -530,7 +532,9 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   icon: previewMode === "PAID" ? check : null,
                   title:
                     __("Paid", TEXT_DOMAIN) +
-                    (siteSubscriptionType === "PAID" ? currentPlan : ""),
+                    (siteSubscriptionType === "PROFESSIONAL"
+                      ? currentPlan
+                      : ""),
                   onClick: () => setPreviewMode("PAID"),
                 },
               ]}

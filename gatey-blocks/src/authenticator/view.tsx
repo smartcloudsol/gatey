@@ -16,6 +16,7 @@ try {
   const call = async (id: string) => {
     const el = document.querySelector("#" + id);
     if (el) {
+      jQuery(el).data("rendered", "true");
       const className = el.getAttribute("data-class") as Screen;
       const isPreview = el.getAttribute("data-is-preview") === "true";
       const screen = el.getAttribute("data-screen") as Screen;
@@ -67,6 +68,9 @@ try {
   };
 
   jQuery(document).on("gatey-authenticator-block", (_, id) => call(id));
+  jQuery(window).on("elementor/frontend/init", function () {
+    jQuery(document).on("gatey-authenticator-block", (_, id) => call(id));
+  });
 } catch (err) {
   console.error(err);
 }

@@ -1,37 +1,19 @@
 const defaultConfig = require("@wordpress/scripts/config/webpack.config");
-const webpack = require("webpack");
-const path = require("path");
 
 module.exports = function (env = {}) {
   const config = {
     ...defaultConfig,
-    entry: {
-      index: [
-        path.resolve(
-          process.cwd(),
-          "src",
-          "stubs",
-          "polyfill-webcrypto-liner.cjs"
-        ),
-        path.resolve(process.cwd(), "src", "index.ts"),
-      ],
-    },
-    resolve: {
-      ...defaultConfig.resolve,
-      fallback: {
-        ...defaultConfig.resolve?.fallback,
-        crypto: false,
-        util: require.resolve("util/"),
-        stream: require.resolve("stream-browserify"),
-        vm: require.resolve("vm-browserify"),
-        buffer: require.resolve("buffer-browserify"),
-        "process/browser": require.resolve("process/browser"),
-      },
-      alias: {
-        crypto: path.resolve(__dirname, "src/stubs/crypto-random.js"),
-        "node:crypto": false,
-        ...(defaultConfig.resolve?.alias || {}),
-      },
+    externals: {
+      ...defaultConfig.externals,
+      "aws-amplify": "WpSuiteAmplify",
+      "aws-amplify/auth": "WpSuiteAmplify",
+      "aws-amplify/api": "WpSuiteAmplify",
+      "aws-amplify/utils": "WpSuiteAmplify",
+      "@aws-amplify/ui": "WpSuiteAmplify",
+      "@aws-amplify/ui-react": "WpSuiteAmplify",
+      "@aws-amplify/ui-react-core": "WpSuiteAmplify",
+      "country-data-list": "WpSuiteAmplify",
+      "crypto": "WpSuiteWebcrypto",
     },
     optimization: {
       ...defaultConfig.optimization,
@@ -42,11 +24,6 @@ module.exports = function (env = {}) {
       ...defaultConfig.plugins.filter(
         (plugin) => plugin.constructor.name !== "RtlCssPlugin"
       ),
-      new webpack.ProvidePlugin({
-        Buffer: ["buffer", "Buffer"],
-        process: "process/browser",
-      }),
-      new webpack.DefinePlugin({ "process.versions": "{}" }),
     ],
   };
 

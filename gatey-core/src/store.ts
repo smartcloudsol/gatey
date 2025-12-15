@@ -1,21 +1,18 @@
-import { type ResourcesConfig } from "aws-amplify";
-import { fetchAuthSession } from "aws-amplify/auth";
-import { I18n } from "aws-amplify/utils";
 import { type APIConfig } from "@aws-amplify/core";
 import { type FormFieldOptionValue } from "@aws-amplify/ui";
 import { type CustomProvider } from "@aws-amplify/ui-react";
+import { type ResourcesConfig } from "aws-amplify";
+import { fetchAuthSession } from "aws-amplify/auth";
+import { I18n } from "aws-amplify/utils";
 
 import {
   createReduxStore,
+  dispatch,
   register,
   select,
-  dispatch,
+  StoreDescriptor,
   subscribe,
 } from "@wordpress/data";
-import {
-  type StoreDescriptor,
-  type ReduxStoreConfig,
-} from "@wordpress/data/build-types/types";
 
 import { getConfig, type SiteSettings } from "@smart-cloud/wpsuite-core";
 
@@ -79,7 +76,7 @@ export const getAccountFromStorage = async (
     storeAccountInStorage({});
     Gatey.cognito.store.then(async (store) => {
       await logout(apiConfiguration?.signOutHook);
-      await dispatch(store).clearAccount();
+      getStoreDispatch(store).clearAccount();
       //window.location.assign("");
     });
   }
@@ -180,7 +177,7 @@ const initAmplify = async (
             } catch (err) {
               console.error(err);
               Gatey.cognito.store.then((store) => {
-                dispatch(store).clearAccount();
+                getStoreDispatch(store).clearAccount();
               });
             }
           }
@@ -420,9 +417,26 @@ export interface State {
 
 export type SubscriptionType = "PROFESSIONAL" | "AGENCY";
 
-export type Store = StoreDescriptor<
-  ReduxStoreConfig<State, typeof actions, typeof selectors>
->;
+export type Store = StoreDescriptor;
+
+export type StoreSelectors = {
+  getAmplifyConfig(): ResourcesConfig;
+  getAccount(): Account;
+  getNextUrl(): string | null | undefined;
+  isSignedIn(): boolean;
+  getConfig(): AuthenticatorConfig | null;
+  getCustomTranslations(): CustomTranslations | null;
+  getLanguage(): string | undefined | null;
+  getDirection(): "ltr" | "rtl" | "auto" | undefined | null;
+  getState(): State;
+};
+export type StoreActions = typeof actions;
+
+export const getStoreDispatch = (store: Store): StoreActions =>
+  dispatch(store) as unknown as StoreActions;
+
+export const getStoreSelect = (store: Store): StoreSelectors =>
+  select(store) as unknown as StoreSelectors;
 
 export const createStore = async (): Promise<Store> => {
   const DEFAULT_STATE = await getDefaultState();
@@ -545,7 +559,7 @@ export const observeStore = (
     | undefined;
 
   function handleChange() {
-    const state = select(observableStore).getState();
+    const state = getStoreSelect(observableStore).getState();
     const nextValue = selector(state);
 
     if (nextValue !== currentValue) {

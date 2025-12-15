@@ -1,9 +1,9 @@
-import { registerBlockType, type BlockAttributes } from "@wordpress/blocks";
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
-import { Edit } from "./edit";
-import { Save } from "./save";
+import { registerBlockType, type BlockAttributes } from "@wordpress/blocks";
 import metadata from "./block.json";
+import { Edit } from "./edit";
 import "./index.css";
+import { Save } from "./save";
 
 export type Attribute =
   | "sub"

@@ -1,4 +1,4 @@
-import { select, dispatch } from "@wordpress/data";
+import { dispatch } from "@wordpress/data";
 import { I18n } from "aws-amplify/utils";
 import {
   defaultFormFieldOptions,
@@ -17,6 +17,7 @@ import {
   logout,
   isAuthenticated,
   getAmplifyConfig,
+  getStoreSelect,
   type Account,
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
@@ -192,8 +193,14 @@ jQuery(() => {
       });
       if (groups) {
         groups.forEach((group) => {
-          root.style.setProperty("--gatey-account-group-" + group, "flex");
-          root.style.setProperty("--gatey-account-group-not-" + group, "none");
+          root.style.setProperty(
+            "--gatey-account-group-" + group.toLocaleLowerCase(),
+            "flex"
+          );
+          root.style.setProperty(
+            "--gatey-account-group-not-" + group.toLocaleLowerCase(),
+            "none"
+          );
         });
       }
     }
@@ -202,7 +209,7 @@ jQuery(() => {
   };
 
   store.then(async (store) => {
-    decryptedConfig = select(store).getConfig();
+    decryptedConfig = getStoreSelect(store).getConfig();
     const apiConfiguration =
       decryptedConfig?.apiConfigurations?.secondary?.domains &&
       window.location.hostname
@@ -269,7 +276,7 @@ jQuery(() => {
           loadUserAttributes()
             .then((userAttributes) =>
               dispatch(store).setAccount({
-                ...select(store).getAccount(),
+                ...getStoreSelect(store).getAccount(),
                 userAttributes,
               })
             )
@@ -289,7 +296,7 @@ jQuery(() => {
           loadMFAPreferences()
             .then((mfaPreferences) =>
               dispatch(store).setAccount({
-                ...select(store).getAccount(),
+                ...getStoreSelect(store).getAccount(),
                 mfaPreferences,
               })
             )
@@ -316,7 +323,9 @@ jQuery(() => {
       (state) => state.language,
       () => {
         I18n.putVocabularies(translations);
-        I18n.putVocabularies(select(store).getCustomTranslations() || {});
+        I18n.putVocabularies(
+          getStoreSelect(store).getCustomTranslations() || {}
+        );
         Gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));

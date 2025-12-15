@@ -1,31 +1,39 @@
 const defaultConfig = require("@wordpress/scripts/config/webpack.config");
 const webpack = require("webpack");
+const path = require("path");
 
 console.log("PREMIUM BUILD:", process.env.WPSUITE_PREMIUM === "true");
 
 module.exports = function (env = {}) {
   const config = {
     ...defaultConfig,
-    resolve: {
-      ...defaultConfig.resolve,
-      fallback: {
-        crypto: require.resolve("crypto-browserify"),
-        stream: require.resolve("stream-browserify"),
-        vm: require.resolve("vm-browserify"),
-        buffer: require.resolve("buffer-browserify"),
-        "process/browser": require.resolve("process/browser"),
-      },
+    entry: {
+      index: [
+        path.resolve(process.cwd(), "src/account-attribute", "index.tsx"),
+        path.resolve(process.cwd(), "src/account-attribute", "view.tsx"),
+        path.resolve(process.cwd(), "src/authenticator", "index.tsx"),
+        path.resolve(process.cwd(), "src/authenticator", "view.tsx"),
+        path.resolve(process.cwd(), "src/custom-block", "index.tsx"),
+        path.resolve(process.cwd(), "src/form-field", "index.tsx"),
+        path.resolve(process.cwd(), "src", "index.tsx"),
+      ],
+    },
+    externals: {
+      ...defaultConfig.externals,
+      "aws-amplify": "WpSuiteAmplify",
+      "aws-amplify/auth": "WpSuiteAmplify",
+      "aws-amplify/api": "WpSuiteAmplify",
+      "aws-amplify/utils": "WpSuiteAmplify",
+      "@aws-amplify/ui": "WpSuiteAmplify",
+      "@aws-amplify/ui-react": "WpSuiteAmplify",
+      "@aws-amplify/ui-react-core": "WpSuiteAmplify",
+      "country-data-list": "WpSuiteAmplify",
+      "crypto": "WpSuiteWebcrypto",
     },
     plugins: [
       ...defaultConfig.plugins.filter(
         (plugin) => plugin.constructor.name !== "RtlCssPlugin"
       ),
-      new webpack.ProvidePlugin({
-        Buffer: ["buffer", "Buffer"],
-      }),
-      new webpack.ProvidePlugin({
-        process: "process/browser",
-      }),
       new webpack.EnvironmentPlugin({
         WPSUITE_PREMIUM: false,
       }),

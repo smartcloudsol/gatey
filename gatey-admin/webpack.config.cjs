@@ -6,26 +6,18 @@ console.log("PREMIUM BUILD:", process.env.WPSUITE_PREMIUM === "true");
 module.exports = function () {
   const config = {
     ...defaultConfig,
-    resolve: {
-      ...defaultConfig.resolve,
-      fallback: {
-        crypto: require.resolve("crypto-browserify"),
-        stream: require.resolve("stream-browserify"),
-        vm: require.resolve("vm-browserify"),
-        buffer: require.resolve("buffer-browserify"),
-        "process/browser": require.resolve("process/browser"),
-      },
+    externals: {
+      ...defaultConfig.externals,
+      "@aws-amplify/ui": "WpSuiteAmplify",
+      "@aws-amplify/ui-react": "WpSuiteAmplify",
+      "@aws-amplify/ui-react-core": "WpSuiteAmplify",
+      "country-data-list": "WpSuiteAmplify",
+      "crypto": "WpSuiteWebcrypto",
     },
     plugins: [
       ...defaultConfig.plugins.filter(
         (plugin) => plugin.constructor.name !== "RtlCssPlugin"
       ),
-      new webpack.ProvidePlugin({
-        Buffer: ["buffer", "Buffer"],
-      }),
-      new webpack.ProvidePlugin({
-        process: "process/browser",
-      }),
       new webpack.EnvironmentPlugin({
         WPSUITE_PREMIUM: false,
       }),

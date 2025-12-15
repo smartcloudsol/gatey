@@ -8,4 +8,9 @@ export default defineConfig({
   splitting: false,
   sourcemap: false,
   clean: true,
+  external: [
+    /^aws-amplify(\/.*)?$/,
+    /^@aws-amplify\/ui(\/.*)?$/,
+    /^@aws-amplify\/ui-react(\/.*)?$/,
+  ],
 });

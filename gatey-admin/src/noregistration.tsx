@@ -1,20 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Alert, Text } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 
 const LOCAL_STORAGE_KEY = "gatey_noregistration_required_dismissed";
 
+const dismissed = localStorage.getItem(LOCAL_STORAGE_KEY);
+
 export const NoRegistrationRequiredBanner = () => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(!dismissed);
 
   const handleDismiss = useCallback(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, "true");
     setVisible(false);
-  }, []);
-
-  useEffect(() => {
-    const dismissed = localStorage.getItem(LOCAL_STORAGE_KEY);
-    setVisible(!dismissed);
   }, []);
 
   if (!visible) return null;

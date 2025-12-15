@@ -1,11 +1,11 @@
 import {
   useEffect,
   useState,
-  type RefObject,
   type Dispatch,
-  type ReactNode,
-  type PropsWithChildren,
   type FunctionComponent,
+  type PropsWithChildren,
+  type ReactNode,
+  type RefObject,
   type SetStateAction,
 } from "react";
 
@@ -21,10 +21,14 @@ import { RecaptchaProvider } from "./recaptcha";
 
 import { useSelect } from "@wordpress/data";
 
-import { type AuthenticatorConfig, type Store } from "@smart-cloud/gatey-core";
+import {
+  getStoreSelect,
+  type AuthenticatorConfig,
+  type Store,
+} from "@smart-cloud/gatey-core";
 import { type Language } from "../index";
-import { type Screen, type Variation } from "./index";
 import { App } from "./app";
+import { type Screen, type Variation } from "./index";
 
 export type PreviewType = "FREE" | "PAID";
 
@@ -84,20 +88,12 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const [currentDirection, setCurrentDirection] = useState<Direction>();
 
   const languageInStore: string | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getLanguage: () => string | undefined | null;
-      }
-    ) => select(store).getLanguage(),
+    () => getStoreSelect(store).getLanguage(),
     []
   );
 
   const directionInStore: Direction | "auto" | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getDirection: () => Direction | "auto" | undefined | null;
-      }
-    ) => select(store).getDirection(),
+    () => getStoreSelect(store).getDirection(),
     []
   );
 

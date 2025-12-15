@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ReactNode } from "react";
-import {
-  type AuthenticatorConfig,
-  type Account,
-} from "@smart-cloud/gatey-core";
-import { type DefaultComponents } from "../login";
 import { type Direction } from "@aws-amplify/ui-react";
+import {
+  type Account,
+  type AuthenticatorConfig,
+} from "@smart-cloud/gatey-core";
+import { ReactNode } from "react";
+import { type DefaultComponents } from "../login";
 
 export default function parseCustomBlocks(
   _config: AuthenticatorConfig,

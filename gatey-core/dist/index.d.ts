@@ -1,9 +1,9 @@
+import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
-import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
+import { FetchMFAPreferenceOutput, FetchUserAttributesOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { CustomProvider } from '@aws-amplify/ui-react';
-import { StoreDescriptor, ReduxStoreConfig } from '@wordpress/data/build-types/types';
+import { StoreDescriptor } from '@wordpress/data';
 
 declare const actions: {
     setAmplifyConfig(amplifyConfig: ResourcesConfig): {
@@ -42,17 +42,6 @@ declare const actions: {
     reloadMFAPreferences(): {
         type: string;
     };
-};
-declare const selectors: {
-    getAmplifyConfig(state: State): ResourcesConfig;
-    getAccount(state: State): Account;
-    getNextUrl(state: State): string | null | undefined;
-    isSignedIn(state: State): boolean;
-    getConfig(state: State): AuthenticatorConfig | null;
-    getCustomTranslations(state: State): CustomTranslations | null;
-    getLanguage(state: State): string | null | undefined;
-    getDirection(state: State): "ltr" | "rtl" | "auto" | null | undefined;
-    getState(state: State): State;
 };
 interface FormField {
     name: string;
@@ -111,7 +100,21 @@ interface State {
     reloadMFAPreferences: number;
 }
 type SubscriptionType = "PROFESSIONAL" | "AGENCY";
-type Store = StoreDescriptor<ReduxStoreConfig<State, typeof actions, typeof selectors>>;
+type Store = StoreDescriptor;
+type StoreSelectors = {
+    getAmplifyConfig(): ResourcesConfig;
+    getAccount(): Account;
+    getNextUrl(): string | null | undefined;
+    isSignedIn(): boolean;
+    getConfig(): AuthenticatorConfig | null;
+    getCustomTranslations(): CustomTranslations | null;
+    getLanguage(): string | undefined | null;
+    getDirection(): "ltr" | "rtl" | "auto" | undefined | null;
+    getState(): State;
+};
+type StoreActions = typeof actions;
+declare const getStoreDispatch: (store: Store) => StoreActions;
+declare const getStoreSelect: (store: Store) => StoreSelectors;
 declare const observeStore: (observableStore: Store, selector: (state: State) => ResourcesConfig | Account | boolean | number | string | null | undefined, onChange: (nextValue: ResourcesConfig | Account | boolean | number | string | null | undefined, previousValue: ResourcesConfig | Account | boolean | number | string | null | undefined) => void) => any;
 
 interface Account {
@@ -168,13 +171,6 @@ interface Settings {
     useRecaptchaEnterprise?: boolean;
     enablePoweredBy?: boolean;
 }
-interface SiteSettings {
-    accountId?: string;
-    siteId?: string;
-    lastUpdate?: number;
-    subscriber?: boolean;
-    siteKey?: string;
-}
 declare const signOut: () => void;
 declare const setLanguage: (language?: string) => void;
 declare const setDirection: (direction?: "ltr" | "rtl" | "auto") => void;
@@ -208,12 +204,10 @@ interface Cognito {
 interface Gatey {
     cognito: Cognito;
     settings: Settings;
-    siteSettings: SiteSettings;
     nonce: string;
     restUrl: string;
-    uploadUrl: string;
 }
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type SiteSettings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStoreDispatch, getStoreSelect, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

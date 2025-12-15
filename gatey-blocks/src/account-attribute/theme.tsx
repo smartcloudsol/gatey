@@ -1,8 +1,8 @@
 import {
-  useEffect,
+  useMemo,
   useState,
-  type PropsWithChildren,
   type FunctionComponent,
+  type PropsWithChildren,
 } from "react";
 
 import {
@@ -14,10 +14,10 @@ import {
 
 import { useSelect } from "@wordpress/data";
 
-import { type Store } from "@smart-cloud/gatey-core";
+import { getStoreSelect, type Store } from "@smart-cloud/gatey-core";
 import { type Language } from "../index";
-import { type Component, type Attribute } from "./index";
 import { Attr } from "./attr";
+import { type Attribute, type Component } from "./index";
 
 export type PreviewType = "FREE" | "PAID";
 
@@ -61,24 +61,13 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     overrides: [defaultDarkModeOverride],
   };
 
-  const [currentLanguage, setCurrentLanguage] = useState<string>();
-  const [currentDirection, setCurrentDirection] = useState<Direction>();
-
   const languageInStore: string | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getLanguage: () => string | undefined | null;
-      }
-    ) => select(store).getLanguage(),
+    () => getStoreSelect(store).getLanguage(),
     []
   );
 
   const directionInStore: Direction | "auto" | undefined | null = useSelect(
-    (
-      select: (store: Store) => {
-        getDirection: () => Direction | "auto" | undefined | null;
-      }
-    ) => select(store).getDirection(),
+    () => getStoreSelect(store).getDirection(),
     []
   );
 
@@ -90,23 +79,23 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     new URLSearchParams(window.location.search).get("direction") ?? ""
   );
 
-  useEffect(() => {
+  const currentLanguage = useMemo(() => {
     const lang = languageInStore || languageOverride || language;
     if (!lang || lang === "system") {
-      setCurrentLanguage("");
+      return "";
     } else {
-      setCurrentLanguage(lang);
+      return lang;
     }
   }, [language, languageOverride, languageInStore]);
 
-  useEffect(() => {
+  const currentDirection = useMemo(() => {
     const dir = directionInStore || directionOverride || direction;
     if (!dir || dir === "auto") {
-      setCurrentDirection(
-        currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr"
-      );
+      return currentLanguage === "ar" || currentLanguage === "he"
+        ? "rtl"
+        : "ltr";
     } else {
-      setCurrentDirection(dir as Direction);
+      return dir as Direction;
     }
   }, [currentLanguage, direction, directionInStore, directionOverride]);
 

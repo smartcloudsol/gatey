@@ -249,6 +249,7 @@ class Admin
         if (file_exists(filename: GATEY_PATH . 'gatey-admin/dist/index.asset.php')) {
             $script_asset = require_once(GATEY_PATH . 'gatey-admin/dist/index.asset.php');
         }
+        $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor'));
         wp_enqueue_script('gatey-admin-script', GATEY_URL . 'gatey-admin/dist/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
 
         // Make the blocks translatable.
@@ -446,7 +447,7 @@ class Admin
 
         wp_set_current_user($user->ID, $user->user_login);
         wp_set_auth_cookie($user->ID, true);
-        do_action('wp_login', $user->user_login, $user);
+        //do_action('wp_login', $user->user_login, $user);
         return new WP_REST_Response(array('success' => true, 'message' => __('Logged in.', 'gatey'), 'redirect' => $next_url), 200);
     }
 
