@@ -1,10 +1,9 @@
 const defaultConfig = require("@wordpress/scripts/config/webpack.config");
 
-module.exports = function (env = {}) {
+module.exports = function () {
   const config = {
     ...defaultConfig,
     externals: {
-      ...defaultConfig.externals,
       "aws-amplify": "WpSuiteAmplify",
       "aws-amplify/auth": "WpSuiteAmplify",
       "aws-amplify/api": "WpSuiteAmplify",
@@ -13,7 +12,7 @@ module.exports = function (env = {}) {
       "@aws-amplify/ui-react": "WpSuiteAmplify",
       "@aws-amplify/ui-react-core": "WpSuiteAmplify",
       "country-data-list": "WpSuiteAmplify",
-      "crypto": "WpSuiteWebcrypto",
+      crypto: "WpSuiteWebcrypto",
     },
     optimization: {
       ...defaultConfig.optimization,
@@ -21,11 +20,13 @@ module.exports = function (env = {}) {
       runtimeChunk: false,
     },
     plugins: [
-      ...defaultConfig.plugins.filter(
-        (plugin) => plugin.constructor.name !== "RtlCssPlugin"
-      ),
+      ...(defaultConfig.plugins
+        ? defaultConfig.plugins.filter(
+          (plugin) => plugin?.constructor.name !== "RtlCssPlugin"
+        )
+        : []),
     ],
   };
 
   return config;
-};
+}

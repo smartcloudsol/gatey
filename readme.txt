@@ -2,9 +2,9 @@
 Contributors: smartcloud
 Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.8.3
+Stable tag: 1.10.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -183,6 +183,26 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 1.10.0 =
+* Refactored the admin codebase behind the WPSuite.io / Connect your Site menu
+* Improved site connection and license management internals
+* Prepared the foundation for upcoming WPSuite plugin integrations
+
+= 1.9.2 =
+* Pro features are now enabled again in the admin interface once a site is registered and connected to wpsuite.io
+* Frontend behavior remains unchanged: Pro features are applied only with an active subscription or trial
+
+= 1.9.1 =
+* Minor fixes and refinements in the signIn and signOut hooks
+* Improved reliability of authentication-related state handling
+* Small internal cleanups
+
+= 1.9.0 =
+* Refined and reorganized internal dependencies for better performance and maintainability
+* Fixed several TypeScript and linting issues across the codebase
+* Significantly reduced JavaScript bundle sizes, especially on the frontend
+* General internal cleanup and stability improvements
+
 = 1.8.3 =
 Fixed broken styling and attributes in multiple Gutenberg blocks.
 The previous release escaped `get_block_wrapper_attributes()` incorrectly, which
@@ -344,12 +364,25 @@ Initial release.
 
 == Upgrade Notice ==
 
+= 1.10.0 =
+This update refactors the internal admin code for WPSuite.io site connection and license handling.
+No action is required after updating. Recommended for compatibility with upcoming WPSuite plugins.
+
+= 1.9.2 =
+This update restores access to Pro features in the admin interface for sites that are registered and connected to wpsuite.io.
+Pro features will continue to take effect on the frontend only with an active subscription or trial.
+
+= 1.9.1 =
+This is a minor maintenance release with small fixes in the signIn and signOut hooks. No configuration changes are required.
+
+= 1.9.0 =
+No configuration changes are required. Updating is recommended for improved performance.
+
 = 1.8.3 =
 Important fix — update immediately if your Gatey blocks (Authenticator, Account Attribute, or Form Field) lost styling or alignment. The previous version escaped wrapper attributes incorrectly; this update restores proper class, style, and data-* handling while keeping the output secure.
 
 = 1.8.2 =
 Update to restore the built-in Hub for WPSuite.io component (site connection, subscription, and licence management) and to fix a wp-login sync issue where Cognito email changes blocked login.
-If you previously installed the standalone “Hub for WPSuite.io” plugin (available from wpsuite.io), you can now safely deactivate and delete it — the same functionality is now included in Gatey.
 
 = 1.8.1 =
 Update to remove an obsolete log line — no functional change, but results in cleaner logs during sign-in and sign-up operations.

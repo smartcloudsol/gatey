@@ -16,7 +16,7 @@ import {
   PanelBody,
   TextControl,
 } from "@wordpress/components";
-import { select, useDispatch, useSelect } from "@wordpress/data";
+import { select, useDispatch } from "@wordpress/data";
 import { useContext } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { useCallback, useEffect, useMemo, type FunctionComponent } from "react";
@@ -65,10 +65,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
 
   const { "gatey/custom-block/component": component } = context;
 
-  const block = useSelect(
-    (s: typeof select) => s("core/block-editor").getBlock(clientId),
-    [clientId]
-  );
+  const block = select("core/block-editor").getBlock(clientId);
 
   const ctx = useContext<AuthenticatorConfig | null>(ConfigContext);
 

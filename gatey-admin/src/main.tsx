@@ -1,19 +1,20 @@
-import { lazy } from "react";
-import { produce } from "immer";
+import { get } from "@aws-amplify/api";
+import { fetchAuthSession } from "@aws-amplify/auth";
+import { type SignUpAttribute } from "@aws-amplify/ui";
+import { Authenticator } from "@aws-amplify/ui-react";
 import {
   CognitoIdentityProviderClient,
   ListGroupsCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import {
-  DEFAULT_THEME,
   ActionIcon,
-  Card,
   Alert,
   Badge,
   Box,
   Button,
+  Card,
   Checkbox,
-  Switch,
+  DEFAULT_THEME,
   Fieldset,
   Group,
   HoverCard,
@@ -21,22 +22,17 @@ import {
   NumberInput,
   Select,
   Stack,
+  Switch,
   Table,
   Tabs,
+  Text,
   TextInput,
   Title,
-  Text,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useQuery } from "@tanstack/react-query";
-import { Amplify } from "aws-amplify";
-import { Hub } from "aws-amplify/utils";
-import { get } from "@aws-amplify/api";
-import { fetchAuthSession } from "@aws-amplify/auth";
-import { type SignUpAttribute } from "@aws-amplify/ui";
-import apiFetch from "@wordpress/api-fetch";
 import {
+  getStoreSelect,
   loadAuthSession,
   TEXT_DOMAIN,
   type AuthenticatorConfig,
@@ -45,32 +41,38 @@ import {
   type Store,
 } from "@smart-cloud/gatey-core";
 import {
+  IconAlertCircle,
   IconApi,
   IconCheck,
   IconCircleNumber2,
   IconExclamationCircle,
   IconForms,
-  IconSocial,
   IconInfoCircle,
   IconLogin,
   IconPlus,
   IconSettings,
-  IconAlertCircle,
+  IconSocial,
   IconStar,
   IconUsersGroup,
   IconX,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import apiFetch from "@wordpress/api-fetch";
+import { Amplify } from "aws-amplify";
+import { Hub } from "aws-amplify/utils";
+import { produce } from "immer";
+import { lazy } from "react";
 
 import { __experimentalHeading as Heading } from "@wordpress/components";
 import { dispatch, useSelect } from "@wordpress/data";
 import { __ } from "@wordpress/i18n";
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { signUpAttributes } from "./index";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DocSidebar from "./DocSidebar";
-import { OnboardingBanner } from "./onboarding";
+import { signUpAttributes } from "./index";
 import { NoRegistrationRequiredBanner } from "./noregistration";
+import { OnboardingBanner } from "./onboarding";
 
-import { SubscriptionType, SiteSettings } from "@smart-cloud/wpsuite-core";
+import { SiteSettings, SubscriptionType } from "@smart-cloud/wpsuite-core";
 
 import "jquery";
 
@@ -331,14 +333,14 @@ const Main = (props: MainProps) => {
   );
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
-    () => wp.data.select(store)?.getConfig(),
+    () => getStoreSelect(store)?.getConfig(),
     []
   );
 
   const loadSiteEnabled =
     !!accountId && !!siteId && !!siteKey && amplifyConfigured !== undefined;
 
-  const { data: configuration, error: configurationError } = useQuery({
+  useQuery({
     queryKey: ["config"],
     queryFn: async () => {
       const response = await fetch(configUrl).catch((err) => {
@@ -376,10 +378,56 @@ const Main = (props: MainProps) => {
       });
 
       if (!response.ok) {
+        console.error("Error loading configuration:", await response.json());
+        setAmplifyConfigured(false);
         throw new Error(response.statusText);
       }
 
-      return response.json();
+      const result = await response.json();
+      const rc = {
+        Auth: {
+          Cognito: {
+            userPoolId: result.userPoolId,
+            userPoolClientId: result.appClientPlugin,
+            identityPoolId: result.identityPoolId,
+          },
+        },
+        API: {
+          REST: {
+            backend: {
+              endpoint: apiUrl,
+            },
+            backendWithIam: {
+              endpoint: apiUrl,
+            },
+          },
+        },
+      };
+      const los: Record<string, unknown> = {
+        API: {
+          REST: {
+            headers: async (options: { apiName: string }) => {
+              if (options.apiName === "backend") {
+                try {
+                  const authSession = await fetchAuthSession();
+                  if (authSession?.tokens?.accessToken) {
+                    return {
+                      Authorization: `Bearer ${authSession.tokens.accessToken}`,
+                    };
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+              return {};
+            },
+          },
+        },
+      };
+      Amplify.configure(rc, los);
+      await checkAccount();
+      setAmplifyConfigured(true);
+      return result;
     },
   });
 
@@ -691,69 +739,6 @@ const Main = (props: MainProps) => {
   }, [settingsFormData.integrateWpLogin, nonce, wpRolesLoaded]);
 
   useEffect(() => {
-    if (!amplifyConfigured) {
-      if (
-        configuration?.userPoolId &&
-        configuration?.appClientPlugin &&
-        configuration?.identityPoolId
-      ) {
-        const rc = {
-          Auth: {
-            Cognito: {
-              userPoolId: configuration.userPoolId,
-              userPoolClientId: configuration.appClientPlugin,
-              identityPoolId: configuration.identityPoolId,
-            },
-          },
-          API: {
-            REST: {
-              backend: {
-                endpoint: apiUrl,
-              },
-              backendWithIam: {
-                endpoint: apiUrl,
-              },
-            },
-          },
-        };
-        const los: Record<string, unknown> = {
-          API: {
-            REST: {
-              headers: async (options: { apiName: string }) => {
-                if (options.apiName === "backend") {
-                  try {
-                    const authSession = await fetchAuthSession();
-                    if (authSession?.tokens?.accessToken) {
-                      return {
-                        Authorization: `Bearer ${authSession.tokens.accessToken}`,
-                      };
-                    }
-                  } catch (err) {
-                    console.error(err);
-                  }
-                }
-                return {};
-              },
-            },
-          },
-        };
-        Amplify.configure(rc, los);
-        checkAccount();
-        setAmplifyConfigured(true);
-      } else if (configurationError) {
-        console.error("Error loading configuration:", configurationError);
-        setAmplifyConfigured(false);
-      }
-    }
-  }, [
-    configuration,
-    props,
-    amplifyConfigured,
-    checkAccount,
-    configurationError,
-  ]);
-
-  useEffect(() => {
     const stopCb = Hub.listen("auth", (data) => {
       const { payload } = data;
       if (payload.event === "signedIn" || payload.event === "signedOut") {
@@ -857,914 +842,932 @@ const Main = (props: MainProps) => {
 
   return (
     amplifyConfigured !== undefined && (
-      <div className={classes["wpc-container"]}>
-        <DocSidebar
-          opened={opened}
-          close={close}
-          page={activePage as never}
-          scrollToId={scrollToId}
-        />
-        <SettingsTitle settings={settingsFormData} />
-        <Group
-          align="flex-start"
-          mt="lg"
-          style={{
-            flexDirection: isMobile ? "column" : "row",
-            width: "100%",
-          }}
-        >
-          <Tabs
-            classNames={{
-              tabLabel: classes["wpc-tabs-label"],
-              panel:
-                classes[isMobile ? "wpc-tabs-panel-mobile" : "wpc-tabs-panel"],
+      <Authenticator.Provider>
+        <div className={classes["wpc-container"]}>
+          <DocSidebar
+            opened={opened}
+            close={close}
+            page={activePage as never}
+            scrollToId={scrollToId}
+          />
+          <SettingsTitle settings={settingsFormData} />
+          <Group
+            align="flex-start"
+            mt="lg"
+            style={{
+              flexDirection: isMobile ? "column" : "row",
+              width: "100%",
             }}
-            value={activePage}
-            orientation={isMobile ? "horizontal" : "vertical"}
-            onChange={(value) =>
-              setActivePage(
-                value as
-                  | "general"
-                  | "user-pools"
-                  | "wordpress-login"
-                  | "api-settings"
-              )
-            }
-            w="100%"
           >
-            <Tabs.List>
-              {navigationOptions?.map((item) => (
-                <Tabs.Tab
-                  key={item.value}
-                  value={item.value}
-                  disabled={item.disabled}
-                >
-                  {item.icon}
-                  {!isMobile && item.label}
-                  {item.badge}
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-            <Tabs.Panel value="user-pools" w="100%">
-              <form name="user-pools" onSubmit={handleUpdateSettings}>
-                <Title order={2} mb="md">
-                  User Pools
-                </Title>
-
-                <Text mb="md">
-                  Connect your AWS Cognito user pool and app client here. This
-                  is the foundation of your Gatey integration.
-                </Text>
-
-                <Tabs
-                  className={classes["wpc-tabs"]}
-                  value={currentConfig}
-                  onChange={(value) =>
-                    setCurrentConfig(value as "default" | "secondary")
-                  }
-                >
-                  <Tabs.List>
-                    <Tabs.Tab
-                      value="default"
-                      leftSection={<IconStar size={16} />}
-                    >
-                      Default
-                    </Tabs.Tab>
-                    <Tabs.Tab
-                      value="secondary"
-                      leftSection={<IconCircleNumber2 size={16} />}
-                      disabled={!formConfig}
-                    >
-                      Secondary
-                      <Badge variant="light" color="red" ml="4px" miw={60}>
-                        PRO
-                      </Badge>
-                    </Tabs.Tab>
-                  </Tabs.List>
-                </Tabs>
-
-                <Stack gap="sm" p="md" bg="gray.1">
-                  {currentConfig === "secondary" && (
-                    <TextInput
-                      disabled={savingSettings}
-                      name="secondaryUserPoolDomains"
-                      label={
-                        <InfoLabelComponent
-                          text="User Pool Domains"
-                          scrollToId="user-pool-domains"
-                        />
-                      }
-                      description="Regular expression of domains for the secondary user pool"
-                      value={settingsFormData.secondaryUserPoolDomains}
-                      onChange={(e) =>
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          secondaryUserPoolDomains: e.currentTarget.value!,
-                        })
-                      }
-                    />
-                  )}
-
-                  <TextInput
-                    disabled={savingSettings}
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".Auth.Cognito.userPoolId"
-                    }
-                    label={
-                      <InfoLabelComponent
-                        text="User Pool ID"
-                        scrollToId="user-pool-id"
-                      />
-                    }
-                    description="The ID of the AWS Cognito user pool to use"
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.Auth?.Cognito?.userPoolId ?? ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="App Client ID"
-                        scrollToId="app-client-id"
-                      />
-                    }
-                    description="The ID of the AWS Cognito app client to use"
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".Auth.Cognito.userPoolClientId"
-                    }
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.Auth?.Cognito?.userPoolClientId ?? ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent text="Region" scrollToId="region" />
-                    }
-                    description="AWS region"
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".API.GraphQL.region"
-                    }
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.API?.GraphQL?.region ?? ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Identity Pool ID"
-                        scrollToId="identity-pool-id"
-                      />
-                    }
-                    description="The ID of the AWS Cognito identity pool to use"
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".Auth.Cognito.identityPoolId"
-                    }
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.Auth?.Cognito?.identityPoolId ?? ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="OAuth Domain"
-                        scrollToId="oauth-domain"
-                      />
-                    }
-                    description="The domain of the OAuth provider to use"
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".Auth.Cognito.loginWith.oauth.domain"
-                    }
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.Auth?.Cognito?.loginWith?.oauth?.domain ?? ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="OAuth scopes"
-                        scrollToId="oauth-scopes"
-                      />
-                    }
-                    description="The scopes to use for the OAuth provider"
-                    name={
-                      (currentConfig === "default" ? "default" : "secondary") +
-                      ".Auth.Cognito.loginWith.oauth.scopes"
-                    }
-                    value={
-                      (currentConfig === "default"
-                        ? settingsFormData.userPoolConfigurations.default
-                        : settingsFormData.userPoolConfigurations.secondary
-                      )?.Auth?.Cognito?.loginWith?.oauth?.scopes?.join(",") ??
-                      ""
-                    }
-                    onChange={handleConfigChange}
-                  />
-                </Stack>
-                <Group justify="flex-end" mt="lg">
-                  <Button
-                    loading={savingSettings}
-                    variant="gradient"
-                    type="submit"
-                    leftSection={<IconCheck />}
+            <Tabs
+              classNames={{
+                tabLabel: classes["wpc-tabs-label"],
+                panel:
+                  classes[
+                    isMobile ? "wpc-tabs-panel-mobile" : "wpc-tabs-panel"
+                  ],
+              }}
+              value={activePage}
+              orientation={isMobile ? "horizontal" : "vertical"}
+              onChange={(value) =>
+                setActivePage(
+                  value as
+                    | "general"
+                    | "user-pools"
+                    | "wordpress-login"
+                    | "api-settings"
+                )
+              }
+              w="100%"
+            >
+              <Tabs.List>
+                {navigationOptions?.map((item) => (
+                  <Tabs.Tab
+                    key={item.value}
+                    value={item.value}
+                    disabled={item.disabled}
                   >
-                    Save User Pool Settings
-                  </Button>
-                </Group>
-              </form>
-            </Tabs.Panel>
-            <Tabs.Panel value="general" w="100%">
-              <form name="general" onSubmit={handleUpdateSettings}>
-                <Title order={2} mb="md">
-                  General
-                </Title>
+                    {item.icon}
+                    {!isMobile && item.label}
+                    {item.badge}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
+              <Tabs.Panel value="user-pools" w="100%">
+                <form name="user-pools" onSubmit={handleUpdateSettings}>
+                  <Title order={2} mb="md">
+                    User Pools
+                  </Title>
 
-                <Text mb="md">
-                  Control how Gatey behaves across your site — including login
-                  routing, redirect behavior, and display preferences.
-                </Text>
+                  <Text mb="md">
+                    Connect your AWS Cognito user pool and app client here. This
+                    is the foundation of your Gatey integration.
+                  </Text>
 
-                <Stack gap="sm">
-                  <Fieldset
-                    legend={
-                      <InfoLabelComponent
-                        text="Login Mechanisms"
-                        scrollToId="login-mechanisms"
-                      />
-                    }
-                    fw={500}
-                  >
-                    <Checkbox
-                      disabled={savingSettings}
-                      label="Username"
-                      checked={settingsFormData.loginMechanisms?.includes(
-                        "username"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        // remove the current value from the array
-                        const loginMechanisms = [
-                          ...settingsFormData.loginMechanisms,
-                        ];
-                        const index = loginMechanisms.indexOf("username");
-                        if (!e.currentTarget.checked && index > -1) {
-                          loginMechanisms.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          loginMechanisms.push("username");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          loginMechanisms,
-                        });
-                      }}
-                    />
-                    <Checkbox
-                      disabled={savingSettings}
-                      label="Email"
-                      checked={settingsFormData.loginMechanisms?.includes(
-                        "email"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        // remove the current value from the array
-                        const loginMechanisms = [
-                          ...settingsFormData.loginMechanisms,
-                        ];
-                        const index = loginMechanisms.indexOf("email");
-                        if (!e.currentTarget.checked && index > -1) {
-                          loginMechanisms.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          loginMechanisms.push("email");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          loginMechanisms,
-                        });
-                      }}
-                    />
-                    <Checkbox
-                      disabled={savingSettings}
-                      label="Phone Number"
-                      checked={settingsFormData.loginMechanisms?.includes(
-                        "phone_number"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        // remove the current value from the array
-                        const loginMechanisms = [
-                          ...settingsFormData.loginMechanisms,
-                        ];
-                        const index = loginMechanisms.indexOf("phone_number");
-                        if (!e.currentTarget.checked && index > -1) {
-                          loginMechanisms.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          loginMechanisms.push("phone_number");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          loginMechanisms,
-                        });
-                      }}
-                    />
-                  </Fieldset>
-                  <MultiSelect
-                    label={
-                      <InfoLabelComponent
-                        text="Sign-up Attributes"
-                        scrollToId="signup-attributes"
-                      />
-                    }
-                    placeholder="Select attributes"
-                    data={signUpAttributes}
-                    value={settingsFormData.signUpAttributes}
-                    onChange={(values: string[]) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        signUpAttributes: values as SignUpAttribute[],
-                      })
-                    }
-                    searchable
-                    hidePickedOptions
-                  />
-                  <Fieldset
-                    legend={
-                      <InfoLabelComponent
-                        text="Social Providers"
-                        scrollToId="social-providers"
-                      />
-                    }
-                    fw={500}
-                  >
-                    <Checkbox
-                      label="Google"
-                      checked={settingsFormData.socialProviders?.includes(
-                        "google"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const socialProviders = settingsFormData.socialProviders
-                          ? [...settingsFormData.socialProviders]
-                          : [];
-                        const index = socialProviders.indexOf("google");
-                        if (!e.currentTarget.checked && index > -1) {
-                          socialProviders.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          socialProviders.push("google");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          socialProviders,
-                        });
-                      }}
-                    />
-                    <Checkbox
-                      label="Facebook"
-                      checked={settingsFormData.socialProviders?.includes(
-                        "facebook"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const socialProviders = settingsFormData.socialProviders
-                          ? [...settingsFormData.socialProviders]
-                          : [];
-                        const index = socialProviders.indexOf("facebook");
-                        if (!e.currentTarget.checked && index > -1) {
-                          socialProviders.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          socialProviders.push("facebook");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          socialProviders,
-                        });
-                      }}
-                    />
-                    <Checkbox
-                      label="Apple"
-                      checked={settingsFormData.socialProviders?.includes(
-                        "apple"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const socialProviders = settingsFormData.socialProviders
-                          ? [...settingsFormData.socialProviders]
-                          : [];
-                        const index = socialProviders.indexOf("apple");
-                        if (!e.currentTarget.checked && index > -1) {
-                          socialProviders.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          socialProviders.push("apple");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          socialProviders,
-                        });
-                      }}
-                    />
-                    <Checkbox
-                      label="Amazon"
-                      checked={settingsFormData.socialProviders?.includes(
-                        "amazon"
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const socialProviders = settingsFormData.socialProviders
-                          ? [...settingsFormData.socialProviders]
-                          : [];
-                        const index = socialProviders.indexOf("amazon");
-                        if (!e.currentTarget.checked && index > -1) {
-                          socialProviders.splice(index, 1);
-                        } else if (e.currentTarget.checked && index === -1) {
-                          socialProviders.push("amazon");
-                        }
-                        setSettingsFormData({
-                          ...settingsFormData,
-                          socialProviders,
-                        });
-                      }}
-                    />
-                  </Fieldset>
-                  <Select
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Sign In Page"
-                        scrollToId="sign-in-page"
-                      />
-                    }
-                    description="The WordPress page to show when the user is not logged in"
-                    value={settingsFormData.signInPage}
+                  <Tabs
+                    className={classes["wpc-tabs"]}
+                    value={currentConfig}
                     onChange={(value) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        signInPage: value!,
-                      })
-                    }
-                    data={pageOptions}
-                  />
-                  <Select
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Default redirect after signing in"
-                        scrollToId="default-redirect-after-signing-in"
-                      />
-                    }
-                    description="The WordPress page to redirect to after the user signs in"
-                    value={settingsFormData.redirectSignIn}
-                    onChange={(value) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        redirectSignIn: value!,
-                      })
-                    }
-                    data={pageOptions}
-                  />
-                  <Select
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Default redirect after signing out"
-                        scrollToId="default-redirect-after-signing-out"
-                      />
-                    }
-                    description="The WordPress page to redirect to after the user signs out"
-                    value={settingsFormData.redirectSignOut}
-                    onChange={(value) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        redirectSignOut: value!,
-                      })
-                    }
-                    data={pageOptions}
-                  />
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Google reCAPTCHA (v3) Site Key"
-                        scrollToId="recaptcha-site-key"
-                      />
-                    }
-                    description="Create the key in your reCAPTCHA project, then paste it here."
-                    value={settingsFormData.reCaptchaPublicKey}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        reCaptchaPublicKey: e.target.value,
-                      })
-                    }
-                  />
-                  <Checkbox
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Use reCAPTCHA Enterprise"
-                        scrollToId="use-recaptcha-enterprise"
-                      />
-                    }
-                    checked={settingsFormData.useRecaptchaEnterprise}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        useRecaptchaEnterprise: e.currentTarget.checked,
-                      })
-                    }
-                  />
-                  <Checkbox
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Use recaptcha.net"
-                        scrollToId="use-recaptcha-net"
-                      />
-                    }
-                    checked={settingsFormData.useRecaptchaNet}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        useRecaptchaNet: e.currentTarget.checked,
-                      })
-                    }
-                  />
-                  <TextInput
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Custom Translations URL"
-                        scrollToId="custom-translations-url"
-                      />
-                    }
-                    description={
-                      <>
-                        <Text size="sm" m={0}>
-                          If you want to use custom translations, enter the URL
-                          here. The URL should point to a JSON file. Download{" "}
-                          <a
-                            href="https://wpsuite.io/static/plugins/gatey-translations.json"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download
-                          >
-                            sample translations
-                          </a>
-                          , modify it, and upload it to your server or a public
-                          file hosting service.
-                        </Text>
-                      </>
-                    }
-                    value={settingsFormData.customTranslationsUrl}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        customTranslationsUrl: e.target.value,
-                      })
-                    }
-                  />
-                  <Switch.Group
-                    defaultValue={
-                      settingsFormData.enablePoweredBy ? [] : ["hide"]
-                    }
-                    label={
-                      <InfoLabelComponent
-                        text="Hide 'Powered by Gatey' text"
-                        scrollToId="hide-powered-by-gatey"
-                      />
-                    }
-                    description="Hide the 'Powered by Gatey' text in the login and sign-up forms."
-                    onChange={(values: string[]) =>
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        enablePoweredBy: !values.includes("hide"),
-                      })
+                      setCurrentConfig(value as "default" | "secondary")
                     }
                   >
-                    <Switch label="Hide" value="hide" mt="xs" />
-                  </Switch.Group>
-                </Stack>
+                    <Tabs.List>
+                      <Tabs.Tab
+                        value="default"
+                        leftSection={<IconStar size={16} />}
+                      >
+                        Default
+                      </Tabs.Tab>
+                      <Tabs.Tab
+                        value="secondary"
+                        leftSection={<IconCircleNumber2 size={16} />}
+                        disabled={!formConfig}
+                      >
+                        Secondary
+                        <Badge variant="light" color="red" ml="4px" miw={60}>
+                          PRO
+                        </Badge>
+                      </Tabs.Tab>
+                    </Tabs.List>
+                  </Tabs>
 
-                <Group justify="flex-end" mt="lg">
-                  <Button
-                    loading={savingSettings}
-                    variant="gradient"
-                    type="submit"
-                    leftSection={<IconCheck />}
-                  >
-                    Save General Settings
-                  </Button>
-                </Group>
-              </form>
-            </Tabs.Panel>
-            <Tabs.Panel value="wordpress-login" w="100%">
-              <form name="wordpress-login" onSubmit={handleUpdateSettings}>
-                <Title order={2} mb="md">
-                  WordPress Login
-                </Title>
-
-                <Text mb="md">
-                  Enable full WordPress login integration using Cognito. Assign
-                  roles, override wp-login, and manage secure admin access.
-                </Text>
-
-                <Stack gap="sm">
-                  <Checkbox
-                    disabled={savingSettings}
-                    label={
-                      <InfoLabelComponent
-                        text="Integrate WordPress Login"
-                        scrollToId="integrate-wordpress-login"
-                      />
-                    }
-                    checked={settingsFormData.integrateWpLogin}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIntegrationChange(e.currentTarget.checked)
-                    }
-                  />
-                  {settingsFormData.integrateWpLogin && (
-                    <>
-                      <NumberInput
+                  <Stack gap="sm" p="md" bg="gray.1">
+                    {currentConfig === "secondary" && (
+                      <TextInput
                         disabled={savingSettings}
+                        name="secondaryUserPoolDomains"
                         label={
                           <InfoLabelComponent
-                            text="Cookie expiration"
-                            scrollToId="cookie-expiration"
+                            text="User Pool Domains"
+                            scrollToId="user-pool-domains"
                           />
                         }
-                        description="The number of seconds the cookie should be valid for"
-                        value={settingsFormData.cookieExpiration}
-                        onChange={(value) =>
+                        description="Regular expression of domains for the secondary user pool"
+                        value={settingsFormData.secondaryUserPoolDomains}
+                        onChange={(e) =>
                           setSettingsFormData({
                             ...settingsFormData,
-                            cookieExpiration: +value,
+                            secondaryUserPoolDomains: e.currentTarget.value!,
                           })
                         }
                       />
-                      {wpRolesLoaded && (
-                        <Box>
-                          <Title order={4} my="md">
+                    )}
+
+                    <TextInput
+                      disabled={savingSettings}
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") + ".Auth.Cognito.userPoolId"
+                      }
+                      label={
+                        <InfoLabelComponent
+                          text="User Pool ID"
+                          scrollToId="user-pool-id"
+                        />
+                      }
+                      description="The ID of the AWS Cognito user pool to use"
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.Auth?.Cognito?.userPoolId ?? ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="App Client ID"
+                          scrollToId="app-client-id"
+                        />
+                      }
+                      description="The ID of the AWS Cognito app client to use"
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") + ".Auth.Cognito.userPoolClientId"
+                      }
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.Auth?.Cognito?.userPoolClientId ?? ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent text="Region" scrollToId="region" />
+                      }
+                      description="AWS region"
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") + ".API.GraphQL.region"
+                      }
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.API?.GraphQL?.region ?? ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Identity Pool ID"
+                          scrollToId="identity-pool-id"
+                        />
+                      }
+                      description="The ID of the AWS Cognito identity pool to use"
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") + ".Auth.Cognito.identityPoolId"
+                      }
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.Auth?.Cognito?.identityPoolId ?? ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="OAuth Domain"
+                          scrollToId="oauth-domain"
+                        />
+                      }
+                      description="The domain of the OAuth provider to use"
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") +
+                        ".Auth.Cognito.loginWith.oauth.domain"
+                      }
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.Auth?.Cognito?.loginWith?.oauth?.domain ?? ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="OAuth scopes"
+                          scrollToId="oauth-scopes"
+                        />
+                      }
+                      description="The scopes to use for the OAuth provider"
+                      name={
+                        (currentConfig === "default"
+                          ? "default"
+                          : "secondary") +
+                        ".Auth.Cognito.loginWith.oauth.scopes"
+                      }
+                      value={
+                        (currentConfig === "default"
+                          ? settingsFormData.userPoolConfigurations.default
+                          : settingsFormData.userPoolConfigurations.secondary
+                        )?.Auth?.Cognito?.loginWith?.oauth?.scopes?.join(",") ??
+                        ""
+                      }
+                      onChange={handleConfigChange}
+                    />
+                  </Stack>
+                  <Group justify="flex-end" mt="lg">
+                    <Button
+                      loading={savingSettings}
+                      variant="gradient"
+                      type="submit"
+                      leftSection={<IconCheck />}
+                    >
+                      Save User Pool Settings
+                    </Button>
+                  </Group>
+                </form>
+              </Tabs.Panel>
+              <Tabs.Panel value="general" w="100%">
+                <form name="general" onSubmit={handleUpdateSettings}>
+                  <Title order={2} mb="md">
+                    General
+                  </Title>
+
+                  <Text mb="md">
+                    Control how Gatey behaves across your site — including login
+                    routing, redirect behavior, and display preferences.
+                  </Text>
+
+                  <Stack gap="sm">
+                    <Fieldset
+                      legend={
+                        <InfoLabelComponent
+                          text="Login Mechanisms"
+                          scrollToId="login-mechanisms"
+                        />
+                      }
+                      fw={500}
+                    >
+                      <Checkbox
+                        disabled={savingSettings}
+                        label="Username"
+                        checked={settingsFormData.loginMechanisms?.includes(
+                          "username"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          // remove the current value from the array
+                          const loginMechanisms = [
+                            ...settingsFormData.loginMechanisms,
+                          ];
+                          const index = loginMechanisms.indexOf("username");
+                          if (!e.currentTarget.checked && index > -1) {
+                            loginMechanisms.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            loginMechanisms.push("username");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            loginMechanisms,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        disabled={savingSettings}
+                        label="Email"
+                        checked={settingsFormData.loginMechanisms?.includes(
+                          "email"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          // remove the current value from the array
+                          const loginMechanisms = [
+                            ...settingsFormData.loginMechanisms,
+                          ];
+                          const index = loginMechanisms.indexOf("email");
+                          if (!e.currentTarget.checked && index > -1) {
+                            loginMechanisms.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            loginMechanisms.push("email");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            loginMechanisms,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        disabled={savingSettings}
+                        label="Phone Number"
+                        checked={settingsFormData.loginMechanisms?.includes(
+                          "phone_number"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          // remove the current value from the array
+                          const loginMechanisms = [
+                            ...settingsFormData.loginMechanisms,
+                          ];
+                          const index = loginMechanisms.indexOf("phone_number");
+                          if (!e.currentTarget.checked && index > -1) {
+                            loginMechanisms.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            loginMechanisms.push("phone_number");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            loginMechanisms,
+                          });
+                        }}
+                      />
+                    </Fieldset>
+                    <MultiSelect
+                      label={
+                        <InfoLabelComponent
+                          text="Sign-up Attributes"
+                          scrollToId="signup-attributes"
+                        />
+                      }
+                      placeholder="Select attributes"
+                      data={signUpAttributes}
+                      value={settingsFormData.signUpAttributes}
+                      onChange={(values: string[]) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          signUpAttributes: values as SignUpAttribute[],
+                        })
+                      }
+                      searchable
+                      hidePickedOptions
+                    />
+                    <Fieldset
+                      legend={
+                        <InfoLabelComponent
+                          text="Social Providers"
+                          scrollToId="social-providers"
+                        />
+                      }
+                      fw={500}
+                    >
+                      <Checkbox
+                        label="Google"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "google"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("google");
+                          if (!e.currentTarget.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            socialProviders.push("google");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Facebook"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "facebook"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("facebook");
+                          if (!e.currentTarget.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            socialProviders.push("facebook");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Apple"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "apple"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("apple");
+                          if (!e.currentTarget.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            socialProviders.push("apple");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                      <Checkbox
+                        label="Amazon"
+                        checked={settingsFormData.socialProviders?.includes(
+                          "amazon"
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const socialProviders =
+                            settingsFormData.socialProviders
+                              ? [...settingsFormData.socialProviders]
+                              : [];
+                          const index = socialProviders.indexOf("amazon");
+                          if (!e.currentTarget.checked && index > -1) {
+                            socialProviders.splice(index, 1);
+                          } else if (e.currentTarget.checked && index === -1) {
+                            socialProviders.push("amazon");
+                          }
+                          setSettingsFormData({
+                            ...settingsFormData,
+                            socialProviders,
+                          });
+                        }}
+                      />
+                    </Fieldset>
+                    <Select
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Sign In Page"
+                          scrollToId="sign-in-page"
+                        />
+                      }
+                      description="The WordPress page to show when the user is not logged in"
+                      value={settingsFormData.signInPage}
+                      onChange={(value) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          signInPage: value!,
+                        })
+                      }
+                      data={pageOptions}
+                    />
+                    <Select
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Default redirect after signing in"
+                          scrollToId="default-redirect-after-signing-in"
+                        />
+                      }
+                      description="The WordPress page to redirect to after the user signs in"
+                      value={settingsFormData.redirectSignIn}
+                      onChange={(value) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          redirectSignIn: value!,
+                        })
+                      }
+                      data={pageOptions}
+                    />
+                    <Select
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Default redirect after signing out"
+                          scrollToId="default-redirect-after-signing-out"
+                        />
+                      }
+                      description="The WordPress page to redirect to after the user signs out"
+                      value={settingsFormData.redirectSignOut}
+                      onChange={(value) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          redirectSignOut: value!,
+                        })
+                      }
+                      data={pageOptions}
+                    />
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Google reCAPTCHA (v3) Site Key"
+                          scrollToId="recaptcha-site-key"
+                        />
+                      }
+                      description="Create the key in your reCAPTCHA project, then paste it here."
+                      value={settingsFormData.reCaptchaPublicKey}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          reCaptchaPublicKey: e.target.value,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use reCAPTCHA Enterprise"
+                          scrollToId="use-recaptcha-enterprise"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaEnterprise}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaEnterprise: e.currentTarget.checked,
+                        })
+                      }
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Use recaptcha.net"
+                          scrollToId="use-recaptcha-net"
+                        />
+                      }
+                      checked={settingsFormData.useRecaptchaNet}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          useRecaptchaNet: e.currentTarget.checked,
+                        })
+                      }
+                    />
+                    <TextInput
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Custom Translations URL"
+                          scrollToId="custom-translations-url"
+                        />
+                      }
+                      description={
+                        <>
+                          <Text size="sm" m={0}>
+                            If you want to use custom translations, enter the
+                            URL here. The URL should point to a JSON file.
+                            Download{" "}
+                            <a
+                              href="https://wpsuite.io/static/plugins/gatey-translations.json"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                            >
+                              sample translations
+                            </a>
+                            , modify it, and upload it to your server or a
+                            public file hosting service.
+                          </Text>
+                        </>
+                      }
+                      value={settingsFormData.customTranslationsUrl}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          customTranslationsUrl: e.target.value,
+                        })
+                      }
+                    />
+                    <Switch.Group
+                      defaultValue={
+                        settingsFormData.enablePoweredBy ? [] : ["hide"]
+                      }
+                      label={
+                        <InfoLabelComponent
+                          text="Hide 'Powered by Gatey' text"
+                          scrollToId="hide-powered-by-gatey"
+                        />
+                      }
+                      description="Hide the 'Powered by Gatey' text in the login and sign-up forms."
+                      onChange={(values: string[]) =>
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          enablePoweredBy: !values.includes("hide"),
+                        })
+                      }
+                    >
+                      <Switch label="Hide" value="hide" mt="xs" />
+                    </Switch.Group>
+                  </Stack>
+
+                  <Group justify="flex-end" mt="lg">
+                    <Button
+                      loading={savingSettings}
+                      variant="gradient"
+                      type="submit"
+                      leftSection={<IconCheck />}
+                    >
+                      Save General Settings
+                    </Button>
+                  </Group>
+                </form>
+              </Tabs.Panel>
+              <Tabs.Panel value="wordpress-login" w="100%">
+                <form name="wordpress-login" onSubmit={handleUpdateSettings}>
+                  <Title order={2} mb="md">
+                    WordPress Login
+                  </Title>
+
+                  <Text mb="md">
+                    Enable full WordPress login integration using Cognito.
+                    Assign roles, override wp-login, and manage secure admin
+                    access.
+                  </Text>
+
+                  <Stack gap="sm">
+                    <Checkbox
+                      disabled={savingSettings}
+                      label={
+                        <InfoLabelComponent
+                          text="Integrate WordPress Login"
+                          scrollToId="integrate-wordpress-login"
+                        />
+                      }
+                      checked={settingsFormData.integrateWpLogin}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleIntegrationChange(e.currentTarget.checked)
+                      }
+                    />
+                    {settingsFormData.integrateWpLogin && (
+                      <>
+                        <NumberInput
+                          disabled={savingSettings}
+                          label={
                             <InfoLabelComponent
-                              text="Cognito Group to WordPress Role Mapping"
-                              scrollToId="cognito-group-to-wordpress-role-mapping"
+                              text="Cookie expiration"
+                              scrollToId="cookie-expiration"
                             />
-                          </Title>
-                          <Table withTableBorder>
-                            <Table.Thead>
-                              <Table.Tr>
-                                <Table.Th>Cognito Group</Table.Th>
-                                <Table.Th>WordPress Role</Table.Th>
-                                <Table.Th></Table.Th>
-                              </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                              {settingsFormData.mappings.map(
-                                (mapping, index) => (
-                                  <Table.Tr key={index}>
-                                    <Table.Td>
-                                      {cognitoGroupsLoaded && (
+                          }
+                          description="The number of seconds the cookie should be valid for"
+                          value={settingsFormData.cookieExpiration}
+                          onChange={(value) =>
+                            setSettingsFormData({
+                              ...settingsFormData,
+                              cookieExpiration: +value,
+                            })
+                          }
+                        />
+                        {wpRolesLoaded && (
+                          <Box>
+                            <Title order={4} my="md">
+                              <InfoLabelComponent
+                                text="Cognito Group to WordPress Role Mapping"
+                                scrollToId="cognito-group-to-wordpress-role-mapping"
+                              />
+                            </Title>
+                            <Table withTableBorder>
+                              <Table.Thead>
+                                <Table.Tr>
+                                  <Table.Th>Cognito Group</Table.Th>
+                                  <Table.Th>WordPress Role</Table.Th>
+                                  <Table.Th></Table.Th>
+                                </Table.Tr>
+                              </Table.Thead>
+                              <Table.Tbody>
+                                {settingsFormData.mappings.map(
+                                  (mapping, index) => (
+                                    <Table.Tr key={index}>
+                                      <Table.Td>
+                                        {cognitoGroupsLoaded && (
+                                          <Select
+                                            disabled={savingSettings}
+                                            value={mapping.cognitoGroup}
+                                            onChange={(value) =>
+                                              handleMappingChange(
+                                                index,
+                                                "cognitoGroup",
+                                                value!
+                                              )
+                                            }
+                                            data={cognitoGroups}
+                                          />
+                                        )}
+                                        {!cognitoGroupsLoaded && (
+                                          <TextInput
+                                            disabled={savingSettings}
+                                            value={mapping.cognitoGroup}
+                                            onChange={(
+                                              e: React.ChangeEvent<HTMLInputElement>
+                                            ) =>
+                                              handleMappingChange(
+                                                index,
+                                                "cognitoGroup",
+                                                e.target.value
+                                              )
+                                            }
+                                          />
+                                        )}
+                                      </Table.Td>
+                                      <Table.Td>
                                         <Select
                                           disabled={savingSettings}
-                                          value={mapping.cognitoGroup}
+                                          value={mapping.wordpressRole}
                                           onChange={(value) =>
                                             handleMappingChange(
                                               index,
-                                              "cognitoGroup",
+                                              "wordpressRole",
                                               value!
                                             )
                                           }
-                                          data={cognitoGroups}
+                                          data={wpRoles}
                                         />
-                                      )}
-                                      {!cognitoGroupsLoaded && (
-                                        <TextInput
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <ActionIcon
                                           disabled={savingSettings}
-                                          value={mapping.cognitoGroup}
-                                          onChange={(
-                                            e: React.ChangeEvent<HTMLInputElement>
-                                          ) =>
-                                            handleMappingChange(
-                                              index,
-                                              "cognitoGroup",
-                                              e.target.value
-                                            )
+                                          variant="subtle"
+                                          color="red"
+                                          onClick={() =>
+                                            handleDeleteMapping(index)
                                           }
-                                        />
-                                      )}
-                                    </Table.Td>
-                                    <Table.Td>
-                                      <Select
-                                        disabled={savingSettings}
-                                        value={mapping.wordpressRole}
-                                        onChange={(value) =>
-                                          handleMappingChange(
-                                            index,
-                                            "wordpressRole",
-                                            value!
-                                          )
-                                        }
-                                        data={wpRoles}
-                                      />
-                                    </Table.Td>
-                                    <Table.Td>
-                                      <ActionIcon
-                                        disabled={savingSettings}
-                                        variant="subtle"
-                                        color="red"
-                                        onClick={() =>
-                                          handleDeleteMapping(index)
-                                        }
-                                      >
-                                        <IconX
-                                          style={{
-                                            width: "70%",
-                                            height: "70%",
-                                          }}
-                                          stroke={1.5}
-                                        />
-                                      </ActionIcon>
-                                    </Table.Td>
-                                  </Table.Tr>
-                                )
-                              )}
-                            </Table.Tbody>
-                          </Table>
+                                        >
+                                          <IconX
+                                            style={{
+                                              width: "70%",
+                                              height: "70%",
+                                            }}
+                                            stroke={1.5}
+                                          />
+                                        </ActionIcon>
+                                      </Table.Td>
+                                    </Table.Tr>
+                                  )
+                                )}
+                              </Table.Tbody>
+                            </Table>
 
-                          <Box ta="center">
-                            <Button
-                              disabled={savingSettings}
-                              variant="subtle"
-                              size="compact-xs"
-                              leftSection={<IconPlus size={14} />}
-                              w="100%"
-                              mt="0.3rem"
-                              onClick={handleAddMapping}
-                            >
-                              Add Mapping
-                            </Button>
+                            <Box ta="center">
+                              <Button
+                                disabled={savingSettings}
+                                variant="subtle"
+                                size="compact-xs"
+                                leftSection={<IconPlus size={14} />}
+                                w="100%"
+                                mt="0.3rem"
+                                onClick={handleAddMapping}
+                              >
+                                Add Mapping
+                              </Button>
+                            </Box>
                           </Box>
-                        </Box>
-                      )}
-                    </>
-                  )}
-                </Stack>
-                <Group justify="flex-end" mt="lg">
-                  <Button
-                    loading={savingSettings}
-                    variant="gradient"
-                    type="submit"
-                    leftSection={<IconCheck />}
+                        )}
+                      </>
+                    )}
+                  </Stack>
+                  <Group justify="flex-end" mt="lg">
+                    <Button
+                      loading={savingSettings}
+                      variant="gradient"
+                      type="submit"
+                      leftSection={<IconCheck />}
+                    >
+                      Save WordPress Login Settings
+                    </Button>
+                  </Group>
+                </form>
+              </Tabs.Panel>
+              <Tabs.Panel value="custom-fields" w="100%">
+                <Title order={2} mb="md">
+                  <InfoLabelComponent
+                    text="Custom Fields"
+                    scrollToId="custom-fields"
+                  />
+                </Title>
+
+                <Text mb="md">
+                  Manage and configure custom form fields for both the admin
+                  screens and the front-end.
+                </Text>
+
+                {!(formConfig ?? decryptedConfig)?.subscriptionType && (
+                  <Alert
+                    variant="light"
+                    color="yellow"
+                    title="PRO Feature"
+                    icon={<IconExclamationCircle />}
+                    mb="md"
                   >
-                    Save WordPress Login Settings
-                  </Button>
-                </Group>
-              </form>
-            </Tabs.Panel>
-            <Tabs.Panel value="custom-fields" w="100%">
-              <Title order={2} mb="md">
-                <InfoLabelComponent
-                  text="Custom Fields"
-                  scrollToId="custom-fields"
-                />
-              </Title>
+                    This feature is available in the <strong>PRO</strong>{" "}
+                    version of the plugin. You can save your settings but they
+                    will not take effect until you upgrade your subscription.
+                  </Alert>
+                )}
+                {(formConfig ?? decryptedConfig) && (
+                  <CustomFieldsEditor
+                    amplifyConfigured={amplifyConfigured}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Tabs.Panel>
+              <Tabs.Panel value="custom-providers" w="100%">
+                <Title order={2} mb="md">
+                  <InfoLabelComponent
+                    text="Custom Providers"
+                    scrollToId="custom-providers"
+                  />
+                </Title>
 
-              <Text mb="md">
-                Manage and configure custom form fields for both the admin
-                screens and the front-end.
-              </Text>
+                <Text mb="md">
+                  Enable the custom login providers shown on the sign-in and
+                  sign-up screens.
+                </Text>
 
-              {!(formConfig ?? decryptedConfig)?.subscriptionType && (
-                <Alert
-                  variant="light"
-                  color="yellow"
-                  title="PRO Feature"
-                  icon={<IconExclamationCircle />}
-                  mb="md"
-                >
-                  This feature is available in the <strong>PRO</strong> version
-                  of the plugin. You can save your settings but they will not
-                  take effect until you upgrade your subscription.
-                </Alert>
-              )}
-              {(formConfig ?? decryptedConfig) && (
-                <CustomFieldsEditor
-                  amplifyConfigured={amplifyConfigured}
-                  config={formConfig ?? decryptedConfig}
-                  accountId={accountId!}
-                  siteId={siteId!}
-                  siteKey={siteKey!}
-                  onSave={handleConfigSave}
-                  InfoLabelComponent={InfoLabelComponent}
-                />
-              )}
-            </Tabs.Panel>
-            <Tabs.Panel value="custom-providers" w="100%">
-              <Title order={2} mb="md">
-                <InfoLabelComponent
-                  text="Custom Providers"
-                  scrollToId="custom-providers"
-                />
-              </Title>
+                {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                  "PROFESSIONAL" && (
+                  <Alert
+                    variant="light"
+                    color="yellow"
+                    title="PRO Feature"
+                    icon={<IconExclamationCircle />}
+                    mb="md"
+                  >
+                    This feature is available in the <strong>PRO</strong>{" "}
+                    version of the plugin. You can save your settings but they
+                    will not take effect until you upgrade your subscription.
+                  </Alert>
+                )}
+                {(formConfig ?? decryptedConfig) && (
+                  <CustomProvidersEditor
+                    amplifyConfigured={amplifyConfigured}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Tabs.Panel>
+              <Tabs.Panel value="api-settings" w="100%">
+                <Title order={2} mb="md">
+                  <InfoLabelComponent
+                    text="API Settings"
+                    scrollToId="api-settings"
+                  />
+                </Title>
 
-              <Text mb="md">
-                Enable the custom login providers shown on the sign-in and
-                sign-up screens.
-              </Text>
+                <Text mb="md">
+                  Define secure API endpoints that your frontend can call via
+                  Gatey.cognito. Choose API name, authorization, and endpoint
+                  URL, then configure sign-in and sign-up hooks.
+                </Text>
 
-              {(formConfig ?? decryptedConfig)?.subscriptionType !==
-                "PROFESSIONAL" && (
-                <Alert
-                  variant="light"
-                  color="yellow"
-                  title="PRO Feature"
-                  icon={<IconExclamationCircle />}
-                  mb="md"
-                >
-                  This feature is available in the <strong>PRO</strong> version
-                  of the plugin. You can save your settings but they will not
-                  take effect until you upgrade your subscription.
-                </Alert>
-              )}
-              {(formConfig ?? decryptedConfig) && (
-                <CustomProvidersEditor
-                  amplifyConfigured={amplifyConfigured}
-                  config={formConfig ?? decryptedConfig}
-                  accountId={accountId!}
-                  siteId={siteId!}
-                  siteKey={siteKey!}
-                  onSave={handleConfigSave}
-                  InfoLabelComponent={InfoLabelComponent}
-                />
-              )}
-            </Tabs.Panel>
-            <Tabs.Panel value="api-settings" w="100%">
-              <Title order={2} mb="md">
-                <InfoLabelComponent
-                  text="API Settings"
-                  scrollToId="api-settings"
-                />
-              </Title>
-
-              <Text mb="md">
-                Define secure API endpoints that your frontend can call via
-                Gatey.cognito. Choose API name, authorization, and endpoint URL,
-                then configure sign-in and sign-up hooks.
-              </Text>
-
-              {(formConfig ?? decryptedConfig)?.subscriptionType !==
-                "PROFESSIONAL" && (
-                <Alert
-                  variant="light"
-                  color="yellow"
-                  title="PRO Feature"
-                  icon={<IconExclamationCircle />}
-                  mb="md"
-                >
-                  This feature is available in the <strong>PRO</strong> version
-                  of the plugin. You can save your settings but they will not
-                  take effect until you upgrade your subscription.
-                </Alert>
-              )}
-              {(formConfig ?? decryptedConfig) && (
-                <ApiSettingsEditor
-                  amplifyConfigured={amplifyConfigured}
-                  config={formConfig ?? decryptedConfig}
-                  accountId={accountId!}
-                  siteId={siteId!}
-                  siteKey={siteKey!}
-                  onSave={handleConfigSave}
-                  InfoLabelComponent={InfoLabelComponent}
-                />
-              )}
-            </Tabs.Panel>
-          </Tabs>
-        </Group>
-      </div>
+                {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                  "PROFESSIONAL" && (
+                  <Alert
+                    variant="light"
+                    color="yellow"
+                    title="PRO Feature"
+                    icon={<IconExclamationCircle />}
+                    mb="md"
+                  >
+                    This feature is available in the <strong>PRO</strong>{" "}
+                    version of the plugin. You can save your settings but they
+                    will not take effect until you upgrade your subscription.
+                  </Alert>
+                )}
+                {(formConfig ?? decryptedConfig) && (
+                  <ApiSettingsEditor
+                    amplifyConfigured={amplifyConfigured}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Tabs.Panel>
+            </Tabs>
+          </Group>
+        </div>
+      </Authenticator.Provider>
     )
   );
 };

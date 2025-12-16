@@ -10,7 +10,7 @@ import {
   PanelBody,
   RadioControl,
 } from "@wordpress/components";
-import { select, useDispatch, useSelect } from "@wordpress/data";
+import { select, useDispatch } from "@wordpress/data";
 import { __ } from "@wordpress/i18n";
 import { useCallback, useEffect, useMemo, type FunctionComponent } from "react";
 
@@ -23,16 +23,6 @@ import {
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
 
 import { type ComponentAttributes } from "./index";
-
-interface Attributes {
-  anchor: string;
-}
-
-interface EditorBlock {
-  clientId: string;
-  attributes: Attributes;
-  innerBlocks: EditorBlock[];
-}
 
 const HeaderFooterOptions = [
   { label: __("Header", TEXT_DOMAIN), value: "Header" },
@@ -54,10 +44,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
   const blockProps = useBlockProps();
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
-  const coreEditor = useSelect(
-    (s: typeof select) => s("core/block-editor"),
-    []
-  );
+  const coreEditor = select("core/block-editor");
 
   const { insertBlocks, updateBlock } = useDispatch("core/block-editor");
 
@@ -86,8 +73,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
       .filter(
         ([field]) =>
           !ids.find((id: string) => {
-            const b: { name: string; attributes: { attribute: string } } =
-              coreEditor.getBlock(id);
+            const b = coreEditor.getBlock(id)!;
             return (
               b.name === "gatey/form-field" && b.attributes.attribute === field
             );
@@ -114,7 +100,7 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     if (part) {
       attr = attr ? attr + "-" + part : part;
     }
-    const block: EditorBlock | undefined = coreEditor.getBlock(clientId);
+    const block = coreEditor.getBlock(clientId);
     if (block && attr) {
       if (block.attributes.anchor !== attr) {
         updateBlock(clientId, {

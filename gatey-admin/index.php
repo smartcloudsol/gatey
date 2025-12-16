@@ -92,18 +92,6 @@ class Admin
 
     function addMenu()
     {
-        /*
-        $icon_url = 'data:image/svg+xml;base64,PHN2ZwogICAgd2lkdGg9IjIwcHgiCiAgICBoZWlnaHQ9IjIwcHgiCiAgICB2aWV3Qm94PSIwIDAgNDggNDgiCiAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCglmaWxsPSIjYTdhYWFkIgogID4KICAgIDx0aXRsZT5BdXRoZW50aWNhdG9yPC90aXRsZT4KICAgIDxnIGlkPSJMYXllcl8yIiBkYXRhLW5hbWU9IkxheWVyIDIiPgogICAgICA8ZyBpZD0iYXV0aGVudGljYXRvciIgZGF0YS1uYW1lPSJpY29ucyBRMiI+CiAgICAgICAgPHBhdGggZD0iTTI0LDJTNiw3LjEsNiw4VjI2LjJjMCw5LjIsMTMuMywxNy4zLDE3LDE5LjVhMS44LDEuOCwwLDAsMCwyLDBjMy44LTIuMSwxNy0xMC4zLDE3LTE5LjVWOEM0Miw3LjEsMjQsMiwyNCwyWm0wLDM5LjZhNTQsNTQsMCwwLDEtOC40LTYuMUEyNS4zLDI1LjMsMCwwLDEsMjQsMzRhMjQuOCwyNC44LDAsMCwxLDguNCwxLjVBNDQuNyw0NC43LDAsMCwxLDI0LDQxLjZaTTM4LDI2LjJjMCwxLjYtLjgsMy43LTIuNiw2LjFBMzAuOSwzMC45LDAsMCwwLDI0LDMwYTMwLDMwLDAsMCwwLTExLjMsMi4zYy0xLjktMi40LTIuNy00LjUtMi43LTYuMVYxMC41YzIuOS0xLjEsOC43LTIuOCwxNC00LjMsNS4zLDEuNSwxMS4xLDMuMywxNCw0LjNaIiAvPgogICAgICAgIDxwYXRoIGQ9Ik0yNCwxNGE0LDQsMCwxLDEtNCw0LDQsNCwwLDAsMSw0LTRtMC00YTgsOCwwLDEsMCw4LDgsOCw4LDAsMCwwLTgtOFoiIC8+CiAgICAgIDwvZz4KICAgIDwvZz4KICA8L3N2Zz4=';
-        add_menu_page(
-            __('WP Suite', 'hub-for-wpsuiteio'),
-            __('WP Suite', 'hub-for-wpsuiteio'),
-            'manage_options',
-            WPSUITE_SLUG,
-            null,
-            $icon_url,
-        );
-        */
-
         $generate_suffix = add_submenu_page(
             WPSUITE_SLUG,
             __('Gatey Settings', 'gatey'),

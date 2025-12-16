@@ -4,9 +4,9 @@
  * Plugin URI:        https://wpsuite.io/gatey/
  * Description:       Easily integrate Amazon Cognito for secure authentication, SSO, and advanced user management in WordPress or static sites generated from WordPress.
  * Requires at least: 6.7
- * Tested up to:      6.8
+ * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           1.8.3
+ * Version:           1.10.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.8.3';
+const VERSION = '1.10.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -66,7 +66,6 @@ final class Gatey
     {
         define('GATEY_VERSION', VERSION);
         define('GATEY_SLUG', 'gatey');
-
         define('GATEY_PATH', plugin_dir_path(__FILE__));
         define('GATEY_URL', plugin_dir_url(__FILE__));
     }
@@ -82,8 +81,8 @@ final class Gatey
         }
 
         // Hub admin classes.
-        if (file_exists(GATEY_PATH . 'wpsuite-admin/loader.php')) {
-            require_once GATEY_PATH . 'wpsuite-admin/loader.php';
+        if (file_exists(GATEY_PATH . 'hub-loader.php')) {
+            require_once GATEY_PATH . 'hub-loader.php';
         }
 
         // Admin classes.
@@ -108,14 +107,15 @@ final class Gatey
             register_block_type(GATEY_PATH . 'gatey-blocks/dist/form-field');
         }
 
-        // Hooks.
-        add_action('admin_menu', array($this, 'createAdminMenu'), 20);
-
-        // Front‑end assets + shortcodes
+        // Assets
         add_action('wp_enqueue_scripts', array($this, 'enqueueAssets'), 20);
         add_action('admin_init', array($this, 'enqueueAssets'), 20);
         add_action('elementor/preview/after_enqueue_scripts', array($this, 'enqueueAssets'), 20);
 
+        // Hooks.
+        add_action('admin_menu', array($this, 'createAdminMenu'), 20);
+
+        // Shortcodes
         add_shortcode('gatey', array($this, 'shortcode'));
         add_shortcode('gatey-account', array($this, 'shortcodeAccount'));
 
@@ -161,34 +161,45 @@ final class Gatey
         // Build data passed to JS.
         $settings = $this->admin->getSettings();
 
+        wp_register_script(
+            'wpsuite-webcrypto-vendor',
+            plugins_url('assets/js/wpsuite-webcrypto-vendor.min.js', __FILE__),
+            array(),
+            \SmartCloud\WPSuite\Hub\VERSION_WEBCRYPTO,
+            false
+        );
+
+        wp_register_script(
+            'wpsuite-amplify-vendor',
+            plugins_url('assets/js/wpsuite-amplify-vendor.min.js', __FILE__),
+            array("react", "react-dom"),
+            \SmartCloud\WPSuite\Hub\VERSION_AMPLIFY,
+            false
+        );
+
         $main_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'gatey-main/dist/index.asset.php')) {
             $main_script_asset = require(GATEY_PATH . 'gatey-main/dist/index.asset.php');
         }
+        $main_script_asset['dependencies'] = array_merge($main_script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor'));
         wp_enqueue_script('gatey-main-script', GATEY_URL . 'gatey-main/dist/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
         wp_enqueue_style('gatey-main-style', GATEY_URL . 'gatey-main/dist/index.css', array('wp-components'), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'gatey-main/dist/index.css');
 
-        $authenticator_script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/authenticator/view.asset.php')) {
-            $authenticator_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/authenticator/view.asset.php');
+        $blocks_script_asset = array();
+        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/index.asset.php')) {
+            $blocks_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/index.asset.php');
         }
-        wp_enqueue_script('gatey-authenticator-view-script', GATEY_URL . 'gatey-blocks/dist/authenticator/view.js', $authenticator_script_asset['dependencies'], $authenticator_script_asset['version'], false);
-        wp_enqueue_style('gatey-authenticator-style', GATEY_URL . 'gatey-blocks/dist/authenticator/view.css', array('wp-components'), $authenticator_script_asset['version']);
-
-        $account_attribute_script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/account-attribute/view.asset.php')) {
-            $account_attribute_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/account-attribute/view.asset.php');
-        }
-        wp_enqueue_script('gatey-account-attribute-view-script', GATEY_URL . 'gatey-blocks/dist/account-attribute/view.js', $account_attribute_script_asset['dependencies'], $account_attribute_script_asset['version'], false);
-        wp_enqueue_style('gatey-account-attribute-style', GATEY_URL . 'gatey-blocks/dist/account-attribute/view.css', array('wp-components'), $account_attribute_script_asset['version']);
+        $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('gatey-main-script'));
+        wp_enqueue_script('gatey-blocks-script', GATEY_URL . 'gatey-blocks/dist/index.js', $blocks_script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_style('gatey-blocks-style', GATEY_URL . 'gatey-blocks/dist/index.css', array('wp-components'), GATEY_VERSION);
+        add_editor_style(GATEY_URL . 'gatey-blocks/dist/index.css');
 
         $upload_info = wp_upload_dir();
         $data = array(
             'cognito' => array(),
             'settings' => $settings,
             'restUrl' => rest_url(GATEY_SLUG . '/v1'),
-            'uploadUrl' => trailingslashit($upload_info['baseurl']) . GATEY_SLUG . '/',
             'nonce' => wp_create_nonce('wp_rest'),
         );
         $js = 'const Gatey = ' . wp_json_encode($data) . ';';
@@ -374,7 +385,7 @@ add_action('plugins_loaded', 'SmartCloud\WPSuite\Gatey\gateyLoaded', 20);
 function gateyInit()
 {
     $instance = gatey();
-    if (class_exists('\SmartCloud\WPSuite\Hub\Loader')) {
+    if (class_exists('\SmartCloud\WPSuite\Hub\GateyHubLoader')) {
         $loader = loader();
         $loader->init();
     }
@@ -383,7 +394,7 @@ function gateyInit()
 function gateyLoaded()
 {
     $instance = gatey();
-    if (class_exists('\SmartCloud\WPSuite\Hub\Loader')) {
+    if (class_exists('\SmartCloud\WPSuite\Hub\GateyHubLoader')) {
         $loader = loader();
         $loader->check();
     }
@@ -404,9 +415,9 @@ function gatey()
 /**
  * Accessor function
  *
- * @return \SmartCloud\WPSuite\Hub\Loader
+ * @return \SmartCloud\WPSuite\Hub\GateyHubLoader
  */
 function loader()
 {
-    return \SmartCloud\WPSuite\Hub\Loader::instance('gatey/gatey.php');
+    return \SmartCloud\WPSuite\Hub\GateyHubLoader::instance('gatey/gatey.php', 'gatey');
 }

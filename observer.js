@@ -2,13 +2,13 @@
     const mountAuthenticator = (el) => {
         if (!el?.id || jQuery(el).data("rendered")) return;
         jQuery(document).trigger("gatey-authenticator-block", el.id);
-        jQuery(el).data("rendered", "true");
+        //jQuery(el).data("rendered", "true");
     };
 
     const mountAccountAttribute = (el) => {
         if (!el?.id || jQuery(el).data("rendered")) return;
         jQuery(document).trigger("gatey-account-attribute-block", el.id);
-        jQuery(el).data("rendered", "true");
+        //jQuery(el).data("rendered", "true");
     };
 
     jQuery(() => jQuery('[gatey-authenticator]').each((_idx, n) => mountAuthenticator(n)));
