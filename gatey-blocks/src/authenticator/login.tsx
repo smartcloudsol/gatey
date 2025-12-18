@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
@@ -249,7 +243,7 @@ export const Login = (
     return isVisible && componentVisible;
   }, [isVisible, componentVisible]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (editorRef?.current) {
       setEditorContent(editorRef.current.innerHTML);
     }

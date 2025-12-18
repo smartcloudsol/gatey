@@ -171,7 +171,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   return (
     filteredConfig !== undefined &&
-    amplifyConfigured && (
+    amplifyConfigured &&
+    screen !== undefined && (
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
           <Router>

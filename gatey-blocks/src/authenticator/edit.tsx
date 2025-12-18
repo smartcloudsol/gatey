@@ -158,9 +158,10 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     useState<SubscriptionType | null>();
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
   const [previewMode, setPreviewMode] = useState<PreviewType>();
-  const [previewScreen, setPreviewScreen] = useState<Screen>(
+  const [nextPreviewScreen, setNextPreviewScreen] = useState<Screen>(
     screen || "signIn"
   );
+  const [previewScreen, setPreviewScreen] = useState<Screen | undefined>();
   const [themeDirection, setThemeDirection] = useState<Direction>();
   const [title, setTitle] = useState<string>();
   const [currentLanguage, setCurrentLanguage] = useState<string>();
@@ -181,6 +182,10 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     className: `wp-block-css-box-${uid}`,
   });
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
+
+  useEffect(() => {
+    setPreviewScreen(nextPreviewScreen);
+  }, [nextPreviewScreen]);
 
   useEffect(() => {
     if (amplifyConfigured && !loadingSubscription) {
@@ -376,7 +381,8 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }
               onChange={(value) => {
                 setAttributes({ screen: value as Screen });
-                setPreviewScreen(value as Screen);
+                setNextPreviewScreen(value as Screen);
+                setPreviewScreen(undefined);
               }}
               help={__(
                 "Choose the first screen that the authenticator shows.",
@@ -550,44 +556,68 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                       {
                         icon: previewScreen === "signIn" ? check : null,
                         title: __("Sign In (default)", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("signIn"),
+                        onClick: () => {
+                          setNextPreviewScreen("signIn");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "signUp" ? check : null,
                         title: __("Sign Up", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("signUp"),
+                        onClick: () => {
+                          setNextPreviewScreen("signUp");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "forgotPassword" ? check : null,
                         title: __("Forgot Password", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("forgotPassword"),
+                        onClick: () => {
+                          setNextPreviewScreen("forgotPassword");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "editAccount" ? check : null,
                         title: __("Edit Account", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("editAccount"),
+                        onClick: () => {
+                          setNextPreviewScreen("editAccount");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "changePassword" ? check : null,
                         title: __("Change Password", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("changePassword"),
+                        onClick: () => {
+                          setNextPreviewScreen("changePassword");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "setupTotp" ? check : null,
                         title: __("Setup TOTP", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("setupTotp"),
+                        onClick: () => {
+                          setNextPreviewScreen("setupTotp");
+                          setPreviewScreen(undefined);
+                        },
                       },
                     ]
                   : [
                       {
                         icon: previewScreen === "signIn" ? check : null,
                         title: __("Sign In (default)", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("signIn"),
+                        onClick: () => {
+                          setNextPreviewScreen("signIn");
+                          setPreviewScreen(undefined);
+                        },
                       },
                       {
                         icon: previewScreen === "signUp" ? check : null,
                         title: __("Sign Up", TEXT_DOMAIN),
-                        onClick: () => setPreviewScreen("signUp"),
+                        onClick: () => {
+                          setNextPreviewScreen("signUp");
+                          setPreviewScreen(undefined);
+                        },
                       },
                     ]
               }
