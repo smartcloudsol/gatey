@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           1.10.0
+ * Version:           1.10.1
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.10.0';
+const VERSION = '1.10.1';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -60,41 +60,6 @@ final class Gatey
     }
 
     /**
-     * Define required constants.
-     */
-    private function defineConstants(): void
-    {
-        define('GATEY_VERSION', VERSION);
-        define('GATEY_SLUG', 'gatey');
-        define('GATEY_PATH', plugin_dir_path(__FILE__));
-        define('GATEY_URL', plugin_dir_url(__FILE__));
-    }
-
-    /**
-     * Include admin classes or additional files.
-     */
-    private function includes(): void
-    {
-        // Composer autoloader if shipped.
-        if (file_exists(GATEY_PATH . 'vendor/autoload.php') && !class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
-            require_once GATEY_PATH . 'vendor/autoload.php';
-        }
-
-        // Hub admin classes.
-        if (file_exists(GATEY_PATH . 'hub-loader.php')) {
-            require_once GATEY_PATH . 'hub-loader.php';
-        }
-
-        // Admin classes.
-        if (file_exists(GATEY_PATH . 'gatey-admin/index.php')) {
-            require_once GATEY_PATH . 'gatey-admin/index.php';
-        }
-        if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
-            $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();
-        }
-    }
-
-    /**
      * Init callback – registers blocks.
      */
     public function init(): void
@@ -116,7 +81,7 @@ final class Gatey
         add_action('admin_menu', array($this, 'createAdminMenu'), 20);
 
         // Shortcodes
-        add_shortcode('gatey', array($this, 'shortcode'));
+        add_shortcode('gatey', array($this, 'shortcodeAuthenticator'));
         add_shortcode('gatey-account', array($this, 'shortcodeAccount'));
 
         // Category for custom blocks.
@@ -222,7 +187,7 @@ final class Gatey
     /**
      * Shortcode handler for [gatey]
      */
-    public function shortcode($atts = array(), $content = null): string
+    public function shortcodeAuthenticator($atts = array(), $content = null): string
     {
         $a = shortcode_atts(
             array(
@@ -370,6 +335,41 @@ final class Gatey
     public function createAdminMenu(): void
     {
         $this->admin->addMenu();
+    }
+
+    /**
+     * Define required constants.
+     */
+    private function defineConstants(): void
+    {
+        define('GATEY_VERSION', VERSION);
+        define('GATEY_SLUG', 'gatey');
+        define('GATEY_PATH', plugin_dir_path(__FILE__));
+        define('GATEY_URL', plugin_dir_url(__FILE__));
+    }
+
+    /**
+     * Include admin classes or additional files.
+     */
+    private function includes(): void
+    {
+        // Composer autoloader if shipped.
+        if (file_exists(GATEY_PATH . 'vendor/autoload.php') && !class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
+            require_once GATEY_PATH . 'vendor/autoload.php';
+        }
+
+        // Hub admin classes.
+        if (file_exists(GATEY_PATH . 'hub-loader.php')) {
+            require_once GATEY_PATH . 'hub-loader.php';
+        }
+
+        // Admin classes.
+        if (file_exists(GATEY_PATH . 'gatey-admin/index.php')) {
+            require_once GATEY_PATH . 'gatey-admin/index.php';
+        }
+        if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
+            $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();
+        }
     }
 
 }

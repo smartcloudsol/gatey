@@ -90,7 +90,7 @@ class Admin
         return $this->settings;
     }
 
-    function addMenu()
+    public function addMenu()
     {
         $generate_suffix = add_submenu_page(
             WPSUITE_SLUG,
@@ -119,13 +119,13 @@ class Admin
         add_action('admin_enqueue_scripts', array($this, 'copyShortcode'));
     }
 
-    function addShortcodeColumn($columns)
+    public function addShortcodeColumn($columns)
     {
         $columns['wpc_shortcode'] = __('Shortcode', 'gatey');
         return $columns;
     }
 
-    function renderShortcodeColumn($column, $post_id)
+    public function renderShortcodeColumn($column, $post_id)
     {
         if ('wpc_shortcode' !== $column) {
             return;
@@ -146,7 +146,7 @@ class Admin
         );
     }
 
-    function copyShortcode($hook)
+    public function copyShortcode($hook)
     {
 
         // Csak a „Blokkok” (wp_block) listán van rá szükség
@@ -211,7 +211,7 @@ class Admin
             "
         );
     }
-    function highlightMenu($parent_file)
+    public function highlightMenu($parent_file)
     {
         if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
             return WPSUITE_SLUG;
@@ -219,7 +219,7 @@ class Admin
         return $parent_file;
     }
 
-    function highlightSubmenu($submenu_file)
+    public function highlightSubmenu($submenu_file)
     {
         if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
             return admin_url("edit.php?post_type=wp_block&s=gatey");
@@ -227,7 +227,7 @@ class Admin
         return $submenu_file;
     }
 
-    function addScripts()
+    public function addScripts()
     {
         $screen = get_current_screen();
         /*
@@ -248,21 +248,12 @@ class Admin
         wp_enqueue_style('gatey-admin-style', GATEY_URL . 'gatey-admin/dist/index.css', array('wp-components'), GATEY_VERSION);
     }
 
-    function renderCognitoSettingsPage()
+    public function renderCognitoSettingsPage()
     {
         echo '<div id="gatey-admin"></div>';
     }
 
-    function registerRestRoutes()
-    {
-        if (!class_exists('WP_REST_Controller')) {
-            return;
-        }
-
-        add_action('rest_api_init', array($this, 'initRestApi'));
-    }
-
-    function initRestApi()
+    public function initRestApi()
     {
         register_rest_route(
             GATEY_SLUG . '/v1',
@@ -312,7 +303,7 @@ class Admin
         );
     }
 
-    function login(WP_REST_Request $request)
+    public function login(WP_REST_Request $request)
     {
         $data = $request->get_body_params();
         if (wp_get_current_user()->has_prop('user_email') && wp_get_current_user()->get('user_email') == $data['email']) {
@@ -439,7 +430,7 @@ class Admin
         return new WP_REST_Response(array('success' => true, 'message' => __('Logged in.', 'gatey'), 'redirect' => $next_url), 200);
     }
 
-    function logout(WP_REST_Request $request)
+    public function logout(WP_REST_Request $request)
     {
         $user = wp_get_current_user();
         if ($user && is_array($user->roles) && sizeof($user->roles) > 0 && in_array($user->roles[0], array('administrator'))) {
@@ -450,16 +441,16 @@ class Admin
         wp_logout();
         return new WP_REST_Response(array('success' => true, 'message' => __('Logged out.', 'gatey'), 'redirect' => $next_url), 200);
     }
-    function getRoles(WP_REST_Request $request)
+    public function getRoles(WP_REST_Request $request)
     {
         global $wp_roles;
         return new WP_REST_Response(array_keys(array_map(array($this, 'getRoleName'), $wp_roles->roles)), 200);
     }
-    function getRoleName($role)
+    public function getRoleName($role)
     {
         return $role['name'];
     }
-    function updateSettings(WP_REST_Request $request)
+    public function updateSettings(WP_REST_Request $request)
     {
         $settings_param = json_decode($request->get_body());
 
@@ -528,9 +519,18 @@ class Admin
         return new WP_REST_Response(array('success' => true, 'message' => __('Settings updated successfully.', 'gatey')), 200);
     }
 
-    function setAuthCookieExpiration($length, $user_id, $remember)
+    public function setAuthCookieExpiration($length, $user_id, $remember)
     {
         return $this->settings->cookieExpiration;
+    }
+
+    private function registerRestRoutes()
+    {
+        if (!class_exists('WP_REST_Controller')) {
+            return;
+        }
+
+        add_action('rest_api_init', array($this, 'initRestApi'));
     }
 
 }

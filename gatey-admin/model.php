@@ -101,14 +101,3 @@ class Settings
     ) {
     }
 }
-class SiteSettings
-{
-    public function __construct(
-        public string $accountId = "",
-        public string $siteId = "",
-        public int $lastUpdate = 0,
-        public bool $subscriber = false,
-        public string $siteKey = "",
-    ) {
-    }
-}

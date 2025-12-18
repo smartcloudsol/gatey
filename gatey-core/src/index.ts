@@ -152,7 +152,6 @@ export {
   type FormField,
   type State,
   type Store,
-  type SubscriptionType,
 } from "./store";
 
 export { TEXT_DOMAIN } from "./constants";

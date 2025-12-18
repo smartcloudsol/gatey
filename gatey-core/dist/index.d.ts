@@ -4,6 +4,7 @@ import { get, post, put, del, head, patch } from 'aws-amplify/api';
 import { FetchMFAPreferenceOutput, FetchUserAttributesOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { CustomProvider } from '@aws-amplify/ui-react';
 import { StoreDescriptor } from '@wordpress/data';
+import { SubscriptionType } from '@smart-cloud/wpsuite-core';
 
 declare const actions: {
     setAmplifyConfig(amplifyConfig: ResourcesConfig): {
@@ -99,7 +100,6 @@ interface State {
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
 }
-type SubscriptionType = "PROFESSIONAL" | "AGENCY";
 type Store = StoreDescriptor;
 type StoreSelectors = {
     getAmplifyConfig(): ResourcesConfig;
@@ -210,4 +210,4 @@ interface Gatey {
 
 declare const store: Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type State, type Store, type SubscriptionType, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStoreDispatch, getStoreSelect, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStoreDispatch, getStoreSelect, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };

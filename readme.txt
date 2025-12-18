@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.10.0
+Stable tag: 1.10.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 1.10.1 =
+* Minor refinements and fixes in the WPSuite.io / Connect your Site admin menu
+* Small internal improvements
 
 = 1.10.0 =
 * Refactored the admin codebase behind the WPSuite.io / Connect your Site menu
@@ -363,6 +367,10 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 1.10.1 =
+This is a small maintenance update with minor improvements to the WPSuite.io site connection screen.
+No action is required after updating.
 
 = 1.10.0 =
 This update refactors the internal admin code for WPSuite.io site connection and license handling.

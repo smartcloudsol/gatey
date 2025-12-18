@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-const GATEY_HUB_VERSION = '1.2.0';
+const GATEY_HUB_VERSION = '1.2.1';
 
 final class GateyHubLoader
 {
@@ -34,6 +34,70 @@ final class GateyHubLoader
         return self::$instance ?? (self::$instance = new self($plugin, $text_domain));
     }
 
+    /**
+     * Hub init callback
+     */
+    public function init(): void
+    {
+        if (!isset($this->admin)) {
+            return;
+        }
+        // Hooks.
+        add_action('admin_menu', array($this, 'createAdminMenu'), 10);
+
+        $this->admin->init();
+    }
+
+    public function createAdminMenu(): void
+    {
+        if (!isset($this->admin)) {
+            return;
+        }
+        $icon_url = $this->admin->getIconUrl();
+        add_menu_page(
+            __('WPSuite.io', 'gatey'),
+            __('WPSuite.io', 'gatey'),
+            'manage_options',
+            WPSUITE_SLUG,
+            null,
+            $icon_url,
+            58,
+        );
+
+        $connect_suffix = add_submenu_page(
+            WPSUITE_SLUG,
+            __('Connect your Site', 'gatey'),
+            __('Connect your Site', 'gatey'),
+            'manage_options',
+            WPSUITE_SLUG,
+            array($this->admin, 'renderAdminPage'),
+        );
+
+        /*
+        $diagnostics_suffix = add_submenu_page(
+            WPSUITE_SLUG,
+            __('Diagnostics', 'gatey'),
+            __('Diagnostics', 'gatey'),
+            'manage_options',
+            WPSUITE_SLUG . '-diagnostics',
+            array($this->admin, 'renderAdminPage'),
+        );
+        */
+
+        $this->admin->enqueueAdminScripts($connect_suffix /*, $diagnostics_suffix */);
+    }
+
+    /**
+     * Check configuration and license.
+     */
+    public function check(): void
+    {
+        if (!isset($this->admin)) {
+            return;
+        }
+        $this->admin->check();
+    }
+
     private function includes()
     {
         if (!function_exists('is_plugin_active')) {
@@ -46,9 +110,9 @@ final class GateyHubLoader
 
         // If Hub is not present, try to create a single common top-level menu
         // Mutex: first writer wins on the option
-		if (!defined('WPSUITE_SLUG')) {
-			define('WPSUITE_SLUG', 'hub-for-wpsuiteio');
-		}
+        if (!defined('WPSUITE_SLUG')) {
+            define('WPSUITE_SLUG', 'hub-for-wpsuiteio');
+        }
         $fallback_parent = WPSUITE_SLUG; // common top-level slug
         $owner_option = WPSUITE_SLUG . '/top-menu-owner';
 
@@ -57,8 +121,8 @@ final class GateyHubLoader
         $owner_missing = empty($owner);
         $owner_is_me = ($owner === $this->plugin);
         $owner_inactive = ($owner && !is_plugin_active($owner));
-		$owner_version_is_smaller = version_compare($owner_version, GATEY_HUB_VERSION) === -1;
-		$owner_version_equals = version_compare($owner_version, GATEY_HUB_VERSION) === 0;
+        $owner_version_is_smaller = version_compare($owner_version, GATEY_HUB_VERSION) === -1;
+        $owner_version_equals = version_compare($owner_version, GATEY_HUB_VERSION) === 0;
 
         // If there is no owner yet, try to claim it
         if ($owner_missing || $owner_is_me || $owner_inactive || $owner_version_is_smaller) {
@@ -79,131 +143,19 @@ final class GateyHubLoader
                 if (class_exists('\SmartCloud\WPSuite\Hub\HubAdmin')) {
                     $this->admin = new HubAdmin();
                 }
-				if (!$owner_is_me || !$owner_version_equals) {
-					update_option($owner_option, $this->plugin, false);
-					update_option($owner_option . '/version', GATEY_HUB_VERSION, false);
-				}
+                if (!$owner_is_me || !$owner_version_equals) {
+                    update_option($owner_option, $this->plugin, false);
+                    update_option($owner_option . '/version', GATEY_HUB_VERSION, false);
+                }
             }
-			if (!$owner_is_me && $owner_version_is_smaller) {
-				update_option($owner_option, $this->plugin, false);
-				update_option($owner_option . '/version', GATEY_HUB_VERSION, false);
-			}
+            if (!$owner_is_me && $owner_version_is_smaller) {
+                update_option($owner_option, $this->plugin, false);
+                update_option($owner_option . '/version', GATEY_HUB_VERSION, false);
+            }
             return $result;
         }
 
         return false;
     }
-
-    /**
-     * Hub init callback
-     */
-    public function init(): void
-    {
-        if (!isset($this->admin)) {
-            return;
-        }
-        // Hooks.
-        add_action('admin_menu', array($this, 'createAdminMenu'), 10);
-
-        // Front‑end assets + shortcodes
-        add_action('wp_enqueue_scripts', array($this, 'enqueueAdminAssets', ), 10);
-        add_action('admin_init', array($this, 'enqueueAdminAssets'), 10);
-        add_action('elementor/preview/after_enqueue_scripts', array($this, 'enqueueAdminAssets'), 10);
-
-    }
-
-    public function createAdminMenu(): void
-    {
-        if (!isset($this->admin)) {
-            return;
-        }
-        $this->admin->addMenu();
-    }
-
-    /**
-     * Enqueue inline scripts that expose PHP constants to JS.
-     */
-    public function enqueueAdminAssets(): void
-    {
-        if (!isset($this->admin)) {
-            return;
-        }
-        $siteSettings = $this->admin->getSiteSettings();
-
-        $upload_info = wp_upload_dir();
-        $data = array(
-            'restUrl' => rest_url(WPSUITE_SLUG . '/v1'),
-            'uploadUrl' => trailingslashit($upload_info['baseurl']) . WPSUITE_SLUG . '/',
-            'nonce' => wp_create_nonce('wp_rest'),
-            'siteSettings' => array(
-                'accountId' => $siteSettings->accountId,
-                'siteId' => $siteSettings->siteId,
-                'siteKey' => is_admin() ? $siteSettings->siteKey : '',
-                'lastUpdate' => $siteSettings->lastUpdate,
-                'subscriber' => $siteSettings->subscriber,
-                'hubInstalled' => true,
-            ),
-        );
-        $js = 'const WpSuite = ' . wp_json_encode($data) . ';';
-
-        wp_enqueue_script('wpsuite-main-script', WPSUITE_URL . 'hub-for-wpsuiteio.js', false, WPSUITE_VERSION, false);
-
-        wp_add_inline_script('wpsuite-main-script', $js, 'before');
-    }
-
-    /**
-     * Check configuration and license.
-     */
-    public function check(): void
-    {
-        if (!isset($this->admin)) {
-            return;
-        }
-        $siteSettings = $this->admin->getSiteSettings();
-        if ($siteSettings->subscriber) {
-            // If the site is a subscriber, we need to check if the configuration and the license exist.
-
-            $lock_key = WPSUITE_SLUG . '/license-refresh-lock';
-            $time_key = WPSUITE_SLUG . '/license-last-refresh';
-
-            /* ---- 1.  handling race-conditions (5-minute lock) ---- */
-            if (get_transient($lock_key)) {
-                return;
-            }
-            set_transient($lock_key, 1, 5 * MINUTE_IN_SECONDS);
-
-            /* ---- 2.  do we need to refresh? ---- */
-            $need_refresh = false;
-
-            $upload_dir_info = wp_upload_dir();
-            $base_dir = trailingslashit($upload_dir_info['basedir']);
-            $plugin_subdir = trailingslashit($base_dir . WPSUITE_SLUG);
-            $config_path = $plugin_subdir . 'config.enc';
-            $jws_path = $plugin_subdir . 'lic.jws';
-            $exists = file_exists($config_path) && file_exists($jws_path);
-
-            if (!$exists) {
-                $need_refresh = true;
-            }
-
-            // 2/b) was the last successful refresh more than a week ago?
-            $last = (int) get_option($time_key, 0);
-            if (time() - $last >= WEEK_IN_SECONDS) {
-                $need_refresh = true;
-            }
-
-            /* ---- 3.  refresh if we need to ---- */
-            if ($need_refresh) {
-                $this->admin->reloadConfig(
-                    $siteSettings->accountId,
-                    $siteSettings->siteId,
-                    $siteSettings->siteKey
-                );
-            }
-            /* ---- 4.  unlock ---- */
-            delete_transient($lock_key);
-        }
-    }
-
 
 }

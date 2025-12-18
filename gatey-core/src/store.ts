@@ -14,7 +14,11 @@ import {
   subscribe,
 } from "@wordpress/data";
 
-import { getConfig, type SiteSettings } from "@smart-cloud/wpsuite-core";
+import {
+  getConfig,
+  type SiteSettings,
+  type SubscriptionType,
+} from "@smart-cloud/wpsuite-core";
 
 import {
   configureAmplify,
@@ -414,8 +418,6 @@ export interface State {
   reloadUserAttributes: number;
   reloadMFAPreferences: number;
 }
-
-export type SubscriptionType = "PROFESSIONAL" | "AGENCY";
 
 export type Store = StoreDescriptor;
 
