@@ -7,6 +7,15 @@ import { type ResourcesConfig } from "aws-amplify";
 import { del, get, head, patch, post, put } from "aws-amplify/api";
 
 import {
+  getGateyPlugin,
+  getStore,
+  waitForGateyReady,
+  type GateyErrorEvent,
+  type GateyPlugin,
+  type GateyReadyEvent,
+} from "./runtime";
+
+import {
   clearMfaPreferences,
   getAmplifyConfig,
   getGroups,
@@ -26,10 +35,7 @@ import {
   observeStore,
   type Store,
 } from "./store";
-
-declare global {
-  const Gatey: Gatey;
-}
+import { attachDefaultPluginRuntime } from "@smart-cloud/wpsuite-core";
 
 export interface RoleMapping {
   cognitoGroup?: string;
@@ -59,30 +65,42 @@ export interface Settings {
 }
 
 const signOut = () => {
-  Gatey.cognito.store.then((store) => {
-    observeStore(
-      store,
-      (state) => state.nextUrl,
-      async (nextUrl) => {
-        if (nextUrl) {
-          window.location.assign(nextUrl as string);
+  getStore()
+    .then((store) => {
+      observeStore(
+        store,
+        (state) => state.nextUrl,
+        async (nextUrl) => {
+          if (nextUrl) {
+            window.location.assign(nextUrl as string);
+          }
         }
-      }
-    );
-    getStoreDispatch(store).clearAccount();
-  });
+      );
+      getStoreDispatch(store).clearAccount();
+    })
+    .catch((err) => {
+      console.error("Gatey signOut error:", err);
+    });
 };
 
 const setLanguage = (language?: string) => {
-  Gatey.cognito.store.then((store) => {
-    getStoreDispatch(store).setLanguage(language ?? "en");
-  });
+  getStore()
+    .then((store) => {
+      getStoreDispatch(store).setLanguage(language ?? "en");
+    })
+    .catch((err) => {
+      console.error("Gatey setLanguage error:", err);
+    });
 };
 
 const setDirection = (direction?: "ltr" | "rtl" | "auto") => {
-  Gatey.cognito.store.then((store) => {
-    getStoreDispatch(store).setDirection(direction ?? "auto");
-  });
+  getStore()
+    .then((store) => {
+      getStoreDispatch(store).setDirection(direction ?? "auto");
+    })
+    .catch((err) => {
+      console.error("Gatey setDirection error:", err);
+    });
 };
 
 export interface Cognito {
@@ -121,6 +139,15 @@ export interface Gatey {
 }
 
 export {
+  getGateyPlugin,
+  getStore,
+  waitForGateyReady,
+  type GateyErrorEvent,
+  type GateyPlugin,
+  type GateyReadyEvent,
+};
+
+export {
   clearMfaPreferences,
   getGroups,
   getMfaPreferences,
@@ -154,13 +181,25 @@ export {
   type Store,
 } from "./store";
 
+/**
+ * @deprecated Use `getStore()` instead. Import with `import { getStore } from '@smart-cloud/gatey-core';`
+ */
+export const store = async (): Promise<Store> => {
+  return getStore();
+};
+
 export { TEXT_DOMAIN } from "./constants";
 
-let initialized = !!Gatey.cognito?.store;
-export const store: Promise<Store> = Gatey.cognito?.store ?? createStore();
-
-if (!initialized) {
-  Gatey.cognito = {
+export const initializeGatey = (): GateyPlugin => {
+  const wp = globalThis.WpSuite;
+  const gatey = getGateyPlugin();
+  if (!gatey) {
+    throw new Error("Gatey plugin is not available");
+  }
+  attachDefaultPluginRuntime(gatey);
+  gatey.status = gatey.status ?? "initializing";
+  const store = createStore();
+  gatey.cognito = {
     store: store,
     observeStore,
     setLanguage,
@@ -184,5 +223,22 @@ if (!initialized) {
     head,
     patch,
   };
-}
-initialized = true;
+
+  store
+    .then(() => {
+      gatey.status = "available";
+      wp?.events?.emit("wpsuite:gatey:ready", {
+        key: gatey.key,
+        version: gatey.version,
+      });
+    })
+    .catch((err) => {
+      gatey.status = "error";
+      wp?.events?.emit("wpsuite:gatey:error", {
+        key: gatey.key,
+        error: String(err),
+      });
+    });
+
+  return gatey;
+};

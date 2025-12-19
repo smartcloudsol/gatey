@@ -34,7 +34,7 @@ import {
   type Direction,
 } from "@aws-amplify/ui-react";
 
-import { store, TEXT_DOMAIN, type Store } from "@smart-cloud/gatey-core";
+import { getStore, TEXT_DOMAIN, type Store } from "@smart-cloud/gatey-core";
 
 import {
   colorModeOptions,
@@ -99,7 +99,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, [direction, language]);
 
   useEffect(() => {
-    store.then((fulfilledStore) => {
+    getStore().then((fulfilledStore) => {
       setFulfilledStore(fulfilledStore);
     });
   }, []);

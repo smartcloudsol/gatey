@@ -5,12 +5,13 @@ import { type ColorMode, type Direction } from "@aws-amplify/ui-react";
 
 import "jquery";
 
-import { store } from "@smart-cloud/gatey-core";
+import { getGateyPlugin, getStore } from "@smart-cloud/gatey-core";
 
 import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
 import { ThemedApp } from "./theme";
 
+const gatey = getGateyPlugin();
 const cache = new Map<string, string>();
 try {
   const call = async (id: string) => {
@@ -34,7 +35,7 @@ try {
         el.getAttribute("data-redirecting-message") || "";
       const totpIssuer = el.getAttribute("data-totp-issuer") || "";
       const root = createRoot(el);
-      const fulfilledStore = await store;
+      const fulfilledStore = await getStore();
       if (cache.has(id)) {
         el.innerHTML = cache.get(id) || "";
       } else {
@@ -58,7 +59,7 @@ try {
             redirectingMessage={redirectingMessage}
             totpIssuer={totpIssuer}
             isPreview={isPreview}
-            nonce={Gatey?.nonce}
+            nonce={gatey?.nonce}
           >
             {el.children?.length && el.children[0].innerHTML}
           </ThemedApp>

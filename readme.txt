@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.10.2
+Stable tag: 2.0.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,17 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.0 =
+BREAKING: Introduced a unified WP Suite global registry and event-based initialization.
+
+* New global namespace: use `globalThis.WpSuite` as the single entry point.
+* New plugin registry: Gatey is now exposed under `globalThis.WpSuite.plugins.gatey`.
+* New lifecycle events:
+  * `wpsuite:gatey:ready` — fired when Gatey is fully initialized and the store is ready.
+  * `wpsuite:gatey:error` — fired if initialization fails.
+* Improved interoperability: dependent WP Suite plugins can reliably detect readiness without relying on script order.
+* Internal refactor: Gatey runtime helpers now resolve state through the WP Suite plugin registry.
 
 = 1.10.2 =
 * Fixed a rendering issue in the Authenticator block
@@ -372,6 +383,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+New WP Suite plugin registry + ready events. Prefer `globalThis.WpSuite.plugins.gatey` and listen for `wpsuite:gatey:ready`. Legacy `Gatey.*` and `Gatey.cognito.store` still work but are deprecated.
 
 = 1.10.2 =
 This update fixes a rendering issue in the Authenticator block and restores custom blocks for subscribed sites and in the Gutenberg "PAID" preview mode.

@@ -1,10 +1,63 @@
 import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { FetchMFAPreferenceOutput, FetchUserAttributesOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
+import { WpSuitePluginBase, SubscriptionType } from '@smart-cloud/wpsuite-core';
+import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { CustomProvider } from '@aws-amplify/ui-react';
-import { StoreDescriptor } from '@wordpress/data';
-import { SubscriptionType } from '@smart-cloud/wpsuite-core';
+import { StoreDescriptor as StoreDescriptor$1 } from '@wordpress/data';
+
+/**
+ * External dependencies
+ */
+
+type MapOf<T> = {
+    [name: string]: T;
+};
+type ActionCreator = (...args: any[]) => any | Generator;
+type Resolver = Function | Generator;
+type AnyConfig = ReduxStoreConfig<any, any, any>;
+interface StoreInstance<Config extends AnyConfig> {
+    getSelectors: () => SelectorsOf<Config>;
+    getActions: () => ActionCreatorsOf<Config>;
+    subscribe: (listener: () => void) => () => void;
+}
+interface StoreDescriptor<Config extends AnyConfig> {
+    /**
+     * Store Name
+     */
+    name: string;
+    /**
+     * Creates a store instance
+     */
+    instantiate: (registry: DataRegistry) => StoreInstance<Config>;
+}
+interface ReduxStoreConfig<State, ActionCreators extends MapOf<ActionCreator>, Selectors> {
+    initialState?: State;
+    reducer: (state: any, action: any) => any;
+    actions?: ActionCreators;
+    resolvers?: MapOf<Resolver>;
+    selectors?: Selectors;
+    controls?: MapOf<Function>;
+}
+interface DataRegistry {
+    register: (store: StoreDescriptor<any>) => void;
+}
+type ActionCreatorsOf<Config extends AnyConfig> = Config extends ReduxStoreConfig<any, infer ActionCreators, any> ? PromisifiedActionCreators<ActionCreators> : never;
+type PromisifiedActionCreators<ActionCreators extends MapOf<ActionCreator>> = {
+    [Action in keyof ActionCreators]: PromisifyActionCreator<ActionCreators[Action]>;
+};
+type PromisifyActionCreator<Action extends ActionCreator> = (...args: Parameters<Action>) => Promise<ReturnType<Action> extends (..._args: any[]) => any ? ThunkReturnType<Action> : ReturnType<Action>>;
+type ThunkReturnType<Action extends ActionCreator> = Awaited<ReturnType<ReturnType<Action>>>;
+type SelectorsOf<Config extends AnyConfig> = Config extends ReduxStoreConfig<any, any, infer Selectors> ? {
+    [name in keyof Selectors]: Function;
+} : never;
+
+type GateyReadyEvent = "wpsuite:gatey:ready";
+type GateyErrorEvent = "wpsuite:gatey:error";
+type GateyPlugin = WpSuitePluginBase & Gatey;
+declare function getGateyPlugin(): GateyPlugin;
+declare function waitForGateyReady(timeoutMs?: number): Promise<void>;
+declare function getStore(timeoutMs?: number): Promise<StoreDescriptor<any>>;
 
 declare const actions: {
     setAmplifyConfig(amplifyConfig: ResourcesConfig): {
@@ -100,7 +153,7 @@ interface State {
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
 }
-type Store = StoreDescriptor;
+type Store = StoreDescriptor$1;
 type StoreSelectors = {
     getAmplifyConfig(): ResourcesConfig;
     getAccount(): Account;
@@ -143,9 +196,6 @@ declare const logout: (signOutHook: ApiConfiguration["signOutHook"]) => Promise<
 
 declare const TEXT_DOMAIN = "gatey";
 
-declare global {
-    const Gatey: Gatey;
-}
 interface RoleMapping {
     cognitoGroup?: string;
     wordpressRole?: string;
@@ -208,6 +258,11 @@ interface Gatey {
     restUrl: string;
 }
 
-declare const store: Promise<Store>;
+/**
+ * @deprecated Use `getStore()` instead. Import with `import { getStore } from '@smart-cloud/gatey-core';`
+ */
+declare const store: () => Promise<Store>;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, Gatey, type RoleMapping, type Settings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStoreDispatch, getStoreSelect, getUserAttributes, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store };
+declare const initializeGatey: () => GateyPlugin;
+
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, type Gatey, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent, type RoleMapping, type Settings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGateyPlugin, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStore, getStoreDispatch, getStoreSelect, getUserAttributes, initializeGatey, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store, waitForGateyReady };

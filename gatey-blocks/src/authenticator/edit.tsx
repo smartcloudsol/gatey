@@ -21,9 +21,9 @@ import { __ } from "@wordpress/i18n";
 import { check, close, currencyDollar, seen, settings } from "@wordpress/icons";
 import { createRef, useEffect, useState, type FunctionComponent } from "react";
 
-import { get } from "aws-amplify/api";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { Amplify } from "aws-amplify";
+import { get } from "aws-amplify/api";
 
 import { translate } from "@aws-amplify/ui";
 
@@ -36,12 +36,17 @@ import {
 
 import {
   AuthenticatorConfig,
-  store,
+  getGateyPlugin,
+  getStore,
   TEXT_DOMAIN,
   type Store,
 } from "@smart-cloud/gatey-core";
 
-import { SiteSettings, SubscriptionType } from "@smart-cloud/wpsuite-core";
+import {
+  getWpSuite,
+  type SiteSettings,
+  type SubscriptionType,
+} from "@smart-cloud/wpsuite-core";
 
 import {
   colorModeOptions,
@@ -123,12 +128,16 @@ const useScopedCssCompat = (id: string, css: string) => {
   }, [id, css]);
 };
 
+const wpsuite = getWpSuite();
+
 let wpSuiteSiteSettings: SiteSettings;
-if (typeof WpSuite !== "undefined") {
-  wpSuiteSiteSettings = WpSuite.siteSettings;
+if (wpsuite) {
+  wpSuiteSiteSettings = wpsuite.siteSettings;
 } else {
   wpSuiteSiteSettings = {} as SiteSettings;
 }
+
+const gatey = getGateyPlugin();
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   props: BlockEditProps<EditorBlockProps>
@@ -235,7 +244,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, [amplifyConfigured, siteSettings]);
 
   useEffect(() => {
-    store.then((fulfilledStore) => {
+    getStore().then((fulfilledStore) => {
       setFulfilledStore(fulfilledStore);
     });
     fetch(configUrl)
@@ -643,11 +652,11 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               colorMode={colorMode}
               direction={themeDirection}
             >
-              {Gatey.settings?.reCaptchaPublicKey ? (
+              {gatey.settings?.reCaptchaPublicKey ? (
                 <RecaptchaProvider
-                  siteKey={Gatey.settings?.reCaptchaPublicKey}
-                  useEnterprise={Gatey.settings?.useRecaptchaEnterprise}
-                  useRecaptchaNet={Gatey.settings?.useRecaptchaNet}
+                  siteKey={gatey.settings?.reCaptchaPublicKey}
+                  useEnterprise={gatey.settings?.useRecaptchaEnterprise}
+                  useRecaptchaNet={gatey.settings?.useRecaptchaNet}
                 >
                   <App
                     id={`gatey-authenticator-block-${uid}`}
@@ -662,7 +671,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                     signingOutMessage={signingOutMessage}
                     redirectingMessage={redirectingMessage}
                     store={fulfilledStore}
-                    nonce={Gatey.nonce}
+                    nonce={gatey.nonce}
                     editorRef={editorRef}
                     isPreview={true}
                     previewMode={previewMode}
@@ -688,7 +697,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   signingOutMessage={signingOutMessage}
                   redirectingMessage={redirectingMessage}
                   store={fulfilledStore}
-                  nonce={Gatey.nonce}
+                  nonce={gatey.nonce}
                   editorRef={editorRef}
                   isPreview={true}
                   previewMode={previewMode}

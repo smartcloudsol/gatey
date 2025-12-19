@@ -22,6 +22,7 @@ import { RecaptchaProvider } from "./recaptcha";
 import { useSelect } from "@wordpress/data";
 
 import {
+  getGateyPlugin,
   getStoreSelect,
   type AuthenticatorConfig,
   type Store,
@@ -57,6 +58,8 @@ export interface ThemeProps extends PropsWithChildren {
   siteSettings?: AuthenticatorConfig | null;
   siteSubscriptionType?: string | null;
 }
+
+const gatey = getGateyPlugin();
 
 export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
@@ -131,11 +134,11 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       colorMode={colorMode}
       direction={currentDirection}
     >
-      {Gatey.settings?.reCaptchaPublicKey ? (
+      {gatey.settings?.reCaptchaPublicKey ? (
         <RecaptchaProvider
-          siteKey={Gatey.settings?.reCaptchaPublicKey}
-          useEnterprise={Gatey.settings?.useRecaptchaEnterprise}
-          useRecaptchaNet={Gatey.settings?.useRecaptchaNet}
+          siteKey={gatey.settings?.reCaptchaPublicKey}
+          useEnterprise={gatey.settings?.useRecaptchaEnterprise}
+          useRecaptchaNet={gatey.settings?.useRecaptchaNet}
         >
           <App
             id={id}
@@ -153,7 +156,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
             redirectingMessage={redirectingMessage}
             totpIssuer={totpIssuer}
             isPreview={isPreview}
-            nonce={Gatey?.nonce}
+            nonce={gatey?.nonce}
           >
             {children}
           </App>
@@ -175,7 +178,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           redirectingMessage={redirectingMessage}
           totpIssuer={totpIssuer}
           isPreview={isPreview}
-          nonce={Gatey?.nonce}
+          nonce={gatey?.nonce}
         >
           {children}
         </App>

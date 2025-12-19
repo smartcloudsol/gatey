@@ -1,17 +1,18 @@
 import { Amplify, type ResourcesConfig } from "aws-amplify";
 import {
   fetchAuthSession,
-  fetchUserAttributes,
   fetchMFAPreference,
+  fetchUserAttributes,
   getCurrentUser,
   signOut,
   updateMFAPreference,
   type AuthSession,
   type FetchAuthSessionOptions,
-  type FetchUserAttributesOutput,
   type FetchMFAPreferenceOutput,
+  type FetchUserAttributesOutput,
 } from "aws-amplify/auth";
 
+import { getGateyPlugin } from "./runtime";
 import { getAccountFromStorage, type ApiConfiguration } from "./store";
 
 export interface Account {
@@ -245,8 +246,12 @@ export const getScopes = (): Promise<string[] | undefined> => {
 
 export const login = async (signInHook: ApiConfiguration["signInHook"]) => {
   let nextUrl: string | undefined;
-  if (Gatey.settings.integrateWpLogin && Gatey.restUrl?.startsWith("http")) {
-    const restOperation = Gatey.cognito.post({
+  const gatey = getGateyPlugin();
+  if (!gatey) {
+    throw new Error("Gatey plugin is not available");
+  }
+  if (gatey.settings.integrateWpLogin && gatey.restUrl?.startsWith("http")) {
+    const restOperation = gatey.cognito.post({
       apiName: "admin",
       path: "/login",
       /*
@@ -271,7 +276,7 @@ export const login = async (signInHook: ApiConfiguration["signInHook"]) => {
       });
   }
   if (signInHook) {
-    await Gatey.cognito
+    await gatey.cognito
       .get({
         apiName: signInHook.apiName,
         path: signInHook.path,
@@ -279,15 +284,19 @@ export const login = async (signInHook: ApiConfiguration["signInHook"]) => {
       })
       .response.catch((err) => console.error(err));
   }
-  return Gatey.settings.redirectSignIn ?? nextUrl;
+  return gatey.settings.redirectSignIn ?? nextUrl;
 };
 
 export const logout = async (
   signOutHook: ApiConfiguration["signOutHook"]
 ): Promise<string | undefined> => {
+  const gatey = getGateyPlugin();
+  if (!gatey) {
+    throw new Error("Gatey plugin is not available");
+  }
   let nextUrl: string | undefined;
-  if (Gatey.settings.integrateWpLogin) {
-    nextUrl = await Gatey.cognito
+  if (gatey.settings.integrateWpLogin) {
+    nextUrl = await gatey.cognito
       .get({
         apiName: "admin",
         path: "/logout",
@@ -312,7 +321,7 @@ export const logout = async (
       });
   }
   if (signOutHook) {
-    await Gatey.cognito
+    await gatey.cognito
       .get({
         apiName: signOutHook.apiName,
         path: signOutHook.path,
@@ -326,5 +335,5 @@ export const logout = async (
   } catch (err) {
     /* ts-ignore */
   }
-  return Gatey.settings.redirectSignOut ?? nextUrl;
+  return gatey.settings.redirectSignOut ?? nextUrl;
 };

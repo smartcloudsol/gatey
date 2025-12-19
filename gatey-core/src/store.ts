@@ -29,6 +29,7 @@ import {
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
+import { getGateyPlugin, getStore } from "./runtime";
 
 let siteSettings: SiteSettings;
 if (typeof WpSuite !== "undefined") {
@@ -78,7 +79,7 @@ export const getAccountFromStorage = async (
   }
   if (!saved && account?.username) {
     storeAccountInStorage({});
-    Gatey.cognito.store.then(async (store) => {
+    getStore().then(async (store) => {
       await logout(apiConfiguration?.signOutHook);
       getStoreDispatch(store).clearAccount();
       //window.location.assign("");
@@ -91,14 +92,18 @@ const initAmplify = async (
   config: AuthenticatorConfig | undefined
 ): Promise<void> => {
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
+  const gatey = getGateyPlugin();
+  if (!gatey) {
+    throw new Error("Gatey plugin is not available");
+  }
   const rc =
-    Gatey.settings?.secondaryUserPoolDomains &&
+    gatey.settings?.secondaryUserPoolDomains &&
     hostname
       .toLowerCase()
-      .match(Gatey.settings.secondaryUserPoolDomains.toLowerCase()) &&
-    Gatey.settings?.userPoolConfigurations.secondary?.Auth?.Cognito?.userPoolId
-      ? Gatey.settings?.userPoolConfigurations.secondary
-      : Gatey.settings?.userPoolConfigurations.default;
+      .match(gatey.settings.secondaryUserPoolDomains.toLowerCase()) &&
+    gatey.settings?.userPoolConfigurations.secondary?.Auth?.Cognito?.userPoolId
+      ? gatey.settings?.userPoolConfigurations.secondary
+      : gatey.settings?.userPoolConfigurations.default;
   const resourceConfig: ResourcesConfig = {
     Auth: {
       Cognito: {
@@ -113,10 +118,10 @@ const initAmplify = async (
             responseType: "code",
             ...rc.Auth?.Cognito?.loginWith?.oauth,
             redirectSignIn: [
-              window.location.origin + Gatey?.settings?.signInPage,
+              window.location.origin + gatey.settings?.signInPage,
             ],
             redirectSignOut: [
-              window.location.origin + Gatey?.settings?.signInPage,
+              window.location.origin + gatey.settings?.signInPage,
             ],
           },
         },
@@ -127,7 +132,7 @@ const initAmplify = async (
       REST: {
         ...rc.API?.REST,
         admin: {
-          endpoint: Gatey.restUrl,
+          endpoint: gatey.restUrl,
         },
       },
     },
@@ -180,7 +185,7 @@ const initAmplify = async (
               }
             } catch (err) {
               console.error(err);
-              Gatey.cognito.store.then((store) => {
+              getStore().then((store) => {
                 getStoreDispatch(store).clearAccount();
               });
             }
@@ -195,11 +200,15 @@ const initAmplify = async (
 };
 
 const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
+  const gatey = getGateyPlugin();
+  if (!gatey) {
+    throw new Error("Gatey plugin is not available");
+  }
   let translations: CustomTranslations | null = null;
-  if (Gatey.settings.customTranslationsUrl) {
+  if (gatey.settings.customTranslationsUrl) {
     translations = await fetch(
-      Gatey.settings.customTranslationsUrl +
-        (Gatey.settings.customTranslationsUrl.includes("?") ? "&" : "?") +
+      gatey.settings.customTranslationsUrl +
+        (gatey.settings.customTranslationsUrl.includes("?") ? "&" : "?") +
         "t=" +
         siteSettings.lastUpdate
     )

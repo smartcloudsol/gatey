@@ -2,7 +2,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import {
   AuthenticatorConfig,
-  store,
+  getStore,
+  getGateyPlugin,
   type Account,
   type Store,
 } from "@smart-cloud/gatey-core";
@@ -60,18 +61,26 @@ const queryClient = new QueryClient({
   },
 });
 
-store.then((store) => {
-  const root = createRoot(document.getElementById("gatey-admin")!);
-  root.render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider theme={theme}>
-          <Notifications position="top-right" zIndex={100000} />
-          <ModalsProvider>
-            <Main store={store} {...Gatey} />
-          </ModalsProvider>
-        </MantineProvider>
-      </QueryClientProvider>
-    </StrictMode>
-  );
-});
+getStore()
+  .then((store) => {
+    const gatey = getGateyPlugin();
+    if (!gatey) {
+      throw new Error("Gatey plugin is not available");
+    }
+    const root = createRoot(document.getElementById("gatey-admin")!);
+    root.render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider theme={theme}>
+            <Notifications position="top-right" zIndex={100000} />
+            <ModalsProvider>
+              <Main store={store} {...gatey} />
+            </ModalsProvider>
+          </MantineProvider>
+        </QueryClientProvider>
+      </StrictMode>
+    );
+  })
+  .catch((error) => {
+    console.error("Error initializing Gatey Admin:", error);
+  });

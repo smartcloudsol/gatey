@@ -1,26 +1,26 @@
-import { dispatch } from "@wordpress/data";
-import { I18n } from "aws-amplify/utils";
 import {
   defaultFormFieldOptions,
   translate,
   type AuthFieldsWithDefaults,
 } from "@aws-amplify/ui";
 import { translations } from "@aws-amplify/ui-react";
-import { countries } from "country-data-list";
 import {
-  store,
-  observeStore,
-  loadAuthSession,
-  loadUserAttributes,
-  loadMFAPreferences,
-  login,
-  logout,
-  isAuthenticated,
   getAmplifyConfig,
   getStoreSelect,
+  initializeGatey,
+  isAuthenticated,
+  loadAuthSession,
+  loadMFAPreferences,
+  loadUserAttributes,
+  login,
+  logout,
+  observeStore,
   type Account,
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
+import { dispatch } from "@wordpress/data";
+import { I18n } from "aws-amplify/utils";
+import { countries } from "country-data-list";
 
 import "jquery";
 
@@ -30,6 +30,9 @@ const root = document.documentElement;
 root.style.setProperty("--gatey-initialized", "none");
 root.style.setProperty("--gatey-not-initialized", "flex");
 jQuery(() => {
+  const gatey = initializeGatey();
+  const store = gatey.cognito.store;
+
   let decryptedConfig: AuthenticatorConfig | undefined | null;
   let allAttributeKeys: string[];
 
@@ -89,8 +92,8 @@ jQuery(() => {
 
   const refresh = async (signedIn: boolean) => {
     if (signedIn) {
-      if (Gatey.cognito.getUserAttributes) {
-        const attrs = await Gatey.cognito.getUserAttributes();
+      if (gatey.cognito.getUserAttributes) {
+        const attrs = await gatey.cognito.getUserAttributes();
         const processedAttrs: string[] = [];
         if (attrs) {
           Object.keys(attrs).forEach((attr) => {
@@ -150,8 +153,8 @@ jQuery(() => {
           }
         });
       }
-      if (Gatey.cognito.getMfaPreferences) {
-        const mfaPreferences = await Gatey.cognito.getMfaPreferences();
+      if (gatey.cognito.getMfaPreferences) {
+        const mfaPreferences = await gatey.cognito.getMfaPreferences();
         root.style.setProperty(
           "--gatey-account-mfa-enabled",
           mfaPreferences?.enabled?.includes("TOTP") ? "flex" : "none"
@@ -164,8 +167,8 @@ jQuery(() => {
     }
 
     const authenticated =
-      signedIn && Gatey.cognito.isAuthenticated
-        ? await Gatey.cognito.isAuthenticated()
+      signedIn && gatey.cognito.isAuthenticated
+        ? await gatey.cognito.isAuthenticated()
         : false;
     root.style.setProperty(
       "--gatey-account-authenticated",
@@ -175,8 +178,8 @@ jQuery(() => {
       "--gatey-account-not-authenticated",
       authenticated ? "none" : "flex"
     );
-    if (Gatey.cognito.getGroups) {
-      const groups = signedIn && (await Gatey.cognito.getGroups());
+    if (gatey.cognito.getGroups) {
+      const groups = signedIn && (await gatey.cognito.getGroups());
       cssVariables.forEach((property: string) => {
         if (property.startsWith("--gatey-account-group")) {
           root.style.setProperty(
@@ -225,7 +228,7 @@ jQuery(() => {
       allAttrs.push(...Object.keys(decryptedConfig.formFields));
     }
     allAttributeKeys = Array.from(new Set(allAttrs));
-    Gatey.settings.signUpAttributes.forEach((attr) => {
+    gatey.settings.signUpAttributes.forEach((attr) => {
       if (!allAttributeKeys.includes(attr)) {
         allAttributeKeys.push(attr);
       }
@@ -326,7 +329,7 @@ jQuery(() => {
         I18n.putVocabularies(
           getStoreSelect(store).getCustomTranslations() || {}
         );
-        Gatey.cognito
+        gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));
       }
@@ -336,7 +339,7 @@ jQuery(() => {
       store,
       (state) => state.direction,
       () => {
-        Gatey.cognito
+        gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));
       }

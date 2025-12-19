@@ -4105,17 +4105,17 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@smart-cloud/gatey-core@^1.0.15":
-  version "1.0.15"
-  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-1.0.15.tgz#91b4a9b24d70349ba397316d765f7e809b695f39"
-  integrity sha512-zLiD/yi9UhXljmV1m+xpwG/29Wm2UVgo2phnDbvW/ubeza1I0AZJApdckGKMsdu1kHsLbDT6BO+kgxeUmXewHQ==
+"@smart-cloud/gatey-core@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-2.0.5.tgz#68f7e988e6f23d44d79fc3d801ca0041a2248e64"
+  integrity sha512-mFCXvzG5nqZHmwbJn0csRp7NKkilVuYK20iisXqxOqOEzqSBApANbqoLo02AI2sBJMt5avNq+c/XsM50ws39KQ==
   dependencies:
-    "@smart-cloud/wpsuite-core" "^1.0.9"
+    "@smart-cloud/wpsuite-core" "^2.0.2"
 
-"@smart-cloud/wpsuite-core@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.npmjs.org/@smart-cloud/wpsuite-core/-/wpsuite-core-1.0.9.tgz#3e237ebcf1adfc6db704b61b72f23d20654c142e"
-  integrity sha512-jy/MBBTTONYBjA4ThqoHuPJscinBdR6L/FAoxacCLsCDfkDkLoovy2W+5P3F2anTCB2zXfYp+qhQHfQ28RSMcw==
+"@smart-cloud/wpsuite-core@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.npmjs.org/@smart-cloud/wpsuite-core/-/wpsuite-core-2.0.2.tgz#02e3cfd73ff1f85b4f7c1f916d71635a91a5f8ad"
+  integrity sha512-C+KAcXUcjCr53uBbVgV/7ybmmMWjFDE8uBykXMon6RlbNQTRuM9t1AJoYBVJh3CeD/QXFQygyO/eZc8VYgSIhw==
   dependencies:
     jose "^6.1.3"
     tldts "^7.0.19"

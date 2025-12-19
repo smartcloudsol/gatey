@@ -22,6 +22,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { useSelect } from "@wordpress/data";
 
 import {
+  getGateyPlugin,
   getStoreDispatch,
   getStoreSelect,
   type Account,
@@ -78,7 +79,9 @@ export type DefaultComponentDescriptors = {
   [key in DefaultComponentDescriptorKeys]?: string[] | null;
 };
 
-const recaptchaHook = Gatey.settings?.reCaptchaPublicKey
+const gatey = getGateyPlugin();
+
+const recaptchaHook = gatey.settings?.reCaptchaPublicKey
   ? useRecaptcha
   : () => ({ executeRecaptcha: null, isReady: true });
 
@@ -216,7 +219,7 @@ export const Login = (
         dispatchEvent("cancel");
       },
       async handleSignUp(input: SignUpInput): Promise<SignUpOutput> {
-        if (Gatey.settings?.reCaptchaPublicKey) {
+        if (gatey.settings?.reCaptchaPublicKey) {
           const recaptchaToken = await handleReCaptchaVerify();
           if (recaptchaToken) {
             input.options = input.options || { userAttributes: {} };
@@ -299,9 +302,9 @@ export const Login = (
   ]);
 
   useEffect(() => {
-    Gatey.cognito.toSignIn = toSignIn;
-    Gatey.cognito.toSignUp = toSignUp;
-    Gatey.cognito.toForgotPassword = toForgotPassword;
+    gatey.cognito.toSignIn = toSignIn;
+    gatey.cognito.toSignUp = toSignUp;
+    gatey.cognito.toForgotPassword = toForgotPassword;
   }, [toForgotPassword, toSignIn, toSignUp]);
 
   useEffect(() => {
@@ -318,8 +321,8 @@ export const Login = (
         const url =
           redirectTo ||
           nextUrl ||
-          Gatey.settings.redirectSignOut ||
-          Gatey.settings.signInPage;
+          gatey.settings.redirectSignOut ||
+          gatey.settings.signInPage;
         if (url) {
           setRedirecting(true);
           window.location.assign(url);
@@ -360,8 +363,8 @@ export const Login = (
           let url =
             redirectTo ||
             nextUrl ||
-            Gatey.settings.redirectSignIn ||
-            Gatey.settings.signInPage;
+            gatey.settings.redirectSignIn ||
+            gatey.settings.signInPage;
           // prevent redirect loop
           if (url?.endsWith("/")) {
             url = url.substring(0, url.length - 1);
@@ -404,8 +407,8 @@ export const Login = (
             const url =
               redirectTo ||
               nextUrl ||
-              Gatey.settings.redirectSignIn ||
-              Gatey.settings.signInPage;
+              gatey.settings.redirectSignIn ||
+              gatey.settings.signInPage;
             if (url) {
               setRedirecting(true);
               window.location.assign(url);
@@ -447,8 +450,8 @@ export const Login = (
 
   let totpUsername =
     account?.userAttributes?.preferred_username ?? account?.username;
-  if (!Gatey.settings?.loginMechanisms.includes("username")) {
-    totpUsername = Gatey.settings?.loginMechanisms.includes("email")
+  if (!gatey.settings?.loginMechanisms.includes("username")) {
+    totpUsername = gatey.settings?.loginMechanisms.includes("email")
       ? account?.userAttributes?.email
       : account?.userAttributes?.phone_number;
   }
@@ -514,13 +517,13 @@ export const Login = (
                   ) : (
                     <>
                       <Authenticator
-                        loginMechanisms={Gatey.settings?.loginMechanisms}
+                        loginMechanisms={gatey.settings?.loginMechanisms}
                         language={language}
                         textDirection={direction as Direction}
                         services={services}
                         initialState={screen}
-                        signUpAttributes={Gatey.settings?.signUpAttributes}
-                        socialProviders={Gatey.settings?.socialProviders}
+                        signUpAttributes={gatey.settings?.signUpAttributes}
+                        socialProviders={gatey.settings?.socialProviders}
                         customProviders={config?.customProviders}
                         components={components}
                         forceInitialState={isPreview}
@@ -560,9 +563,9 @@ export const Login = (
                       {(route === "signIn" || route === "signUp") && (
                         <View
                           data-amplify-authenticator
-                          hidden={!Gatey.settings?.enablePoweredBy}
+                          hidden={!gatey.settings?.enablePoweredBy}
                           className={
-                            Gatey.settings?.enablePoweredBy
+                            gatey.settings?.enablePoweredBy
                               ? undefined
                               : "sr-only"
                           }

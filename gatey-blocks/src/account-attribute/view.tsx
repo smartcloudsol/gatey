@@ -5,7 +5,7 @@ import { type ColorMode, type Direction } from "@aws-amplify/ui-react";
 
 import "jquery";
 
-import { store } from "@smart-cloud/gatey-core";
+import { getStore } from "@smart-cloud/gatey-core";
 
 import { type Language } from "../index";
 import { type Attribute, type Component } from "./index";
@@ -30,7 +30,7 @@ try {
       const prefix = el.getAttribute("data-prefix") || "";
       const postfix = el.getAttribute("data-postfix") || "";
       const root = createRoot(el);
-      const fulfilledStore = await store;
+      const fulfilledStore = await getStore();
       if (cache.has(id)) {
         el.innerHTML = cache.get(id) || "";
       } else {

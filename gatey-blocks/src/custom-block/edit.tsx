@@ -20,7 +20,7 @@ import {
   getSortedFormFields,
 } from "@aws-amplify/ui";
 
-import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
+import { getGateyPlugin, TEXT_DOMAIN } from "@smart-cloud/gatey-core";
 
 import { type ComponentAttributes } from "./index";
 
@@ -61,12 +61,13 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
     if (!route) {
       return;
     }
+    const gatey = getGateyPlugin();
     const ids = coreEditor.getClientIdsOfDescendants([clientId]);
     const children = getSortedFormFields(route, {
       context: {
         config: {
-          loginMechanisms: Gatey.settings.loginMechanisms,
-          signUpAttributes: Gatey.settings.signUpAttributes,
+          loginMechanisms: gatey.settings.loginMechanisms,
+          signUpAttributes: gatey.settings.signUpAttributes,
         },
       },
     } as AuthMachineState)

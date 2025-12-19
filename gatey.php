@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           1.10.2
+ * Version:           2.0.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '1.10.2';
+const VERSION = '2.0.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -162,19 +162,31 @@ final class Gatey
 
         $upload_info = wp_upload_dir();
         $data = array(
+            'key' => GATEY_SLUG,
+            'version' => GATEY_VERSION,
+            'status' => 'initializing',
             'cognito' => array(),
             'settings' => $settings,
             'restUrl' => rest_url(GATEY_SLUG . '/v1'),
             'nonce' => wp_create_nonce('wp_rest'),
         );
-        $js = 'const Gatey = ' . wp_json_encode($data) . ';';
+
+
+        $js = 'const __gateyGlobal = (typeof globalThis !== "undefined") ? globalThis : window;
+__gateyGlobal.WpSuite.plugins.gatey = {};
+Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . ');
+';
         if ($settings->integrateWpLogin) {
             $js = $js .
-                'Gatey.settings.integrateWpLogin = checkDomain();' .
+                '__gateyGlobal.WpSuite.plugins.gatey.settings.integrateWpLogin = checkDomain();' .
                 'function checkDomain() {' .
                 '	return [...window.location.origin].reverse().join("")==="' . strrev(site_url()) . '"' .
-                '};';
+                '};
+                ';
         }
+        $js = $js . '// backward compatibility
+__gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
+';
         wp_add_inline_script('gatey-main-script', $js, 'before');
 
         wp_add_inline_script(

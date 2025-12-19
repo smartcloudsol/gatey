@@ -32,6 +32,7 @@ import {
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
+  getGateyPlugin,
   getStoreSelect,
   loadAuthSession,
   TEXT_DOMAIN,
@@ -72,7 +73,11 @@ import { signUpAttributes } from "./index";
 import { NoRegistrationRequiredBanner } from "./noregistration";
 import { OnboardingBanner } from "./onboarding";
 
-import { SiteSettings, SubscriptionType } from "@smart-cloud/wpsuite-core";
+import {
+  getWpSuite,
+  type SiteSettings,
+  type SubscriptionType,
+} from "@smart-cloud/wpsuite-core";
 
 import "jquery";
 
@@ -120,13 +125,15 @@ export interface SettingsEditorProps {
   }) => JSX.Element;
 }
 
+const wpsuite = getWpSuite();
+
 let wpSuiteInstalled: boolean = false;
 let wpRestUrl: string | undefined;
 let wpSuiteSiteSettings: SiteSettings = {} as SiteSettings;
-if (typeof WpSuite !== "undefined") {
+if (wpsuite) {
   wpSuiteInstalled = true;
-  wpSuiteSiteSettings = WpSuite.siteSettings;
-  wpRestUrl = WpSuite.restUrl;
+  wpSuiteSiteSettings = wpsuite.siteSettings;
+  wpRestUrl = wpsuite.restUrl;
 }
 
 const ApiSettingsEditor = lazy(
@@ -261,6 +268,8 @@ const configUrl =
   !production || window.location.host === "dev.wpsuite.io"
     ? "https://wpsuite.io/static/config/dev.json"
     : "https://wpsuite.io/static/config/prod.json";
+
+const gatey = getGateyPlugin();
 
 const Main = (props: MainProps) => {
   const { store, nonce, settings } = props;
@@ -542,7 +551,7 @@ const Main = (props: MainProps) => {
       e.preventDefault();
       setSavingSettings(true);
       try {
-        const response = await fetch(Gatey.restUrl + "/update-settings", {
+        const response = await fetch(gatey.restUrl + "/update-settings", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -670,7 +679,7 @@ const Main = (props: MainProps) => {
           if (authSession?.credentials) {
             const client = new CognitoIdentityProviderClient({
               region:
-                Gatey.settings.userPoolConfigurations.default.API?.GraphQL
+                gatey.settings.userPoolConfigurations.default.API?.GraphQL
                   ?.region,
               credentials: { ...authSession.credentials },
             });
@@ -678,7 +687,7 @@ const Main = (props: MainProps) => {
               .send(
                 new ListGroupsCommand({
                   UserPoolId:
-                    Gatey.settings.userPoolConfigurations.default.Auth?.Cognito
+                    gatey.settings.userPoolConfigurations.default.Auth?.Cognito
                       ?.userPoolId,
                 })
               )
@@ -721,7 +730,7 @@ const Main = (props: MainProps) => {
   useEffect(() => {
     if (nonce) {
       if (settingsFormData.integrateWpLogin && !wpRolesLoaded) {
-        fetch(Gatey.restUrl + "/get-roles", {
+        fetch(gatey.restUrl + "/get-roles", {
           method: "GET",
           headers: {
             "X-WP-Nonce": nonce,
