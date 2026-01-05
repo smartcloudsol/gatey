@@ -56,7 +56,7 @@ import {
 } from "../index";
 import { App } from "./app";
 import { type Screen, type Variation } from "./index";
-import { RecaptchaProvider } from "./recaptcha";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { type PreviewType } from "./theme";
 
 const theme = {
@@ -653,8 +653,8 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               direction={themeDirection}
             >
               {gatey.settings?.reCaptchaPublicKey ? (
-                <RecaptchaProvider
-                  siteKey={gatey.settings?.reCaptchaPublicKey}
+                <GoogleReCaptchaProvider
+                  reCaptchaKey={gatey.settings?.reCaptchaPublicKey}
                   useEnterprise={gatey.settings?.useRecaptchaEnterprise}
                   useRecaptchaNet={gatey.settings?.useRecaptchaNet}
                 >
@@ -682,7 +682,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   >
                     {children}
                   </App>
-                </RecaptchaProvider>
+                </GoogleReCaptchaProvider>
               ) : (
                 <App
                   id={`gatey-authenticator-block-${uid}`}

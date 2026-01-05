@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -19,22 +19,23 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.5",
+    "@smart-cloud/gatey-core": "^2.0.6",
     "cheerio": "^1.1.2",
     "he": "^1.2.0",
-    "html-react-parser": "^5.2.10",
+    "html-react-parser": "^5.2.11",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-router-dom": "^7.10.1",
     "use-detector-hook": "^1.0.8"
   },
   "peerDependencies": {
-    "@wordpress/block-editor": "^15.9.0",
-    "@wordpress/blocks": "^15.9.0",
-    "@wordpress/editor": "^14.36.0",
-    "@wordpress/i18n": "^6.9.0",
-    "@wordpress/plugins": "^7.36.0",
+    "@wordpress/block-editor": "^15.10.0",
+    "@wordpress/blocks": "^15.10.0",
+    "@wordpress/editor": "^14.37.0",
+    "@wordpress/i18n": "^6.10.0",
+    "@wordpress/plugins": "^7.37.0",
     "@aws-amplify/ui-react": "^6.13.2",
-    "aws-amplify": "^6.15.8"
+    "aws-amplify": "^6.15.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@aws-amplify/ui-react": "^6.13.2",
@@ -43,20 +44,20 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@types/react-google-recaptcha": "^2.1.9",
-    "@types/wordpress__block-editor": "^14.21.2",
+    "@types/wordpress__block-editor": "^14.21.8",
     "@types/wordpress__blocks": "^12.5.18",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react-swc": "^4.2.2",
-    "@wordpress/block-editor": "^15.9.0",
-    "@wordpress/blocks": "^15.9.0",
-    "@wordpress/editor": "^14.36.0",
-    "@wordpress/i18n": "^6.9.0",
-    "@wordpress/plugins": "^7.36.0",
-    "@wordpress/scripts": "^31.1.0",
+    "@wordpress/block-editor": "^15.10.0",
+    "@wordpress/blocks": "^15.10.0",
+    "@wordpress/editor": "^14.37.0",
+    "@wordpress/i18n": "^6.10.0",
+    "@wordpress/plugins": "^7.37.0",
+    "@wordpress/scripts": "^31.2.0",
     "ajv": "^8.17.1",
-    "aws-amplify": "^6.15.8",
+    "aws-amplify": "^6.15.9",
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.25",
@@ -64,7 +65,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0",
+    "typescript-eslint": "^8.51.0",
     "vite": "^7.3.0"
   }
 }

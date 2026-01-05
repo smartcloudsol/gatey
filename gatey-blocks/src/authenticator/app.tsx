@@ -6,7 +6,6 @@ import {
   useState,
   type FunctionComponent,
 } from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import { translate } from "@aws-amplify/ui";
 import { Authenticator, Button, translations } from "@aws-amplify/ui-react";
@@ -175,42 +174,33 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     screen !== undefined && (
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
-          <Router>
-            <Routes>
-              <Route
-                path="*"
-                element={
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {showOpenButton && (variation === "modal" || !show) && (
-                      <Button
-                        className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
-                        disabled={show}
-                        isFullWidth={true}
-                        onClick={() => {
-                          setShow(true);
-                        }}
-                      >
-                        {title}
-                      </Button>
-                    )}
-                    {(!showOpenButton || show) && (
-                      <Login
-                        containerRef={containerRef}
-                        {...props}
-                        config={filteredConfig}
-                        language={currentLanguage}
-                      />
-                    )}
-                  </div>
-                }
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            {showOpenButton && (variation === "modal" || !show) && (
+              <Button
+                className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
+                disabled={show}
+                isFullWidth={true}
+                onClick={() => {
+                  setShow(true);
+                }}
+              >
+                {title}
+              </Button>
+            )}
+            {(!showOpenButton || show) && (
+              <Login
+                containerRef={containerRef}
+                {...props}
+                config={filteredConfig}
+                language={currentLanguage}
               />
-            </Routes>
-          </Router>
+            )}
+          </div>
         </Authenticator.Provider>
       </ConfigContext.Provider>
     )

@@ -17,7 +17,8 @@ import {
   type Direction,
 } from "@aws-amplify/ui-react";
 
-import { RecaptchaProvider } from "./recaptcha";
+//import { RecaptchaProvider } from "@smart-cloud/wpsuite-core";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { useSelect } from "@wordpress/data";
 
@@ -135,8 +136,8 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       direction={currentDirection}
     >
       {gatey.settings?.reCaptchaPublicKey ? (
-        <RecaptchaProvider
-          siteKey={gatey.settings?.reCaptchaPublicKey}
+        <GoogleReCaptchaProvider
+          reCaptchaKey={gatey.settings?.reCaptchaPublicKey}
           useEnterprise={gatey.settings?.useRecaptchaEnterprise}
           useRecaptchaNet={gatey.settings?.useRecaptchaNet}
         >
@@ -160,7 +161,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           >
             {children}
           </App>
-        </RecaptchaProvider>
+        </GoogleReCaptchaProvider>
       ) : (
         <App
           id={id}

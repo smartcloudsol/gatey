@@ -1,63 +1,34 @@
 import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
-import { WpSuitePluginBase, SubscriptionType } from '@smart-cloud/wpsuite-core';
-import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 import { CustomProvider } from '@aws-amplify/ui-react';
-import { StoreDescriptor as StoreDescriptor$1 } from '@wordpress/data';
+import { StoreDescriptor } from '@wordpress/data';
+import { SubscriptionType, WpSuitePluginBase } from '@smart-cloud/wpsuite-core';
+import { FetchUserAttributesOutput, FetchMFAPreferenceOutput, FetchAuthSessionOptions, AuthSession } from 'aws-amplify/auth';
 
-/**
- * External dependencies
- */
-
-type MapOf<T> = {
-    [name: string]: T;
-};
-type ActionCreator = (...args: any[]) => any | Generator;
-type Resolver = Function | Generator;
-type AnyConfig = ReduxStoreConfig<any, any, any>;
-interface StoreInstance<Config extends AnyConfig> {
-    getSelectors: () => SelectorsOf<Config>;
-    getActions: () => ActionCreatorsOf<Config>;
-    subscribe: (listener: () => void) => () => void;
+interface Account {
+    username?: string;
+    loaded?: boolean;
+    userAttributes?: FetchUserAttributesOutput;
+    mfaPreferences?: FetchMFAPreferenceOutput;
 }
-interface StoreDescriptor<Config extends AnyConfig> {
-    /**
-     * Store Name
-     */
-    name: string;
-    /**
-     * Creates a store instance
-     */
-    instantiate: (registry: DataRegistry) => StoreInstance<Config>;
-}
-interface ReduxStoreConfig<State, ActionCreators extends MapOf<ActionCreator>, Selectors> {
-    initialState?: State;
-    reducer: (state: any, action: any) => any;
-    actions?: ActionCreators;
-    resolvers?: MapOf<Resolver>;
-    selectors?: Selectors;
-    controls?: MapOf<Function>;
-}
-interface DataRegistry {
-    register: (store: StoreDescriptor<any>) => void;
-}
-type ActionCreatorsOf<Config extends AnyConfig> = Config extends ReduxStoreConfig<any, infer ActionCreators, any> ? PromisifiedActionCreators<ActionCreators> : never;
-type PromisifiedActionCreators<ActionCreators extends MapOf<ActionCreator>> = {
-    [Action in keyof ActionCreators]: PromisifyActionCreator<ActionCreators[Action]>;
-};
-type PromisifyActionCreator<Action extends ActionCreator> = (...args: Parameters<Action>) => Promise<ReturnType<Action> extends (..._args: any[]) => any ? ThunkReturnType<Action> : ReturnType<Action>>;
-type ThunkReturnType<Action extends ActionCreator> = Awaited<ReturnType<ReturnType<Action>>>;
-type SelectorsOf<Config extends AnyConfig> = Config extends ReduxStoreConfig<any, any, infer Selectors> ? {
-    [name in keyof Selectors]: Function;
-} : never;
-
-type GateyReadyEvent = "wpsuite:gatey:ready";
-type GateyErrorEvent = "wpsuite:gatey:error";
-type GateyPlugin = WpSuitePluginBase & Gatey;
-declare function getGateyPlugin(): GateyPlugin;
-declare function waitForGateyReady(timeoutMs?: number): Promise<void>;
-declare function getStore(timeoutMs?: number): Promise<StoreDescriptor<any>>;
+declare const getAmplifyConfig: () => ResourcesConfig;
+declare const configureAmplify: (resourcesConfig: ResourcesConfig, libraryOptions?: Record<string, unknown>) => void;
+declare const loadAuthSession: (options?: FetchAuthSessionOptions) => Promise<AuthSession>;
+declare const loadUserAttributes: () => Promise<FetchUserAttributesOutput>;
+declare const loadMFAPreferences: () => Promise<FetchMFAPreferenceOutput>;
+declare const clearMfaPreferences: () => Promise<void>;
+declare const getUsername: () => Promise<string | undefined>;
+declare const getUserAttributes: () => Promise<FetchUserAttributesOutput | undefined>;
+declare const getMfaPreferences: () => Promise<FetchMFAPreferenceOutput | undefined>;
+declare const isAuthenticated: () => Promise<boolean>;
+declare const isInGroup: (group: string) => Promise<boolean>;
+declare const getGroups: () => Promise<string[] | undefined>;
+declare const getRoles: () => Promise<string[] | undefined>;
+declare const getPreferredRole: () => Promise<string | undefined>;
+declare const getScopes: () => Promise<string[] | undefined>;
+declare const login: (signInHook: ApiConfiguration["signInHook"]) => Promise<string | undefined>;
+declare const logout: (signOutHook: ApiConfiguration["signOutHook"]) => Promise<string | undefined>;
 
 declare const actions: {
     setAmplifyConfig(amplifyConfig: ResourcesConfig): {
@@ -153,7 +124,7 @@ interface State {
     reloadUserAttributes: number;
     reloadMFAPreferences: number;
 }
-type Store = StoreDescriptor$1;
+type Store = StoreDescriptor;
 type StoreSelectors = {
     getAmplifyConfig(): ResourcesConfig;
     getAccount(): Account;
@@ -168,31 +139,14 @@ type StoreSelectors = {
 type StoreActions = typeof actions;
 declare const getStoreDispatch: (store: Store) => StoreActions;
 declare const getStoreSelect: (store: Store) => StoreSelectors;
-declare const observeStore: (observableStore: Store, selector: (state: State) => ResourcesConfig | Account | boolean | number | string | null | undefined, onChange: (nextValue: ResourcesConfig | Account | boolean | number | string | null | undefined, previousValue: ResourcesConfig | Account | boolean | number | string | null | undefined) => void) => any;
+declare const observeStore: (observableStore: Store, selector: (state: State) => ResourcesConfig | Account | boolean | number | string | null | undefined, onChange: (nextValue: ResourcesConfig | Account | boolean | number | string | null | undefined, previousValue: ResourcesConfig | Account | boolean | number | string | null | undefined) => void) => () => void;
 
-interface Account {
-    username?: string;
-    loaded?: boolean;
-    userAttributes?: FetchUserAttributesOutput;
-    mfaPreferences?: FetchMFAPreferenceOutput;
-}
-declare const getAmplifyConfig: () => ResourcesConfig;
-declare const configureAmplify: (resourcesConfig: ResourcesConfig, libraryOptions?: Record<string, unknown>) => void;
-declare const loadAuthSession: (options?: FetchAuthSessionOptions) => Promise<AuthSession>;
-declare const loadUserAttributes: () => Promise<FetchUserAttributesOutput>;
-declare const loadMFAPreferences: () => Promise<FetchMFAPreferenceOutput>;
-declare const clearMfaPreferences: () => Promise<void>;
-declare const getUsername: () => Promise<string | undefined>;
-declare const getUserAttributes: () => Promise<FetchUserAttributesOutput | undefined>;
-declare const getMfaPreferences: () => Promise<FetchMFAPreferenceOutput | undefined>;
-declare const isAuthenticated: () => Promise<boolean>;
-declare const isInGroup: (group: string) => Promise<boolean>;
-declare const getGroups: () => Promise<string[] | undefined>;
-declare const getRoles: () => Promise<string[] | undefined>;
-declare const getPreferredRole: () => Promise<string | undefined>;
-declare const getScopes: () => Promise<string[] | undefined>;
-declare const login: (signInHook: ApiConfiguration["signInHook"]) => Promise<string | undefined>;
-declare const logout: (signOutHook: ApiConfiguration["signOutHook"]) => Promise<string | undefined>;
+type GateyReadyEvent = "wpsuite:gatey:ready";
+type GateyErrorEvent = "wpsuite:gatey:error";
+type GateyPlugin = WpSuitePluginBase & Gatey;
+declare function getGateyPlugin(): GateyPlugin;
+declare function waitForGateyReady(timeoutMs?: number): Promise<void>;
+declare function getStore(timeoutMs?: number): Promise<Store>;
 
 declare const TEXT_DOMAIN = "gatey";
 

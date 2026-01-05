@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-const GATEY_HUB_VERSION = '2.0.0';
+const GATEY_HUB_VERSION = '2.0.1';
 
 final class GateyHubLoader
 {
@@ -120,7 +120,12 @@ final class GateyHubLoader
         $owner_version = get_option($owner_option . '/version') ?? "1.0.0";
         $owner_missing = empty($owner);
         $owner_is_me = ($owner === $this->plugin);
-        $owner_inactive = ($owner && !is_plugin_active($owner));
+
+        $owner_is_active = $owner && is_plugin_active($owner);
+        $owner_exists = file_exists(WP_PLUGIN_DIR . '/' . $owner);
+        $owner_is_valid = in_array(WP_PLUGIN_DIR . '/' . $owner, wp_get_active_and_valid_plugins(), true);
+        $owner_inactive = $owner_is_active && (!$owner_is_valid || !$owner_exists);
+
         $owner_version_is_smaller = version_compare($owner_version, GATEY_HUB_VERSION) === -1;
         $owner_version_equals = version_compare($owner_version, GATEY_HUB_VERSION) === 0;
 

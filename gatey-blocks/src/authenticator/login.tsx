@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { useElementDetector } from "use-detector-hook";
 
 import { translate, type AuthContext } from "@aws-amplify/ui";
@@ -29,7 +28,7 @@ import {
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
 
-import { useRecaptcha } from "./recaptcha";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { type ThemeProps } from "./theme";
 
 const parseCustomBlocks = await import(
@@ -82,8 +81,8 @@ export type DefaultComponentDescriptors = {
 const gatey = getGateyPlugin();
 
 const recaptchaHook = gatey.settings?.reCaptchaPublicKey
-  ? useRecaptcha
-  : () => ({ executeRecaptcha: null, isReady: true });
+  ? useGoogleReCaptcha
+  : () => ({ executeRecaptcha: null });
 
 export const Login = (
   props: ThemeProps & {
@@ -117,8 +116,7 @@ export const Login = (
   const [redirecting, setRedirecting] = useState<boolean>(false);
   const [editorContent, setEditorContent] = useState<string | undefined>();
 
-  const { executeRecaptcha, isReady: recaptchaIsReady } = recaptchaHook();
-
+  const { executeRecaptcha } = recaptchaHook();
   const account: Account | undefined = useSelect(
     () => getStoreSelect(store).getAccount(),
     []
@@ -146,7 +144,7 @@ export const Login = (
     setSignedIn: (signedIn: boolean) => void;
   } = getStoreDispatch(store);
 
-  const [params] = useSearchParams();
+  const params = new URLSearchParams(window.location.search);
 
   const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
@@ -179,18 +177,13 @@ export const Login = (
   );
 
   const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha || !recaptchaIsReady) {
-      console.error(
-        "ReCaptcha is not available",
-        executeRecaptcha,
-        recaptchaIsReady
-      );
+    if (!executeRecaptcha) {
       return;
     }
 
     const token = await executeRecaptcha("signup");
     return token;
-  }, [executeRecaptcha, recaptchaIsReady]);
+  }, [executeRecaptcha]);
 
   const dispatchEvent = useCallback(
     (name: string, details?: EventDetails) => {
@@ -462,7 +455,7 @@ export const Login = (
       className={className}
       width={!variation || variation === "default" ? "100%" : "0"}
     >
-      {visible && recaptchaIsReady && (
+      {visible && executeRecaptcha !== undefined && (
         <Flex>
           {
             /*!loggingOut &&*/
