@@ -28,7 +28,7 @@ import {
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
 
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { getRecaptcha } from "@smart-cloud/wpsuite-core";
 import { type ThemeProps } from "./theme";
 
 const parseCustomBlocks = await import(
@@ -80,10 +80,6 @@ export type DefaultComponentDescriptors = {
 
 const gatey = getGateyPlugin();
 
-const recaptchaHook = gatey.settings?.reCaptchaPublicKey
-  ? useGoogleReCaptcha
-  : () => ({ executeRecaptcha: null });
-
 export const Login = (
   props: ThemeProps & {
     config: AuthenticatorConfig | null | undefined;
@@ -116,7 +112,6 @@ export const Login = (
   const [redirecting, setRedirecting] = useState<boolean>(false);
   const [editorContent, setEditorContent] = useState<string | undefined>();
 
-  const { executeRecaptcha } = recaptchaHook();
   const account: Account | undefined = useSelect(
     () => getStoreSelect(store).getAccount(),
     []
@@ -177,13 +172,22 @@ export const Login = (
   );
 
   const handleReCaptchaVerify = useCallback(async () => {
-    if (!executeRecaptcha) {
+    if (!gatey.settings?.reCaptchaPublicKey) {
+      return;
+    }
+    const { execute } = await getRecaptcha(
+      gatey.settings?.useRecaptchaEnterprise || false
+    );
+
+    if (!execute) {
       return;
     }
 
-    const token = await executeRecaptcha("signup");
+    const token = await execute(gatey.settings?.reCaptchaPublicKey, {
+      action: "signup",
+    });
     return token;
-  }, [executeRecaptcha]);
+  }, []);
 
   const dispatchEvent = useCallback(
     (name: string, details?: EventDetails) => {
@@ -455,7 +459,7 @@ export const Login = (
       className={className}
       width={!variation || variation === "default" ? "100%" : "0"}
     >
-      {visible && executeRecaptcha !== undefined && (
+      {visible && (
         <Flex>
           {
             /*!loggingOut &&*/

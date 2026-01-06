@@ -17,9 +17,6 @@ import {
   type Direction,
 } from "@aws-amplify/ui-react";
 
-//import { RecaptchaProvider } from "@smart-cloud/wpsuite-core";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
-
 import { useSelect } from "@wordpress/data";
 
 import {
@@ -110,23 +107,27 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   );
 
   useEffect(() => {
-    const lang = languageInStore || languageOverride || language;
-    if (!lang || lang === "system") {
-      setCurrentLanguage("");
-    } else {
-      setCurrentLanguage(lang);
-    }
+    queueMicrotask(() => {
+      const lang = languageInStore || languageOverride || language;
+      if (!lang || lang === "system") {
+        setCurrentLanguage("");
+      } else {
+        setCurrentLanguage(lang);
+      }
+    });
   }, [language, languageOverride, languageInStore]);
 
   useEffect(() => {
-    const dir = directionInStore || directionOverride || direction;
-    if (!dir || dir === "auto") {
-      setCurrentDirection(
-        currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr"
-      );
-    } else {
-      setCurrentDirection(dir as Direction);
-    }
+    queueMicrotask(() => {
+      const dir = directionInStore || directionOverride || direction;
+      if (!dir || dir === "auto") {
+        setCurrentDirection(
+          currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr"
+        );
+      } else {
+        setCurrentDirection(dir as Direction);
+      }
+    });
   }, [currentLanguage, direction, directionInStore, directionOverride]);
 
   return (
@@ -135,55 +136,26 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       colorMode={colorMode}
       direction={currentDirection}
     >
-      {gatey.settings?.reCaptchaPublicKey ? (
-        <GoogleReCaptchaProvider
-          reCaptchaKey={gatey.settings?.reCaptchaPublicKey}
-          useEnterprise={gatey.settings?.useRecaptchaEnterprise}
-          useRecaptchaNet={gatey.settings?.useRecaptchaNet}
-        >
-          <App
-            id={id}
-            className={className}
-            store={store}
-            editorRef={editorRef}
-            screen={screen}
-            variation={variation}
-            language={currentLanguage as Language}
-            direction={currentDirection}
-            showOpenButton={showOpenButton}
-            openButtonTitle={openButtonTitle}
-            signingInMessage={signingInMessage}
-            signingOutMessage={signingOutMessage}
-            redirectingMessage={redirectingMessage}
-            totpIssuer={totpIssuer}
-            isPreview={isPreview}
-            nonce={gatey?.nonce}
-          >
-            {children}
-          </App>
-        </GoogleReCaptchaProvider>
-      ) : (
-        <App
-          id={id}
-          className={className}
-          store={store}
-          editorRef={editorRef}
-          screen={screen}
-          variation={variation}
-          language={currentLanguage as Language}
-          direction={currentDirection}
-          showOpenButton={showOpenButton}
-          openButtonTitle={openButtonTitle}
-          signingInMessage={signingInMessage}
-          signingOutMessage={signingOutMessage}
-          redirectingMessage={redirectingMessage}
-          totpIssuer={totpIssuer}
-          isPreview={isPreview}
-          nonce={gatey?.nonce}
-        >
-          {children}
-        </App>
-      )}
+      <App
+        id={id}
+        className={className}
+        store={store}
+        editorRef={editorRef}
+        screen={screen}
+        variation={variation}
+        language={currentLanguage as Language}
+        direction={currentDirection}
+        showOpenButton={showOpenButton}
+        openButtonTitle={openButtonTitle}
+        signingInMessage={signingInMessage}
+        signingOutMessage={signingOutMessage}
+        redirectingMessage={redirectingMessage}
+        totpIssuer={totpIssuer}
+        isPreview={isPreview}
+        nonce={gatey?.nonce}
+      >
+        {children}
+      </App>
     </ThemeProvider>
   );
 };

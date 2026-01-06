@@ -1,3 +1,6 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import {
   defaultFormFieldOptions,
   translate,
@@ -31,6 +34,32 @@ root.style.setProperty("--gatey-initialized", "none");
 root.style.setProperty("--gatey-not-initialized", "flex");
 jQuery(() => {
   const gatey = initializeGatey();
+
+  if (
+    gatey.settings?.reCaptchaPublicKey &&
+    !document.querySelector(
+      `[wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`
+    )
+  ) {
+    const el = document.createElement("div");
+    el.setAttribute(
+      "wpsuite-recaptcha-provider",
+      gatey.settings.reCaptchaPublicKey
+    );
+    document.body.appendChild(el);
+    createRoot(el).render(
+      <StrictMode>
+        <GoogleReCaptchaProvider
+          reCaptchaKey={gatey.settings.reCaptchaPublicKey}
+          useEnterprise={gatey.settings.useRecaptchaEnterprise}
+          useRecaptchaNet={gatey.settings.useRecaptchaNet}
+        >
+          <></>
+        </GoogleReCaptchaProvider>
+      </StrictMode>
+    );
+  }
+
   const store = gatey.cognito.store;
 
   let decryptedConfig: AuthenticatorConfig | undefined | null;

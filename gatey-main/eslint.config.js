@@ -8,7 +8,7 @@ export default defineConfig(
   jseslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["**/*.ts"],
+    files: ["**/*.tsx", "**/*.ts"],
     languageOptions: {
       parser: tseslint.parser,
       ecmaVersion: 2020,

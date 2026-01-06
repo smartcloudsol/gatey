@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -19,11 +19,11 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.6",
+    "@smart-cloud/gatey-core": "^2.0.7",
+    "@smart-cloud/wpsuite-core": "^2.0.4",
     "cheerio": "^1.1.2",
     "he": "^1.2.0",
     "html-react-parser": "^5.2.11",
-    "react-google-recaptcha-v3": "^1.11.0",
     "use-detector-hook": "^1.0.8"
   },
   "peerDependencies": {

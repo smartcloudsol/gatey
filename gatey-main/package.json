@@ -1,11 +1,11 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
   "license": "ISC",
   "scripts": {
     "build": "tsup --minify",
-    "lint": "eslint 'src/**/*.ts' --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint 'src/**/*.{ts,tsx}' --report-unused-disable-directives --max-warnings 0",
     "build-wp": "wp-scripts build --config=webpack.config.cjs --webpack-copy-php --output-path",
     "format": "wp-scripts format",
     "lint:css": "wp-scripts lint-style",
@@ -16,12 +16,15 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.6"
+    "@smart-cloud/gatey-core": "^2.0.7",
+    "react-google-recaptcha-v3": "^1.11.0"
   },
   "peerDependencies": {
     "@aws-amplify/ui-react": "^6.13.2",
     "@wordpress/data": "^10.37.0",
-    "aws-amplify": "^6.15.9"
+    "aws-amplify": "^6.15.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@aws-amplify/ui-react": "^6.13.2",
@@ -37,6 +40,8 @@
     "eslint": "^9.39.1",
     "globals": "^17.0.0",
     "jquery": "^3.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.51.0"

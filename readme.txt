@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.0
+Stable tag: 2.0.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,13 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.2 =
+Replaced the reCAPTCHA hook with an in-house implementation so it can be used outside React components too (e.g. in plain JS/TS contexts).
+
+= 2.0.1 =
+Improved shared admin menu ownership detection: Fixed a case where the common WPSuite.io admin menu could fail to load if the previously “active” plugin no longer existed under wp-content/plugins (e.g., the folder was renamed). The decision logic now also validates the filesystem.
+reCAPTCHA provider update: Switched from the custom reCAPTCHA implementation to react-google-recaptcha-v3.
 
 = 2.0.0 =
 BREAKING: Introduced a unified WP Suite global registry and event-based initialization.
@@ -383,6 +390,12 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.2 =
+Updated the reCAPTCHA hook to an in-house version so reCAPTCHA is available outside React components as well.
+
+= 2.0.1 =
+Fixes shared WPSuite.io menu loading when an “active” plugin folder is missing (e.g., renamed). Also switches reCAPTCHA v3 to react-google-recaptcha-v3. Recommended update.
 
 = 2.0.0 =
 New WP Suite plugin registry + ready events. Prefer `globalThis.WpSuite.plugins.gatey` and listen for `wpsuite:gatey:ready`. Legacy `Gatey.*` and `Gatey.cognito.store` still work but are deprecated.

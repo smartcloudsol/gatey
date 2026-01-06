@@ -56,7 +56,6 @@ import {
 } from "../index";
 import { App } from "./app";
 import { type Screen, type Variation } from "./index";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { type PreviewType } from "./theme";
 
 const theme = {
@@ -652,63 +651,30 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               colorMode={colorMode}
               direction={themeDirection}
             >
-              {gatey.settings?.reCaptchaPublicKey ? (
-                <GoogleReCaptchaProvider
-                  reCaptchaKey={gatey.settings?.reCaptchaPublicKey}
-                  useEnterprise={gatey.settings?.useRecaptchaEnterprise}
-                  useRecaptchaNet={gatey.settings?.useRecaptchaNet}
-                >
-                  <App
-                    id={`gatey-authenticator-block-${uid}`}
-                    className={`wp-block-css-box-${uid}`}
-                    screen={previewScreen}
-                    variation={variation}
-                    language={currentLanguage as Language}
-                    direction={themeDirection}
-                    showOpenButton={showOpenButton}
-                    openButtonTitle={openButtonTitle}
-                    signingInMessage={signingInMessage}
-                    signingOutMessage={signingOutMessage}
-                    redirectingMessage={redirectingMessage}
-                    store={fulfilledStore}
-                    nonce={gatey.nonce}
-                    editorRef={editorRef}
-                    isPreview={true}
-                    previewMode={previewMode}
-                    setPreviewMode={setPreviewMode}
-                    setPreviewZIndex={setPreviewZIndex}
-                    siteSettings={siteSettings}
-                    siteSubscriptionType={siteSubscriptionType}
-                  >
-                    {children}
-                  </App>
-                </GoogleReCaptchaProvider>
-              ) : (
-                <App
-                  id={`gatey-authenticator-block-${uid}`}
-                  className={`wp-block-css-box-${uid}`}
-                  screen={previewScreen}
-                  variation={variation}
-                  language={currentLanguage as Language}
-                  direction={themeDirection}
-                  showOpenButton={showOpenButton}
-                  openButtonTitle={openButtonTitle}
-                  signingInMessage={signingInMessage}
-                  signingOutMessage={signingOutMessage}
-                  redirectingMessage={redirectingMessage}
-                  store={fulfilledStore}
-                  nonce={gatey.nonce}
-                  editorRef={editorRef}
-                  isPreview={true}
-                  previewMode={previewMode}
-                  setPreviewMode={setPreviewMode}
-                  setPreviewZIndex={setPreviewZIndex}
-                  siteSettings={siteSettings}
-                  siteSubscriptionType={siteSubscriptionType}
-                >
-                  {children}
-                </App>
-              )}
+              <App
+                id={`gatey-authenticator-block-${uid}`}
+                className={`wp-block-css-box-${uid}`}
+                screen={previewScreen}
+                variation={variation}
+                language={currentLanguage as Language}
+                direction={themeDirection}
+                showOpenButton={showOpenButton}
+                openButtonTitle={openButtonTitle}
+                signingInMessage={signingInMessage}
+                signingOutMessage={signingOutMessage}
+                redirectingMessage={redirectingMessage}
+                store={fulfilledStore}
+                nonce={gatey.nonce}
+                editorRef={editorRef}
+                isPreview={true}
+                previewMode={previewMode}
+                setPreviewMode={setPreviewMode}
+                setPreviewZIndex={setPreviewZIndex}
+                siteSettings={siteSettings}
+                siteSubscriptionType={siteSubscriptionType}
+              >
+                {children}
+              </App>
             </ThemeProvider>
           ) : (
             <>{__("Loading configuration...", TEXT_DOMAIN)}</>
