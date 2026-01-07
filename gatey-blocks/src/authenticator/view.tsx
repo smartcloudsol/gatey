@@ -5,13 +5,12 @@ import { type ColorMode, type Direction } from "@aws-amplify/ui-react";
 
 import "jquery";
 
-import { getGateyPlugin, getStore } from "@smart-cloud/gatey-core";
+import { getStore } from "@smart-cloud/gatey-core";
 
 import { type Language } from "../index";
 import { type Screen, type Variation } from "./index";
 import { ThemedApp } from "./theme";
 
-const gatey = getGateyPlugin();
 const cache = new Map<string, string>();
 try {
   const call = async (id: string) => {
@@ -59,7 +58,6 @@ try {
             redirectingMessage={redirectingMessage}
             totpIssuer={totpIssuer}
             isPreview={isPreview}
-            nonce={gatey?.nonce}
           >
             {el.children?.length && el.children[0].innerHTML}
           </ThemedApp>

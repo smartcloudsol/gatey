@@ -21,10 +21,6 @@ import { __ } from "@wordpress/i18n";
 import { check, close, currencyDollar, seen, settings } from "@wordpress/icons";
 import { createRef, useEffect, useState, type FunctionComponent } from "react";
 
-import { fetchAuthSession } from "@aws-amplify/auth";
-import { Amplify } from "aws-amplify";
-import { get } from "aws-amplify/api";
-
 import { translate } from "@aws-amplify/ui";
 
 import {
@@ -36,7 +32,6 @@ import {
 
 import {
   AuthenticatorConfig,
-  getGateyPlugin,
   getStore,
   TEXT_DOMAIN,
   type Store,
@@ -88,16 +83,6 @@ export interface EditorBlockProps {
   customCSS?: string;
 }
 
-const apiUrl =
-  window.location.host === "dev.wpsuite.io"
-    ? "https://api.wpsuite.io/dev"
-    : "https://api.wpsuite.io";
-
-const configUrl =
-  window.location.host === "dev.wpsuite.io"
-    ? "https://wpsuite.io/static/config/dev.json"
-    : "https://wpsuite.io/static/config/prod.json";
-
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
 
 const useScopedCssCompat = (id: string, css: string) => {
@@ -136,7 +121,10 @@ if (wpsuite) {
   wpSuiteSiteSettings = {} as SiteSettings;
 }
 
-const gatey = getGateyPlugin();
+const apiUrl =
+  window.location.host === "dev.wpsuite.io"
+    ? "https://api.wpsuite.io/dev"
+    : "https://api.wpsuite.io";
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   props: BlockEditProps<EditorBlockProps>
@@ -158,7 +146,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     customCSS,
   } = attributes;
 
-  const [amplifyConfigured, setAmplifyConfigured] = useState(false);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [siteSettings, setSiteSettings] =
     useState<AuthenticatorConfig | null>();
@@ -196,26 +183,27 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, [nextPreviewScreen]);
 
   useEffect(() => {
-    if (amplifyConfigured && !loadingSubscription) {
+    if (!loadingSubscription) {
       setLoadingSubscription(true);
       if (wpSuiteSiteSettings.accountId && wpSuiteSiteSettings.siteId) {
-        get({
-          apiName: "backend",
-          path:
+        fetch(
+          apiUrl +
             "/account/" +
             wpSuiteSiteSettings.accountId +
             "/site/" +
             wpSuiteSiteSettings.siteId +
             (wpSuiteSiteSettings.siteKey ? "/settings" : ""),
-          options: {
+          {
             headers: wpSuiteSiteSettings.siteKey
               ? {
                   "X-Site-Key": wpSuiteSiteSettings.siteKey,
                 }
               : {},
-          },
-        })
-          .response.then((response) => response.body.json())
+          }
+        )
+          .then((response) =>
+            response.ok ? response.json() : Promise.reject(response)
+          )
           .then((response) => {
             const site = response as unknown as {
               settings: AuthenticatorConfig;
@@ -234,71 +222,12 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
         setSiteSubscriptionType(null);
       }
     }
-  }, [amplifyConfigured, loadingSubscription]);
-
-  useEffect(() => {
-    if (amplifyConfigured && siteSettings !== undefined) {
-      Amplify.configure({});
-    }
-  }, [amplifyConfigured, siteSettings]);
+  }, [loadingSubscription]);
 
   useEffect(() => {
     getStore().then((fulfilledStore) => {
       setFulfilledStore(fulfilledStore);
     });
-    fetch(configUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.userPoolId && data?.appClientPlugin && data?.identityPoolId) {
-          Amplify.configure(
-            {
-              Auth: {
-                Cognito: {
-                  userPoolId: data.userPoolId,
-                  userPoolClientId: data.appClientPlugin,
-                  identityPoolId: data.identityPoolId,
-                },
-              },
-              API: {
-                REST: {
-                  backend: {
-                    endpoint: apiUrl,
-                  },
-                  backendWithIam: {
-                    endpoint: apiUrl,
-                  },
-                },
-              },
-            },
-            {
-              API: {
-                REST: {
-                  headers: async (options: { apiName: string }) => {
-                    if (options.apiName === "backend") {
-                      try {
-                        const authSession = await fetchAuthSession();
-                        if (authSession?.tokens?.accessToken) {
-                          return {
-                            Authorization: `Bearer ${authSession.tokens.accessToken}`,
-                          };
-                        }
-                      } catch (err) {
-                        console.error(err);
-                      }
-                    }
-                    return {};
-                  },
-                },
-              },
-            } as Record<string, unknown>
-          );
-          setAmplifyConfigured(true);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setAmplifyConfigured(true);
-      });
   }, []);
 
   useEffect(() => {
@@ -664,7 +593,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 signingOutMessage={signingOutMessage}
                 redirectingMessage={redirectingMessage}
                 store={fulfilledStore}
-                nonce={gatey.nonce}
                 editorRef={editorRef}
                 isPreview={true}
                 previewMode={previewMode}

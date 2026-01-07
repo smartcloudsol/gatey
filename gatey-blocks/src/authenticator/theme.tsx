@@ -20,7 +20,6 @@ import {
 import { useSelect } from "@wordpress/data";
 
 import {
-  getGateyPlugin,
   getStoreSelect,
   type AuthenticatorConfig,
   type Store,
@@ -47,7 +46,6 @@ export interface ThemeProps extends PropsWithChildren {
   totpIssuer?: string;
   store: Store;
   isPreview: boolean;
-  nonce: string;
   editorRef?: RefObject<HTMLDivElement>;
   children?: ReactNode;
   previewMode?: PreviewType;
@@ -56,8 +54,6 @@ export interface ThemeProps extends PropsWithChildren {
   siteSettings?: AuthenticatorConfig | null;
   siteSubscriptionType?: string | null;
 }
-
-const gatey = getGateyPlugin();
 
 export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
@@ -152,7 +148,6 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         redirectingMessage={redirectingMessage}
         totpIssuer={totpIssuer}
         isPreview={isPreview}
-        nonce={gatey?.nonce}
       >
         {children}
       </App>

@@ -1,4 +1,3 @@
-import { Amplify, type ResourcesConfig } from "aws-amplify";
 import {
   useEffect,
   useMemo,
@@ -49,11 +48,6 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
     () => getStoreSelect(store).getConfig(),
-    []
-  );
-
-  const amplifyConfig: ResourcesConfig | undefined = useSelect(
-    () => getStoreSelect(store).getAmplifyConfig(),
     []
   );
 
@@ -116,18 +110,6 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     return isPreview && previewMode ? previewFilteredConfig : decryptedConfig;
   }, [decryptedConfig, isPreview, previewFilteredConfig, previewMode]);
 
-  const amplifyConfigured = useMemo(() => {
-    if (isPreview) {
-      Amplify.configure({});
-      return true;
-    }
-    if (amplifyConfig?.Auth) {
-      Amplify.configure(amplifyConfig);
-      return true;
-    }
-    return false;
-  }, [amplifyConfig, isPreview]);
-
   const currentLanguage = useMemo(() => {
     I18n.putVocabularies(customTranslations || {});
     if (!language || language === "system") {
@@ -170,7 +152,6 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   return (
     filteredConfig !== undefined &&
-    amplifyConfigured &&
     screen !== undefined && (
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
