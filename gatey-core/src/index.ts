@@ -29,13 +29,13 @@ import {
   isInGroup,
 } from "./auth";
 
+import { attachDefaultPluginRuntime } from "@smart-cloud/wpsuite-core";
 import {
   createStore,
   getStoreDispatch,
   observeStore,
   type Store,
 } from "./store";
-import { attachDefaultPluginRuntime } from "@smart-cloud/wpsuite-core";
 
 export interface RoleMapping {
   cognitoGroup?: string;
@@ -174,6 +174,7 @@ export {
   getStoreDispatch,
   getStoreSelect,
   observeStore,
+  sanitizeAuthenticatorConfig,
   type AuthenticatorConfig,
   type CustomTranslations,
   type FormField,

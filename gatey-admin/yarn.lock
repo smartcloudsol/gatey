@@ -4209,10 +4209,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
-"@smart-cloud/gatey-core@^2.0.9":
-  version "2.0.9"
-  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-2.0.9.tgz#21ecf96dbd830035809cbec40bdc0a9f0db52841"
-  integrity sha512-1xYHaWkVALYmErVs5YU5NLWdLrzqC+VBZ++X8LtT65Dy3eEja0wdCyLvEWh0jkYFHBwCuHtGpPf+/MCFr48T6Q==
+"@smart-cloud/gatey-core@^2.0.10":
+  version "2.0.10"
+  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-2.0.10.tgz#ade62ffc452780a49434288fa661b63db0184cc4"
+  integrity sha512-OTjhRZZ4CH4vcn41v4VwQytuMN0XoumQDPX8f0vdzq/NSKmeBB+eJMpeaEi3EYMM6y4OZUem1Sr+rLPdDmCgGw==
   dependencies:
     "@smart-cloud/wpsuite-core" "^2.0.4"
 

@@ -36,6 +36,7 @@ import {
   getStoreSelect,
   loadAuthSession,
   TEXT_DOMAIN,
+  sanitizeAuthenticatorConfig,
   type AuthenticatorConfig,
   type RoleMapping,
   type Settings,
@@ -640,7 +641,7 @@ const Main = (props: MainProps) => {
   const handleConfigSave = useCallback(
     (config: AuthenticatorConfig) => {
       setFormConfig({
-        ...config,
+        ...sanitizeAuthenticatorConfig(config),
         subscriptionType: formConfig?.subscriptionType,
       });
       clearCache(!!formConfig?.subscriptionType);
@@ -662,7 +663,7 @@ const Main = (props: MainProps) => {
   useEffect(() => {
     if (site) {
       setResolvedConfig({
-        ...JSON.parse(JSON.stringify(site.settings ?? {})),
+        ...sanitizeAuthenticatorConfig(site.settings ?? {}),
         subscriptionType: site.subscriptionType,
       });
     } else {
@@ -1786,7 +1787,9 @@ async function fetchSite(accountId: string, siteId: string, siteKey?: string) {
       apiName: "backend",
       path: `/account/${accountId}/site/${siteId}${siteKey ? "/settings" : ""}`,
       options: {
-        headers: {},
+        headers: {
+          "X-Plugin": "gatey",
+        },
       },
     };
     if (siteKey) {

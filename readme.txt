@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,9 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.5 =
+Fix: sanitize resolved configuration to AuthenticatorConfig keys only (prevents unknown keys leaking from getConfig() or site settings).
 
 = 2.0.4 =
 Authenticator: simplified backend config loading by replacing `gatey.cognito.get` with a plain site-key based `fetch` (used by the Gutenberg editor). The Cognito wrapper was unnecessary for this request.
@@ -396,6 +399,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.5 =
+Configuration hardening update: the plugin now keeps only AuthenticatorConfig keys when resolving settings, avoiding issues caused by extra/unexpected config fields.
 
 = 2.0.4 =
 Authenticator now fetches backend config via a simple site-key based request instead of `gatey.cognito.get`. No action required.

@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -16,7 +16,7 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.9",
+    "@smart-cloud/gatey-core": "^2.0.10",
     "react-google-recaptcha-v3": "^1.11.0"
   },
   "peerDependencies": {

@@ -221,8 +221,43 @@ const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
   return translations ?? null;
 };
 
+/**
+ * Ensures we only keep runtime keys that are part of AuthenticatorConfig.
+ *
+ * Defensive: upstream getConfig("gatey") or persisted site.settings may include
+ * additional keys, but the admin UI and core should only operate on AuthenticatorConfig.
+ */
+export const sanitizeAuthenticatorConfig = (
+  input: unknown
+): AuthenticatorConfig => {
+  const v =
+    input && typeof input === "object"
+      ? (input as Record<string, unknown>)
+      : ({} as Record<string, unknown>);
+
+  const out: AuthenticatorConfig = {
+    customProviders: Array.isArray(v.customProviders)
+      ? (v.customProviders as CustomProvider[])
+      : [],
+    formFields: Array.isArray(v.formFields)
+      ? (v.formFields as FormField[])
+      : [],
+    apiConfigurations:
+      typeof v.apiConfigurations === "object" && v.apiConfigurations
+        ? (v.apiConfigurations as {
+            default: ApiConfiguration;
+            secondary?: ApiConfiguration;
+          })
+        : { default: { apis: [] } },
+  };
+  if (typeof v.subscriptionType === "string") {
+    out.subscriptionType = v.subscriptionType as SubscriptionType;
+  }
+
+  return out;
+};
 const getDefaultState = async (): Promise<State> => {
-  const config = (await getConfig("gatey")) as unknown as AuthenticatorConfig;
+  const config = sanitizeAuthenticatorConfig(await getConfig("gatey"));
   initAmplify(config);
   const hostname = window.location.hostname.toLowerCase().split(":")[0];
   const apiConfiguration =

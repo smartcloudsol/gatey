@@ -30,6 +30,13 @@ declare const getScopes: () => Promise<string[] | undefined>;
 declare const login: (signInHook: ApiConfiguration["signInHook"]) => Promise<string | undefined>;
 declare const logout: (signOutHook: ApiConfiguration["signOutHook"]) => Promise<string | undefined>;
 
+/**
+ * Ensures we only keep runtime keys that are part of AuthenticatorConfig.
+ *
+ * Defensive: upstream getConfig("gatey") or persisted site.settings may include
+ * additional keys, but the admin UI and core should only operate on AuthenticatorConfig.
+ */
+declare const sanitizeAuthenticatorConfig: (input: unknown) => AuthenticatorConfig;
 declare const actions: {
     setAmplifyConfig(amplifyConfig: ResourcesConfig): {
         type: string;
@@ -219,4 +226,4 @@ declare const store: () => Promise<Store>;
 
 declare const initializeGatey: () => GateyPlugin;
 
-export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, type Gatey, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent, type RoleMapping, type Settings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGateyPlugin, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStore, getStoreDispatch, getStoreSelect, getUserAttributes, initializeGatey, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, store, waitForGateyReady };
+export { type Account, type AuthenticatorConfig, type Cognito, type CustomTranslations, type FormField, type Gatey, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent, type RoleMapping, type Settings, type State, type Store, TEXT_DOMAIN, clearMfaPreferences, configureAmplify, getAmplifyConfig, getGateyPlugin, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getStore, getStoreDispatch, getStoreSelect, getUserAttributes, initializeGatey, isAuthenticated, isInGroup, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, observeStore, sanitizeAuthenticatorConfig, store, waitForGateyReady };
