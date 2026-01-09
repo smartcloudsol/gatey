@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.0.4",
+  "version": "2.0.5",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -19,8 +19,8 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.10",
-    "@smart-cloud/wpsuite-core": "^2.0.4",
+    "@smart-cloud/gatey-core": "^2.0.11",
+    "@smart-cloud/wpsuite-core": "^2.0.5",
     "cheerio": "^1.1.2",
     "he": "^1.2.0",
     "html-react-parser": "^5.2.11",
@@ -44,10 +44,10 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@types/react-google-recaptcha": "^2.1.9",
-    "@types/wordpress__block-editor": "^14.21.8",
+    "@types/wordpress__block-editor": "^15.0.0",
     "@types/wordpress__blocks": "^12.5.18",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.51.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react-swc": "^4.2.2",
     "@wordpress/block-editor": "^15.10.0",
@@ -60,12 +60,12 @@
     "aws-amplify": "^6.15.9",
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.25",
+    "eslint-plugin-react-refresh": "^0.4.26",
     "jquery": "^3.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.51.0",
-    "vite": "^7.3.0"
+    "typescript-eslint": "^8.52.0",
+    "vite": "^7.3.1"
   }
 }

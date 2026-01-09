@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.5
+Stable tag: 2.0.8
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,17 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.8 =
+* Fix: corrected the admin Mantine asset URL inside the plugin so Mantine loads properly.
+
+= 2.0.7 =
+* Fix: corrected `hub-loader.php` to ensure the shared WPSuite.io admin menu loads reliably.
+
+= 2.0.6 =
+* Performance: corrected package entry points so the correct builds are loaded, significantly reducing shipped JS size.
+* Performance: externalized the admin UI Mantine dependency (similar to Amplify), further reducing overall plugin size.
+* Stability: improved plugin bootstrapping by switching from jQuery ready to `DOMContentLoaded` and inlining observer logic, making loading more reliable across frontend, Gutenberg and Elementor.
 
 = 2.0.5 =
 Fix: sanitize resolved configuration to AuthenticatorConfig keys only (prevents unknown keys leaking from getConfig() or site settings).
@@ -399,6 +410,15 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.8 =
+Fixes Mantine loading in the admin UI by correcting the plugin-internal asset URL. Recommended update.
+
+= 2.0.7 =
+Fixes `hub-loader.php` to improve reliability of loading the shared WPSuite.io admin menu. Recommended update.
+
+= 2.0.6 =
+Performance + stability update: smaller JS payload and more reliable loading across frontend, Gutenberg and Elementor. Recommended update.
 
 = 2.0.5 =
 Configuration hardening update: the plugin now keeps only AuthenticatorConfig keys when resolving settings, avoiding issues caused by extra/unexpected config fields.

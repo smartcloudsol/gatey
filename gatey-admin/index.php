@@ -230,14 +230,12 @@ class Admin
     public function addScripts()
     {
         $screen = get_current_screen();
-        /*
-        $options = Options::reinstance();
-        */
+
         $script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'gatey-admin/dist/index.asset.php')) {
             $script_asset = require_once(GATEY_PATH . 'gatey-admin/dist/index.asset.php');
         }
-        $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor'));
+        $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor', 'wpsuite-mantine-vendor'));
         wp_enqueue_script('gatey-admin-script', GATEY_URL . 'gatey-admin/dist/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
 
         // Make the blocks translatable.

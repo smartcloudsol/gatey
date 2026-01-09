@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -16,7 +16,7 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.10",
+    "@smart-cloud/gatey-core": "^2.0.11",
     "react-google-recaptcha-v3": "^1.11.0"
   },
   "peerDependencies": {
@@ -30,8 +30,8 @@
     "@aws-amplify/ui-react": "^6.13.2",
     "@eslint/js": "^9.39.2",
     "@types/jquery": "^3.5.33",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.51.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
     "@wordpress/data": "^10.37.0",
     "@wordpress/scripts": "^31.2.0",
     "ajv": "^8.17.1",
@@ -44,6 +44,6 @@
     "react-dom": "^18.3.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.51.0"
+    "typescript-eslint": "^8.52.0"
   }
 }

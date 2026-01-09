@@ -1,6 +1,3 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import {
   defaultFormFieldOptions,
   translate,
@@ -24,16 +21,30 @@ import {
 import { dispatch } from "@wordpress/data";
 import { I18n } from "aws-amplify/utils";
 import { countries } from "country-data-list";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import "jquery";
+import { observe } from "./observer";
 
 import "./index.css";
 
 const root = document.documentElement;
 root.style.setProperty("--gatey-initialized", "none");
 root.style.setProperty("--gatey-not-initialized", "flex");
-jQuery(() => {
+
+function onDomReady(fn: () => void) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn, { once: true });
+  } else {
+    fn();
+  }
+}
+
+onDomReady(() => {
   const gatey = initializeGatey();
+  observe();
 
   if (
     gatey.settings?.reCaptchaPublicKey &&

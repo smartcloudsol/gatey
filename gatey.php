@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.0.5
+ * Version:           2.0.8
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.0.5';
+const VERSION = '2.0.8';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -142,6 +142,14 @@ final class Gatey
             false
         );
 
+        wp_register_script(
+            'wpsuite-mantine-vendor',
+            plugins_url('assets/js/wpsuite-mantine-vendor.min.js', __FILE__),
+            array("react", "react-dom"),
+            \SmartCloud\WPSuite\Hub\VERSION_MANTINE,
+            false
+        );
+
         $main_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'gatey-main/dist/index.asset.php')) {
             $main_script_asset = require(GATEY_PATH . 'gatey-main/dist/index.asset.php');
@@ -188,12 +196,6 @@ Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . '
 __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
 ';
         wp_add_inline_script('gatey-main-script', $js, 'before');
-
-        wp_add_inline_script(
-            'gatey-main-script',
-            file_get_contents(GATEY_PATH . 'observer.js'),
-            'after'
-        );
     }
 
     /**
