@@ -244,6 +244,7 @@ class Admin
         }
 
         wp_enqueue_style('gatey-admin-style', GATEY_URL . 'gatey-admin/dist/index.css', array('wp-components'), GATEY_VERSION);
+        wp_enqueue_style('wpsuite-mantine-vendor-style', GATEY_URL . 'assets/css/wpsuite-mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
     }
 
     public function renderCognitoSettingsPage()

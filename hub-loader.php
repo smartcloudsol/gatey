@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-const GATEY_HUB_VERSION = '2.0.3';
+const GATEY_HUB_VERSION = '2.0.5';
 
 final class GateyHubLoader
 {

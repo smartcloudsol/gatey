@@ -37,7 +37,7 @@
     "ajv": "^8.17.1",
     "aws-amplify": "^6.15.9",
     "country-data-list": "^1.5.5",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "globals": "^17.0.0",
     "jquery": "^3.7.1",
     "react": "^18.3.1",

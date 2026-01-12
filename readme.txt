@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,11 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.9 =
+* Performance: externalized Mantine CSS to further reduce the plugin payload.
+* Fix: corrected editor asset loading so admin/editor assets are no longer loaded unnecessarily in the Gutenberg editor.
+* Cleanup: removed Amplify reconfiguration from gatey-admin (not needed).
 
 = 2.0.8 =
 * Fix: corrected the admin Mantine asset URL inside the plugin so Mantine loads properly.
@@ -410,6 +415,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.9 =
+Further reduces plugin size (Mantine CSS externalized), fixes unnecessary Gutenberg editor asset loading, and removes unused Amplify reconfiguration in gatey-admin. Recommended update.
 
 = 2.0.8 =
 Fixes Mantine loading in the admin UI by correcting the plugin-internal asset URL. Recommended update.
