@@ -9,13 +9,13 @@ module.exports = function (env = {}) {
     ...defaultConfig,
     entry: {
       index: [
+        path.resolve(process.cwd(), "src", "index.tsx"),
         path.resolve(process.cwd(), "src/account-attribute", "index.tsx"),
         path.resolve(process.cwd(), "src/account-attribute", "view.tsx"),
         path.resolve(process.cwd(), "src/authenticator", "index.tsx"),
         path.resolve(process.cwd(), "src/authenticator", "view.tsx"),
         path.resolve(process.cwd(), "src/custom-block", "index.tsx"),
         path.resolve(process.cwd(), "src/form-field", "index.tsx"),
-        path.resolve(process.cwd(), "src", "index.tsx"),
       ],
     },
     externals: {
@@ -29,6 +29,15 @@ module.exports = function (env = {}) {
       "@aws-amplify/ui-react-core": "WpSuiteAmplify",
       "country-data-list": "WpSuiteAmplify",
       "crypto": "WpSuiteWebcrypto",
+    },
+    optimization: {
+      ...defaultConfig.optimization,
+      splitChunks: {
+        name: (module, chunks, cacheGroupKey) => {
+          const allChunksNames = chunks.map((chunk) => chunk.name).join('-');
+          return allChunksNames;
+        },
+      },
     },
     plugins: [
       ...defaultConfig.plugins.filter(

@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.9
+Stable tag: 2.0.10
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.10 =
+* Improvement: standardized chunk naming in gatey-blocks so the dynamically imported custom block parser now has a stable filename (`custom-block-parser.js`).
+* Compatibility: enables static exports by allowing you to include a fixed URL for the chunk (e.g. `[SITE_URL]/wp-content/plugins/gatey/gatey-blocks/dist/custom-block-parser.js`) so all required chunks are available on the static site.
 
 = 2.0.9 =
 * Performance: externalized Mantine CSS to further reduce the plugin payload.
@@ -415,6 +419,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.10 =
+Improves static export compatibility by giving the dynamically imported custom block parser a stable chunk name (`custom-block-parser.js`). You can now reliably add the fixed chunk URL as an extra exported asset.
 
 = 2.0.9 =
 Further reduces plugin size (Mantine CSS externalized), fixes unnecessary Gutenberg editor asset loading, and removes unused Amplify reconfiguration in gatey-admin. Recommended update.

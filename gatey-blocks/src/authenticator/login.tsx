@@ -32,6 +32,7 @@ import { getRecaptcha } from "@smart-cloud/wpsuite-core";
 import { type ThemeProps } from "./theme";
 
 const parseCustomBlocks = await import(
+  /* webpackChunkName: "custom-block-parser" */
   process.env.WPSUITE_PREMIUM
     ? "./paid-features/custom-blocks"
     : "./free-features/custom-blocks"
