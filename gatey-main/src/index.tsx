@@ -49,25 +49,36 @@ onDomReady(() => {
   if (
     gatey.settings?.reCaptchaPublicKey &&
     !document.querySelector(
-      `[wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`
+      `[wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`,
     )
   ) {
     const el = document.createElement("div");
+    el.id = "gatey-recaptcha-provider";
     el.setAttribute(
       "wpsuite-recaptcha-provider",
-      gatey.settings.reCaptchaPublicKey
+      gatey.settings.reCaptchaPublicKey,
     );
     document.body.appendChild(el);
+    const observer = new MutationObserver(() => {
+      const badge = document.querySelector(".grecaptcha-badge");
+      if (badge) {
+        (badge as HTMLElement).style.visibility = "hidden";
+        (badge as HTMLElement).style.display = "none";
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
     createRoot(el).render(
       <StrictMode>
         <GoogleReCaptchaProvider
           reCaptchaKey={gatey.settings.reCaptchaPublicKey}
           useEnterprise={gatey.settings.useRecaptchaEnterprise}
           useRecaptchaNet={gatey.settings.useRecaptchaNet}
+          scriptProps={{ async: true, defer: true }}
         >
           <></>
         </GoogleReCaptchaProvider>
-      </StrictMode>
+      </StrictMode>,
     );
   }
 
@@ -79,7 +90,7 @@ onDomReady(() => {
   const cssVariables: string[] = Array.from(document.styleSheets)
     .filter(
       (sheet) =>
-        sheet.href === null || sheet.href.startsWith(window.location.origin)
+        sheet.href === null || sheet.href.startsWith(window.location.origin),
     )
     .reduce(
       (acc: string[], sheet: CSSStyleSheet) =>
@@ -92,21 +103,21 @@ onDomReady(() => {
                   ? [
                       ...def,
                       ...Array.from((rule as CSSStyleRule).style).filter(
-                        (name) => name.startsWith("--gatey")
+                        (name) => name.startsWith("--gatey"),
                       ),
                     ]
                   : def),
-            []
+            [],
           ),
         ]),
-      []
+      [],
     );
 
   const replaceValues = (
     key: string,
     attribute: string,
     custom: string,
-    value: string
+    value: string,
   ) => {
     let attr = "[gatey-account-attribute][data-attribute='" + attribute + "']";
     if (attribute === "custom") {
@@ -142,7 +153,7 @@ onDomReady(() => {
                 defaultFormFieldOptions[attr as AuthFieldsWithDefaults]) ??
               (decryptedConfig?.formFields &&
                 decryptedConfig?.formFields?.find(
-                  (field) => field.name === attr
+                  (field) => field.name === attr,
                 ));
             let value = attrs[attr] as string;
             if (value) {
@@ -152,7 +163,7 @@ onDomReady(() => {
                     country.alpha3?.toLocaleLowerCase() ===
                       value.toLocaleLowerCase() ||
                     country.alpha2?.toLocaleLowerCase() ===
-                      value.toLocaleLowerCase()
+                      value.toLocaleLowerCase(),
                 );
                 if (country) {
                   value = translate(country.name);
@@ -169,11 +180,11 @@ onDomReady(() => {
               "gatey-account-attribute-" + attr.replaceAll(":", "-"),
               attr.startsWith("custom:") ? "custom" : attr,
               attr.startsWith("custom:") ? attr.substring(7) : "",
-              value ?? "&nbsp;"
+              value ?? "&nbsp;",
             );
             root.style.setProperty(
               "--gatey-account-attribute-" + attr.replaceAll(":", "-"),
-              "'" + (value ?? "") + "'"
+              "'" + (value ?? "") + "'",
             );
             processedAttrs.push(attr);
           });
@@ -184,11 +195,11 @@ onDomReady(() => {
               "gatey-account-attribute-" + key.replaceAll(":", "-"),
               key.startsWith("custom:") ? "custom" : key,
               key.startsWith("custom:") ? key.substring(7) : "",
-              "&nbsp;"
+              "&nbsp;",
             );
             root.style.setProperty(
               "--gatey-account-attribute-" + key.replaceAll(":", "-"),
-              "''"
+              "''",
             );
           }
         });
@@ -197,11 +208,11 @@ onDomReady(() => {
         const mfaPreferences = await gatey.cognito.getMfaPreferences();
         root.style.setProperty(
           "--gatey-account-mfa-enabled",
-          mfaPreferences?.enabled?.includes("TOTP") ? "flex" : "none"
+          mfaPreferences?.enabled?.includes("TOTP") ? "flex" : "none",
         );
         root.style.setProperty(
           "--gatey-account-mfa-not-enabled",
-          mfaPreferences?.enabled?.includes("TOTP") ? "none" : "flex"
+          mfaPreferences?.enabled?.includes("TOTP") ? "none" : "flex",
         );
       }
     }
@@ -212,11 +223,11 @@ onDomReady(() => {
         : false;
     root.style.setProperty(
       "--gatey-account-authenticated",
-      authenticated ? "flex" : "none"
+      authenticated ? "flex" : "none",
     );
     root.style.setProperty(
       "--gatey-account-not-authenticated",
-      authenticated ? "none" : "flex"
+      authenticated ? "none" : "flex",
     );
     if (gatey.cognito.getGroups) {
       const groups = signedIn && (await gatey.cognito.getGroups());
@@ -227,10 +238,10 @@ onDomReady(() => {
             property.includes("-not-") &&
               (!groups ||
                 !groups.includes(
-                  property.substring("--gatey-account-group-not-".length)
+                  property.substring("--gatey-account-group-not-".length),
                 ))
               ? "flex"
-              : "none"
+              : "none",
           );
         }
       });
@@ -238,11 +249,11 @@ onDomReady(() => {
         groups.forEach((group) => {
           root.style.setProperty(
             "--gatey-account-group-" + group.toLocaleLowerCase(),
-            "flex"
+            "flex",
           );
           root.style.setProperty(
             "--gatey-account-group-not-" + group.toLocaleLowerCase(),
-            "none"
+            "none",
           );
         });
       }
@@ -258,7 +269,7 @@ onDomReady(() => {
       window.location.hostname
         .toLowerCase()
         .match(
-          decryptedConfig.apiConfigurations.secondary?.domains.toLowerCase()
+          decryptedConfig.apiConfigurations.secondary?.domains.toLowerCase(),
         ) &&
       decryptedConfig.apiConfigurations?.secondary?.apis?.length
         ? decryptedConfig.apiConfigurations.secondary
@@ -295,7 +306,7 @@ onDomReady(() => {
             console.error(err);
           }
         }
-      }
+      },
     );
 
     observeStore(
@@ -308,7 +319,7 @@ onDomReady(() => {
             dispatch(store).clearAccount();
           });
         }
-      }
+      },
     );
 
     observeStore(
@@ -321,14 +332,14 @@ onDomReady(() => {
               dispatch(store).setAccount({
                 ...getStoreSelect(store).getAccount(),
                 userAttributes,
-              })
+              }),
             )
             .catch((err) => {
               console.error(err);
               dispatch(store).clearAccount();
             });
         }
-      }
+      },
     );
 
     observeStore(
@@ -341,14 +352,14 @@ onDomReady(() => {
               dispatch(store).setAccount({
                 ...getStoreSelect(store).getAccount(),
                 mfaPreferences,
-              })
+              }),
             )
             .catch((err) => {
               console.error(err);
               dispatch(store).clearAccount();
             });
         }
-      }
+      },
     );
 
     observeStore(
@@ -358,7 +369,7 @@ onDomReady(() => {
         const signedIn = !!(account as Account)?.username;
         dispatch(store).setSignedIn(signedIn);
         refresh(signedIn);
-      }
+      },
     );
 
     observeStore(
@@ -367,12 +378,12 @@ onDomReady(() => {
       () => {
         I18n.putVocabularies(translations);
         I18n.putVocabularies(
-          getStoreSelect(store).getCustomTranslations() || {}
+          getStoreSelect(store).getCustomTranslations() || {},
         );
         gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));
-      }
+      },
     );
 
     observeStore(
@@ -382,7 +393,7 @@ onDomReady(() => {
         gatey.cognito
           .isAuthenticated()
           .then((authenticated) => refresh(authenticated));
-      }
+      },
     );
   });
 });
