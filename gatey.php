@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.0.11
+ * Version:           2.0.12
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.0.11';
+const VERSION = '2.0.12';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -66,10 +66,10 @@ final class Gatey
     {
         // Register Gutenberg blocks (authenticator etc.)
         if (function_exists('register_block_type')) {
-            register_block_type(GATEY_PATH . 'gatey-blocks/dist/authenticator');
-            register_block_type(GATEY_PATH . 'gatey-blocks/dist/custom-block');
-            register_block_type(GATEY_PATH . 'gatey-blocks/dist/account-attribute');
-            register_block_type(GATEY_PATH . 'gatey-blocks/dist/form-field');
+            register_block_type(GATEY_PATH . 'blocks/authenticator');
+            register_block_type(GATEY_PATH . 'blocks/custom-block');
+            register_block_type(GATEY_PATH . 'blocks/account-attribute');
+            register_block_type(GATEY_PATH . 'blocks/form-field');
         }
 
         // Assets
@@ -151,22 +151,22 @@ final class Gatey
         );
 
         $main_script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'gatey-main/dist/index.asset.php')) {
-            $main_script_asset = require(GATEY_PATH . 'gatey-main/dist/index.asset.php');
+        if (file_exists(filename: GATEY_PATH . 'main/index.asset.php')) {
+            $main_script_asset = require(GATEY_PATH . 'main/index.asset.php');
         }
         $main_script_asset['dependencies'] = array_merge($main_script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor'));
-        wp_enqueue_script('gatey-main-script', GATEY_URL . 'gatey-main/dist/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
-        wp_enqueue_style('gatey-main-style', GATEY_URL . 'gatey-main/dist/index.css', array(), GATEY_VERSION);
-        add_editor_style(GATEY_URL . 'gatey-main/dist/index.css');
+        wp_enqueue_script('wpsuite-gatey-main-script', GATEY_URL . 'main/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_style('wpsuite-gatey-main-style', GATEY_URL . 'main/index.css', array(), GATEY_VERSION);
+        add_editor_style(GATEY_URL . 'main/index.css');
 
         $blocks_script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'gatey-blocks/dist/index.asset.php')) {
-            $blocks_script_asset = require(GATEY_PATH . 'gatey-blocks/dist/index.asset.php');
+        if (file_exists(filename: GATEY_PATH . 'blocks/index.asset.php')) {
+            $blocks_script_asset = require(GATEY_PATH . 'blocks/index.asset.php');
         }
-        $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('gatey-main-script'));
-        wp_enqueue_script('gatey-blocks-script', GATEY_URL . 'gatey-blocks/dist/index.js', $blocks_script_asset['dependencies'], GATEY_VERSION, false);
-        wp_enqueue_style('gatey-blocks-style', GATEY_URL . 'gatey-blocks/dist/index.css', array(), GATEY_VERSION);
-        add_editor_style(GATEY_URL . 'gatey-blocks/dist/index.css');
+        $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('wpsuite-gatey-main-script'));
+        wp_enqueue_script('wpsuite-gatey-blocks-script', GATEY_URL . 'blocks/index.js', $blocks_script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_style('wpsuite-gatey-blocks-style', GATEY_URL . 'blocks/index.css', array(), GATEY_VERSION);
+        add_editor_style(GATEY_URL . 'blocks/index.css');
 
         $upload_info = wp_upload_dir();
         $data = array(
@@ -195,7 +195,7 @@ Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . '
         $js = $js . '// backward compatibility
 __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
 ';
-        wp_add_inline_script('gatey-main-script', $js, 'before');
+        wp_add_inline_script('wpsuite-gatey-main-script', $js, 'before');
     }
 
     /**
@@ -250,7 +250,6 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                 // parsing the block attributes
                 $attrs = array(
                     'uid' => $block['attrs']['uid'] ?? '',
-                    'customCSS' => $block['attrs']['customCSS'] ?? '',
                     'screen' => $a['screen'] ?? $block['attrs']['screen'] ?? 'signIn',
                     'variation' => $a['variation'] ?? $block['attrs']['variation'] ?? 'default',
                     'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
@@ -378,8 +377,8 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         }
 
         // Admin classes.
-        if (file_exists(GATEY_PATH . 'gatey-admin/index.php')) {
-            require_once GATEY_PATH . 'gatey-admin/index.php';
+        if (file_exists(GATEY_PATH . 'admin/index.php')) {
+            require_once GATEY_PATH . 'admin/index.php';
         }
         if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
             $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();

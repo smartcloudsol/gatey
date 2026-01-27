@@ -11,12 +11,12 @@ module.exports = function () {
       "@aws-amplify/ui": "WpSuiteAmplify",
       "@aws-amplify/ui-react": "WpSuiteAmplify",
       "@aws-amplify/ui-react-core": "WpSuiteAmplify",
-      "country-data-list": "WpSuiteAmplify",
       "@mantine/core": "WpSuiteMantine",
       "@mantine/form": "WpSuiteMantine",
       "@mantine/hooks": "WpSuiteMantine",
       "@mantine/modals": "WpSuiteMantine",
       "@mantine/notifications": "WpSuiteMantine",
+      "country-data-list": "WpSuiteAmplify",
       "crypto": "WpSuiteWebcrypto",
     },
     plugins: [

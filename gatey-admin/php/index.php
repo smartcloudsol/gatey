@@ -17,8 +17,8 @@ use UQI\Cognito\Tokens\CognitoTokenVerifier;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
-if (file_exists(filename: GATEY_PATH . 'gatey-admin/model.php')) {
-    require_once GATEY_PATH . 'gatey-admin/model.php';
+if (file_exists(filename: GATEY_PATH . 'admin/model.php')) {
+    require_once GATEY_PATH . 'admin/model.php';
 }
 class Admin
 {
@@ -232,24 +232,24 @@ class Admin
         $screen = get_current_screen();
 
         $script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'gatey-admin/dist/index.asset.php')) {
-            $script_asset = require_once(GATEY_PATH . 'gatey-admin/dist/index.asset.php');
+        if (file_exists(filename: GATEY_PATH . 'admin/index.asset.php')) {
+            $script_asset = require_once(GATEY_PATH . 'admin/index.asset.php');
         }
         $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor', 'wpsuite-mantine-vendor'));
-        wp_enqueue_script('gatey-admin-script', GATEY_URL . 'gatey-admin/dist/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
+        wp_enqueue_script('wpsuite-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
+            wp_set_script_translations('wpsuite-gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
         }
 
-        wp_enqueue_style('gatey-admin-style', GATEY_URL . 'gatey-admin/dist/index.css', array('wp-components'), GATEY_VERSION);
+        wp_enqueue_style('wpsuite-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), GATEY_VERSION);
         wp_enqueue_style('wpsuite-mantine-vendor-style', GATEY_URL . 'assets/css/wpsuite-mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
     }
 
     public function renderCognitoSettingsPage()
     {
-        echo '<div id="gatey-admin"></div>';
+        echo '<div id="wpsuite-gatey-admin"></div>';
     }
 
     public function initRestApi()

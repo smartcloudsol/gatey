@@ -26,7 +26,6 @@ I18n.putVocabularies(translations);
 export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
-    className,
     isPreview,
     previewMode,
     setPreviewMode,
@@ -48,12 +47,12 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
     () => getStoreSelect(store).getConfig(),
-    []
+    [],
   );
 
   const customTranslations: CustomTranslations | undefined | null = useSelect(
     () => getStoreSelect(store).getCustomTranslations(),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -62,14 +61,14 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         if (editorRef?.current) {
           setShow(false);
         } else {
-          jQuery(document).trigger("gatey-authenticator-block", id);
+          jQuery(document).trigger("wpsuite-gatey-authenticator-block", id);
         }
       });
       jQuery(containerRef.current).on("cancel.gatey-authenticator", () => {
         if (editorRef?.current) {
           setShow(false);
         } else {
-          jQuery(document).trigger("gatey-authenticator-block", id);
+          jQuery(document).trigger("wpsuite-gatey-authenticator-block", id);
         }
       });
     }
@@ -163,7 +162,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           >
             {showOpenButton && (variation === "modal" || !show) && (
               <Button
-                className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener ${className}`}
+                className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener`}
                 disabled={show}
                 isFullWidth={true}
                 onClick={() => {

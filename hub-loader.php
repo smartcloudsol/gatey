@@ -104,7 +104,7 @@ final class GateyHubLoader
             require_once ABSPATH . 'wp-admin/includes/plugin.php';
         }
 
-        if (!empty($GLOBALS['wpsuitehub_menu_parent']) || is_plugin_active('hub-for-wpsuiteio/hub-for-wpsuiteio.php')) {
+        if (!empty($GLOBALS['wpsuitehub_menu_parent'])) {
             return false;
         }
 
@@ -138,8 +138,8 @@ final class GateyHubLoader
                 $result = true;
 
                 define('WPSUITE_VERSION', GATEY_HUB_VERSION);
-                define('WPSUITE_PATH', plugin_dir_path(__FILE__) . 'wpsuite-admin/');
-                define('WPSUITE_URL', plugin_dir_url(__FILE__) . 'wpsuite-admin/');
+                define('WPSUITE_PATH', plugin_dir_path(__FILE__) . WPSUITE_SLUG . '/');
+                define('WPSUITE_URL', plugin_dir_url(__FILE__) . WPSUITE_SLUG . '/');
                 define('WPSUITE_READY_HOOK', WPSUITE_SLUG . '/ready');
 
                 if (file_exists(WPSUITE_PATH . 'index.php')) {

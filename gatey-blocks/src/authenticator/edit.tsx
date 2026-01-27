@@ -10,13 +10,11 @@ import {
   ComboboxControl,
   PanelBody,
   RadioControl,
-  TextareaControl,
   TextControl,
   ToolbarButton,
   ToolbarDropdownMenu,
   ToolbarGroup,
 } from "@wordpress/components";
-import { useLayoutEffect, useRef } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { check, close, currencyDollar, seen, settings } from "@wordpress/icons";
 import { createRef, useEffect, useState, type FunctionComponent } from "react";
@@ -80,37 +78,9 @@ export interface EditorBlockProps {
   redirectingMessage?: string;
   totpIssuer?: string;
   uid?: string;
-  customCSS?: string;
 }
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
-
-const useScopedCssCompat = (id: string, css: string) => {
-  const latestCssRef = useRef(css);
-
-  useLayoutEffect(() => {
-    latestCssRef.current = css;
-  }, [css]);
-
-  useLayoutEffect(() => {
-    const iframe = document.querySelector(
-      'iframe[name="editor-canvas"], iframe.block-editor-iframe'
-    ) as HTMLIFrameElement | null;
-    const doc = iframe?.contentDocument;
-    if (!doc?.head) return;
-
-    let tag = doc.getElementById(id) as HTMLStyleElement | null;
-    if (!tag) {
-      tag = doc.createElement("style");
-      tag.id = id;
-      doc.head.appendChild(tag);
-    }
-    if (tag.textContent !== latestCssRef.current) {
-      tag.textContent = latestCssRef.current;
-    }
-    return () => tag?.remove();
-  }, [id, css]);
-};
 
 const wpsuite = getWpSuite();
 
@@ -127,7 +97,7 @@ const apiUrl =
     : "https://api.wpsuite.io";
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
-  props: BlockEditProps<EditorBlockProps>
+  props: BlockEditProps<EditorBlockProps>,
 ) => {
   const { clientId, attributes, setAttributes } = props;
   const {
@@ -143,7 +113,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     redirectingMessage,
     totpIssuer,
     uid,
-    customCSS,
   } = attributes;
 
   const [loadingSubscription, setLoadingSubscription] = useState(false);
@@ -154,7 +123,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
   const [previewMode, setPreviewMode] = useState<PreviewType>();
   const [nextPreviewScreen, setNextPreviewScreen] = useState<Screen>(
-    screen || "signIn"
+    screen || "signIn",
   );
   const [previewScreen, setPreviewScreen] = useState<Screen | undefined>();
   const [themeDirection, setThemeDirection] = useState<Direction>();
@@ -166,16 +135,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
 
   const editorRef = createRef<HTMLDivElement>();
 
-  const scopedCSS = attributes.customCSS?.replace(
-    /selector/g,
-    `.wp-block-css-box-${uid}`
-  );
-
-  useScopedCssCompat(`css-${uid}`, scopedCSS || "");
-
-  const blockProps = useBlockProps({
-    className: `wp-block-css-box-${uid}`,
-  });
+  const blockProps = useBlockProps();
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
   useEffect(() => {
@@ -199,10 +159,10 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                   "X-Site-Key": wpSuiteSiteSettings.siteKey,
                 }
               : {},
-          }
+          },
         )
           .then((response) =>
-            response.ok ? response.json() : Promise.reject(response)
+            response.ok ? response.json() : Promise.reject(response),
           )
           .then((response) => {
             const site = response as unknown as {
@@ -323,7 +283,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Choose the first screen that the authenticator shows.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <RadioControl
@@ -338,7 +298,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Choose whether the authenticator appears as a full page (Default) or a modal dialog (Modal).",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <RadioControl
@@ -350,7 +310,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Select the authenticator’s color scheme—Light, Dark, or System (follows the user’s system preference).",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <ComboboxControl
@@ -362,7 +322,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Set the authenticator’s display language.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <RadioControl
@@ -374,7 +334,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Choose the authenticator’s layout direction—Auto (default; follows the selected language), Left‑to‑Right, or Right‑to‑Left.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <TextControl
@@ -386,7 +346,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Enter the issuer name that will appear in the authenticator app (e.g., “My Company”).",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <CheckboxControl
@@ -397,7 +357,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Hide the authenticator behind a button. The button label defaults to the current screen title, or you can customise it in Open Button Title.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <TextControl
@@ -409,7 +369,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Override the button label. Leave empty to use the current screen’s default title.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <TextControl
@@ -420,7 +380,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Specify the text that appears to the user while sign‑in is in progress.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <TextControl
@@ -431,7 +391,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Specify the text that appears to the user while sign‑out is in progress.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <TextControl
@@ -442,21 +402,10 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Specify the text that appears to the user while they are being redirected.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
           </PanelBody>
-          <PanelBody title={__("Custom CSS", TEXT_DOMAIN)}>
-            <TextareaControl
-              __nextHasNoMarginBottom
-              value={customCSS || ""}
-              onChange={(v) => setAttributes({ customCSS: v })}
-              help={__(
-                "Add custom CSS styles for the authenticator. Use the `selector` keyword to target the authenticator block.",
-                TEXT_DOMAIN
-              )}
-            />
-          </PanelBody>{" "}
         </InspectorControls>
         <BlockControls>
           <ToolbarGroup>
@@ -565,7 +514,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               icon={showCustomization ? close : settings}
               label={__(
                 showCustomization ? "Hide Customization" : "Show Customization",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
               onClick={() => {
                 setShowCustomization(!showCustomization);
@@ -582,7 +531,6 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             >
               <App
                 id={`gatey-authenticator-block-${uid}`}
-                className={`wp-block-css-box-${uid}`}
                 screen={previewScreen}
                 variation={variation}
                 language={currentLanguage as Language}

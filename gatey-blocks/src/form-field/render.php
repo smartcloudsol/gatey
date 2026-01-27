@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
-$gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
-$gatey_bid = 'gatey_account_attribute_' . $gatey_hash;
+$wpsuite_gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
+$wpsuite_gatey_bid = 'gatey_account_attribute_' . $wpsuite_gatey_hash;
 ?>
 <div gatey-form-field
 	data-attribute="<?php echo esc_html(array_key_exists('attribute', $attributes) ? $attributes['attribute'] : 'transient') ?>"

@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.11
+Stable tag: 2.0.12
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -182,6 +182,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.12 =
+* Change: removed the Authenticator block’s Custom CSS field to align with WordPress.org recommendations. You can still style the block using a custom CSS class and your theme/site styles.
+* Cleanup: standardized PHP variable naming in render templates using the `wpsuite_gatey_` prefix.
 
 = 2.0.11 =
 * Fix: improved Authenticator frontend rendering. Gutenberg layout classes are now applied to the correct wrapper element, so editor layout settings (alignment/width, etc.) reliably carry over to the frontend.
@@ -422,6 +426,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.12 =
+The Authenticator block no longer includes a built-in Custom CSS field. If you need extra styling, add a CSS class in the block’s “Additional CSS class(es)” field and define the styles in your theme or site CSS. Also includes internal PHP naming cleanup (`wpsuite_gatey_` prefix).
 
 = 2.0.11 =
 Fixes an Authenticator layout issue where Gutenberg editor layout settings didn’t always apply on the frontend. Recommended update.

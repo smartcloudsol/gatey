@@ -85,11 +85,10 @@ export const Login = (
   props: ThemeProps & {
     config: AuthenticatorConfig | null | undefined;
     containerRef: React.RefObject<HTMLDivElement>;
-  }
+  },
 ) => {
   const {
     id,
-    className,
     store,
     screen,
     variation,
@@ -115,17 +114,17 @@ export const Login = (
 
   const account: Account | undefined = useSelect(
     () => getStoreSelect(store).getAccount(),
-    []
+    [],
   );
 
   const nextUrl: string | undefined | null = useSelect(
     () => getStoreSelect(store).getNextUrl(),
-    []
+    [],
   );
 
   const signedIn: boolean = useSelect(
     () => getStoreSelect(store).isSignedIn(),
-    []
+    [],
   );
 
   const {
@@ -161,7 +160,7 @@ export const Login = (
   ]);
 
   const [wasSignedIn] = useState<boolean>(
-    signedIn && !account?.loaded && reauth !== "1"
+    signedIn && !account?.loaded && reauth !== "1",
   );
 
   const isVisible = useElementDetector(
@@ -169,7 +168,7 @@ export const Login = (
     { threshold: 0 },
     {
       onTriggerExit: () => setComponentVisible(jQuery("#" + id).length > 0),
-    }
+    },
   );
 
   const handleReCaptchaVerify = useCallback(async () => {
@@ -177,7 +176,7 @@ export const Login = (
       return;
     }
     const { execute } = await getRecaptcha(
-      gatey.settings?.useRecaptchaEnterprise || false
+      gatey.settings?.useRecaptchaEnterprise || false,
     );
 
     if (!execute) {
@@ -199,7 +198,7 @@ export const Login = (
         });
       }
     },
-    [containerRef, screen]
+    [containerRef, screen],
   );
 
   const services: AuthContext["services"] = useMemo(
@@ -237,7 +236,7 @@ export const Login = (
       reloadUserAttributes,
       reloadMFAPreferences,
       handleReCaptchaVerify,
-    ]
+    ],
   );
 
   const visible = useMemo(() => {
@@ -262,7 +261,7 @@ export const Login = (
         account,
         children,
         editorContent,
-        direction
+        direction,
       );
     }
     return {};
@@ -459,7 +458,6 @@ export const Login = (
   return (
     <View
       ref={containerRef}
-      className={className}
       width={!variation || variation === "default" ? "100%" : "0"}
     >
       {visible && (

@@ -2,10 +2,10 @@
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
-$gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
-$gatey_bid = 'gatey_account_attribute_' . $gatey_hash;
+$wpsuite_gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
+$wpsuite_gatey_bid = 'gatey_account_attribute_' . $wpsuite_gatey_hash;
 ?>
-<div gatey-account-attribute id="<?php echo esc_html($gatey_bid) ?>" data-is-preview="gatey-is-preview"
+<div gatey-account-attribute id="<?php echo esc_html($wpsuite_gatey_bid) ?>" data-is-preview="gatey-is-preview"
 	data-component="<?php echo esc_html(array_key_exists('component', $attributes) ? $attributes['component'] : 'div') ?>"
 	data-attribute="<?php echo esc_html(array_key_exists('attribute', $attributes) ? $attributes['attribute'] : '') ?>"
 	data-custom="<?php echo esc_html(array_key_exists('custom', $attributes) ? $attributes['custom'] : '') ?>"

@@ -17,7 +17,6 @@ try {
     const el = document.querySelector("#" + id);
     if (el) {
       jQuery(el).data("rendered", "true");
-      const className = el.getAttribute("data-class") as Screen;
       const isPreview = el.getAttribute("data-is-preview") === "true";
       const screen = el.getAttribute("data-screen") as Screen;
       const variation = el.getAttribute("data-variation") as Variation;
@@ -44,7 +43,6 @@ try {
         <StrictMode>
           <ThemedApp
             id={id}
-            className={className}
             store={fulfilledStore}
             screen={screen}
             variation={variation}
@@ -61,14 +59,16 @@ try {
           >
             {el.children?.length && el.children[0].innerHTML}
           </ThemedApp>
-        </StrictMode>
+        </StrictMode>,
       );
     }
   };
 
-  jQuery(document).on("gatey-authenticator-block", (_, id) => call(id));
+  jQuery(document).on("wpsuite-gatey-authenticator-block", (_, id) => call(id));
   jQuery(window).on("elementor/frontend/init", function () {
-    jQuery(document).on("gatey-authenticator-block", (_, id) => call(id));
+    jQuery(document).on("wpsuite-gatey-authenticator-block", (_, id) =>
+      call(id),
+    );
   });
 } catch (err) {
   console.error(err);

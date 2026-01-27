@@ -2,12 +2,11 @@
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
-$gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
-$gatey_bid = 'gatey_authenticator_' . $gatey_hash;
-$gatey_uid = isset($attributes['uid']) ? sanitize_key($attributes['uid']) : '';
+$wpsuite_gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
+$wpsuite_gatey_bid = 'gatey_authenticator_' . $wpsuite_gatey_hash;
+$wpsuite_gatey_uid = isset($attributes['uid']) ? sanitize_key($attributes['uid']) : '';
 ?>
-<div gatey-authenticator id="<?php echo esc_html($gatey_bid) ?>" data-is-preview="gatey-is-preview"
-	data-class="wp-block-css-box-<?php echo esc_attr($gatey_uid) ?>"
+<div gatey-authenticator id="<?php echo esc_html($wpsuite_gatey_bid) ?>" data-is-preview="gatey-is-preview"
 	data-screen="<?php echo esc_html(array_key_exists('screen', $attributes) ? $attributes['screen'] : 'signIn') ?>"
 	data-variation="<?php echo esc_html(array_key_exists('variation', $attributes) ? $attributes['variation'] : 'default') ?>"
 	data-color-mode="<?php echo esc_html(array_key_exists('colorMode', $attributes) ? $attributes['colorMode'] : 'system') ?>"
@@ -24,14 +23,3 @@ $gatey_uid = isset($attributes['uid']) ? sanitize_key($attributes['uid']) : '';
 		<?php echo esc_html($content) ?>
 	</div>
 </div>
-<?php
-$gatey_raw = isset($attributes['customCSS']) ? $attributes['customCSS'] : '';
-if (!current_user_can('unfiltered_html')) {
-	$gatey_raw = wp_kses($gatey_raw, []);
-}
-if ($gatey_uid) {
-	$gatey_scope = ".wp-block-css-box-$gatey_uid";
-	$gatey_css = str_replace('selector', $gatey_scope, $gatey_raw);
-	echo "<style id='css-box-" . esc_attr($gatey_uid) . "'>" . esc_html($gatey_css) . "</style>";
-}
-?>

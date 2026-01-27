@@ -32,7 +32,6 @@ export type PreviewType = "FREE" | "PAID";
 
 export interface ThemeProps extends PropsWithChildren {
   id: string;
-  className: string;
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
@@ -58,7 +57,6 @@ export interface ThemeProps extends PropsWithChildren {
 export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const {
     id,
-    className,
     isPreview,
     store,
     editorRef,
@@ -86,20 +84,20 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   const languageInStore: string | undefined | null = useSelect(
     () => getStoreSelect(store).getLanguage(),
-    []
+    [],
   );
 
   const directionInStore: Direction | "auto" | undefined | null = useSelect(
     () => getStoreSelect(store).getDirection(),
-    []
+    [],
   );
 
   const [languageOverride] = useState<string>(
-    new URLSearchParams(window.location.search).get("language") ?? ""
+    new URLSearchParams(window.location.search).get("language") ?? "",
   );
 
   const [directionOverride] = useState<string>(
-    new URLSearchParams(window.location.search).get("direction") ?? ""
+    new URLSearchParams(window.location.search).get("direction") ?? "",
   );
 
   useEffect(() => {
@@ -118,7 +116,7 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       const dir = directionInStore || directionOverride || direction;
       if (!dir || dir === "auto") {
         setCurrentDirection(
-          currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr"
+          currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr",
         );
       } else {
         setCurrentDirection(dir as Direction);
@@ -134,7 +132,6 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     >
       <App
         id={id}
-        className={className}
         store={store}
         editorRef={editorRef}
         screen={screen}

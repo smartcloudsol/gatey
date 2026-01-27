@@ -64,7 +64,7 @@ getStore()
     if (!gatey) {
       throw new Error("Gatey plugin is not available");
     }
-    const root = createRoot(document.getElementById("gatey-admin")!);
+    const root = createRoot(document.getElementById("wpsuite-gatey-admin")!);
     root.render(
       <StrictMode>
         <QueryClientProvider client={queryClient}>
@@ -75,7 +75,7 @@ getStore()
             </ModalsProvider>
           </MantineProvider>
         </QueryClientProvider>
-      </StrictMode>
+      </StrictMode>,
     );
   })
   .catch((error) => {

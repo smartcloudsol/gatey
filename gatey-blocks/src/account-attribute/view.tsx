@@ -52,14 +52,18 @@ try {
             prefix={prefix}
             postfix={postfix}
           />
-        </StrictMode>
+        </StrictMode>,
       );
     }
   };
 
-  jQuery(document).on("gatey-account-attribute-block", (_, id) => call(id));
+  jQuery(document).on("wpsuite-gatey-account-attribute-block", (_, id) =>
+    call(id),
+  );
   jQuery(window).on("elementor/frontend/init", function () {
-    jQuery(document).on("gatey-account-attribute-block", (_, id) => call(id));
+    jQuery(document).on("wpsuite-gatey-account-attribute-block", (_, id) =>
+      call(id),
+    );
   });
 } catch (err) {
   console.error(err);
