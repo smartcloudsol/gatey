@@ -148,7 +148,14 @@ From the **root directory**:
 
 ## Packaging for Deployment
 
-Once all components have been successfully built, archive the project into a deployable WordPress plugin ZIP:
+Ensure the built assets are copied into the simplified plugin layout:
+
+- `gatey-main/dist/*` → `main/`
+- `gatey-blocks/dist/*` → `blocks/`
+- `gatey-admin/php/*` and `gatey-admin/dist/*` → `admin/`
+- `wpsuite-admin/php/*` and `wpsuite-admin/dist/*` → `hub-for-wpsuiteio/`
+
+Once the structure matches the layout above, create the distributable ZIP:
 
 ```bash
 git archive --format zip -o gatey.zip HEAD
