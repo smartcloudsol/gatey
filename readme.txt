@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.12
+Stable tag: 2.0.13
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -51,7 +51,7 @@ Upload the plugin files to the /wp-content/plugins/gatey directory, or install v
 
 Activate the plugin through the “Plugins” screen in WordPress.
 
-Navigate to WP Admin > Gatey > Settings to configure your AWS Cognito user pool and integration settings.
+Navigate to WP Admin > SmartCloud > Settings to configure your AWS Cognito user pool and integration settings.
 
 == Machine-readable resources ==
 
@@ -149,6 +149,19 @@ This plugin integrates with the following third-party services:
      - Google Terms of Service: https://policies.google.com/terms  
      - Google Privacy Policy: https://policies.google.com/privacy
 
+3. **WPSuite platform connection (optional; site/workspace linking & shared features)**
+   - **When it applies:**
+     When you use **WP Admin → SmartCloud → Connect your Site to WPSuite** to link this WordPress site to a WPSuite workspace, or to switch/disconnect later.
+   - **What it’s used for:**
+     Storing and retrieving Pro feature configuration (e.g., API/chatbot/feature settings) and enabling an admin-side preview experience so you can try Pro features in WP Admin before enabling them on the live site.
+   - **What data may be sent:**
+     Minimal account/session data required for authentication, and minimal site/workspace linking data required to associate a WordPress site with a workspace (e.g., site/workspace identifiers and the site’s URL/domain).
+   - **Where it goes / how it’s called:**
+     Secure HTTPS requests from the browser to WPSuite.io services (e.g. **wpsuite.io** and **api.wpsuite.io**).
+   - **Links:**
+     - WPSuite.io Privacy Policy: https://wpsuite.io/privacy-policy
+     - WPSuite.io Terms of Use: https://wpsuite.io/terms-of-use
+
 == Client-Side Libraries ==
 
 1. **AWS Amplify Authenticator**  
@@ -183,6 +196,11 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 2.0.13 =
+* Admin menu update: Gatey admin pages are now grouped under the unified **SmartCloud** top-level menu in WP Admin.
+* Naming cleanup: standardized internal prefixes across PHP, JavaScript, and rendered HTML (classes, IDs, data attributes) using a `smartcloud-gatey` namespace to avoid collisions.
+* Internal refactor only — no functional changes and no impact on existing configurations or frontend behavior.
+
 = 2.0.12 =
 * Change: removed the Authenticator block’s Custom CSS field to align with WordPress.org recommendations. You can still style the block using a custom CSS class and your theme/site styles.
 * Cleanup: standardized PHP variable naming in render templates using the `wpsuite_gatey_` prefix.
@@ -203,7 +221,7 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 * Fix: corrected the admin Mantine asset URL inside the plugin so Mantine loads properly.
 
 = 2.0.7 =
-* Fix: corrected `hub-loader.php` to ensure the shared WPSuite.io admin menu loads reliably.
+* Fix: corrected `hub-loader.php` to ensure the shared SmartCloud admin menu loads reliably.
 
 = 2.0.6 =
 * Performance: corrected package entry points so the correct builds are loaded, significantly reducing shipped JS size.
@@ -223,7 +241,7 @@ Updated the Authenticator block: removed Amplify reconfiguration both on the fro
 Replaced the reCAPTCHA hook with an in-house implementation so it can be used outside React components too (e.g. in plain JS/TS contexts).
 
 = 2.0.1 =
-Improved shared admin menu ownership detection: Fixed a case where the common WPSuite.io admin menu could fail to load if the previously “active” plugin no longer existed under wp-content/plugins (e.g., the folder was renamed). The decision logic now also validates the filesystem.
+Improved shared admin menu ownership detection: Fixed a case where the common SmartCloud admin menu could fail to load if the previously “active” plugin no longer existed under wp-content/plugins (e.g., the folder was renamed). The decision logic now also validates the filesystem.
 reCAPTCHA provider update: Switched from the custom reCAPTCHA implementation to react-google-recaptcha-v3.
 
 = 2.0.0 =
@@ -427,6 +445,10 @@ Initial release.
 
 == Upgrade Notice ==
 
+= 2.0.13 =
+This update aligns Gatey with the new unified **SmartCloud** admin menu and standardizes internal naming and prefixes.
+No configuration changes are required, and existing sites will continue to work without modification.
+
 = 2.0.12 =
 The Authenticator block no longer includes a built-in Custom CSS field. If you need extra styling, add a CSS class in the block’s “Additional CSS class(es)” field and define the styles in your theme or site CSS. Also includes internal PHP naming cleanup (`wpsuite_gatey_` prefix).
 
@@ -443,7 +465,7 @@ Further reduces plugin size (Mantine CSS externalized), fixes unnecessary Gutenb
 Fixes Mantine loading in the admin UI by correcting the plugin-internal asset URL. Recommended update.
 
 = 2.0.7 =
-Fixes `hub-loader.php` to improve reliability of loading the shared WPSuite.io admin menu. Recommended update.
+Fixes `hub-loader.php` to improve reliability of loading the shared SmartCloud admin menu. Recommended update.
 
 = 2.0.6 =
 Performance + stability update: smaller JS payload and more reliable loading across frontend, Gutenberg and Elementor. Recommended update.
@@ -499,7 +521,7 @@ Update to remove an obsolete log line — no functional change, but results in c
 
 = 1.8.0 =
 Update to migrate licence and site-connection handling into the shared **Hub for WPSuite.io** plugin. 
-Gatey now appears under the central WPSuite.io menu in wp-admin, and will show clear guidance if the Hub plugin is missing or not connected. 
+Gatey now appears under the central SmartCloud menu in wp-admin, and will show clear guidance if the Hub plugin is missing or not connected. 
 Install the Hub plugin to continue using Pro features.
 
 = 1.7.3 =

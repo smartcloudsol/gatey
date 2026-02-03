@@ -57,20 +57,32 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
 
   useEffect(() => {
     if (containerRef.current) {
-      jQuery(containerRef.current).on("done.gatey-authenticator", () => {
-        if (editorRef?.current) {
-          setShow(false);
-        } else {
-          jQuery(document).trigger("wpsuite-gatey-authenticator-block", id);
-        }
-      });
-      jQuery(containerRef.current).on("cancel.gatey-authenticator", () => {
-        if (editorRef?.current) {
-          setShow(false);
-        } else {
-          jQuery(document).trigger("wpsuite-gatey-authenticator-block", id);
-        }
-      });
+      jQuery(containerRef.current).on(
+        "done.smartcloud-gatey-authenticator",
+        () => {
+          if (editorRef?.current) {
+            setShow(false);
+          } else {
+            jQuery(document).trigger(
+              "smartcloud-gatey-authenticator-block",
+              id,
+            );
+          }
+        },
+      );
+      jQuery(containerRef.current).on(
+        "cancel.smartcloud-gatey-authenticator",
+        () => {
+          if (editorRef?.current) {
+            setShow(false);
+          } else {
+            jQuery(document).trigger(
+              "smartcloud-gatey-authenticator-block",
+              id,
+            );
+          }
+        },
+      );
     }
   }, [editorRef, containerRef, show, id]);
 

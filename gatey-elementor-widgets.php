@@ -4,8 +4,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!function_exists('gatey_do_shortcode')) {
-    function gatey_do_shortcode(string $tag, array $atts = [], string $link = '')
+if (!function_exists('smartcloud_gatey_do_shortcode')) {
+    function smartcloud_gatey_do_shortcode(string $tag, array $atts = [], string $link = '')
     {
         if (empty($link)) {
             echo do_shortcode(sprintf(
@@ -33,7 +33,7 @@ if (!function_exists('gatey_do_shortcode')) {
 
 add_action('elementor/elements/categories_registered', static function ($manager) {
     $manager->add_category('gatey', [
-        'title' => __('Gatey', 'gatey'),
+        'title' => __('SmartCloud - Gatey', 'gatey'),
         'icon' => 'fa fa-plug',
     ]);
 });
@@ -210,7 +210,7 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v) && $v != '');
         $atts['id'] = $all['pattern'];
 
-        gatey_do_shortcode('gatey', $atts);
+        smartcloud_gatey_do_shortcode('gatey', $atts);
     }
 }
 
@@ -372,9 +372,9 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
             if ($rels) {
                 $link .= ' rel="' . esc_attr(implode(' ', $rels)) . '"';
             }
-            gatey_do_shortcode('gatey-account', $atts, $link);
+            smartcloud_gatey_do_shortcode('gatey-account', $atts, $link);
         } else {
-            gatey_do_shortcode('gatey-account', $atts);
+            smartcloud_gatey_do_shortcode('gatey-account', $atts);
         }
     }
 }

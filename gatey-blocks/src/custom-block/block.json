@@ -2,10 +2,10 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/custom-block",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "title": "Custom Block",
-  "category": "wpsuite-gatey",
-  "description": "Custom Block for Gatey Authenticator",
+  "category": "smartcloud-gatey",
+  "description": "Custom Block for Gatey Authenticator - create custom content blocks for use within the Authenticator block.",
   "attributes": {
     "anchor": {
       "type": "string"

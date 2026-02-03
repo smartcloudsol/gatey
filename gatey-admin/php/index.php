@@ -93,7 +93,7 @@ class Admin
     public function addMenu()
     {
         $generate_suffix = add_submenu_page(
-            WPSUITE_SLUG,
+            SMARTCLOUD_WPSUITE_SLUG,
             __('Gatey Settings', 'gatey'),
             __('Gatey Settings', 'gatey'),
             'manage_options',
@@ -102,7 +102,7 @@ class Admin
         );
 
         add_submenu_page(
-            WPSUITE_SLUG,
+            SMARTCLOUD_WPSUITE_SLUG,
             __('Gatey Patterns', 'gatey'),
             __('Gatey Patterns', 'gatey'),
             'edit_posts',
@@ -214,7 +214,7 @@ class Admin
     public function highlightMenu($parent_file)
     {
         if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
-            return WPSUITE_SLUG;
+            return SMARTCLOUD_WPSUITE_SLUG;
         }
         return $parent_file;
     }
@@ -235,21 +235,21 @@ class Admin
         if (file_exists(filename: GATEY_PATH . 'admin/index.asset.php')) {
             $script_asset = require_once(GATEY_PATH . 'admin/index.asset.php');
         }
-        $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor', 'wpsuite-mantine-vendor'));
-        wp_enqueue_script('wpsuite-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
+        $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor', 'smartcloud-wpsuite-mantine-vendor'));
+        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('wpsuite-gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
+            wp_set_script_translations('smartcloud-gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
         }
 
-        wp_enqueue_style('wpsuite-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), GATEY_VERSION);
-        wp_enqueue_style('wpsuite-mantine-vendor-style', GATEY_URL . 'assets/css/wpsuite-mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
+        wp_enqueue_style('smartcloud-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), GATEY_VERSION);
+        wp_enqueue_style('smartcloud-wpsuite-mantine-vendor-style', GATEY_URL . 'assets/css/mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
     }
 
     public function renderCognitoSettingsPage()
     {
-        echo '<div id="wpsuite-gatey-admin"></div>';
+        echo '<div id="smartcloud-gatey-admin"></div>';
     }
 
     public function initRestApi()

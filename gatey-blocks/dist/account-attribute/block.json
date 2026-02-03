@@ -2,9 +2,9 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/account-attribute",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "title": "Account Attribute",
-  "category": "wpsuite-gatey",
+  "category": "smartcloud-gatey",
   "description": "Account Attribute for Gatey Authenticator - display an attribute of the current user",
   "attributes": {
     "component": {

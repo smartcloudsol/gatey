@@ -2,10 +2,10 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/authenticator",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "title": "Authenticator",
-  "category": "wpsuite-gatey",
-  "description": "Gatey Authenticator",
+  "category": "smartcloud-gatey",
+  "description": "Gatey Authenticator - add authentication screens to your site",
   "attributes": {
     "screen": {
       "type": "string"

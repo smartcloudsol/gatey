@@ -31,13 +31,6 @@ import {
 import { getRecaptcha } from "@smart-cloud/wpsuite-core";
 import { type ThemeProps } from "./theme";
 
-const parseCustomBlocks = await import(
-  /* webpackChunkName: "custom-block-parser" */
-  process.env.WPSUITE_PREMIUM
-    ? "./paid-features/custom-blocks"
-    : "./free-features/custom-blocks"
-);
-
 type EventDetails = {
   [key: string]: unknown;
 };
@@ -111,6 +104,17 @@ export const Login = (
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
   const [editorContent, setEditorContent] = useState<string | undefined>();
+  const [customBlockParser, setCustomBlockParser] =
+    useState<
+      (
+        config: AuthenticatorConfig,
+        isPreview: boolean,
+        account: Account | undefined,
+        children: React.ReactNode,
+        editorContent: string | undefined,
+        direction: string | Direction | "auto" | undefined,
+      ) => DefaultComponents
+    >();
 
   const account: Account | undefined = useSelect(
     () => getStoreSelect(store).getAccount(),
@@ -192,10 +196,13 @@ export const Login = (
   const dispatchEvent = useCallback(
     (name: string, details?: EventDetails) => {
       if (containerRef.current) {
-        jQuery(containerRef.current).trigger(name + ".gatey-authenticator", {
-          screen: screen,
-          ...details,
-        });
+        jQuery(containerRef.current).trigger(
+          name + ".smartcloud-gatey-authenticator",
+          {
+            screen: screen,
+            ...details,
+          },
+        );
       }
     },
     [containerRef, screen],
@@ -249,13 +256,23 @@ export const Login = (
     }
   }, [children, editorRef]);
 
+  useEffect(() => {
+    import(
+      /* webpackChunkName: "custom-block-parser" */
+      process.env.WPSUITE_PREMIUM
+        ? "./paid-features/custom-blocks"
+        : "./free-features/custom-blocks"
+    ).then((module) => {
+      setCustomBlockParser(() => module.default);
+    });
+  }, []);
+
   const components = useMemo(() => {
-    if (config === undefined) {
+    if (config === undefined || customBlockParser === undefined) {
       return undefined;
     }
     if (children && config !== null) {
-      const pcb = parseCustomBlocks;
-      return pcb.default(
+      return customBlockParser(
         config,
         isPreview,
         account,
@@ -265,7 +282,15 @@ export const Login = (
       );
     }
     return {};
-  }, [config, children, isPreview, account, editorContent, direction]);
+  }, [
+    config,
+    children,
+    isPreview,
+    account,
+    editorContent,
+    direction,
+    customBlockParser,
+  ]);
 
   useEffect(() => {
     if (screen || route === "setup") {

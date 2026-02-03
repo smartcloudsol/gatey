@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.0.12
+ * Version:           2.0.13
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.0.12';
+const VERSION = '2.0.13';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -111,8 +111,8 @@ final class Gatey
     public function registerBlockCategory(array $categories, \WP_Block_Editor_Context $context): array
     {
         $categories[] = array(
-            'slug' => 'wpsuite-gatey',
-            'title' => __('WPSuite-Gatey', 'gatey'),
+            'slug' => 'smartcloud-gatey',
+            'title' => __('SmartCloud - Gatey', 'gatey'),
             'icon' => null,
         );
         return $categories;
@@ -127,24 +127,24 @@ final class Gatey
         $settings = $this->admin->getSettings();
 
         wp_register_script(
-            'wpsuite-webcrypto-vendor',
-            GATEY_URL . 'assets/js/wpsuite-webcrypto-vendor.min.js',
+            'smartcloud-wpsuite-webcrypto-vendor',
+            GATEY_URL . 'assets/js/webcrypto-vendor.min.js',
             array(),
             \SmartCloud\WPSuite\Hub\VERSION_WEBCRYPTO,
             false
         );
 
         wp_register_script(
-            'wpsuite-amplify-vendor',
-            GATEY_URL . 'assets/js/wpsuite-amplify-vendor.min.js',
+            'smartcloud-wpsuite-amplify-vendor',
+            GATEY_URL . 'assets/js/amplify-vendor.min.js',
             array("react", "react-dom"),
             \SmartCloud\WPSuite\Hub\VERSION_AMPLIFY,
             false
         );
 
         wp_register_script(
-            'wpsuite-mantine-vendor',
-            GATEY_URL . 'assets/js/wpsuite-mantine-vendor.min.js',
+            'smartcloud-wpsuite-mantine-vendor',
+            GATEY_URL . 'assets/js/mantine-vendor.min.js',
             array("react", "react-dom"),
             \SmartCloud\WPSuite\Hub\VERSION_MANTINE,
             false
@@ -154,18 +154,18 @@ final class Gatey
         if (file_exists(filename: GATEY_PATH . 'main/index.asset.php')) {
             $main_script_asset = require(GATEY_PATH . 'main/index.asset.php');
         }
-        $main_script_asset['dependencies'] = array_merge($main_script_asset['dependencies'], array('wpsuite-webcrypto-vendor', 'wpsuite-amplify-vendor'));
-        wp_enqueue_script('wpsuite-gatey-main-script', GATEY_URL . 'main/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
-        wp_enqueue_style('wpsuite-gatey-main-style', GATEY_URL . 'main/index.css', array(), GATEY_VERSION);
+        $main_script_asset['dependencies'] = array_merge($main_script_asset['dependencies'], array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor'));
+        wp_enqueue_script('smartcloud-gatey-main-script', GATEY_URL . 'main/index.js', $main_script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_style('smartcloud-gatey-main-style', GATEY_URL . 'main/index.css', array(), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'main/index.css');
 
         $blocks_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'blocks/index.asset.php')) {
             $blocks_script_asset = require(GATEY_PATH . 'blocks/index.asset.php');
         }
-        $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('wpsuite-gatey-main-script'));
-        wp_enqueue_script('wpsuite-gatey-blocks-script', GATEY_URL . 'blocks/index.js', $blocks_script_asset['dependencies'], GATEY_VERSION, false);
-        wp_enqueue_style('wpsuite-gatey-blocks-style', GATEY_URL . 'blocks/index.css', array(), GATEY_VERSION);
+        $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('smartcloud-gatey-main-script'));
+        wp_enqueue_script('smartcloud-gatey-blocks-script', GATEY_URL . 'blocks/index.js', $blocks_script_asset['dependencies'], GATEY_VERSION, false);
+        wp_enqueue_style('smartcloud-gatey-blocks-style', GATEY_URL . 'blocks/index.css', array(), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'blocks/index.css');
 
         $upload_info = wp_upload_dir();
@@ -195,7 +195,7 @@ Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . '
         $js = $js . '// backward compatibility
 __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
 ';
-        wp_add_inline_script('wpsuite-gatey-main-script', $js, 'before');
+        wp_add_inline_script('smartcloud-gatey-main-script', $js, 'before');
     }
 
     /**
@@ -270,7 +270,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                     'innerContent' => $block['innerContent'],
                 ];
                 $content = render_block($newBlock);
-                $content = str_replace("gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
+                $content = str_replace("smartcloud-gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
                 return $content;
             }
         }
@@ -317,7 +317,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             'attrs' => $attrs,
         ];
         $content = render_block($newBlock);
-        $content = str_replace("gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
+        $content = str_replace("smartcloud-gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
         return $content;
     }
 

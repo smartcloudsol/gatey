@@ -57,11 +57,11 @@ try {
     }
   };
 
-  jQuery(document).on("wpsuite-gatey-account-attribute-block", (_, id) =>
+  jQuery(document).on("smartcloud-gatey-account-attribute-block", (_, id) =>
     call(id),
   );
   jQuery(window).on("elementor/frontend/init", function () {
-    jQuery(document).on("wpsuite-gatey-account-attribute-block", (_, id) =>
+    jQuery(document).on("smartcloud-gatey-account-attribute-block", (_, id) =>
       call(id),
     );
   });

@@ -64,7 +64,7 @@ getStore()
     if (!gatey) {
       throw new Error("Gatey plugin is not available");
     }
-    const root = createRoot(document.getElementById("wpsuite-gatey-admin")!);
+    const root = createRoot(document.getElementById("smartcloud-gatey-admin")!);
     root.render(
       <StrictMode>
         <QueryClientProvider client={queryClient}>

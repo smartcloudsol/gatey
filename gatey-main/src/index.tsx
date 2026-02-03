@@ -49,13 +49,13 @@ onDomReady(() => {
   if (
     gatey.settings?.reCaptchaPublicKey &&
     !document.querySelector(
-      `[wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`,
+      `[smartcloud-wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`,
     )
   ) {
     const el = document.createElement("div");
     el.id = "gatey-recaptcha-provider";
     el.setAttribute(
-      "wpsuite-recaptcha-provider",
+      "smartcloud-wpsuite-recaptcha-provider",
       gatey.settings.reCaptchaPublicKey,
     );
     document.body.appendChild(el);

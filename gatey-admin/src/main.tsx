@@ -133,7 +133,7 @@ const ApiSettingsEditor = lazy(
       process.env.WPSUITE_PREMIUM
         ? "./paid-features/ApiSettingsEditor"
         : "./free-features/NullEditor"
-    )
+    ),
 );
 const CustomFieldsEditor = lazy(
   () =>
@@ -141,7 +141,7 @@ const CustomFieldsEditor = lazy(
       process.env.WPSUITE_PREMIUM
         ? "./paid-features/CustomFieldsEditor"
         : "./free-features/NullEditor"
-    )
+    ),
 );
 const CustomProvidersEditor = lazy(
   () =>
@@ -149,12 +149,12 @@ const CustomProvidersEditor = lazy(
       process.env.WPSUITE_PREMIUM
         ? "./paid-features/CustomProvidersEditor"
         : "./free-features/NullEditor"
-    )
+    ),
 );
 
 const SettingsTitle = ({ settings }: { settings: Settings }) => {
   const isMobile = useMediaQuery(
-    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
+    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`,
   );
   return (
     <Card p="sm" withBorder mt="md" maw={1280}>
@@ -176,7 +176,7 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
         >
           {__(
             isMobile ? "Gatey" : "Gatey - Login & SSO with Amazon Cognito",
-            TEXT_DOMAIN
+            TEXT_DOMAIN,
           )}
         </Heading>
         <Text>
@@ -197,8 +197,8 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
             <HoverCard.Dropdown maw={300} style={{ zIndex: 10000 }}>
               <Text size="sm">
                 Replacing the default login is optional — for example, if your
-                WordPress instance is used only for backend content editing and
-                the public site is statically generated, you can still fully
+                WordPress site is used only for backend content editing and the
+                public site is statically generated, you can still fully
                 leverage Gatey for your frontend.
               </Text>
             </HoverCard.Dropdown>
@@ -209,10 +209,10 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
         {!wpSuiteSiteSettings.siteId && (
           <>
             <Text c="dimmed" size="xs">
-              To use Pro features, please connect this WordPress instance to a{" "}
-              <strong>WPSuite.io</strong> site. Go to the{" "}
+              To use Pro features, please connect this WordPress site to a{" "}
+              <strong>WPSuite</strong> workspace. Go to the{" "}
               <a href="?page=hub-for-wpsuiteio">
-                <strong>WPSuite.io → Connect your Site</strong>
+                <strong>SmartCloud → Connect your Site to WPSuite</strong>
               </a>{" "}
               menu and complete the linking process.
             </Text>
@@ -266,7 +266,7 @@ const Main = (props: MainProps) => {
   const { store, nonce, settings } = props;
 
   const [currentConfig, setCurrentConfig] = useState<"default" | "secondary">(
-    "default"
+    "default",
   );
   const [navigationOptions, setNavigationOptions] =
     useState<NavigationOption[]>();
@@ -275,7 +275,7 @@ const Main = (props: MainProps) => {
   const [pages, setPages] = useState<Page[]>([]);
   const [scrollToId, setScrollToId] = useState<string>("");
   const [accountId] = useState<string | undefined>(
-    wpSuiteSiteSettings.accountId
+    wpSuiteSiteSettings.accountId,
   );
   const [siteId] = useState<string | undefined>(wpSuiteSiteSettings.siteId);
   const [siteKey] = useState<string | undefined>(wpSuiteSiteSettings.siteKey);
@@ -285,7 +285,7 @@ const Main = (props: MainProps) => {
 
   const [settingsFormData, setSettingsFormData] = useState<Settings>({
     userPoolConfigurations: JSON.parse(
-      JSON.stringify(settings.userPoolConfigurations || {})
+      JSON.stringify(settings.userPoolConfigurations || {}),
     ),
     secondaryUserPoolDomains: settings.secondaryUserPoolDomains || "",
     mappings: settings.mappings || [],
@@ -322,12 +322,12 @@ const Main = (props: MainProps) => {
 
   // Add media query for responsive design
   const isMobile = useMediaQuery(
-    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`
+    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`,
   );
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
     () => getStoreSelect(store)?.getConfig(),
-    []
+    [],
   );
 
   const loadSiteEnabled = !!accountId && !!siteId && !!siteKey;
@@ -409,7 +409,7 @@ const Main = (props: MainProps) => {
         });
       }
     },
-    [accountId, nonce, siteId, siteKey]
+    [accountId, nonce, siteId, siteKey],
   );
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -422,18 +422,18 @@ const Main = (props: MainProps) => {
         while (parts.length > 1) ref = ref[parts.shift()!];
         ref[parts[0]] =
           parts[0] === "scopes" ? value.split(",").map((s) => s.trim()) : value;
-      })
+      }),
     );
   };
 
   const handleMappingChange = useCallback(
     (index: number, field: keyof RoleMapping, value: string) => {
       const updatedMappings = settingsFormData.mappings.map((mapping, i) =>
-        i === index ? { ...mapping, [field]: value } : mapping
+        i === index ? { ...mapping, [field]: value } : mapping,
       );
       setSettingsFormData({ ...settingsFormData, mappings: updatedMappings });
     },
-    [settingsFormData]
+    [settingsFormData],
   );
 
   const handleAddMapping = useCallback(() => {
@@ -449,11 +449,11 @@ const Main = (props: MainProps) => {
   const handleDeleteMapping = useCallback(
     (index: number) => {
       const updatedMappings = settingsFormData.mappings.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       );
       setSettingsFormData({ ...settingsFormData, mappings: updatedMappings });
     },
-    [settingsFormData]
+    [settingsFormData],
   );
 
   const handleIntegrationChange = useCallback(
@@ -463,7 +463,7 @@ const Main = (props: MainProps) => {
         integrateWpLogin: value,
       });
     },
-    [settingsFormData]
+    [settingsFormData],
   );
 
   const handleUpdateSettings = useCallback(
@@ -489,7 +489,7 @@ const Main = (props: MainProps) => {
             case "user-pools":
               message = __(
                 "User pool settings saved successfully.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               );
               break;
             case "general":
@@ -498,7 +498,7 @@ const Main = (props: MainProps) => {
             case "wordpress-login":
               message = __(
                 "WordPress login settings saved successfully.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               );
               break;
             default:
@@ -534,7 +534,7 @@ const Main = (props: MainProps) => {
         setSavingSettings(false);
       }
     },
-    [settingsFormData, nonce]
+    [settingsFormData, nonce],
   );
 
   const InfoLabelComponent = useCallback(
@@ -554,7 +554,7 @@ const Main = (props: MainProps) => {
         </ActionIcon>
       </Group>
     ),
-    [open]
+    [open],
   );
 
   const handleConfigSave = useCallback(
@@ -565,7 +565,7 @@ const Main = (props: MainProps) => {
       });
       clearCache(!!formConfig?.subscriptionType);
     },
-    [clearCache, formConfig?.subscriptionType]
+    [clearCache, formConfig?.subscriptionType],
   );
 
   useEffect(() => {
@@ -596,7 +596,7 @@ const Main = (props: MainProps) => {
           pages.map((p: { slug: string; title: { rendered: string } }) => ({
             path: "/" + p.slug,
             title: p.title.rendered,
-          })) as Page[]
+          })) as Page[],
         );
       })
       .catch((error) => console.error("Error loading form:", error));
@@ -604,7 +604,7 @@ const Main = (props: MainProps) => {
 
   const pageOptions = useMemo(
     () => pages.map((p) => ({ label: p.title, value: p.path })),
-    [pages]
+    [pages],
   );
 
   useEffect(() => {
@@ -741,7 +741,7 @@ const Main = (props: MainProps) => {
                 | "general"
                 | "user-pools"
                 | "wordpress-login"
-                | "api-settings"
+                | "api-settings",
             )
           }
           w="100%"
@@ -985,7 +985,7 @@ const Main = (props: MainProps) => {
                     disabled={savingSettings}
                     label="Username"
                     checked={settingsFormData.loginMechanisms?.includes(
-                      "username"
+                      "username",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       // remove the current value from the array
@@ -1008,7 +1008,7 @@ const Main = (props: MainProps) => {
                     disabled={savingSettings}
                     label="Email"
                     checked={settingsFormData.loginMechanisms?.includes(
-                      "email"
+                      "email",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       // remove the current value from the array
@@ -1031,7 +1031,7 @@ const Main = (props: MainProps) => {
                     disabled={savingSettings}
                     label="Phone Number"
                     checked={settingsFormData.loginMechanisms?.includes(
-                      "phone_number"
+                      "phone_number",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       // remove the current value from the array
@@ -1082,7 +1082,7 @@ const Main = (props: MainProps) => {
                   <Checkbox
                     label="Google"
                     checked={settingsFormData.socialProviders?.includes(
-                      "google"
+                      "google",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const socialProviders = settingsFormData.socialProviders
@@ -1103,7 +1103,7 @@ const Main = (props: MainProps) => {
                   <Checkbox
                     label="Facebook"
                     checked={settingsFormData.socialProviders?.includes(
-                      "facebook"
+                      "facebook",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const socialProviders = settingsFormData.socialProviders
@@ -1124,7 +1124,7 @@ const Main = (props: MainProps) => {
                   <Checkbox
                     label="Apple"
                     checked={settingsFormData.socialProviders?.includes(
-                      "apple"
+                      "apple",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const socialProviders = settingsFormData.socialProviders
@@ -1145,7 +1145,7 @@ const Main = (props: MainProps) => {
                   <Checkbox
                     label="Amazon"
                     checked={settingsFormData.socialProviders?.includes(
-                      "amazon"
+                      "amazon",
                     )}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const socialProviders = settingsFormData.socialProviders
@@ -1403,12 +1403,12 @@ const Main = (props: MainProps) => {
                                     disabled={savingSettings}
                                     value={mapping.cognitoGroup}
                                     onChange={(
-                                      e: React.ChangeEvent<HTMLInputElement>
+                                      e: React.ChangeEvent<HTMLInputElement>,
                                     ) =>
                                       handleMappingChange(
                                         index,
                                         "cognitoGroup",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1421,7 +1421,7 @@ const Main = (props: MainProps) => {
                                       handleMappingChange(
                                         index,
                                         "wordpressRole",
-                                        value!
+                                        value!,
                                       )
                                     }
                                     data={wpRoles}
@@ -1611,7 +1611,7 @@ async function fetchSite(accountId: string, siteId: string, siteKey: string) {
           "X-Plugin": "gatey",
           "X-Site-Key": siteKey,
         },
-      }
+      },
     );
 
     if (!response.ok) {

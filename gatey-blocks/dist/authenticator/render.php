@@ -2,11 +2,12 @@
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
-$wpsuite_gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
-$wpsuite_gatey_bid = 'gatey_authenticator_' . $wpsuite_gatey_hash;
-$wpsuite_gatey_uid = isset($attributes['uid']) ? sanitize_key($attributes['uid']) : '';
+$smartcloud_gatey_hash = substr(md5(serialize($attributes)), 0, 6) . '_' . wp_rand();
+$smartcloud_gatey_bid = 'smartcloud_gatey_authenticator_' . $smartcloud_gatey_hash;
+$smartcloud_gatey_uid = isset($attributes['uid']) ? sanitize_key($attributes['uid']) : '';
 ?>
-<div gatey-authenticator id="<?php echo esc_html($wpsuite_gatey_bid) ?>" data-is-preview="gatey-is-preview"
+<div smartcloud-gatey-authenticator id="<?php echo esc_html($smartcloud_gatey_bid) ?>"
+	data-is-preview="smartcloud-gatey-is-preview"
 	data-screen="<?php echo esc_html(array_key_exists('screen', $attributes) ? $attributes['screen'] : 'signIn') ?>"
 	data-variation="<?php echo esc_html(array_key_exists('variation', $attributes) ? $attributes['variation'] : 'default') ?>"
 	data-color-mode="<?php echo esc_html(array_key_exists('colorMode', $attributes) ? $attributes['colorMode'] : 'system') ?>"

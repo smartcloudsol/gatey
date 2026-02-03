@@ -64,9 +64,11 @@ try {
     }
   };
 
-  jQuery(document).on("wpsuite-gatey-authenticator-block", (_, id) => call(id));
+  jQuery(document).on("smartcloud-gatey-authenticator-block", (_, id) =>
+    call(id),
+  );
   jQuery(window).on("elementor/frontend/init", function () {
-    jQuery(document).on("wpsuite-gatey-authenticator-block", (_, id) =>
+    jQuery(document).on("smartcloud-gatey-authenticator-block", (_, id) =>
       call(id),
     );
   });
