@@ -42,6 +42,7 @@ const icon = (
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 registerBlockType(metadata.name, {
+  apiVersion: metadata.apiVersion,
   attributes: metadata.attributes as BlockAttributes,
   title: metadata.title,
   category: metadata.category,
