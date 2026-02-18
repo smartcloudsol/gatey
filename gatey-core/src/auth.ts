@@ -28,13 +28,13 @@ export const getAmplifyConfig = () => {
 
 export const configureAmplify = (
   resourcesConfig: ResourcesConfig,
-  libraryOptions?: Record<string, unknown>
+  libraryOptions?: Record<string, unknown>,
 ) => {
   Amplify.configure(resourcesConfig, libraryOptions);
 };
 
 export const loadAuthSession = (
-  options?: FetchAuthSessionOptions
+  options?: FetchAuthSessionOptions,
 ): Promise<AuthSession> => {
   return fetchAuthSession(options);
 };
@@ -48,7 +48,7 @@ export const loadMFAPreferences = (): Promise<FetchMFAPreferenceOutput> => {
 };
 
 export const loadUser = async (
-  checkStorage: boolean = true
+  checkStorage: boolean = true,
 ): Promise<Account> => {
   const account: Account = checkStorage ? await getAccountFromStorage() : {};
   if (account?.username) {
@@ -187,7 +187,7 @@ export const getGroups = (): Promise<string[] | undefined> => {
         return [];
       }
       return authSession.tokens.idToken.payload["cognito:groups"].map(
-        (item) => item as string
+        (item) => item as string,
       );
     })
     .catch((err) => {
@@ -288,7 +288,7 @@ export const login = async (signInHook: ApiConfiguration["signInHook"]) => {
 };
 
 export const logout = async (
-  signOutHook: ApiConfiguration["signOutHook"]
+  signOutHook: ApiConfiguration["signOutHook"],
 ): Promise<string | undefined> => {
   const gatey = getGateyPlugin();
   if (!gatey) {

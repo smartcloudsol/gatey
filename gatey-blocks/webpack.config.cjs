@@ -28,7 +28,8 @@ module.exports = function (env = {}) {
       "@aws-amplify/ui-react": "WpSuiteAmplify",
       "@aws-amplify/ui-react-core": "WpSuiteAmplify",
       "country-data-list": "WpSuiteAmplify",
-      "crypto": "WpSuiteWebcrypto",
+      "crypto": "WpSuiteCrypto",
+      "jose": "WpSuiteJose",
     },
     optimization: {
       ...defaultConfig.optimization,

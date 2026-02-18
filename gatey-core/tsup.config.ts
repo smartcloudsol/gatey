@@ -12,5 +12,6 @@ export default defineConfig({
     /^aws-amplify(\/.*)?$/,
     /^@aws-amplify\/ui(\/.*)?$/,
     /^@aws-amplify\/ui-react(\/.*)?$/,
+    "@wordpress/data",
   ],
 });

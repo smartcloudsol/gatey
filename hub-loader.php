@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.1.0';
+const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.2.0';
 
 final class GateyHubLoader
 {

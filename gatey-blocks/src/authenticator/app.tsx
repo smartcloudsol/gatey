@@ -20,6 +20,8 @@ import {
 import { ConfigContext } from "../context/config";
 import { Login } from "./login";
 import { type ThemeProps } from "./theme";
+import { getAmplifyConfig } from "@smart-cloud/gatey-core";
+import { Amplify } from "aws-amplify";
 
 I18n.putVocabularies(translations);
 

@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-core",
-  "version": "2.0.11",
+  "version": "2.1.9",
   "description": "Login & SSO with Amazon Cognito",
   "author": "Smart Cloud Solutions Inc.",
   "license": "MIT",
@@ -8,6 +8,13 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -22,25 +29,25 @@
     "scope": "@smart-cloud/gatey-core"
   },
   "dependencies": {
-    "@smart-cloud/wpsuite-core": "^2.0.5"
+    "@smart-cloud/wpsuite-core": "^2.2.6"
   },
   "peerDependencies": {
-    "@aws-amplify/ui-react": "^6.13.2",
-    "@wordpress/data": "^10.37.0",
-    "aws-amplify": "^6.15.9"
+    "@aws-amplify/ui-react": "^6.15.0",
+    "@wordpress/data": "^10.39.0",
+    "aws-amplify": "^6.16.2"
   },
   "devDependencies": {
-    "@aws-amplify/ui-react": "^6.13.2",
-    "@eslint/js": "^9.39.2",
-    "@types/node": "^25.0.6",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
-    "@typescript-eslint/parser": "^8.52.0",
-    "@wordpress/data": "^10.37.0",
-    "aws-amplify": "^6.15.9", 
-    "eslint": "^9.39.2",
-    "globals": "^17.0.0",
+    "@aws-amplify/ui-react": "^6.15.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@wordpress/data": "^10.39.0",
+    "aws-amplify": "^6.16.2",
+    "eslint": "^10.0.0",
+    "globals": "^17.3.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0"
+    "typescript-eslint": "^8.56.0"
   }
 }

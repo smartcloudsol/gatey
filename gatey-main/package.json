@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -16,34 +16,36 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.0.11",
+    "@smart-cloud/gatey-core": "^2.1.9",
+    "@smart-cloud/wpsuite-core": "^2.2.6",
     "react-google-recaptcha-v3": "^1.11.0"
   },
   "peerDependencies": {
-    "@aws-amplify/ui-react": "^6.13.2",
-    "@wordpress/data": "^10.37.0",
-    "aws-amplify": "^6.15.9",
+    "@aws-amplify/ui-react": "^6.15.0",
+    "@wordpress/data": "^10.39.0",
+    "aws-amplify": "^6.16.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@aws-amplify/ui-react": "^6.13.2",
-    "@eslint/js": "^9.39.2",
+    "@aws-amplify/ui-react": "^6.15.0",
+    "@eslint/js": "^10.0.1",
+    "@types/elliptic": "^6.4.18",
     "@types/jquery": "^3.5.33",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
-    "@typescript-eslint/parser": "^8.52.0",
-    "@wordpress/data": "^10.37.0",
-    "@wordpress/scripts": "^31.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@wordpress/data": "^10.39.0",
+    "@wordpress/scripts": "^31.4.0",
     "ajv": "^8.17.1",
-    "aws-amplify": "^6.15.9",
-    "country-data-list": "^1.5.5",
-    "eslint": "^9.39.2",
-    "globals": "^17.0.0",
-    "jquery": "^3.7.1",
+    "aws-amplify": "^6.16.2",
+    "country-data-list": "^1.6.0",
+    "eslint": "^10.0.0",
+    "globals": "^17.3.0",
+    "jquery": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0"
+    "typescript-eslint": "^8.56.0"
   }
 }

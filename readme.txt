@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.0.14
+Stable tag: 2.0.15
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -195,6 +195,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.0.15 =
+Fix: Improved WebCrypto polyfill initialization so Gatey loads reliably even in insecure (non-HTTPS) environments.
+Update: Refreshed the bundled Authenticator foundation to support upcoming authentication enhancements (including passwordless login).
 
 = 2.0.14 =
 * Fix: Gutenberg block registration now references the exact `apiVersion` from `block.json`, preventing asset mismatches.
@@ -448,6 +452,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.15 =
+Recommended update. Improves WebCrypto polyfill loading for non-HTTPS / non-secure contexts (local dev, staging, embedded previews) and updates the underlying Authenticator foundation in preparation for upcoming passwordless login support.
 
 = 2.0.14 =
 Update to keep Gutenberg block assets loading correctly (block.json `apiVersion` now matches WordPress core expectations) and to prevent reCAPTCHA placeholders from lingering.

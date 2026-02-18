@@ -42,21 +42,21 @@ function onDomReady(fn: () => void) {
   }
 }
 
-onDomReady(() => {
+onDomReady(async () => {
   const gatey = initializeGatey();
   observe();
 
   if (
     gatey.settings?.reCaptchaPublicKey &&
     !document.querySelector(
-      `[smartcloud-wpsuite-recaptcha-provider='${gatey.settings.reCaptchaPublicKey}']`,
+      `[smartcloud-wpsuite-recaptcha-provider-${gatey.settings.reCaptchaPublicKey}]`,
     )
   ) {
     const el = document.createElement("div");
-    el.id = "gatey-recaptcha-provider";
+    el.id = "smartcloud-gatey-recaptcha-provider";
     el.setAttribute(
-      "smartcloud-wpsuite-recaptcha-provider",
-      gatey.settings.reCaptchaPublicKey,
+      `smartcloud-wpsuite-recaptcha-provider-${gatey.settings.reCaptchaPublicKey}`,
+      "true",
     );
     document.body.appendChild(el);
     const observer = new MutationObserver(() => {
@@ -92,26 +92,30 @@ onDomReady(() => {
       (sheet) =>
         sheet.href === null || sheet.href.startsWith(window.location.origin),
     )
-    .reduce(
-      (acc: string[], sheet: CSSStyleSheet) =>
-        (acc = [
-          ...acc,
-          ...Array.from(sheet.cssRules).reduce(
-            (def: string[], rule: CSSRule) =>
-              (def =
-                (rule as CSSStyleRule).selectorText === ":root"
-                  ? [
-                      ...def,
-                      ...Array.from((rule as CSSStyleRule).style).filter(
-                        (name) => name.startsWith("--gatey"),
-                      ),
-                    ]
-                  : def),
-            [],
-          ),
-        ]),
-      [],
-    );
+    .reduce((acc: string[], sheet: CSSStyleSheet) => {
+      try {
+        const varsFromSheet = Array.from(sheet.cssRules).reduce(
+          (def: string[], rule: CSSRule) => {
+            const styleRule = rule as CSSStyleRule;
+
+            return styleRule.selectorText === ":root"
+              ? [
+                  ...def,
+                  ...Array.from(styleRule.style).filter((name) =>
+                    name.startsWith("--gatey"),
+                  ),
+                ]
+              : def;
+          },
+          [],
+        );
+        return [...acc, ...varsFromSheet];
+      } catch {
+        /**  */
+      }
+
+      return acc;
+    }, []);
 
   const replaceValues = (
     key: string,
@@ -119,7 +123,10 @@ onDomReady(() => {
     custom: string,
     value: string,
   ) => {
-    let attr = "[gatey-account-attribute][data-attribute='" + attribute + "']";
+    let attr =
+      "[smartcloud-gatey-account-attribute][data-attribute='" +
+      attribute +
+      "']";
     if (attribute === "custom") {
       attr += "[data-custom='" + custom + "']";
     }
@@ -177,7 +184,7 @@ onDomReady(() => {
               }
             }
             replaceValues(
-              "gatey-account-attribute-" + attr.replaceAll(":", "-"),
+              "smartcloud-gatey-account-attribute-" + attr.replaceAll(":", "-"),
               attr.startsWith("custom:") ? "custom" : attr,
               attr.startsWith("custom:") ? attr.substring(7) : "",
               value ?? "&nbsp;",
