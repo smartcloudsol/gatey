@@ -176,11 +176,9 @@ interface Settings {
     signInPage?: string;
     redirectSignIn?: string;
     redirectSignOut?: string;
-    reCaptchaPublicKey?: string;
     customTranslationsUrl?: string;
-    useRecaptchaNet?: boolean;
-    useRecaptchaEnterprise?: boolean;
     enablePoweredBy?: boolean;
+    debugLoggingEnabled?: boolean;
 }
 declare const signOut: () => void;
 declare const setLanguage: (language?: string) => void;

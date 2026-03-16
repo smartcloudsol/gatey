@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.0.15
+ * Version:           2.1.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.0.15';
+const VERSION = '2.1.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -125,30 +125,6 @@ final class Gatey
     {
         // Build data passed to JS.
         $settings = $this->admin->getSettings();
-
-        wp_register_script(
-            'smartcloud-wpsuite-webcrypto-vendor',
-            GATEY_URL . 'assets/js/webcrypto-vendor.min.js',
-            array(),
-            \SmartCloud\WPSuite\Hub\VERSION_WEBCRYPTO,
-            false
-        );
-
-        wp_register_script(
-            'smartcloud-wpsuite-amplify-vendor',
-            GATEY_URL . 'assets/js/amplify-vendor.min.js',
-            array("react", "react-dom"),
-            \SmartCloud\WPSuite\Hub\VERSION_AMPLIFY,
-            false
-        );
-
-        wp_register_script(
-            'smartcloud-wpsuite-mantine-vendor',
-            GATEY_URL . 'assets/js/mantine-vendor.min.js',
-            array("react", "react-dom"),
-            \SmartCloud\WPSuite\Hub\VERSION_MANTINE,
-            false
-        );
 
         $main_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'main/index.asset.php')) {
@@ -377,8 +353,8 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         }
 
         // Admin classes.
-        if (file_exists(GATEY_PATH . 'admin/index.php')) {
-            require_once GATEY_PATH . 'admin/index.php';
+        if (file_exists(GATEY_PATH . 'admin/admin.php')) {
+            require_once GATEY_PATH . 'admin/admin.php';
         }
         if (class_exists('\SmartCloud\WPSuite\Gatey\Admin')) {
             $this->admin = new \SmartCloud\WPSuite\Gatey\Admin();

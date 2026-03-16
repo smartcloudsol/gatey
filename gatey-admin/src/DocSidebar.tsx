@@ -259,82 +259,6 @@ const pages = {
   }
 }`}
       </Text>
-      {/* ───────────────────────────────────────────── */}
-      <Title order={3} mt="md" id="recaptcha-site-key">
-        <span className="highlightable">reCAPTCHA Site Key</span>
-      </Title>
-      {/* Intro */}
-      <Text>
-        <Anchor
-          href="https://developers.google.com/recaptcha/docs/v3"
-          target="_blank"
-        >
-          Google reCAPTCHA
-        </Anchor>{" "}
-        protects your site from automated abuse without annoying your real
-        visitors. Gatey can work with both the <strong>classic v3</strong> and
-        <strong> reCAPTCHA Enterprise (v3)</strong> APIs. Simply paste the Site
-        Key here, then use the check‑boxes below to tell Gatey which variant to
-        load and from which host.
-      </Text>
-      <Text>
-        The Site Key is stored in WordPress; the matching Secret Key is only
-        required server‑side when you verify tokens in a custom API.
-      </Text>
-      {/* Options */}
-      <List size="sm" spacing="sm" mt="xs">
-        <List.Item id="recaptcha-site-key">
-          <Text fw={500}>
-            <span className="highlightable">Site Key</span>
-          </Text>
-          Paste the key generated in either the{" "}
-          <Anchor
-            href="https://console.cloud.google.com/security/recaptcha"
-            target="_blank"
-          >
-            reCAPTCHA Enterprise console
-          </Anchor>{" "}
-          or the{" "}
-          <Anchor
-            href="https://www.google.com/recaptcha/admin/create"
-            target="_blank"
-          >
-            classic v3 admin page
-          </Anchor>
-          . Gatey will use it in the browser to request a token every time a
-          user performs a protected action.
-        </List.Item>
-
-        <List.Item id="use-recaptcha-enterprise">
-          <Text fw={500}>
-            <span className="highlightable">Use reCAPTCHA Enterprise</span>
-          </Text>
-          Tick this if the key above belongs to a reCAPTCHA Enterprise project.
-          Enterprise offers higher quotas, risk analysis, and Google Cloud IAM
-          integration. Leave it <em>unchecked</em> to load the classic v3 client
-          instead.
-        </List.Item>
-
-        <List.Item id="use-recaptcha-net">
-          <Text fw={500}>
-            <span className="highlightable">Serve from recaptcha.net</span>
-          </Text>
-          When enabled, the reCAPTCHA script will be downloaded from
-          <code>recaptcha.net</code> rather than <code>google.com</code>. This
-          is useful for visitors in regions where <code>google.com</code> is
-          blocked (e.g. mainland China). For most sites you can keep this
-          unchecked for the fastest global CDN delivery.
-        </List.Item>
-      </List>
-      <Text mt="sm">
-        During <em>sign‑up</em> the client token is sent as{" "}
-        <code>validationData.recaptchaToken</code>. Validate it in your
-        pre‑sign‑up Lambda &mdash; see the example on{" "}
-        <Anchor href="https://wpsuite.io" target="_blank">
-          wpsuite.io
-        </Anchor>
-        .
-      </Text>{" "}
       <Title order={3} mt="md">
         Page Settings
       </Title>
@@ -805,7 +729,7 @@ export default function DocSidebar({
           document
             .querySelectorAll(classes["highlighted-doc-item"])
             .forEach((el) =>
-              el.classList.remove(classes["highlighted-doc-item"])
+              el.classList.remove(classes["highlighted-doc-item"]),
             );
         }
 

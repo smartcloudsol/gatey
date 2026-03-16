@@ -57,11 +57,9 @@ export interface Settings {
   signInPage?: string;
   redirectSignIn?: string;
   redirectSignOut?: string;
-  reCaptchaPublicKey?: string;
   customTranslationsUrl?: string;
-  useRecaptchaNet?: boolean;
-  useRecaptchaEnterprise?: boolean;
   enablePoweredBy?: boolean;
+  debugLoggingEnabled?: boolean;
 }
 
 const signOut = () => {
@@ -74,7 +72,7 @@ const signOut = () => {
           if (nextUrl) {
             window.location.assign(nextUrl as string);
           }
-        }
+        },
       );
       getStoreDispatch(store).clearAccount();
     })

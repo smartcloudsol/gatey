@@ -1,8 +1,8 @@
 import { type SignUpAttribute } from "@aws-amplify/ui";
 import {
+  Accordion,
   ActionIcon,
   Alert,
-  Badge,
   Box,
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
   Group,
   HoverCard,
   MultiSelect,
+  NavLink,
   NumberInput,
   Select,
   Stack,
@@ -38,10 +39,12 @@ import {
   IconAlertCircle,
   IconApi,
   IconCheck,
+  IconChevronRight,
   IconCircleNumber2,
   IconExclamationCircle,
   IconForms,
   IconInfoCircle,
+  IconLock,
   IconLogin,
   IconPlus,
   IconSettings,
@@ -53,7 +56,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import apiFetch from "@wordpress/api-fetch";
 import { produce } from "immer";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 
 import { __experimentalHeading as Heading } from "@wordpress/components";
 import { useSelect } from "@wordpress/data";
@@ -233,7 +236,6 @@ interface NavigationOption {
   value: string;
   label: string;
   icon: React.ReactNode;
-  badge?: React.ReactNode;
   disabled?: boolean;
 }
 
@@ -274,6 +276,7 @@ const Main = (props: MainProps) => {
   const [wpRolesLoaded, setWpRolesLoaded] = useState<boolean>(false);
   const [pages, setPages] = useState<Page[]>([]);
   const [scrollToId, setScrollToId] = useState<string>("");
+  const [accordionValue, setAccordionValue] = useState<string | null>("gatey");
   const [accountId] = useState<string | undefined>(
     wpSuiteSiteSettings.accountId,
   );
@@ -295,13 +298,11 @@ const Main = (props: MainProps) => {
     signInPage: settings.signInPage,
     redirectSignIn: settings.redirectSignIn,
     redirectSignOut: settings.redirectSignOut,
-    reCaptchaPublicKey: settings.reCaptchaPublicKey,
     customTranslationsUrl: settings.customTranslationsUrl,
     signUpAttributes: settings.signUpAttributes || [],
     socialProviders: settings.socialProviders || [],
-    useRecaptchaEnterprise: settings.useRecaptchaEnterprise || false,
-    useRecaptchaNet: settings.useRecaptchaNet || false,
     enablePoweredBy: settings.enablePoweredBy || false,
+    debugLoggingEnabled: settings.debugLoggingEnabled || false,
   });
 
   const [resolvedConfig, setResolvedConfig] = useState<
@@ -627,7 +628,7 @@ const Main = (props: MainProps) => {
     }
   }, [settingsFormData.integrateWpLogin, nonce, wpRolesLoaded]);
 
-  // Navigation options for both NavLink and Select
+  // Navigation options grouped by free and pro features
   useEffect(() => {
     const paidSettingsDisabled =
       decryptedConfig && accountId && siteId && siteKey
@@ -650,36 +651,21 @@ const Main = (props: MainProps) => {
         icon: <IconLogin size={16} stroke={1.5} />,
       },
       {
+        value: "api-settings",
+        label: __("API Settings", TEXT_DOMAIN),
+        icon: <IconApi size={16} stroke={1.5} />,
+        disabled: paidSettingsDisabled,
+      },
+      {
         value: "custom-fields",
         label: __("Custom Fields", TEXT_DOMAIN),
         icon: <IconForms size={16} stroke={1.5} />,
-        badge: (
-          <Badge variant="light" color="red" ml="4px" miw={35}>
-            PRO
-          </Badge>
-        ),
         disabled: paidSettingsDisabled,
       },
       {
         value: "custom-providers",
         label: __("Custom Providers", TEXT_DOMAIN),
         icon: <IconSocial size={16} stroke={1.5} />,
-        badge: (
-          <Badge variant="light" color="red" ml="4px" miw={35}>
-            PRO
-          </Badge>
-        ),
-        disabled: paidSettingsDisabled,
-      },
-      {
-        value: "api-settings",
-        label: __("API Settings", TEXT_DOMAIN),
-        icon: <IconApi size={16} stroke={1.5} />,
-        badge: (
-          <Badge variant="light" color="red" ml="4px" miw={35}>
-            PRO
-          </Badge>
-        ),
         disabled: paidSettingsDisabled,
       },
     ]);
@@ -727,39 +713,166 @@ const Main = (props: MainProps) => {
           width: "100%",
         }}
       >
-        <Tabs
-          classNames={{
-            tabLabel: classes["wpc-tabs-label"],
-            panel:
-              classes[isMobile ? "wpc-tabs-panel-mobile" : "wpc-tabs-panel"],
-          }}
-          value={activePage}
-          orientation={isMobile ? "horizontal" : "vertical"}
-          onChange={(value) =>
-            setActivePage(
-              value as
-                | "general"
-                | "user-pools"
-                | "wordpress-login"
-                | "api-settings",
-            )
-          }
-          w="100%"
-        >
-          <Tabs.List>
-            {navigationOptions?.map((item) => (
-              <Tabs.Tab
-                key={item.value}
-                value={item.value}
-                disabled={item.disabled}
-              >
-                {item.icon}
-                {!isMobile && item.label}
-                {item.badge}
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-          <Tabs.Panel value="user-pools" w="100%">
+        {isMobile ? (
+          <Accordion
+            w="100%"
+            value={accordionValue}
+            onChange={setAccordionValue}
+            variant="separated"
+          >
+            <Accordion.Item value="gatey">
+              <Accordion.Control>
+                <Text fw={600}>{__("Gatey", TEXT_DOMAIN)}</Text>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Stack gap="xs">
+                  {navigationOptions?.slice(0, 3).map((item) => (
+                    <NavLink
+                      key={item.value}
+                      label={item.label}
+                      leftSection={item.icon}
+                      rightSection={
+                        activePage === item.value ? (
+                          <IconChevronRight size={16} stroke={1.5} />
+                        ) : null
+                      }
+                      active={activePage === item.value}
+                      onClick={() => {
+                        setActivePage(
+                          item.value as
+                            | "general"
+                            | "user-pools"
+                            | "wordpress-login"
+                            | "custom-fields"
+                            | "custom-providers"
+                            | "api-settings",
+                        );
+                      }}
+                      disabled={item.disabled}
+                    />
+                  ))}
+                </Stack>
+              </Accordion.Panel>
+            </Accordion.Item>
+            <Accordion.Item value="pro-features">
+              <Accordion.Control>
+                <Text fw={600}>{__("Pro Features", TEXT_DOMAIN)}</Text>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Stack gap="xs">
+                  {navigationOptions?.slice(3).map((item) => (
+                    <NavLink
+                      key={item.value}
+                      label={item.label}
+                      leftSection={item.icon}
+                      rightSection={
+                        item.disabled ||
+                        !(formConfig ?? decryptedConfig)?.subscriptionType ? (
+                          <IconLock size={14} stroke={1.5} />
+                        ) : activePage === item.value ? (
+                          <IconChevronRight size={16} stroke={1.5} />
+                        ) : null
+                      }
+                      active={activePage === item.value}
+                      onClick={() => {
+                        if (!item.disabled) {
+                          setActivePage(
+                            item.value as
+                              | "general"
+                              | "user-pools"
+                              | "wordpress-login"
+                              | "custom-fields"
+                              | "custom-providers"
+                              | "api-settings",
+                          );
+                        }
+                      }}
+                      disabled={item.disabled}
+                    />
+                  ))}
+                </Stack>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+        ) : (
+          <Card w={240} p="md" withBorder style={{ flexShrink: 0 }}>
+            <Stack gap="lg">
+              <Box>
+                <Text size="sm" fw={600} mb="xs" c="dimmed">
+                  {__("Gatey", TEXT_DOMAIN)}
+                </Text>
+                <Stack gap={0}>
+                  {navigationOptions
+                    ?.slice(0, 3)
+                    .map((item) => (
+                      <NavLink
+                        key={item.value}
+                        label={item.label}
+                        leftSection={item.icon}
+                        rightSection={
+                          activePage === item.value ? (
+                            <IconChevronRight size={16} stroke={1.5} />
+                          ) : null
+                        }
+                        active={activePage === item.value}
+                        onClick={() =>
+                          setActivePage(
+                            item.value as
+                              | "general"
+                              | "user-pools"
+                              | "wordpress-login"
+                              | "custom-fields"
+                              | "custom-providers"
+                              | "api-settings",
+                          )
+                        }
+                        disabled={item.disabled}
+                      />
+                    ))}
+                </Stack>
+              </Box>
+              <Box>
+                <Text size="sm" fw={600} mb="xs" c="dimmed">
+                  {__("Pro Features", TEXT_DOMAIN)}
+                </Text>
+                <Stack gap={0}>
+                  {navigationOptions?.slice(3).map((item) => (
+                    <NavLink
+                      key={item.value}
+                      label={item.label}
+                      leftSection={item.icon}
+                      rightSection={
+                        item.disabled ||
+                        !(formConfig ?? decryptedConfig)?.subscriptionType ? (
+                          <IconLock size={14} stroke={1.5} />
+                        ) : activePage === item.value ? (
+                          <IconChevronRight size={16} stroke={1.5} />
+                        ) : null
+                      }
+                      active={activePage === item.value}
+                      onClick={() => {
+                        if (!item.disabled) {
+                          setActivePage(
+                            item.value as
+                              | "general"
+                              | "user-pools"
+                              | "wordpress-login"
+                              | "custom-fields"
+                              | "custom-providers"
+                              | "api-settings",
+                          );
+                        }
+                      }}
+                      disabled={item.disabled}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            </Stack>
+          </Card>
+        )}
+        <Box style={{ flex: 1, width: isMobile ? "100%" : "auto" }} maw={1020}>
+          {activePage === "user-pools" && (
             <form name="user-pools" onSubmit={handleUpdateSettings}>
               <Title order={2} mb="md">
                 User Pools
@@ -790,9 +903,13 @@ const Main = (props: MainProps) => {
                     disabled={!formConfig}
                   >
                     Secondary
-                    <Badge variant="light" color="red" ml="4px" miw={60}>
-                      PRO
-                    </Badge>
+                    {!(formConfig ?? decryptedConfig)?.subscriptionType && (
+                      <IconLock
+                        size={14}
+                        stroke={1.5}
+                        style={{ marginLeft: "4px" }}
+                      />
+                    )}
                   </Tabs.Tab>
                 </Tabs.List>
               </Tabs>
@@ -959,8 +1076,8 @@ const Main = (props: MainProps) => {
                 </Button>
               </Group>
             </form>
-          </Tabs.Panel>
-          <Tabs.Panel value="general" w="100%">
+          )}
+          {activePage === "general" && (
             <form name="general" onSubmit={handleUpdateSettings}>
               <Title order={2} mb="md">
                 General
@@ -1222,55 +1339,6 @@ const Main = (props: MainProps) => {
                   disabled={savingSettings}
                   label={
                     <InfoLabelComponent
-                      text="Google reCAPTCHA (v3) Site Key"
-                      scrollToId="recaptcha-site-key"
-                    />
-                  }
-                  description="Create the key in your reCAPTCHA project, then paste it here."
-                  value={settingsFormData.reCaptchaPublicKey}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSettingsFormData({
-                      ...settingsFormData,
-                      reCaptchaPublicKey: e.target.value,
-                    })
-                  }
-                />
-                <Checkbox
-                  disabled={savingSettings}
-                  label={
-                    <InfoLabelComponent
-                      text="Use reCAPTCHA Enterprise"
-                      scrollToId="use-recaptcha-enterprise"
-                    />
-                  }
-                  checked={settingsFormData.useRecaptchaEnterprise}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSettingsFormData({
-                      ...settingsFormData,
-                      useRecaptchaEnterprise: e.currentTarget.checked,
-                    })
-                  }
-                />
-                <Checkbox
-                  disabled={savingSettings}
-                  label={
-                    <InfoLabelComponent
-                      text="Use recaptcha.net"
-                      scrollToId="use-recaptcha-net"
-                    />
-                  }
-                  checked={settingsFormData.useRecaptchaNet}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSettingsFormData({
-                      ...settingsFormData,
-                      useRecaptchaNet: e.currentTarget.checked,
-                    })
-                  }
-                />
-                <TextInput
-                  disabled={savingSettings}
-                  label={
-                    <InfoLabelComponent
                       text="Custom Translations URL"
                       scrollToId="custom-translations-url"
                     />
@@ -1307,11 +1375,11 @@ const Main = (props: MainProps) => {
                   }
                   label={
                     <InfoLabelComponent
-                      text="Hide 'Powered by Gatey' text"
+                      text="Hide 'Powered by' attribution"
                       scrollToId="hide-powered-by-gatey"
                     />
                   }
-                  description="Hide the 'Powered by Gatey' text in the login and sign-up forms."
+                  description="Hide the 'Powered by' attribution in the login and sign-up forms."
                   onChange={(values: string[]) =>
                     setSettingsFormData({
                       ...settingsFormData,
@@ -1320,6 +1388,35 @@ const Main = (props: MainProps) => {
                   }
                 >
                   <Switch label="Hide" value="hide" mt="xs" />
+                </Switch.Group>
+
+                <Switch.Group
+                  defaultValue={
+                    settingsFormData.debugLoggingEnabled ? ["enable"] : []
+                  }
+                  label={
+                    <InfoLabelComponent
+                      text={__("Enable Debug Logging", TEXT_DOMAIN)}
+                      scrollToId="enable-debug-logging"
+                    />
+                  }
+                  description={__(
+                    "Enable detailed debug logging for Gatey operations. Note: This requires WP_DEBUG and WP_DEBUG_LOG to be enabled in wp-config.php. Logs will appear in wp-content/debug.log.",
+                    TEXT_DOMAIN,
+                  )}
+                  onChange={(values: string[]) =>
+                    setSettingsFormData({
+                      ...settingsFormData,
+                      debugLoggingEnabled: values.includes("enable"),
+                    })
+                  }
+                >
+                  <Switch
+                    label={__("Enable", TEXT_DOMAIN)}
+                    value="enable"
+                    mt="xs"
+                    disabled={savingSettings}
+                  />
                 </Switch.Group>
               </Stack>
 
@@ -1334,8 +1431,8 @@ const Main = (props: MainProps) => {
                 </Button>
               </Group>
             </form>
-          </Tabs.Panel>
-          <Tabs.Panel value="wordpress-login" w="100%">
+          )}
+          {activePage === "wordpress-login" && (
             <form name="wordpress-login" onSubmit={handleUpdateSettings}>
               <Title order={2} mb="md">
                 WordPress Login
@@ -1477,125 +1574,137 @@ const Main = (props: MainProps) => {
                 </Button>
               </Group>
             </form>
-          </Tabs.Panel>
-          <Tabs.Panel value="custom-fields" w="100%">
-            <Title order={2} mb="md">
-              <InfoLabelComponent
-                text="Custom Fields"
-                scrollToId="custom-fields"
-              />
-            </Title>
+          )}
+          {activePage === "api-settings" && (
+            <>
+              <Title order={2} mb="md">
+                <InfoLabelComponent
+                  text="API Settings"
+                  scrollToId="api-settings"
+                />
+              </Title>
 
-            <Text mb="md">
-              Manage and configure custom form fields for both the admin screens
-              and the front-end.
-            </Text>
+              <Text mb="md">
+                Define secure API endpoints that your frontend can call via
+                Gatey.cognito. Choose API name, authorization, and endpoint URL,
+                then configure sign-in and sign-up hooks.
+              </Text>
 
-            {!(formConfig ?? decryptedConfig)?.subscriptionType && (
-              <Alert
-                variant="light"
-                color="yellow"
-                title="PRO Feature"
-                icon={<IconExclamationCircle />}
-                mb="md"
-              >
-                This feature is available in the <strong>PRO</strong> version of
-                the plugin. You can save your settings but they will not take
-                effect until you upgrade your subscription.
-              </Alert>
-            )}
-            {(formConfig ?? decryptedConfig) && (
-              <CustomFieldsEditor
-                apiUrl={apiUrl}
-                config={formConfig ?? decryptedConfig}
-                accountId={accountId!}
-                siteId={siteId!}
-                siteKey={siteKey!}
-                onSave={handleConfigSave}
-                InfoLabelComponent={InfoLabelComponent}
-              />
-            )}
-          </Tabs.Panel>
-          <Tabs.Panel value="custom-providers" w="100%">
-            <Title order={2} mb="md">
-              <InfoLabelComponent
-                text="Custom Providers"
-                scrollToId="custom-providers"
-              />
-            </Title>
+              {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                "PROFESSIONAL" && (
+                <Alert
+                  variant="light"
+                  color="yellow"
+                  title="PRO Feature"
+                  icon={<IconExclamationCircle />}
+                  mb="md"
+                >
+                  This feature is available in the <strong>PRO</strong> version
+                  of the plugin. You can save your settings but they will not
+                  take effect until you upgrade your subscription.
+                </Alert>
+              )}
+              <Suspense fallback={<Text>Loading...</Text>}>
+                {(formConfig ?? decryptedConfig) && (
+                  <ApiSettingsEditor
+                    apiUrl={apiUrl}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Suspense>
+            </>
+          )}
+          {activePage === "custom-fields" && (
+            <>
+              <Title order={2} mb="md">
+                <InfoLabelComponent
+                  text="Custom Fields"
+                  scrollToId="custom-fields"
+                />
+              </Title>
 
-            <Text mb="md">
-              Enable the custom login providers shown on the sign-in and sign-up
-              screens.
-            </Text>
+              <Text mb="md">
+                Manage and configure custom form fields for both the admin
+                screens and the front-end.
+              </Text>
 
-            {(formConfig ?? decryptedConfig)?.subscriptionType !==
-              "PROFESSIONAL" && (
-              <Alert
-                variant="light"
-                color="yellow"
-                title="PRO Feature"
-                icon={<IconExclamationCircle />}
-                mb="md"
-              >
-                This feature is available in the <strong>PRO</strong> version of
-                the plugin. You can save your settings but they will not take
-                effect until you upgrade your subscription.
-              </Alert>
-            )}
-            {(formConfig ?? decryptedConfig) && (
-              <CustomProvidersEditor
-                apiUrl={apiUrl}
-                config={formConfig ?? decryptedConfig}
-                accountId={accountId!}
-                siteId={siteId!}
-                siteKey={siteKey!}
-                onSave={handleConfigSave}
-                InfoLabelComponent={InfoLabelComponent}
-              />
-            )}
-          </Tabs.Panel>
-          <Tabs.Panel value="api-settings" w="100%">
-            <Title order={2} mb="md">
-              <InfoLabelComponent
-                text="API Settings"
-                scrollToId="api-settings"
-              />
-            </Title>
+              {!(formConfig ?? decryptedConfig)?.subscriptionType && (
+                <Alert
+                  variant="light"
+                  color="yellow"
+                  title="PRO Feature"
+                  icon={<IconExclamationCircle />}
+                  mb="md"
+                >
+                  This feature is available in the <strong>PRO</strong> version
+                  of the plugin. You can save your settings but they will not
+                  take effect until you upgrade your subscription.
+                </Alert>
+              )}
+              <Suspense fallback={<Text>Loading...</Text>}>
+                {(formConfig ?? decryptedConfig) && (
+                  <CustomFieldsEditor
+                    apiUrl={apiUrl}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Suspense>
+            </>
+          )}
+          {activePage === "custom-providers" && (
+            <>
+              <Title order={2} mb="md">
+                <InfoLabelComponent
+                  text="Custom Providers"
+                  scrollToId="custom-providers"
+                />
+              </Title>
 
-            <Text mb="md">
-              Define secure API endpoints that your frontend can call via
-              Gatey.cognito. Choose API name, authorization, and endpoint URL,
-              then configure sign-in and sign-up hooks.
-            </Text>
+              <Text mb="md">
+                Enable the custom login providers shown on the sign-in and
+                sign-up screens.
+              </Text>
 
-            {(formConfig ?? decryptedConfig)?.subscriptionType !==
-              "PROFESSIONAL" && (
-              <Alert
-                variant="light"
-                color="yellow"
-                title="PRO Feature"
-                icon={<IconExclamationCircle />}
-                mb="md"
-              >
-                This feature is available in the <strong>PRO</strong> version of
-                the plugin. You can save your settings but they will not take
-                effect until you upgrade your subscription.
-              </Alert>
-            )}
-            {(formConfig ?? decryptedConfig) && (
-              <ApiSettingsEditor
-                apiUrl={apiUrl}
-                config={formConfig ?? decryptedConfig}
-                accountId={accountId!}
-                siteId={siteId!}
-                siteKey={siteKey!}
-                onSave={handleConfigSave}
-                InfoLabelComponent={InfoLabelComponent}
-              />
-            )}
-          </Tabs.Panel>
-        </Tabs>
+              {(formConfig ?? decryptedConfig)?.subscriptionType !==
+                "PROFESSIONAL" && (
+                <Alert
+                  variant="light"
+                  color="yellow"
+                  title="PRO Feature"
+                  icon={<IconExclamationCircle />}
+                  mb="md"
+                >
+                  This feature is available in the <strong>PRO</strong> version
+                  of the plugin. You can save your settings but they will not
+                  take effect until you upgrade your subscription.
+                </Alert>
+              )}
+              <Suspense fallback={<Text>Loading...</Text>}>
+                {(formConfig ?? decryptedConfig) && (
+                  <CustomProvidersEditor
+                    apiUrl={apiUrl}
+                    config={formConfig ?? decryptedConfig}
+                    accountId={accountId!}
+                    siteId={siteId!}
+                    siteKey={siteKey!}
+                    onSave={handleConfigSave}
+                    InfoLabelComponent={InfoLabelComponent}
+                  />
+                )}
+              </Suspense>
+            </>
+          )}
+        </Box>
       </Group>
     </div>
   );

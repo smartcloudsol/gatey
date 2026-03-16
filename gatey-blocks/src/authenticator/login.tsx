@@ -28,7 +28,7 @@ import {
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
 
-import { getRecaptcha } from "@smart-cloud/wpsuite-core";
+import { getWpSuite, getRecaptcha } from "@smart-cloud/wpsuite-core";
 import { type ThemeProps } from "./theme";
 
 type EventDetails = {
@@ -73,6 +73,7 @@ export type DefaultComponentDescriptors = {
 };
 
 const gatey = getGateyPlugin();
+const wpsuite = getWpSuite();
 
 export const Login = (
   props: ThemeProps & {
@@ -147,7 +148,6 @@ export const Login = (
 
   const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
-  const [reauth] = useState<string | null>(params.get("reauth"));
 
   const {
     authStatus,
@@ -163,9 +163,7 @@ export const Login = (
     context.route,
   ]);
 
-  const [wasSignedIn] = useState<boolean>(
-    signedIn && !account?.loaded && reauth !== "1",
-  );
+  const [wasSignedIn] = useState<boolean>(signedIn && !account?.loaded);
 
   const isVisible = useElementDetector(
     containerRef,
@@ -176,18 +174,18 @@ export const Login = (
   );
 
   const handleReCaptchaVerify = useCallback(async () => {
-    if (!gatey.settings?.reCaptchaPublicKey) {
+    if (!wpsuite?.siteSettings?.reCaptchaPublicKey) {
       return;
     }
     const { execute } = await getRecaptcha(
-      gatey.settings?.useRecaptchaEnterprise || false,
+      wpsuite.siteSettings?.useRecaptchaEnterprise || false,
     );
 
     if (!execute) {
       return;
     }
 
-    const token = await execute(gatey.settings?.reCaptchaPublicKey, {
+    const token = await execute(wpsuite.siteSettings?.reCaptchaPublicKey, {
       action: "signup",
     });
     return token;
@@ -223,7 +221,7 @@ export const Login = (
         dispatchEvent("cancel");
       },
       async handleSignUp(input: SignUpInput): Promise<SignUpOutput> {
-        if (gatey.settings?.reCaptchaPublicKey) {
+        if (wpsuite?.siteSettings?.reCaptchaPublicKey) {
           const recaptchaToken = await handleReCaptchaVerify();
           if (recaptchaToken) {
             input.options = input.options || { userAttributes: {} };

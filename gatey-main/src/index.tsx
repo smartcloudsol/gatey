@@ -21,9 +21,6 @@ import {
 import { dispatch } from "@wordpress/data";
 import { I18n } from "aws-amplify/utils";
 import { countries } from "country-data-list";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import "jquery";
 import { observe } from "./observer";
@@ -45,42 +42,6 @@ function onDomReady(fn: () => void) {
 onDomReady(async () => {
   const gatey = initializeGatey();
   observe();
-
-  if (
-    gatey.settings?.reCaptchaPublicKey &&
-    !document.querySelector(
-      `[smartcloud-wpsuite-recaptcha-provider-${gatey.settings.reCaptchaPublicKey}]`,
-    )
-  ) {
-    const el = document.createElement("div");
-    el.id = "smartcloud-gatey-recaptcha-provider";
-    el.setAttribute(
-      `smartcloud-wpsuite-recaptcha-provider-${gatey.settings.reCaptchaPublicKey}`,
-      "true",
-    );
-    document.body.appendChild(el);
-    const observer = new MutationObserver(() => {
-      const badge = document.querySelector(".grecaptcha-badge");
-      if (badge) {
-        (badge as HTMLElement).style.visibility = "hidden";
-        (badge as HTMLElement).style.display = "none";
-        //observer.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    createRoot(el).render(
-      <StrictMode>
-        <GoogleReCaptchaProvider
-          reCaptchaKey={gatey.settings.reCaptchaPublicKey}
-          useEnterprise={gatey.settings.useRecaptchaEnterprise}
-          useRecaptchaNet={gatey.settings.useRecaptchaNet}
-          scriptProps={{ async: true, defer: true }}
-        >
-          <></>
-        </GoogleReCaptchaProvider>
-      </StrictMode>,
-    );
-  }
 
   const store = gatey.cognito.store;
 

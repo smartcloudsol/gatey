@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 use UQI\Cognito\Tokens\CognitoTokenVerifier;
+use SmartCloud\WPSuite\Gatey\Logger;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
@@ -20,6 +21,11 @@ if (!defined('ABSPATH')) {
 if (file_exists(filename: GATEY_PATH . 'admin/model.php')) {
     require_once GATEY_PATH . 'admin/model.php';
 }
+
+if (file_exists(GATEY_PATH . 'admin/logger.php')) {
+    require_once GATEY_PATH . 'admin/logger.php';
+}
+
 class Admin
 {
     private Settings $settings;
@@ -44,44 +50,23 @@ class Admin
             signInPage: '',
             redirectSignIn: '',
             redirectSignOut: '',
-            reCaptchaPublicKey: '',
             customTranslationsUrl: '',
             signUpAttributes: [],
-            useRecaptchaEnterprise: false,
-            useRecaptchaNet: false,
             socialProviders: [],
             enablePoweredBy: false,
+            debugLoggingEnabled: false,
         );
-        try {
-            $this->settings = get_option(GATEY_SLUG, $defaultSettings);
-            $this->settings->userPoolConfigurations ??= new UserPoolConfigurations(
-                default: new ResourceConfiguration(
-                    new AuthConfiguration(new Configuration('', '', '', new LoginWithOAuthConfiguration(new OAuthConfiguration('', array())))),
-                    new ApiConfiguration(new RestConfiguration(''))
-                ),
-                secondary: new ResourceConfiguration(
-                    new AuthConfiguration(new Configuration('', '', '', new LoginWithOAuthConfiguration(new OAuthConfiguration('', array())))),
-                    new ApiConfiguration(new RestConfiguration(''))
-                )
-            );
-            $this->settings->secondaryUserPoolDomains ??= '';
-            $this->settings->mappings ??= [];
-            $this->settings->loginMechanisms ??= [];
-            $this->settings->integrateWpLogin ??= false;
-            $this->settings->cookieExpiration ??= 43200;
-            $this->settings->signInPage ??= '';
-            $this->settings->redirectSignIn ??= '';
-            $this->settings->redirectSignOut ??= '';
-            $this->settings->reCaptchaPublicKey ??= '';
-            $this->settings->customTranslationsUrl ??= '';
-            $this->settings->signUpAttributes ??= [];
-            $this->settings->useRecaptchaEnterprise ??= false;
-            $this->settings->useRecaptchaNet ??= false;
-            $this->settings->socialProviders ??= [];
-            $this->settings->enablePoweredBy ??= false;
-        } catch (TypeError | Exception $e) {
-            $this->settings = $defaultSettings;
-        }
+
+        // WP can return array/object depending on previous versions / serialization.
+        $raw = get_option(GATEY_SLUG);
+
+        // Merge missing properties from defaultSettings
+        $merged = array_merge(
+            (array) $defaultSettings,
+            is_object($raw) ? (array) $raw : (is_array($raw) ? $raw : [])
+        );
+
+        $this->settings = Settings::fromMixed($merged);
         $this->registerRestRoutes();
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
     }
@@ -244,7 +229,7 @@ class Admin
         }
 
         wp_enqueue_style('smartcloud-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), GATEY_VERSION);
-        wp_enqueue_style('smartcloud-wpsuite-mantine-vendor-style', GATEY_URL . 'assets/css/mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
+        wp_enqueue_style('smartcloud-wpsuite-mantine-vendor-style', SMARTCLOUD_WPSUITE_URL . 'assets/css/mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
     }
 
     public function renderCognitoSettingsPage()
@@ -453,6 +438,8 @@ class Admin
     {
         $settings_param = json_decode($request->get_body());
 
+        $debugLoggingEnabled = (bool) ($settings_param->debugLoggingEnabled ?? false);
+
         $this->settings = new Settings(
             new UserPoolConfigurations(
                 new ResourceConfiguration(
@@ -504,17 +491,26 @@ class Admin
             $settings_param->signInPage ?? "",
             $settings_param->redirectSignIn ?? "",
             $settings_param->redirectSignOut ?? "",
-            $settings_param->reCaptchaPublicKey ?? "",
             $settings_param->customTranslationsUrl ?? "",
             $settings_param->signUpAttributes ?? [],
-            $settings_param->useRecaptchaEnterprise ?? false,
-            $settings_param->useRecaptchaNet ?? false,
             $settings_param->socialProviders ?? [],
             $settings_param->enablePoweredBy ?? false,
+            $debugLoggingEnabled,
         );
 
         // Frissített beállítások mentése
         update_option(GATEY_SLUG, $this->settings);
+
+        Logger::info('Gatey settings updated', [
+            'debugLoggingEnabled' => $debugLoggingEnabled,
+            'enablePoweredBy' => $this->settings->enablePoweredBy,
+            'integrateWpLogin' => $this->settings->integrateWpLogin,
+            'cookieExpiration' => $this->settings->cookieExpiration,
+            'mapping_count' => count($this->settings->mappings),
+            'loginMechanisms_count' => count($this->settings->loginMechanisms),
+            'has_secondary_pool' => !empty($settings_param?->userPoolConfigurations?->secondary?->Auth?->Cognito?->userPoolId)
+        ]);
+
         return new WP_REST_Response(array('success' => true, 'message' => __('Settings updated successfully.', 'gatey')), 200);
     }
 

@@ -486,7 +486,7 @@ export const getStoreSelect = (store: Store): StoreSelectors =>
 
 export const createStore = async (): Promise<Store> => {
   const DEFAULT_STATE = await getDefaultState();
-  const store = createReduxStore("wpsuite/gatey", {
+  const store = createReduxStore("smartcloud/gatey", {
     reducer(state = DEFAULT_STATE, action) {
       switch (action.type) {
         case "SET_AMPLIFY_CONFIG":

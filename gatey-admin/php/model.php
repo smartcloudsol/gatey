@@ -91,13 +91,93 @@ class Settings
         public string $signInPage = "",
         public string $redirectSignIn = "",
         public string $redirectSignOut = "",
-        public string $reCaptchaPublicKey = "",
         public string $customTranslationsUrl = "",
         public array $signUpAttributes = [],
-        public bool $useRecaptchaEnterprise = false,
-        public bool $useRecaptchaNet = false,
         public array $socialProviders = [],
         public bool $enablePoweredBy = false,
+        public bool $debugLoggingEnabled = false,
     ) {
+    }
+
+    /**
+     * Normalizes WP option payloads (array/object/Settings) to a typed instance.
+     */
+    public static function fromMixed(mixed $raw): self
+    {
+        if ($raw instanceof self) {
+            return $raw;
+        }
+
+        // WP may return associative array, stdClass, or anything else.
+        $arr = [];
+        if (is_array($raw)) {
+            $arr = $raw;
+        } elseif (is_object($raw)) {
+            $arr = get_object_vars($raw);
+        }
+
+        // Handle userPoolConfigurations - could be object or array
+        $defaultUserPoolConfig = new UserPoolConfigurations(
+            default: new ResourceConfiguration(
+                Auth: new AuthConfiguration(
+                    Cognito: new Configuration(
+                        userPoolId: "",
+                        identityPoolId: "",
+                        userPoolClientId: "",
+                        loginWith: new LoginWithOAuthConfiguration(
+                            oauth: new OAuthConfiguration(
+                                domain: "",
+                                scopes: []
+                            )
+                        )
+                    )
+                ),
+                API: new ApiConfiguration(
+                    GraphQL: new RestConfiguration(region: "")
+                )
+            ),
+            secondary: new ResourceConfiguration(
+                Auth: new AuthConfiguration(
+                    Cognito: new Configuration(
+                        userPoolId: "",
+                        identityPoolId: "",
+                        userPoolClientId: "",
+                        loginWith: new LoginWithOAuthConfiguration(
+                            oauth: new OAuthConfiguration(
+                                domain: "",
+                                scopes: []
+                            )
+                        )
+                    )
+                ),
+                API: new ApiConfiguration(
+                    GraphQL: new RestConfiguration(region: "")
+                )
+            )
+        );
+
+        $userPoolConfigurations = $defaultUserPoolConfig;
+        if (isset($arr['userPoolConfigurations'])) {
+            if ($arr['userPoolConfigurations'] instanceof UserPoolConfigurations) {
+                $userPoolConfigurations = $arr['userPoolConfigurations'];
+            }
+        }
+
+        return new self(
+            userPoolConfigurations: $userPoolConfigurations,
+            secondaryUserPoolDomains: (string) ($arr['secondaryUserPoolDomains'] ?? ''),
+            mappings: (array) ($arr['mappings'] ?? []),
+            loginMechanisms: (array) ($arr['loginMechanisms'] ?? []),
+            integrateWpLogin: (bool) ($arr['integrateWpLogin'] ?? false),
+            cookieExpiration: (int) ($arr['cookieExpiration'] ?? 43200),
+            signInPage: (string) ($arr['signInPage'] ?? ''),
+            redirectSignIn: (string) ($arr['redirectSignIn'] ?? ''),
+            redirectSignOut: (string) ($arr['redirectSignOut'] ?? ''),
+            customTranslationsUrl: (string) ($arr['customTranslationsUrl'] ?? ''),
+            signUpAttributes: (array) ($arr['signUpAttributes'] ?? []),
+            socialProviders: (array) ($arr['socialProviders'] ?? []),
+            enablePoweredBy: (bool) ($arr['enablePoweredBy'] ?? false),
+            debugLoggingEnabled: (bool) ($arr['debugLoggingEnabled'] ?? false),
+        );
     }
 }
