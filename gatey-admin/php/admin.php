@@ -99,9 +99,11 @@ class Admin
         add_filter('parent_file', array($this, 'highlightMenu'));
         add_filter('submenu_file', array($this, 'highlightSubmenu'));
 
-        add_filter('manage_edit-wp_block_columns', array($this, 'addShortcodeColumn'), 20);
-        add_action('manage_wp_block_posts_custom_column', array($this, 'renderShortcodeColumn'), 10, 2);
-        add_action('admin_enqueue_scripts', array($this, 'copyShortcode'));
+        if (isset($_GET['post_type'], $_GET['s']) && $_GET['post_type'] === 'wp_block' && $_GET['s'] === 'gatey') {
+            add_filter('manage_edit-wp_block_columns', array($this, 'addShortcodeColumn'), 20);
+            add_action('manage_wp_block_posts_custom_column', array($this, 'renderShortcodeColumn'), 10, 2);
+            add_action('admin_enqueue_scripts', array($this, 'copyShortcode'));
+        }
     }
 
     public function addShortcodeColumn($columns)

@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -195,6 +195,9 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.1 =
+* Improvement: updated the shortcode column rendering/behavior.
 
 = 2.1.0 =
 * Moved reCAPTCHA handling and script loading to the shared hub-for-wpsuiteio package.
@@ -459,6 +462,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.1 =
+Includes updated shortcode column handling. Recommended update.
 
 = 2.1.0 =
 This release moves reCAPTCHA integration into the shared WP Suite hub, adds optional admin-side debug logging, fixes a redirection issue, simplifies block rendering internals, and renames the Redux store from wpsuite/gatey to smartcloud/gatey.
