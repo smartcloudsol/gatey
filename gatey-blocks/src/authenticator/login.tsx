@@ -322,6 +322,14 @@ export const Login = (
   ]);
 
   useEffect(() => {
+    if (route === "signUp" && gatey.settings?.hideSignUp) {
+      queueMicrotask(() => {
+        toSignIn();
+      });
+    }
+  }, [route, toSignIn, toSignUp]);
+
+  useEffect(() => {
     gatey.cognito.toSignIn = toSignIn;
     gatey.cognito.toSignUp = toSignUp;
     gatey.cognito.toForgotPassword = toForgotPassword;
@@ -545,7 +553,9 @@ export const Login = (
                         initialState={screen}
                         signUpAttributes={gatey.settings?.signUpAttributes}
                         socialProviders={gatey.settings?.socialProviders}
+                        hideSignUp={gatey.settings?.hideSignUp}
                         customProviders={config?.customProviders}
+                        passwordless={gatey.settings?.passwordlessSettings}
                         components={components}
                         forceInitialState={isPreview}
                         variation={variation}

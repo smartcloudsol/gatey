@@ -223,41 +223,37 @@ const pages = {
           corresponding Identity Provider in AWS console).
         </List.Item>
       </List>
-      <Title order={3} mt="md" id="custom-translations-url">
-        <span className="highlightable">Custom Translations</span>
+      <Title order={3} mt="md" id="passwordless-settings">
+        <span className="highlightable">Passwordless settings</span>
+      </Title>
+      <List size="sm" spacing="xs" withPadding>
+        <List.Item>
+          <Text fw={500}>Hidden auth methods</Text>
+          Disable individual passwordless options from the Authenticator UI,
+          including password, email OTP, SMS OTP, or WebAuthn passkeys.
+        </List.Item>
+        <List.Item>
+          <Text fw={500}>Preferred auth method</Text>
+          Choose which method Amplify should prioritize first when multiple
+          sign-in methods are available.
+        </List.Item>
+        <List.Item>
+          <Text fw={500}>Passkey registration prompts</Text>
+          Control whether passkey enrollment prompts should be enabled,
+          disabled, or customized separately after sign-in and after sign-up.
+        </List.Item>
+      </List>
+      <Title order={3} mt="md" id="hide-sign-up">
+        <span className="highlightable">Hide “Sign Up”</span>
       </Title>
       <Text>
-        Specify the URL of a JSON file that provides your custom translations
-        for the authentication flow.
-      </Text>
-      <Text>
-        The file can live on your own server or any public location, as long as
-        it returns valid JSON in the expected format. Include{" "}
-        <strong>only</strong> those locales and text keys you actually want to
-        override or add (e.g.&nbsp;labels for <em>Custom Blocks</em> that have
-        no default translation). For details, see&nbsp;
-        <Anchor
-          href="https://ui.docs.amplify.aws/react/connected-components/authenticator/customization#internationalization-i18n"
-          target="_blank"
-        >
-          AWS Amplify Authenticator Internationalization (i18n) documentation
-        </Anchor>
-        .
-      </Text>
-      <Text>Example of a minimal JSON file:</Text>
-      <Text
-        className={classes["highlighted-doc-item"]}
-        style={{ whiteSpace: "pre-wrap" }}
-      >
-        {`{
-  "fr": {
-    "Sign In": "Se connecter"
-  },
-  "es": {
-    "custom:company": "Empresa",
-    "custom:favoriteColor": "Color favorito"
-  }
-}`}
+        When enabled, this hides the “Sign Up” option from your login form,
+        effectively preventing new user registrations through the front end.
+        This is useful if you want to restrict account creation to
+        administrators or a specific process outside of the standard sign-up
+        flow. Note that this only hides the option in the UI; it does not
+        disable sign-up functionality in Cognito itself, so users could still be
+        created through other means (e.g., admin console, API).
       </Text>
       <Title order={3} mt="md">
         Page Settings
@@ -298,13 +294,44 @@ const pages = {
           homepage.
         </List.Item>
       </List>
-      <Title
-        order={3}
-        mt="md"
-        id="hide-powered-by-gatey"
-        className="highlightable"
+      <Title order={3} mt="md" id="custom-translations-url">
+        <span className="highlightable">Custom Translations</span>
+      </Title>
+      <Text>
+        Specify the URL of a JSON file that provides your custom translations
+        for the authentication flow.
+      </Text>
+      <Text>
+        The file can live on your own server or any public location, as long as
+        it returns valid JSON in the expected format. Include{" "}
+        <strong>only</strong> those locales and text keys you actually want to
+        override or add (e.g.&nbsp;labels for <em>Custom Blocks</em> that have
+        no default translation). For details, see&nbsp;
+        <Anchor
+          href="https://ui.docs.amplify.aws/react/connected-components/authenticator/customization#internationalization-i18n"
+          target="_blank"
+        >
+          AWS Amplify Authenticator Internationalization (i18n) documentation
+        </Anchor>
+        .
+      </Text>
+      <Text>Example of a minimal JSON file:</Text>
+      <Text
+        className={classes["highlighted-doc-item"]}
+        style={{ whiteSpace: "pre-wrap" }}
       >
-        Hide “Powered by Gatey”
+        {`{
+  "fr": {
+    "Sign In": "Se connecter"
+  },
+  "es": {
+    "custom:company": "Empresa",
+    "custom:favoriteColor": "Color favorito"
+  }
+}`}
+      </Text>
+      <Title order={3} mt="md" id="hide-powered-by-gatey">
+        <span className="highlightable">Hide “Powered by Gatey”</span>
       </Title>
       <Text>
         When enabled (default), this hides the “Powered by Gatey” text from your
@@ -318,6 +345,33 @@ const pages = {
           Gatey
         </a>
         . The link is always present for screen readers to ensure accessibility.
+      </Text>
+      <Title order={3} mt="md" id="developer-settings">
+        <span className="highlightable">Developer Settings</span>
+      </Title>
+      <Text>Advanced settings for developers and debugging purposes.</Text>
+      <Title order={3} mt="md" id="enable-debug-logging">
+        <span className="highlightable">Enable Debug Logging</span>
+      </Title>
+      <Text>
+        When enabled, AI-Kit writes detailed debug information to WordPress
+        debug logs. This is useful for troubleshooting issues or understanding
+        how AI-Kit processes requests.
+      </Text>
+      <Text mt="xs">
+        <strong>Requirements:</strong> Debug logging only works when both{" "}
+        <Code>WP_DEBUG</Code> and <Code>WP_DEBUG_LOG</Code> are set to{" "}
+        <Code>true</Code> in your <Code>wp-config.php</Code> file.
+      </Text>
+      <Text mt="xs">
+        Logs will appear in <Code>wp-content/debug.log</Code>. Log entries are
+        prefixed with <Code>[AI-Kit]</Code> and include the severity level
+        (DEBUG, INFO, WARNING, ERROR).
+      </Text>
+      <Text mt="xs" c="orange">
+        <strong>Note:</strong> Enable this only when troubleshooting. Debug
+        logging can generate large log files and may impact performance on
+        high-traffic sites.
       </Text>
     </>
   ),

@@ -94,6 +94,8 @@ class Settings
         public string $customTranslationsUrl = "",
         public array $signUpAttributes = [],
         public array $socialProviders = [],
+        public array $passwordlessSettings = [],
+        public bool $hideSignUp = false,
         public bool $enablePoweredBy = false,
         public bool $debugLoggingEnabled = false,
     ) {
@@ -176,6 +178,8 @@ class Settings
             customTranslationsUrl: (string) ($arr['customTranslationsUrl'] ?? ''),
             signUpAttributes: (array) ($arr['signUpAttributes'] ?? []),
             socialProviders: (array) ($arr['socialProviders'] ?? []),
+            passwordlessSettings: (array) ($arr['passwordlessSettings'] ?? []),
+            hideSignUp: (bool) ($arr['hideSignUp'] ?? false),
             enablePoweredBy: (bool) ($arr['enablePoweredBy'] ?? false),
             debugLoggingEnabled: (bool) ($arr['debugLoggingEnabled'] ?? false),
         );

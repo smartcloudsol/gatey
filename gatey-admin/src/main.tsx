@@ -1,4 +1,8 @@
-import { type SignUpAttribute } from "@aws-amplify/ui";
+import {
+  type AuthMethod,
+  type PasswordlessSettings,
+  type SignUpAttribute,
+} from "@aws-amplify/ui";
 import {
   Accordion,
   ActionIcon,
@@ -264,6 +268,70 @@ const configUrl =
 
 const gatey = getGateyPlugin();
 
+const authMethodOptions: Array<{ label: string; value: AuthMethod }> = [
+  { label: "Password", value: "PASSWORD" },
+  { label: "Email OTP", value: "EMAIL_OTP" },
+  { label: "SMS OTP", value: "SMS_OTP" },
+  { label: "WebAuthn (Passkey)", value: "WEB_AUTHN" },
+];
+
+const passkeyPromptOptions = [
+  { label: "Always", value: "ALWAYS" },
+  { label: "Never", value: "NEVER" },
+];
+
+const normalizePasswordlessSettings = (
+  settings?: PasswordlessSettings,
+): PasswordlessSettings | undefined => {
+  if (!settings) {
+    return undefined;
+  }
+
+  const normalized: PasswordlessSettings = {};
+
+  if (settings.hiddenAuthMethods?.length) {
+    normalized.hiddenAuthMethods = settings.hiddenAuthMethods;
+  }
+
+  if (settings.preferredAuthMethod) {
+    normalized.preferredAuthMethod = settings.preferredAuthMethod;
+  }
+
+  if (typeof settings.passkeyRegistrationPrompts === "boolean") {
+    normalized.passkeyRegistrationPrompts = settings.passkeyRegistrationPrompts;
+  } else if (settings.passkeyRegistrationPrompts) {
+    const prompts = {
+      ...(settings.passkeyRegistrationPrompts.afterSignin
+        ? { afterSignin: settings.passkeyRegistrationPrompts.afterSignin }
+        : {}),
+      ...(settings.passkeyRegistrationPrompts.afterSignup
+        ? { afterSignup: settings.passkeyRegistrationPrompts.afterSignup }
+        : {}),
+    };
+
+    if (Object.keys(prompts).length) {
+      normalized.passkeyRegistrationPrompts = prompts;
+    }
+  }
+
+  return Object.keys(normalized).length ? normalized : undefined;
+};
+
+const getPasskeyPromptMode = (
+  passkeyRegistrationPrompts?: PasswordlessSettings["passkeyRegistrationPrompts"],
+): "enabled" | "disabled" | "custom" | null => {
+  if (passkeyRegistrationPrompts === true) {
+    return "enabled";
+  }
+  if (passkeyRegistrationPrompts === false) {
+    return "disabled";
+  }
+  if (passkeyRegistrationPrompts) {
+    return "custom";
+  }
+  return null;
+};
+
 const Main = (props: MainProps) => {
   const { store, nonce, settings } = props;
 
@@ -301,6 +369,10 @@ const Main = (props: MainProps) => {
     customTranslationsUrl: settings.customTranslationsUrl,
     signUpAttributes: settings.signUpAttributes || [],
     socialProviders: settings.socialProviders || [],
+    passwordlessSettings: normalizePasswordlessSettings(
+      settings.passwordlessSettings,
+    ),
+    hideSignUp: settings.hideSignUp || false,
     enablePoweredBy: settings.enablePoweredBy || false,
     debugLoggingEnabled: settings.debugLoggingEnabled || false,
   });
@@ -462,6 +534,22 @@ const Main = (props: MainProps) => {
       setSettingsFormData({
         ...settingsFormData,
         integrateWpLogin: value,
+      });
+    },
+    [settingsFormData],
+  );
+
+  const updatePasswordlessSettings = useCallback(
+    (
+      updater: (
+        current?: PasswordlessSettings,
+      ) => PasswordlessSettings | undefined,
+    ) => {
+      setSettingsFormData({
+        ...settingsFormData,
+        passwordlessSettings: normalizePasswordlessSettings(
+          updater(settingsFormData.passwordlessSettings),
+        ),
       });
     },
     [settingsFormData],
@@ -1281,6 +1369,218 @@ const Main = (props: MainProps) => {
                     }}
                   />
                 </Fieldset>
+                <Fieldset
+                  legend={
+                    <InfoLabelComponent
+                      text="Passwordless Settings"
+                      scrollToId="passwordless-settings"
+                    />
+                  }
+                  fw={500}
+                >
+                  <Stack gap="sm">
+                    <Text size="sm" c="dimmed">
+                      Configure available passwordless authentication methods
+                      and optional passkey registration prompts.
+                    </Text>
+                    <Box>
+                      <Text size="sm" fw={500} mb="xs">
+                        Hidden Auth Methods
+                      </Text>
+                      <Stack gap="xs">
+                        {authMethodOptions.map((option) => (
+                          <Checkbox
+                            key={option.value}
+                            disabled={savingSettings}
+                            label={option.label}
+                            checked={
+                              settingsFormData.passwordlessSettings?.hiddenAuthMethods?.includes(
+                                option.value,
+                              ) ?? false
+                            }
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>,
+                            ) => {
+                              updatePasswordlessSettings((current) => {
+                                const hiddenAuthMethods =
+                                  current?.hiddenAuthMethods
+                                    ? [...current.hiddenAuthMethods]
+                                    : [];
+                                const index = hiddenAuthMethods.indexOf(
+                                  option.value,
+                                );
+
+                                if (!e.currentTarget.checked && index > -1) {
+                                  hiddenAuthMethods.splice(index, 1);
+                                } else if (
+                                  e.currentTarget.checked &&
+                                  index === -1
+                                ) {
+                                  hiddenAuthMethods.push(option.value);
+                                }
+
+                                return {
+                                  ...current,
+                                  hiddenAuthMethods,
+                                };
+                              });
+                            }}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                    <Select
+                      disabled={savingSettings}
+                      clearable
+                      label="Preferred Auth Method"
+                      placeholder="Use Amplify default"
+                      data={authMethodOptions}
+                      value={
+                        settingsFormData.passwordlessSettings
+                          ?.preferredAuthMethod ?? null
+                      }
+                      onChange={(value) => {
+                        updatePasswordlessSettings((current) => ({
+                          ...current,
+                          preferredAuthMethod:
+                            (value as AuthMethod | null) ?? undefined,
+                        }));
+                      }}
+                    />
+                    <Select
+                      disabled={savingSettings}
+                      clearable
+                      label="Passkey Registration Prompts"
+                      placeholder="Use Amplify default"
+                      data={[
+                        { label: "Enabled", value: "enabled" },
+                        { label: "Disabled", value: "disabled" },
+                        { label: "Custom", value: "custom" },
+                      ]}
+                      value={getPasskeyPromptMode(
+                        settingsFormData.passwordlessSettings
+                          ?.passkeyRegistrationPrompts,
+                      )}
+                      onChange={(value) => {
+                        updatePasswordlessSettings((current) => {
+                          switch (value) {
+                            case "enabled":
+                              return {
+                                ...current,
+                                passkeyRegistrationPrompts: true,
+                              };
+                            case "disabled":
+                              return {
+                                ...current,
+                                passkeyRegistrationPrompts: false,
+                              };
+                            case "custom":
+                              return {
+                                ...current,
+                                passkeyRegistrationPrompts:
+                                  typeof current?.passkeyRegistrationPrompts ===
+                                    "object" &&
+                                  current.passkeyRegistrationPrompts !== null
+                                    ? current.passkeyRegistrationPrompts
+                                    : {},
+                              };
+                            default:
+                              return {
+                                ...current,
+                                passkeyRegistrationPrompts: undefined,
+                              };
+                          }
+                        });
+                      }}
+                    />
+                    {getPasskeyPromptMode(
+                      settingsFormData.passwordlessSettings
+                        ?.passkeyRegistrationPrompts,
+                    ) === "custom" && (
+                      <Group grow align="flex-start">
+                        <Select
+                          disabled={savingSettings}
+                          clearable
+                          label="After Sign In"
+                          placeholder="Use Amplify default"
+                          data={passkeyPromptOptions}
+                          value={
+                            typeof settingsFormData.passwordlessSettings
+                              ?.passkeyRegistrationPrompts === "object"
+                              ? settingsFormData.passwordlessSettings
+                                  .passkeyRegistrationPrompts.afterSignin ??
+                                null
+                              : null
+                          }
+                          onChange={(value) => {
+                            updatePasswordlessSettings((current) => ({
+                              ...current,
+                              passkeyRegistrationPrompts: {
+                                ...(typeof current?.passkeyRegistrationPrompts ===
+                                  "object" &&
+                                current.passkeyRegistrationPrompts !== null
+                                  ? current.passkeyRegistrationPrompts
+                                  : {}),
+                                afterSignin:
+                                  (value as "ALWAYS" | "NEVER" | null) ??
+                                  undefined,
+                              },
+                            }));
+                          }}
+                        />
+                        <Select
+                          disabled={savingSettings}
+                          clearable
+                          label="After Sign Up"
+                          placeholder="Use Amplify default"
+                          data={passkeyPromptOptions}
+                          value={
+                            typeof settingsFormData.passwordlessSettings
+                              ?.passkeyRegistrationPrompts === "object"
+                              ? settingsFormData.passwordlessSettings
+                                  .passkeyRegistrationPrompts.afterSignup ??
+                                null
+                              : null
+                          }
+                          onChange={(value) => {
+                            updatePasswordlessSettings((current) => ({
+                              ...current,
+                              passkeyRegistrationPrompts: {
+                                ...(typeof current?.passkeyRegistrationPrompts ===
+                                  "object" &&
+                                current.passkeyRegistrationPrompts !== null
+                                  ? current.passkeyRegistrationPrompts
+                                  : {}),
+                                afterSignup:
+                                  (value as "ALWAYS" | "NEVER" | null) ??
+                                  undefined,
+                              },
+                            }));
+                          }}
+                        />
+                      </Group>
+                    )}
+                  </Stack>
+                </Fieldset>
+                <Switch.Group
+                  defaultValue={settingsFormData.hideSignUp ? ["hide"] : []}
+                  label={
+                    <InfoLabelComponent
+                      text="Hide Sign Up"
+                      scrollToId="hide-sign-up"
+                    />
+                  }
+                  description="Hide the 'Sign Up' option in the login and sign-up forms."
+                  onChange={(values: string[]) =>
+                    setSettingsFormData({
+                      ...settingsFormData,
+                      hideSignUp: values.includes("hide"),
+                    })
+                  }
+                >
+                  <Switch label="Hide" value="hide" mt="xs" />
+                </Switch.Group>
+
                 <Select
                   disabled={savingSettings}
                   label={

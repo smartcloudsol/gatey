@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -195,6 +195,11 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.3 =
+* Admin: Added a new "Hide Sign Up" setting in the admin UI to control whether the sign-up option is shown in login and sign-up forms.
+* Admin: Added passwordless configuration options to the admin UI, including hidden authentication methods, preferred authentication method, and passkey registration prompt settings.
+* UX: Makes key sign-in experience settings configurable directly from the plugin admin interface.
 
 = 2.1.2 =
 * Stability: Improved plugin bootstrap order so Gatey can no longer initialize before the shared WP Suite hub when multiple WP Suite plugins load together.
@@ -467,6 +472,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.3 =
+Adds new admin settings for sign-in experience control. You can now configure whether the sign-up option is hidden, and manage passwordless authentication options directly from the Gatey admin UI.
 
 = 2.1.2 =
 Recommended stability update for sites running multiple WP Suite plugins together. This release hardens startup order so Gatey cannot initialize before the shared hub, preventing race-condition issues around the global `WpSuite` namespace and shared plugin bootstrapping.

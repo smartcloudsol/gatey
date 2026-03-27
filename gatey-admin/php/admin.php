@@ -53,6 +53,8 @@ class Admin
             customTranslationsUrl: '',
             signUpAttributes: [],
             socialProviders: [],
+            passwordlessSettings: [],
+            hideSignUp: false,
             enablePoweredBy: false,
             debugLoggingEnabled: false,
         );
@@ -496,6 +498,8 @@ class Admin
             $settings_param->customTranslationsUrl ?? "",
             $settings_param->signUpAttributes ?? [],
             $settings_param->socialProviders ?? [],
+            (array) ($settings_param->passwordlessSettings ?? []),
+            $settings_param->hideSignUp ?? false,
             $settings_param->enablePoweredBy ?? false,
             $debugLoggingEnabled,
         );
@@ -505,6 +509,7 @@ class Admin
 
         Logger::info('Gatey settings updated', [
             'debugLoggingEnabled' => $debugLoggingEnabled,
+            'hideSignUp' => $this->settings->hideSignUp,
             'enablePoweredBy' => $this->settings->enablePoweredBy,
             'integrateWpLogin' => $this->settings->integrateWpLogin,
             'cookieExpiration' => $this->settings->cookieExpiration,

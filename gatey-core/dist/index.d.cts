@@ -1,4 +1,4 @@
-import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider } from '@aws-amplify/ui';
+import { FormFieldOptionValue, LoginMechanism, SignUpAttribute, SocialProvider, PasswordlessSettings } from '@aws-amplify/ui';
 import { ResourcesConfig } from 'aws-amplify';
 import { get, post, put, del, head, patch } from 'aws-amplify/api';
 import { CustomProvider } from '@aws-amplify/ui-react';
@@ -179,6 +179,8 @@ interface Settings {
     customTranslationsUrl?: string;
     enablePoweredBy?: boolean;
     debugLoggingEnabled?: boolean;
+    hideSignUp?: boolean;
+    passwordlessSettings?: PasswordlessSettings;
 }
 declare const signOut: () => void;
 declare const setLanguage: (language?: string) => void;

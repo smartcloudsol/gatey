@@ -1,4 +1,5 @@
 import {
+  PasswordlessSettings,
   type LoginMechanism,
   type SignUpAttribute,
   type SocialProvider,
@@ -60,6 +61,8 @@ export interface Settings {
   customTranslationsUrl?: string;
   enablePoweredBy?: boolean;
   debugLoggingEnabled?: boolean;
+  hideSignUp?: boolean;
+  passwordlessSettings?: PasswordlessSettings;
 }
 
 const signOut = () => {
