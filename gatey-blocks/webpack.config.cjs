@@ -8,14 +8,10 @@ module.exports = function (env = {}) {
   const config = {
     ...defaultConfig,
     entry: {
-      index: [
-        path.resolve(process.cwd(), "src", "index.tsx"),
-        path.resolve(process.cwd(), "src/account-attribute", "index.tsx"),
-        path.resolve(process.cwd(), "src/account-attribute", "view.tsx"),
-        path.resolve(process.cwd(), "src/authenticator", "index.tsx"),
-        path.resolve(process.cwd(), "src/authenticator", "view.tsx"),
-        path.resolve(process.cwd(), "src/custom-block", "index.tsx"),
-        path.resolve(process.cwd(), "src/form-field", "index.tsx"),
+      editor: [path.resolve(process.cwd(), "src", "editor.tsx")],
+      view: [
+        path.resolve(process.cwd(), "src", "authenticator", "view.tsx"),
+        path.resolve(process.cwd(), "src", "account-attribute", "view.tsx"),
       ],
     },
     externals: {

@@ -59,8 +59,9 @@
     "gatey/custom-block"
   ],
   "textdomain": "gatey",
-  "editorScript": "file:./index.js",
-  "style": "file:./index.css",
+  "editorScript": "smartcloud-gatey-blocks-editor-script",
+  "editorStyle": "smartcloud-gatey-blocks-editor-style",
   "render": "file:./render.php",
-  "viewScript": "file:./view.js"
+  "viewScript": "smartcloud-gatey-view-script",
+  "viewStyle": "smartcloud-gatey-view-style"
 }

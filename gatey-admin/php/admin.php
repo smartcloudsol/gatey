@@ -116,7 +116,7 @@ class Admin
 
     public function renderShortcodeColumn($column, $post_id)
     {
-        if ('wpc_shortcode' !== $column) {
+        if ('wpc_shortcode' !== $column || get_query_var('s') !== 'gatey') {
             return;
         }
 
@@ -202,7 +202,7 @@ class Admin
     }
     public function highlightMenu($parent_file)
     {
-        if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
+        if (get_query_var('post_type') === 'wp_block' && get_query_var('s') === 'gatey') {
             return SMARTCLOUD_WPSUITE_SLUG;
         }
         return $parent_file;
@@ -210,7 +210,7 @@ class Admin
 
     public function highlightSubmenu($submenu_file)
     {
-        if (get_query_var('post_type') == 'wp_block' && get_query_var('s') == 'gatey') {
+        if (get_query_var('post_type') === 'wp_block' && get_query_var('s') === 'gatey') {
             return admin_url("edit.php?post_type=wp_block&s=gatey");
         }
         return $submenu_file;
@@ -225,7 +225,7 @@ class Admin
             $script_asset = require_once(GATEY_PATH . 'admin/index.asset.php');
         }
         $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor', 'smartcloud-wpsuite-mantine-vendor'));
-        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, true);
+        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, array('strategy' => 'defer'));
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {
@@ -294,7 +294,7 @@ class Admin
     public function login(WP_REST_Request $request)
     {
         $data = $request->get_body_params();
-        if (wp_get_current_user()->has_prop('user_email') && wp_get_current_user()->get('user_email') == $data['email']) {
+        if (wp_get_current_user()->has_prop('user_email') && wp_get_current_user()->get('user_email') === $data['email']) {
             //return new WP_REST_Response(array('success' => true, 'message' => __('Already logged in.', 'gatey')), 200);
         }
 

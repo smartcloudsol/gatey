@@ -21,8 +21,8 @@
     "gatey/custom-block/component": "component"
   },
   "textdomain": "gatey",
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./index.css",
-  "style": "file:./index.css",
+  "editorScript": "smartcloud-gatey-blocks-editor-script",
+  "editorStyle": "smartcloud-gatey-blocks-editor-style",
+  "style": "smartcloud-gatey-view-style",
   "render": "file:./render.php"
 }

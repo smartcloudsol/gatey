@@ -41,11 +41,11 @@
     }
   },
   "textdomain": "gatey",
-  "editorScript": "file:./index.tsx",
-  "editorStyle": "file:./index.css",
-  "style": "file:./index.css",
+  "editorScript": "smartcloud-gatey-blocks-editor-script",
+  "editorStyle": "smartcloud-gatey-blocks-editor-style",
   "render": "file:./render.php",
-  "viewScript": "file:./view.tsx",
+  "viewScript": "smartcloud-gatey-view-script",
+  "viewStyle": "smartcloud-gatey-view-style",
   "supports": {
     "align": true,
     "__experimentalBorder": {
