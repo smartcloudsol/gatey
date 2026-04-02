@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-core",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "Login & SSO with Amazon Cognito",
   "author": "Smart Cloud Solutions Inc.",
   "license": "MIT",

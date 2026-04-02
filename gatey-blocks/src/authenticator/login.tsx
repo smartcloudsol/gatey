@@ -146,9 +146,6 @@ export const Login = (
 
   const params = new URLSearchParams(window.location.search);
 
-  const [loggingOut] = useState<boolean>(params.get("loggedout") === "true");
-  const [redirectTo] = useState<string | null>(params.get("redirect_to"));
-
   const {
     authStatus,
     route,
@@ -163,7 +160,11 @@ export const Login = (
     context.route,
   ]);
 
-  const [wasSignedIn] = useState<boolean>(signedIn && !account?.loaded);
+  const [wasSignedIn] = useState<boolean>(() => signedIn && !account?.loaded);
+  const [loggingOut] = useState<boolean>(
+    wasSignedIn && params.get("loggedout") === "true",
+  );
+  const [redirectTo] = useState<string | null>(params.get("redirect_to"));
 
   const isVisible = useElementDetector(
     containerRef,
@@ -341,10 +342,8 @@ export const Login = (
     }
     queueMicrotask(() => {
       if (wasSignedIn) {
-        setMessage(signingOutMessage);
-        dispatchEvent("signing-out");
         clearAccount();
-      } else {
+      } /* else if (nextUrl !== undefined) {
         dispatchEvent("signed-out");
         const url =
           redirectTo ||
@@ -355,7 +354,10 @@ export const Login = (
           setRedirecting(true);
           window.location.assign(url);
         }
-      }
+      }*/
+      setMessage(signingOutMessage);
+      dispatchEvent("signing-out");
+      setRedirecting(true);
       setLogoutHandled(true);
     });
   }, [
@@ -449,20 +451,18 @@ export const Login = (
           dispatchEvent("reset");
         }
       }
-      /*
       if (logoutHandled && nextUrl !== undefined) {
         dispatchEvent("signed-out");
         const url =
           redirectTo ||
           nextUrl ||
-          Gatey.settings.redirectSignOut ||
-          Gatey.settings.signInPage;
+          gatey.settings.redirectSignOut ||
+          gatey.settings.signInPage;
         if (url) {
           setRedirecting(true);
           window.location.assign(url);
         }
       }
-      */
     });
   }, [
     redirectTo,

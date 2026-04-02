@@ -335,5 +335,10 @@ export const logout = async (
   } catch (err) {
     /* ts-ignore */
   }
-  return gatey.settings.redirectSignOut ?? nextUrl;
+  return (
+    gatey.settings.redirectSignOut ??
+    nextUrl ??
+    gatey.settings.signInPage ??
+    "/"
+  );
 };

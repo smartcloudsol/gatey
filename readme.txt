@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -195,6 +195,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.5 =
+* Fixed a race condition during logout in the Authenticator block.
+* Prevented premature redirect to the sign-in page before logout and Cognito token revocation completed.
 
 = 2.1.4 =
 * Improved the robustness of script loading and dependency ordering for shared functions, blocks, and related assets.
@@ -476,6 +480,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.5 =
+This release fixes a logout race condition in the Authenticator block that could redirect users too early and leave them signed in unexpectedly.
 
 = 2.1.4 =
 This release improves how Gatey loads scripts and resolves dependencies, with broader use of deferred loading to reduce render-blocking during page load.

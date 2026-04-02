@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.2.1",
+  "version": "2.2.2",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -19,7 +19,7 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.2.6",
+    "@smart-cloud/gatey-core": "^2.2.7",
     "@smart-cloud/wpsuite-core": "^2.2.10",
     "cheerio": "^1.2.0",
     "he": "^1.2.0",
