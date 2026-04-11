@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -162,6 +162,14 @@ This plugin integrates with the following third-party services:
      - WPSuite.io Privacy Policy: https://wpsuite.io/privacy-policy
      - WPSuite.io Terms of Use: https://wpsuite.io/terms-of-use
 
+4. **Stripe (optional; subscription/purchase flow)**
+   - **When it applies:** Only when the user opens the optional WPSuite subscription / purchase flow in the shared admin component.
+   - **What it’s used for:** Displaying hosted pricing/subscription UI for optional paid features.
+   - **What data may be sent:** Browser/session data required by Stripe to render the hosted purchase UI and process the purchase flow.
+   - **Links:**
+     - Terms: https://stripe.com/legal/consumer
+     - Privacy: https://stripe.com/privacy
+
 == Client-Side Libraries ==
 
 1. **AWS Amplify Authenticator**  
@@ -195,6 +203,11 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.6 =
+* Compatibility: Switched Elementor widget loading to namespace-based registration under `SmartCloud\WPSuite\Gatey`.
+* Stability: Improved shared hub loading and race-condition handling for more reliable startup together with other WP Suite / wpsuite.io plugins.
+* Internal: Hardened plugin bootstrap sequencing to reduce cross-plugin initialization timing issues.
 
 = 2.1.5 =
 * Fixed a race condition during logout in the Authenticator block.
@@ -480,6 +493,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.6 =
+Recommended stability and compatibility update. This release updates Elementor widget loading to namespace-based registration and improves shared hub loading to better prevent race-condition issues when multiple WP Suite plugins are active.
 
 = 2.1.5 =
 This release fixes a logout race condition in the Authenticator block that could redirect users too early and leave them signed in unexpectedly.

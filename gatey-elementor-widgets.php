@@ -1,5 +1,7 @@
 <?php
 
+namespace SmartCloud\WPSuite\Gatey;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -380,6 +382,6 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
 }
 
 add_action('elementor/widgets/register', static function ($m) {
-    $m->register(new \Gatey_Authenticator_Widget());
-    $m->register(new \Gatey_Account_Attribute_Widget());
+    $m->register(new \SmartCloud\WPSuite\Gatey\Gatey_Authenticator_Widget());
+    $m->register(new \SmartCloud\WPSuite\Gatey\Gatey_Account_Attribute_Widget());
 });
