@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.1.6
+ * Version:           2.1.7
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.1.6';
+const VERSION = '2.1.7';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -464,12 +464,17 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             require_once GATEY_PATH . 'vendor/autoload.php';
         }
 
-        // Hub admin classes.
+        // Logger class
+        if (file_exists(GATEY_PATH . 'admin/logger.php')) {
+            require_once GATEY_PATH . 'admin/logger.php';
+        }
+
+        // Hub admin classes
         if (file_exists(GATEY_PATH . 'hub-loader.php')) {
             require_once GATEY_PATH . 'hub-loader.php';
         }
 
-        // Admin classes.
+        // Admin classes
         if (file_exists(GATEY_PATH . 'admin/admin.php')) {
             require_once GATEY_PATH . 'admin/admin.php';
         }

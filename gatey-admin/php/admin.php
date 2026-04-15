@@ -22,10 +22,6 @@ if (file_exists(filename: GATEY_PATH . 'admin/model.php')) {
     require_once GATEY_PATH . 'admin/model.php';
 }
 
-if (file_exists(GATEY_PATH . 'admin/logger.php')) {
-    require_once GATEY_PATH . 'admin/logger.php';
-}
-
 class Admin
 {
     private Settings $settings;
