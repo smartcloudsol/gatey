@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.7
+Stable tag: 2.1.8
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -203,6 +203,10 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.8 =
+* Fix: Improved Elementor widget parameter handling for more reliable widget configuration and rendering.
+* UX: Gatey widgets now behave more consistently across Elementor-based integrations.
 
 = 2.1.7 =
 * Fix: Stabilized loading of `admin/logger.php` and initialization of the `Logger` class in the admin environment.
@@ -498,6 +502,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.8 =
+Recommended update. Improves Elementor widget parameter handling for more reliable behavior in Elementor-based layouts.
 
 = 2.1.7 =
 Recommended stability update. Fixes an admin-side loading issue where the Logger class could initialize too late in certain cases, causing affected PHP-based admin pages to break.

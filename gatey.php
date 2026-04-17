@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
- * Version:           2.1.7
+ * Version:           2.1.8
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.1.7';
+const VERSION = '2.1.8';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -340,21 +340,52 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         foreach ($blocks as $block) {
 
             if ('gatey/authenticator' === $block['blockName']) {
-                // parsing the block attributes
-                $attrs = array(
-                    'uid' => $block['attrs']['uid'] ?? '',
-                    'screen' => $a['screen'] ?? $block['attrs']['screen'] ?? 'signIn',
-                    'variation' => $a['variation'] ?? $block['attrs']['variation'] ?? 'default',
-                    'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
-                    'language' => $a['language'] ?? $block['attrs']['language'] ?? 'en',
-                    'direction' => $a['direction'] ?? $block['attrs']['direction'] ?? 'auto',
-                    'showOpenButton' => $a['showopen'] != false ? $a['showopen'] : ($block['attrs']['showOpenButton'] ?? false),
-                    'openButtonTitle' => $a['open'] ?? $block['attrs']['openButtonTitle'] ?? '',
-                    'signingInMessage' => $a['signingin'] ?? $block['attrs']['signingInMessage'] ?? '',
-                    'signingOutMessage' => $a['signingout'] ?? $block['attrs']['signingOutMessage'] ?? '',
-                    'redirectingMessage' => $a['redirecting'] ?? $block['attrs']['redirectingMessage'] ?? '',
-                    'totpIssuer' => $a['totp'] ?? $block['attrs']['totpIssuer'] ?? '',
+                $attrs = is_array($block['attrs'] ?? null) ? $block['attrs'] : array();
+
+                $override_map = array(
+                    'screen' => 'screen',
+                    'variation' => 'variation',
+                    'colormode' => 'colorMode',
+                    'language' => 'language',
+                    'direction' => 'direction',
+                    'totp' => 'totpIssuer',
+                    'open' => 'openButtonTitle',
+                    'signingin' => 'signingInMessage',
+                    'signingout' => 'signingOutMessage',
+                    'redirecting' => 'redirectingMessage',
                 );
+
+                foreach ($override_map as $shortcode_key => $attribute_key) {
+                    $value = $a[$shortcode_key] ?? null;
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
+
+                    $attrs[$attribute_key] = $value;
+                }
+
+                if (($a['showopen'] ?? null) !== null && $a['showopen'] !== '') {
+                    $show_open = $a['showopen'];
+                    if ($show_open === 'true' || $show_open === '1' || $show_open === true || $show_open === 'yes') {
+                        $attrs['showOpenButton'] = true;
+                    } elseif ($show_open === 'false' || $show_open === '0' || $show_open === false || $show_open === 'no') {
+                        $attrs['showOpenButton'] = false;
+                    }
+                }
+
+                $attrs['uid'] = $attrs['uid'] ?? '';
+                $attrs['screen'] = $attrs['screen'] ?? 'signIn';
+                $attrs['variation'] = $attrs['variation'] ?? 'default';
+                $attrs['colorMode'] = $attrs['colorMode'] ?? 'system';
+                $attrs['language'] = $attrs['language'] ?? 'en';
+                $attrs['direction'] = $attrs['direction'] ?? 'auto';
+                $attrs['showOpenButton'] = $attrs['showOpenButton'] ?? false;
+                $attrs['openButtonTitle'] = $attrs['openButtonTitle'] ?? '';
+                $attrs['signingInMessage'] = $attrs['signingInMessage'] ?? '';
+                $attrs['signingOutMessage'] = $attrs['signingOutMessage'] ?? '';
+                $attrs['redirectingMessage'] = $attrs['redirectingMessage'] ?? '';
+                $attrs['totpIssuer'] = $attrs['totpIssuer'] ?? '';
+
                 $newBlock = [
                     'blockName' => 'gatey/authenticator',
                     'attrs' => $attrs,
@@ -395,16 +426,18 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                 $is_preview = $plugin->preview->is_preview_mode();
             }
         }
+
         $attrs = array(
-            'component' => $a['component'] ?? $block['attrs']['component'] ?? 'div',
-            'attribute' => $a['attribute'] ?? $block['attrs']['attribute'] ?? 'sub',
-            'custom' => $a['custom'] ?? $block['attrs']['custom'] ?? '',
-            'prefix' => $a['prefix'] ?? $block['attrs']['prefix'] ?? '',
-            'postfix' => $a['postfix'] ?? $block['attrs']['postfix'] ?? '',
-            'colorMode' => $a['colormode'] ?? $block['attrs']['colorMode'] ?? 'system',
-            'language' => $a['language'] ?? $block['attrs']['language'] ?? 'en',
-            'direction' => $a['direction'] ?? $block['attrs']['direction'] ?? 'auto',
+            'component' => $a['component'] ?? 'div',
+            'attribute' => $a['attribute'] ?? 'sub',
+            'custom' => $a['custom'] ?? '',
+            'prefix' => $a['prefix'] ?? '',
+            'postfix' => $a['postfix'] ?? '',
+            'colorMode' => $a['colormode'] ?? 'system',
+            'language' => $a['language'] ?? 'en',
+            'direction' => $a['direction'] ?? 'auto',
         );
+
         $newBlock = [
             'blockName' => 'gatey/account-attribute',
             'attrs' => $attrs,
