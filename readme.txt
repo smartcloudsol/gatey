@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 2.1.9
+Stable tag: 2.1.10
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -203,6 +203,11 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.1.10 =
+* Fix: Adjusted Authenticator mounting behavior so Authenticator screens can fully remount when required.
+* Fix: Prevented issues caused by the previous mount hardening logic in flows where full screen remounting is necessary.
+* Stability: Ensures Authenticator screen transitions and re-rendering work correctly in all supported scenarios.
 
 = 2.1.9 =
 * Fix: Improved frontend block mounting so components can no longer mount multiple times in parallel on the same element.
@@ -507,6 +512,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.10 =
+Recommended update. Fixes Authenticator mounting so screens that require a full remount now work correctly again. Important update for sites using the Authenticator UI.
 
 = 2.1.9 =
 Recommended update. Improves frontend mounting reliability by preventing parallel duplicate mounts on the same element and moving race-condition protection to a shared helper.

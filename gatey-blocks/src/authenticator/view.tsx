@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, type Root } from "react-dom/client";
 
 import "jquery";
 
@@ -9,11 +9,24 @@ import { beginMount, endMount, resetMount } from "../shared/mountGuard";
 import { ThemedApp } from "./theme";
 
 const cache = new Map<string, string>();
+const roots = new Map<string, Root>();
 
 try {
-  const call = async (id: string) => {
+  const call = async (id: string, forceRemount = false) => {
     const el = document.querySelector("#" + id);
     if (el) {
+      if (forceRemount) {
+        const existingRoot = roots.get(id);
+        if (existingRoot) {
+          existingRoot.unmount();
+          roots.delete(id);
+        }
+        resetMount(el);
+        if (cache.has(id)) {
+          el.innerHTML = cache.get(id) || "";
+        }
+      }
+
       if (!beginMount(id, el)) {
         return;
       }
@@ -26,6 +39,7 @@ try {
         const isPreview = el.getAttribute("data-is-preview") === "true";
 
         const root = createRoot(el);
+        roots.set(id, root);
         const fulfilledStore = await getStore();
         if (cache.has(id)) {
           el.innerHTML = cache.get(id) || "";
@@ -53,8 +67,9 @@ try {
     }
   };
 
-  jQuery(document).on("smartcloud-gatey-authenticator-block", (_, id) =>
-    call(id),
+  jQuery(document).on(
+    "smartcloud-gatey-authenticator-block",
+    (_, id, forceRemount) => call(id, forceRemount === true),
   );
 } catch (err) {
   console.error(err);
