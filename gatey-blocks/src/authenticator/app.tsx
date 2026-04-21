@@ -60,19 +60,27 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       jQuery(containerRef.current).on(
         "done.smartcloud-gatey-authenticator",
         () => {
-          jQuery(document).trigger(
-            "smartcloud-gatey-authenticator-block",
-            [id, true],
-          );
+          if (editorRef?.current) {
+            setShow(false);
+          } else {
+            jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
+              id,
+              true,
+            ]);
+          }
         },
       );
       jQuery(containerRef.current).on(
         "cancel.smartcloud-gatey-authenticator",
         () => {
-          jQuery(document).trigger(
-            "smartcloud-gatey-authenticator-block",
-            [id, true],
-          );
+          if (editorRef?.current) {
+            setShow(false);
+          } else {
+            jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
+              id,
+              true,
+            ]);
+          }
         },
       );
     }

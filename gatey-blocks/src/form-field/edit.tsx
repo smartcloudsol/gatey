@@ -27,7 +27,7 @@ import { ConfigContext } from "../context/config";
 import { formFieldOptions } from "../index";
 import { type Attribute } from "./index";
 
-export interface EditorBlockProps {
+export type EditorBlockProps = {
   attribute?: Attribute;
   custom?: string;
   required?: boolean;
@@ -41,10 +41,10 @@ export interface EditorBlockProps {
   dialCode?: string;
   dialCodeList?: string[];
   countryCodeList?: string[];
-}
+} & Record<string, unknown>;
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
-  props: BlockEditProps<EditorBlockProps>
+  props: BlockEditProps<EditorBlockProps>,
 ) => {
   const { context, attributes, setAttributes, clientId } = props;
   const {
@@ -109,7 +109,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, []);
 
   useEffect(() => {
-    let attr = "";
+    let attr;
     if (attribute) {
       if (
         authFieldsWithDefaults.includes(attribute as AuthFieldsWithDefaults)
@@ -134,7 +134,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, [attribute, attributes, block, clientId, custom, updateBlock]);
 
   const attributeName = useMemo(() => {
-    let attr = "";
+    let attr;
     if (attribute) {
       if (
         authFieldsWithDefaults.includes(attribute as AuthFieldsWithDefaults)
@@ -291,7 +291,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 placeholder={__("Enter dial code", TEXT_DOMAIN)}
                 help={__(
                   "Enter a single dial code starting with “+” (e.g., “+1”).",
-                  TEXT_DOMAIN
+                  TEXT_DOMAIN,
                 )}
               />
               <TextControl
@@ -306,11 +306,11 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 }}
                 placeholder={__(
                   "Enter dial codes separated by commas:",
-                  TEXT_DOMAIN
+                  TEXT_DOMAIN,
                 )}
                 help={__(
                   "Enter one or more dial codes, each starting with “+” (example: +36, +44). Separate codes with commas. To remove a code, highlight it together with its comma and press Delete.",
-                  TEXT_DOMAIN
+                  TEXT_DOMAIN,
                 )}
               />
             </>
@@ -328,11 +328,11 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               placeholder={__(
                 "Enter country codes separated by commas",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
               help={__(
                 "Enter 3‑letter ISO 3166‑1 alpha‑3 country codes, separated by commas (example: USA, HUN). To remove a code, highlight it together with its comma and press Delete.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
           )}

@@ -53,7 +53,7 @@ const theme = {
   overrides: [defaultDarkModeOverride],
 };
 
-export interface EditorBlockProps {
+export type EditorBlockProps = {
   component?: Component;
   attribute?: Attribute;
   custom?: string;
@@ -63,10 +63,10 @@ export interface EditorBlockProps {
   link?: LinkControlValue;
   prefix?: string;
   postfix?: string;
-}
+} & Record<string, unknown>;
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
-  props: BlockEditProps<EditorBlockProps>
+  props: BlockEditProps<EditorBlockProps>,
 ) => {
   const { attributes, setAttributes } = props;
   const {
@@ -130,7 +130,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Specify the HTML element (e.g., <div>, <span>, <input>) that will render this account attribute.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <ComboboxControl
@@ -149,7 +149,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               allowReset
               help={__(
                 "Select the account attribute to display—either a standard Cognito attribute (e.g., “email”, “given_name”) or a custom attribute.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             {attribute === "custom" && (
@@ -164,7 +164,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 placeholder={__("Enter custom attribute", TEXT_DOMAIN)}
                 help={__(
                   "Enter the name of the custom attribute (e.g., “country”).",
-                  TEXT_DOMAIN
+                  TEXT_DOMAIN,
                 )}
               />
             )}
@@ -199,7 +199,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Choose the account attribute’s color scheme—Light, Dark, or System (follows the user’s system preference).",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <ComboboxControl
@@ -211,7 +211,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Set the display language for this account attribute. The chosen language controls the built‑in country selector list and any custom select or radio fields that have translated option labels.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
             <RadioControl
@@ -223,7 +223,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
               }}
               help={__(
                 "Choose the layout direction for this account attribute—Auto (default; follows the selected language), Left‑to‑Right, or Right‑to‑Left for RTL languages.",
-                TEXT_DOMAIN
+                TEXT_DOMAIN,
               )}
             />
           </PanelBody>

@@ -1,5 +1,5 @@
 import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
-import { registerBlockType, type BlockAttributes } from "@wordpress/blocks";
+import { registerBlockType, type BlockAttribute } from "@wordpress/blocks";
 import { type ReactNode } from "react";
 import metadata from "./block.json";
 import { Edit } from "./edit";
@@ -49,12 +49,12 @@ const icon = (
  */
 registerBlockType(metadata.name, {
   apiVersion: metadata.apiVersion,
-  attributes: metadata.attributes as BlockAttributes,
+  attributes: metadata.attributes as Record<string, BlockAttribute>,
   title: metadata.title,
   category: metadata.category,
   description: metadata.description,
   textdomain: TEXT_DOMAIN,
   edit: Edit,
   save: Save,
-  icon: icon,
+  icon: { src: icon },
 });

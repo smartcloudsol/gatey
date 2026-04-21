@@ -47,6 +47,7 @@ import {
   IconCircleNumber2,
   IconExclamationCircle,
   IconForms,
+  IconHelp,
   IconInfoCircle,
   IconLock,
   IconLogin,
@@ -117,10 +118,12 @@ export interface SettingsEditorProps {
   siteId: string;
   siteKey: string | undefined;
   onSave: (config: AuthenticatorConfig) => void;
-  InfoLabelComponent: (props: {
+  InfoLabel: (props: {
     text: string;
     scrollToId: string;
+    onOpen: (targetScrollToId: string) => void;
   }) => JSX.Element;
+  openInfo: (targetScrollToId: string) => void;
 }
 
 const wpsuite = getWpSuite();
@@ -331,6 +334,23 @@ const getPasskeyPromptMode = (
   }
   return null;
 };
+
+type InfoLabelProps = {
+  text: string;
+  scrollToId: string;
+  onOpen: (scrollToId: string) => void;
+};
+
+function InfoLabel({ text, scrollToId, onOpen }: InfoLabelProps) {
+  return (
+    <Group align="center" gap="0.25rem">
+      {text}
+      <ActionIcon variant="subtle" onClick={() => onOpen(scrollToId)} size="sm">
+        <IconHelp size={14} />
+      </ActionIcon>
+    </Group>
+  );
+}
 
 const Main = (props: MainProps) => {
   const { store, nonce, settings } = props;
@@ -626,23 +646,11 @@ const Main = (props: MainProps) => {
     [settingsFormData, nonce],
   );
 
-  const InfoLabelComponent = useCallback(
-    ({ text, scrollToId }: { text: string; scrollToId: string }) => (
-      <Group align="center" gap="0.25rem">
-        {text}
-        <ActionIcon
-          component="label"
-          variant="subtle"
-          size="xs"
-          onClick={() => {
-            setScrollToId(scrollToId);
-            open();
-          }}
-        >
-          <IconInfoCircle size={16} />
-        </ActionIcon>
-      </Group>
-    ),
+  const openInfo = useCallback(
+    (targetScrollToId: string) => {
+      setScrollToId(targetScrollToId);
+      open();
+    },
     [open],
   );
 
@@ -658,22 +666,26 @@ const Main = (props: MainProps) => {
   );
 
   useEffect(() => {
-    if (isSiteError || !isSitePending || !loadSiteEnabled) {
-      setSite(isSiteError ? null : siteRecord ?? null);
-    }
+    queueMicrotask(() => {
+      if (isSiteError || !isSitePending || !loadSiteEnabled) {
+        setSite(isSiteError ? null : siteRecord ?? null);
+      }
+    });
   }, [siteRecord, loadSiteEnabled, isSitePending, isSiteError]);
 
   useEffect(() => {
-    if (site) {
-      setResolvedConfig({
-        ...sanitizeAuthenticatorConfig(site.settings ?? {}),
-        subscriptionType: site.subscriptionType,
-      });
-    } else {
-      if ((!accountId && !siteId) || isSiteError) {
-        setResolvedConfig(null);
+    queueMicrotask(() => {
+      if (site) {
+        setResolvedConfig({
+          ...sanitizeAuthenticatorConfig(site.settings ?? {}),
+          subscriptionType: site.subscriptionType,
+        });
+      } else {
+        if ((!accountId && !siteId) || isSiteError) {
+          setResolvedConfig(null);
+        }
       }
-    }
+    });
   }, [accountId, isSiteError, site, siteId]);
 
   useEffect(() => {
@@ -718,55 +730,59 @@ const Main = (props: MainProps) => {
 
   // Navigation options grouped by free and pro features
   useEffect(() => {
-    const paidSettingsDisabled =
-      decryptedConfig && accountId && siteId && siteKey
-        ? !decryptedConfig
-        : !resolvedConfig;
-    setNavigationOptions([
-      {
-        value: "general",
-        label: __("General", TEXT_DOMAIN),
-        icon: <IconSettings size={16} stroke={1.5} />,
-      },
-      {
-        value: "user-pools",
-        label: __("User Pools", TEXT_DOMAIN),
-        icon: <IconUsersGroup size={16} stroke={1.5} />,
-      },
-      {
-        value: "wordpress-login",
-        label: __("WordPress Login", TEXT_DOMAIN),
-        icon: <IconLogin size={16} stroke={1.5} />,
-      },
-      {
-        value: "api-settings",
-        label: __("API Settings", TEXT_DOMAIN),
-        icon: <IconApi size={16} stroke={1.5} />,
-        disabled: paidSettingsDisabled,
-      },
-      {
-        value: "custom-fields",
-        label: __("Custom Fields", TEXT_DOMAIN),
-        icon: <IconForms size={16} stroke={1.5} />,
-        disabled: paidSettingsDisabled,
-      },
-      {
-        value: "custom-providers",
-        label: __("Custom Providers", TEXT_DOMAIN),
-        icon: <IconSocial size={16} stroke={1.5} />,
-        disabled: paidSettingsDisabled,
-      },
-    ]);
-    if (paidSettingsDisabled) {
-      setActivePage("general");
-    }
+    queueMicrotask(() => {
+      const paidSettingsDisabled =
+        decryptedConfig && accountId && siteId && siteKey
+          ? !decryptedConfig
+          : !resolvedConfig;
+      setNavigationOptions([
+        {
+          value: "general",
+          label: __("General", TEXT_DOMAIN),
+          icon: <IconSettings size={16} stroke={1.5} />,
+        },
+        {
+          value: "user-pools",
+          label: __("User Pools", TEXT_DOMAIN),
+          icon: <IconUsersGroup size={16} stroke={1.5} />,
+        },
+        {
+          value: "wordpress-login",
+          label: __("WordPress Login", TEXT_DOMAIN),
+          icon: <IconLogin size={16} stroke={1.5} />,
+        },
+        {
+          value: "api-settings",
+          label: __("API Settings", TEXT_DOMAIN),
+          icon: <IconApi size={16} stroke={1.5} />,
+          disabled: paidSettingsDisabled,
+        },
+        {
+          value: "custom-fields",
+          label: __("Custom Fields", TEXT_DOMAIN),
+          icon: <IconForms size={16} stroke={1.5} />,
+          disabled: paidSettingsDisabled,
+        },
+        {
+          value: "custom-providers",
+          label: __("Custom Providers", TEXT_DOMAIN),
+          icon: <IconSocial size={16} stroke={1.5} />,
+          disabled: paidSettingsDisabled,
+        },
+      ]);
+      if (paidSettingsDisabled) {
+        setActivePage("general");
+      }
+    });
   }, [accountId, decryptedConfig, resolvedConfig, siteId, siteKey]);
 
   useEffect(() => {
-    if (resolvedConfig !== undefined) {
-      const fc = (resolvedConfig ?? decryptedConfig) as AuthenticatorConfig;
-      setFormConfig(fc);
-    }
+    queueMicrotask(() => {
+      if (resolvedConfig !== undefined) {
+        const fc = (resolvedConfig ?? decryptedConfig) as AuthenticatorConfig;
+        setFormConfig(fc);
+      }
+    });
   }, [resolvedConfig, decryptedConfig]);
 
   useEffect(() => {
@@ -1008,9 +1024,10 @@ const Main = (props: MainProps) => {
                     disabled={savingSettings}
                     name="secondaryUserPoolDomains"
                     label={
-                      <InfoLabelComponent
+                      <InfoLabel
                         text="User Pool Domains"
                         scrollToId="user-pool-domains"
+                        onOpen={openInfo}
                       />
                     }
                     description="Regular expression of domains for the secondary user pool"
@@ -1031,9 +1048,10 @@ const Main = (props: MainProps) => {
                     ".Auth.Cognito.userPoolId"
                   }
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="User Pool ID"
                       scrollToId="user-pool-id"
+                      onOpen={openInfo}
                     />
                   }
                   description="The ID of the AWS Cognito user pool to use"
@@ -1049,9 +1067,10 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="App Client ID"
                       scrollToId="app-client-id"
+                      onOpen={openInfo}
                     />
                   }
                   description="The ID of the AWS Cognito app client to use"
@@ -1071,7 +1090,11 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent text="Region" scrollToId="region" />
+                    <InfoLabel
+                      text="Region"
+                      scrollToId="region"
+                      onOpen={openInfo}
+                    />
                   }
                   description="AWS region"
                   name={
@@ -1090,9 +1113,10 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Identity Pool ID"
                       scrollToId="identity-pool-id"
+                      onOpen={openInfo}
                     />
                   }
                   description="The ID of the AWS Cognito identity pool to use"
@@ -1112,9 +1136,10 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="OAuth Domain"
                       scrollToId="oauth-domain"
+                      onOpen={openInfo}
                     />
                   }
                   description="The domain of the OAuth provider to use"
@@ -1134,9 +1159,10 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="OAuth scopes"
                       scrollToId="oauth-scopes"
+                      onOpen={openInfo}
                     />
                   }
                   description="The scopes to use for the OAuth provider"
@@ -1179,9 +1205,10 @@ const Main = (props: MainProps) => {
               <Stack gap="sm">
                 <Fieldset
                   legend={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Login Mechanisms"
                       scrollToId="login-mechanisms"
+                      onOpen={openInfo}
                     />
                   }
                   fw={500}
@@ -1258,9 +1285,10 @@ const Main = (props: MainProps) => {
                 </Fieldset>
                 <MultiSelect
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Sign-up Attributes"
                       scrollToId="signup-attributes"
+                      onOpen={openInfo}
                     />
                   }
                   placeholder="Select attributes"
@@ -1277,9 +1305,10 @@ const Main = (props: MainProps) => {
                 />
                 <Fieldset
                   legend={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Social Providers"
                       scrollToId="social-providers"
+                      onOpen={openInfo}
                     />
                   }
                   fw={500}
@@ -1371,9 +1400,10 @@ const Main = (props: MainProps) => {
                 </Fieldset>
                 <Fieldset
                   legend={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Passwordless Settings"
                       scrollToId="passwordless-settings"
+                      onOpen={openInfo}
                     />
                   }
                   fw={500}
@@ -1565,9 +1595,10 @@ const Main = (props: MainProps) => {
                 <Switch.Group
                   defaultValue={settingsFormData.hideSignUp ? ["hide"] : []}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Hide Sign Up"
                       scrollToId="hide-sign-up"
+                      onOpen={openInfo}
                     />
                   }
                   description="Hide the 'Sign Up' option in the login and sign-up forms."
@@ -1584,9 +1615,10 @@ const Main = (props: MainProps) => {
                 <Select
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Sign In Page"
                       scrollToId="sign-in-page"
+                      onOpen={openInfo}
                     />
                   }
                   description="The WordPress page to show when the user is not logged in"
@@ -1602,9 +1634,10 @@ const Main = (props: MainProps) => {
                 <Select
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Default redirect after signing in"
                       scrollToId="default-redirect-after-signing-in"
+                      onOpen={openInfo}
                     />
                   }
                   description="The WordPress page to redirect to after the user signs in"
@@ -1620,9 +1653,10 @@ const Main = (props: MainProps) => {
                 <Select
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Default redirect after signing out"
                       scrollToId="default-redirect-after-signing-out"
+                      onOpen={openInfo}
                     />
                   }
                   description="The WordPress page to redirect to after the user signs out"
@@ -1638,9 +1672,10 @@ const Main = (props: MainProps) => {
                 <TextInput
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Custom Translations URL"
                       scrollToId="custom-translations-url"
+                      onOpen={openInfo}
                     />
                   }
                   description={
@@ -1674,9 +1709,10 @@ const Main = (props: MainProps) => {
                     settingsFormData.enablePoweredBy ? [] : ["hide"]
                   }
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Hide 'Powered by' attribution"
                       scrollToId="hide-powered-by-gatey"
+                      onOpen={openInfo}
                     />
                   }
                   description="Hide the 'Powered by' attribution in the login and sign-up forms."
@@ -1695,9 +1731,10 @@ const Main = (props: MainProps) => {
                     settingsFormData.debugLoggingEnabled ? ["enable"] : []
                   }
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text={__("Enable Debug Logging", TEXT_DOMAIN)}
                       scrollToId="enable-debug-logging"
+                      onOpen={openInfo}
                     />
                   }
                   description={__(
@@ -1747,9 +1784,10 @@ const Main = (props: MainProps) => {
                 <Checkbox
                   disabled={savingSettings}
                   label={
-                    <InfoLabelComponent
+                    <InfoLabel
                       text="Integrate WordPress Login"
                       scrollToId="integrate-wordpress-login"
+                      onOpen={openInfo}
                     />
                   }
                   checked={settingsFormData.integrateWpLogin}
@@ -1762,9 +1800,10 @@ const Main = (props: MainProps) => {
                     <NumberInput
                       disabled={savingSettings}
                       label={
-                        <InfoLabelComponent
+                        <InfoLabel
                           text="Cookie expiration"
                           scrollToId="cookie-expiration"
+                          onOpen={openInfo}
                         />
                       }
                       description="The number of seconds the cookie should be valid for"
@@ -1779,9 +1818,10 @@ const Main = (props: MainProps) => {
                     {wpRolesLoaded && (
                       <Box>
                         <Title order={4} my="md">
-                          <InfoLabelComponent
+                          <InfoLabel
                             text="Cognito Group to WordPress Role Mapping"
                             scrollToId="cognito-group-to-wordpress-role-mapping"
+                            onOpen={openInfo}
                           />
                         </Title>
                         <Table withTableBorder>
@@ -1878,9 +1918,10 @@ const Main = (props: MainProps) => {
           {activePage === "api-settings" && (
             <>
               <Title order={2} mb="md">
-                <InfoLabelComponent
+                <InfoLabel
                   text="API Settings"
                   scrollToId="api-settings"
+                  onOpen={openInfo}
                 />
               </Title>
 
@@ -1913,7 +1954,8 @@ const Main = (props: MainProps) => {
                     siteId={siteId!}
                     siteKey={siteKey!}
                     onSave={handleConfigSave}
-                    InfoLabelComponent={InfoLabelComponent}
+                    InfoLabel={InfoLabel}
+                    openInfo={openInfo}
                   />
                 )}
               </Suspense>
@@ -1922,9 +1964,10 @@ const Main = (props: MainProps) => {
           {activePage === "custom-fields" && (
             <>
               <Title order={2} mb="md">
-                <InfoLabelComponent
+                <InfoLabel
                   text="Custom Fields"
                   scrollToId="custom-fields"
+                  onOpen={openInfo}
                 />
               </Title>
 
@@ -1955,7 +1998,8 @@ const Main = (props: MainProps) => {
                     siteId={siteId!}
                     siteKey={siteKey!}
                     onSave={handleConfigSave}
-                    InfoLabelComponent={InfoLabelComponent}
+                    InfoLabel={InfoLabel}
+                    openInfo={openInfo}
                   />
                 )}
               </Suspense>
@@ -1964,9 +2008,10 @@ const Main = (props: MainProps) => {
           {activePage === "custom-providers" && (
             <>
               <Title order={2} mb="md">
-                <InfoLabelComponent
+                <InfoLabel
                   text="Custom Providers"
                   scrollToId="custom-providers"
+                  onOpen={openInfo}
                 />
               </Title>
 
@@ -1998,7 +2043,8 @@ const Main = (props: MainProps) => {
                     siteId={siteId!}
                     siteKey={siteKey!}
                     onSave={handleConfigSave}
-                    InfoLabelComponent={InfoLabelComponent}
+                    InfoLabel={InfoLabel}
+                    openInfo={openInfo}
                   />
                 )}
               </Suspense>

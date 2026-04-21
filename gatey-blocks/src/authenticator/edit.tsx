@@ -65,7 +65,7 @@ export interface EditorBlock {
   innerBlocks: EditorBlock[];
 }
 
-export interface EditorBlockProps {
+export type EditorBlockProps = {
   screen?: Screen;
   variation?: Variation;
   colorMode?: ColorMode;
@@ -78,7 +78,7 @@ export interface EditorBlockProps {
   redirectingMessage?: string;
   totpIssuer?: string;
   uid?: string;
-}
+} & Record<string, unknown>;
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
 
@@ -139,49 +139,53 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
   useEffect(() => {
-    setPreviewScreen(nextPreviewScreen);
+    queueMicrotask(() => {
+      setPreviewScreen(nextPreviewScreen);
+    });
   }, [nextPreviewScreen]);
 
   useEffect(() => {
-    if (!loadingSubscription) {
-      setLoadingSubscription(true);
-      if (wpSuiteSiteSettings.accountId && wpSuiteSiteSettings.siteId) {
-        fetch(
-          apiUrl +
-            "/account/" +
-            wpSuiteSiteSettings.accountId +
-            "/site/" +
-            wpSuiteSiteSettings.siteId +
-            (wpSuiteSiteSettings.siteKey ? "/settings" : ""),
-          {
-            headers: wpSuiteSiteSettings.siteKey
-              ? {
-                  "X-Site-Key": wpSuiteSiteSettings.siteKey,
-                }
-              : {},
-          },
-        )
-          .then((response) =>
-            response.ok ? response.json() : Promise.reject(response),
+    queueMicrotask(() => {
+      if (!loadingSubscription) {
+        setLoadingSubscription(true);
+        if (wpSuiteSiteSettings.accountId && wpSuiteSiteSettings.siteId) {
+          fetch(
+            apiUrl +
+              "/account/" +
+              wpSuiteSiteSettings.accountId +
+              "/site/" +
+              wpSuiteSiteSettings.siteId +
+              (wpSuiteSiteSettings.siteKey ? "/settings" : ""),
+            {
+              headers: wpSuiteSiteSettings.siteKey
+                ? {
+                    "X-Site-Key": wpSuiteSiteSettings.siteKey,
+                  }
+                : {},
+            },
           )
-          .then((response) => {
-            const site = response as unknown as {
-              settings: AuthenticatorConfig;
-              subscriptionType: SubscriptionType;
-            };
-            setSiteSettings(site?.settings ?? null);
-            setSiteSubscriptionType(site?.subscriptionType ?? null);
-          })
-          .catch((err) => {
-            console.error("Error:", (err as Error).message);
-            setSiteSettings(null);
-            setSiteSubscriptionType(null);
-          });
-      } else {
-        setSiteSettings(null);
-        setSiteSubscriptionType(null);
+            .then((response) =>
+              response.ok ? response.json() : Promise.reject(response),
+            )
+            .then((response) => {
+              const site = response as unknown as {
+                settings: AuthenticatorConfig;
+                subscriptionType: SubscriptionType;
+              };
+              setSiteSettings(site?.settings ?? null);
+              setSiteSubscriptionType(site?.subscriptionType ?? null);
+            })
+            .catch((err) => {
+              console.error("Error:", (err as Error).message);
+              setSiteSettings(null);
+              setSiteSubscriptionType(null);
+            });
+        } else {
+          setSiteSettings(null);
+          setSiteSubscriptionType(null);
+        }
       }
-    }
+    });
   }, [loadingSubscription]);
 
   useEffect(() => {
@@ -191,42 +195,46 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   }, []);
 
   useEffect(() => {
-    if (language) {
-      setCurrentLanguage(language);
-    }
-    if (showOpenButton) {
-      let title;
-      switch (screen) {
-        default:
-        case "signIn":
-          title = translate("Sign In");
-          break;
-        case "signUp":
-          title = translate("Sign Up");
-          break;
-        case "forgotPassword":
-          title = translate("Forgot Password");
-          break;
-        case "changePassword":
-          title = translate("Change Password");
-          break;
-        case "editAccount":
-          title = translate("Edit Account");
-          break;
-        case "setupTotp":
-          title = translate("Setup TOTP");
-          break;
+    queueMicrotask(() => {
+      if (language) {
+        setCurrentLanguage(language);
       }
-      setTitle(title);
-    }
+      if (showOpenButton) {
+        let title;
+        switch (screen) {
+          default:
+          case "signIn":
+            title = translate("Sign In");
+            break;
+          case "signUp":
+            title = translate("Sign Up");
+            break;
+          case "forgotPassword":
+            title = translate("Forgot Password");
+            break;
+          case "changePassword":
+            title = translate("Change Password");
+            break;
+          case "editAccount":
+            title = translate("Edit Account");
+            break;
+          case "setupTotp":
+            title = translate("Setup TOTP");
+            break;
+        }
+        setTitle(title);
+      }
+    });
   }, [screen, language, showOpenButton, setAttributes]);
 
   useEffect(() => {
-    let td = direction;
-    if (!direction || direction === "auto") {
-      td = language === "ar" || language === "he" ? "rtl" : "ltr";
-    }
-    setThemeDirection(td as Direction);
+    queueMicrotask(() => {
+      let td = direction;
+      if (!direction || direction === "auto") {
+        td = language === "ar" || language === "he" ? "rtl" : "ltr";
+      }
+      setThemeDirection(td as Direction);
+    });
   }, [direction, language]);
 
   useEffect(() => {
