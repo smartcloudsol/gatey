@@ -54,32 +54,78 @@ class CognitoTokenVerifier
     }
 
     /**
-     * Fetches JWKS either from cache or remote URL.
+     * Fetch the JWKS (JSON Web Key Set) from Cognito.
      *
-     * @return array JWKS data.
-     * @throws CognitoTokenException if JWKS fetching or decoding fails.
+     * Uses WordPress HTTP API (wp_remote_get) for maximum compatibility
+     * with hosting environments where allow_url_fopen is disabled.
+     *
+     * @return array JWKS data containing the 'keys' array.
+     *
+     * @throws CognitoTokenException If the JWKS cannot be fetched or is invalid.
      */
     protected function fetchJwks(): array
     {
-        // Try to fetch from cache if available
-        $cachedJwks = $this->cache->get($this->cacheKey);
-        if ($cachedJwks) {
-            return $cachedJwks;
+        // Try to fetch from cache first (if cache driver is available)
+        if ($this->cache) {
+            $cachedJwks = $this->cache->get($this->cacheKey);
+            if ($cachedJwks !== null) {  // Explicit null check (some cache libs return false on miss)
+                return $cachedJwks;
+            }
         }
 
-        // Fetch from remote JWKS URL if not cached
-        $jwksUrl = "{$this->issuer}/.well-known/jwks.json";
-        $rawJwks = file_get_contents($jwksUrl);
-        if (!$rawJwks) {
-            throw new CognitoTokenException("Could not fetch JWKS from $jwksUrl", CognitoTokenException::JWKS_FETCH_FAILED);
+        // Build the JWKS endpoint URL
+        $jwksUrl = rtrim($this->issuer, '/') . '/.well-known/jwks.json';
+
+        // Perform the HTTP request using WordPress core HTTP API
+        $response = wp_remote_get($jwksUrl, [
+            'timeout'    => 15,          // Reasonable timeout for external service
+            'sslverify'  => true,        // Always verify SSL in production
+            'user-agent' => 'Gatey/' . GATEY_VERSION . ' (WordPress JWKS Fetcher)', // Optional but helpful for debugging
+        ]);
+
+        if (is_wp_error($response)) {
+            throw new CognitoTokenException(
+                sprintf('Could not fetch JWKS from %s: %s', $jwksUrl, $response->get_error_message()),
+                CognitoTokenException::JWKS_FETCH_FAILED
+            );
+        }
+
+        $httpCode = wp_remote_retrieve_response_code($response);
+        if ($httpCode !== 200) {
+            throw new CognitoTokenException(
+                sprintf('Failed to fetch JWKS from %s (HTTP %d)', $jwksUrl, $httpCode),
+                CognitoTokenException::JWKS_FETCH_FAILED
+            );
+        }
+
+        $rawJwks = wp_remote_retrieve_body($response);
+        if (empty($rawJwks)) {
+            throw new CognitoTokenException(
+                "Empty response when fetching JWKS from {$jwksUrl}",
+                CognitoTokenException::JWKS_FETCH_FAILED
+            );
         }
 
         $decoded = json_decode($rawJwks, true);
-        if (!isset($decoded['keys'])) {
-            throw new CognitoTokenException("Invalid JWKS format - 'keys' not found.", CognitoTokenException::JWKS_INVALID_FORMAT);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new CognitoTokenException(
+                'Invalid JSON in JWKS response: ' . json_last_error_msg(),
+                CognitoTokenException::JWKS_INVALID_FORMAT
+            );
         }
 
-        $this->cache->put($this->cacheKey, $decoded, 60);  // Cache for 1 hour
+        if (!isset($decoded['keys']) || !is_array($decoded['keys'])) {
+            throw new CognitoTokenException(
+                "Invalid JWKS format - 'keys' array not found.",
+                CognitoTokenException::JWKS_INVALID_FORMAT
+            );
+        }
+
+        // Cache the result (only if cache is available)
+        if ($this->cache) {
+            $this->cache->put($this->cacheKey, $decoded, 3600); // 1 hour in seconds
+        }
 
         return $decoded;
     }
