@@ -66,6 +66,7 @@ class Admin
         $this->settings = Settings::fromMixed($merged);
         $this->registerRestRoutes();
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
+        add_action('pre_get_posts', array($this, 'filterPatternListQuery'));
     }
     public function getSettings(): Settings
     {
@@ -99,11 +100,71 @@ class Admin
         $post_type = filter_input(INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $search = filter_input(INPUT_GET, 's', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        if ('wp_block' === $post_type && 'gatey' === $search) {
+        if ($this->isGateyPatternsRequest($post_type, $search)) {
             add_filter('manage_edit-wp_block_columns', array($this, 'addShortcodeColumn'), 20);
             add_action('manage_wp_block_posts_custom_column', array($this, 'renderShortcodeColumn'), 10, 2);
             add_action('admin_enqueue_scripts', array($this, 'copyShortcode'));
         }
+    }
+
+    private function isGateyPatternsRequest(?string $post_type = null, ?string $search = null): bool
+    {
+        $resolved_post_type = $post_type;
+        if ($resolved_post_type === null) {
+            $resolved_post_type = filter_input(INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        }
+
+        $resolved_search = $search;
+        if ($resolved_search === null) {
+            $resolved_search = filter_input(INPUT_GET, 's', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        }
+
+        return 'wp_block' === $resolved_post_type && 'gatey' === $resolved_search;
+    }
+
+    public function filterPatternListQuery($query): void
+    {
+        if (
+            !is_admin()
+            || !($query instanceof \WP_Query)
+            || !$query->is_main_query()
+            || $query->get('gatey_pattern_lookup')
+            || !$this->isGateyPatternsRequest((string) $query->get('post_type'), (string) $query->get('s'))
+        ) {
+            return;
+        }
+
+        $pattern_ids = $this->getGateyPatternIds();
+
+        $query->set('post__in', !empty($pattern_ids) ? $pattern_ids : array(0));
+    }
+
+    private function getGateyPatternIds(): array
+    {
+        $candidate_ids = get_posts(array(
+            'post_type' => 'wp_block',
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'orderby' => 'ID',
+            'order' => 'ASC',
+            'no_found_rows' => true,
+            'gatey_pattern_lookup' => true,
+        ));
+
+        return array_values(array_filter(
+            array_map('intval', $candidate_ids),
+            array($this, 'isGateyPatternPost')
+        ));
+    }
+
+    private function isGateyPatternPost(int $post_id): bool
+    {
+        $post = get_post($post_id);
+
+        return $post instanceof \WP_Post
+            && 'wp_block' === $post->post_type
+            && has_block('gatey/authenticator', $post);
     }
 
     public function addShortcodeColumn($columns)
@@ -114,11 +175,11 @@ class Admin
 
     public function renderShortcodeColumn($column, $post_id)
     {
-        if ('wpc_shortcode' !== $column || get_query_var('s') !== 'gatey') {
+        if ('wpc_shortcode' !== $column || !$this->isGateyPatternPost((int) $post_id)) {
             return;
         }
 
-        $shortcode = sprintf('[gatey pattern="%d"]', $post_id);
+        $shortcode = sprintf('[gatey id="%d"]', $post_id);
 
         printf(
             '<span class="wpc-shortcode" id="wpc-sc-%1$d"><code>%2$s</code></span>
@@ -200,7 +261,7 @@ class Admin
     }
     public function highlightMenu($parent_file)
     {
-        if (get_query_var('post_type') === 'wp_block' && get_query_var('s') === 'gatey') {
+        if ($this->isGateyPatternsRequest((string) get_query_var('post_type'), (string) get_query_var('s'))) {
             return SMARTCLOUD_WPSUITE_SLUG;
         }
         return $parent_file;
@@ -208,7 +269,7 @@ class Admin
 
     public function highlightSubmenu($submenu_file)
     {
-        if (get_query_var('post_type') === 'wp_block' && get_query_var('s') === 'gatey') {
+        if ($this->isGateyPatternsRequest((string) get_query_var('post_type'), (string) get_query_var('s'))) {
             return admin_url("edit.php?post_type=wp_block&s=gatey");
         }
         return $submenu_file;

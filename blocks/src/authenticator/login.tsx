@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useElementDetector } from "use-detector-hook";
 
 import { translate, type AuthContext } from "@smart-cloud/aws-amplify-ui";
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
@@ -82,7 +81,6 @@ export const Login = (
   },
 ) => {
   const {
-    id,
     store,
     screen,
     variation,
@@ -101,7 +99,6 @@ export const Login = (
 
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
-  const [componentVisible, setComponentVisible] = useState(true);
   const [message, setMessage] = useState<string>();
   const [redirecting, setRedirecting] = useState<boolean>(false);
   const [editorContent, setEditorContent] = useState<string | undefined>();
@@ -165,14 +162,6 @@ export const Login = (
     wasSignedIn && params.get("loggedout") === "true",
   );
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
-
-  const isVisible = useElementDetector(
-    containerRef,
-    { threshold: 0 },
-    {
-      onTriggerExit: () => setComponentVisible(jQuery("#" + id).length > 0),
-    },
-  );
 
   const handleReCaptchaVerify = useCallback(async () => {
     if (!wpsuite?.siteSettings?.reCaptchaPublicKey) {
@@ -244,10 +233,6 @@ export const Login = (
       handleReCaptchaVerify,
     ],
   );
-
-  const visible = useMemo(() => {
-    return isVisible && componentVisible;
-  }, [isVisible, componentVisible]);
 
   useEffect(() => {
     if (editorRef?.current) {
@@ -491,148 +476,146 @@ export const Login = (
       ref={containerRef}
       width={!variation || variation === "default" ? "100%" : "0"}
     >
-      {visible && (
-        <Flex>
-          {
-            /*!loggingOut &&*/
-            components &&
-              config !== undefined &&
-              (screen === "changePassword" ? (
-                <View data-amplify-authenticator data-variation={variation}>
-                  <View data-amplify-container>
-                    <View data-amplify-router>
-                      <View
-                        data-amplify-form
-                        data-amplify-authenticator-changepassword
-                      >
-                        <AccountSettings.ChangePassword
-                          forceInitialState={isPreview}
-                          header={components.ChangePassword?.Header}
-                          footer={components.ChangePassword?.Footer}
-                          onSuccess={() => dispatchEvent("done")}
-                          onCancel={services.handleCancel}
-                          variation={variation}
-                        ></AccountSettings.ChangePassword>
-                      </View>
+      <Flex>
+        {
+          /*!loggingOut &&*/
+          components &&
+            config !== undefined &&
+            (screen === "changePassword" ? (
+              <View data-amplify-authenticator data-variation={variation}>
+                <View data-amplify-container>
+                  <View data-amplify-router>
+                    <View
+                      data-amplify-form
+                      data-amplify-authenticator-changepassword
+                    >
+                      <AccountSettings.ChangePassword
+                        forceInitialState={isPreview}
+                        header={components.ChangePassword?.Header}
+                        footer={components.ChangePassword?.Footer}
+                        onSuccess={() => dispatchEvent("done")}
+                        onCancel={services.handleCancel}
+                        variation={variation}
+                      ></AccountSettings.ChangePassword>
                     </View>
                   </View>
                 </View>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "100%",
-                  }}
-                >
-                  {redirecting && redirectingMessage ? (
-                    <View data-amplify-authenticator data-variation={variation}>
-                      <View data-amplify-container>
-                        <View data-amplify-router>
-                          <View
-                            data-amplify-form
-                            data-amplify-authenticator-message
-                            style={{
-                              textAlign: "center",
-                            }}
-                          >
-                            <Heading level={4}>
-                              {translate(redirectingMessage!)}
-                            </Heading>
-                          </View>
+              </View>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                {redirecting && redirectingMessage ? (
+                  <View data-amplify-authenticator data-variation={variation}>
+                    <View data-amplify-container>
+                      <View data-amplify-router>
+                        <View
+                          data-amplify-form
+                          data-amplify-authenticator-message
+                          style={{
+                            textAlign: "center",
+                          }}
+                        >
+                          <Heading level={4}>
+                            {translate(redirectingMessage!)}
+                          </Heading>
                         </View>
                       </View>
                     </View>
-                  ) : (
-                    <>
-                      <Authenticator
-                        loginMechanisms={gatey.settings?.loginMechanisms}
-                        language={language}
-                        textDirection={direction as Direction}
-                        services={services}
-                        initialState={screen}
-                        signUpAttributes={gatey.settings?.signUpAttributes}
-                        socialProviders={gatey.settings?.socialProviders}
-                        hideSignUp={gatey.settings?.hideSignUp}
-                        customProviders={config?.customProviders}
-                        passwordless={gatey.settings?.passwordlessSettings}
-                        components={components}
-                        forceInitialState={isPreview}
-                        variation={variation}
-                        totpIssuer={totpIssuer}
-                        totpUsername={totpUsername}
-                      >
-                        {!redirecting && message && (
-                          <View
-                            data-amplify-authenticator
-                            data-variation={variation}
-                          >
-                            <View data-amplify-container>
-                              <View data-amplify-router>
-                                <View
-                                  data-amplify-form
-                                  data-amplify-authenticator-message
-                                  style={{
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  {redirecting ? (
-                                    <Heading level={4}>
-                                      {translate(redirectingMessage!)}
-                                    </Heading>
-                                  ) : (
-                                    <Heading level={4}>
-                                      {translate(message!)}
-                                    </Heading>
-                                  )}
-                                </View>
-                              </View>
-                            </View>
-                          </View>
-                        )}
-                      </Authenticator>
-                      {(route === "signIn" || route === "signUp") && (
+                  </View>
+                ) : (
+                  <>
+                    <Authenticator
+                      loginMechanisms={gatey.settings?.loginMechanisms}
+                      language={language}
+                      textDirection={direction as Direction}
+                      services={services}
+                      initialState={screen}
+                      signUpAttributes={gatey.settings?.signUpAttributes}
+                      socialProviders={gatey.settings?.socialProviders}
+                      hideSignUp={gatey.settings?.hideSignUp}
+                      customProviders={config?.customProviders}
+                      passwordless={gatey.settings?.passwordlessSettings}
+                      components={components}
+                      forceInitialState={isPreview}
+                      variation={variation}
+                      totpIssuer={totpIssuer}
+                      totpUsername={totpUsername}
+                    >
+                      {!redirecting && message && (
                         <View
                           data-amplify-authenticator
-                          hidden={!gatey.settings?.enablePoweredBy}
-                          className={
-                            gatey.settings?.enablePoweredBy
-                              ? undefined
-                              : "sr-only"
-                          }
+                          data-variation={variation}
                         >
                           <View data-amplify-container>
-                            <View
-                              data-amplify-router={route}
-                              style={{ border: 0, boxShadow: "none" }}
-                            >
-                              <Text
-                                as="p"
-                                variation="tertiary"
-                                textAlign="right"
-                                fontSize="var(--amplify-components-textfield-font-size)"
+                            <View data-amplify-router>
+                              <View
+                                data-amplify-form
+                                data-amplify-authenticator-message
+                                style={{
+                                  textAlign: "center",
+                                }}
                               >
-                                Powered by{" "}
-                                <Link
-                                  as="a"
-                                  href="https://wpsuite.io/gatey/"
-                                  isExternal={true}
-                                  fontWeight={400}
-                                >
-                                  WPSuite Gatey
-                                </Link>
-                              </Text>
+                                {redirecting ? (
+                                  <Heading level={4}>
+                                    {translate(redirectingMessage!)}
+                                  </Heading>
+                                ) : (
+                                  <Heading level={4}>
+                                    {translate(message!)}
+                                  </Heading>
+                                )}
+                              </View>
                             </View>
                           </View>
                         </View>
                       )}
-                    </>
-                  )}
-                </div>
-              ))
-          }
-        </Flex>
-      )}
+                    </Authenticator>
+                    {(route === "signIn" || route === "signUp") && (
+                      <View
+                        data-amplify-authenticator
+                        hidden={!gatey.settings?.enablePoweredBy}
+                        className={
+                          gatey.settings?.enablePoweredBy
+                            ? undefined
+                            : "sr-only"
+                        }
+                      >
+                        <View data-amplify-container>
+                          <View
+                            data-amplify-router={route}
+                            style={{ border: 0, boxShadow: "none" }}
+                          >
+                            <Text
+                              as="p"
+                              variation="tertiary"
+                              textAlign="right"
+                              fontSize="var(--amplify-components-textfield-font-size)"
+                            >
+                              Powered by{" "}
+                              <Link
+                                as="a"
+                                href="https://wpsuite.io/gatey/"
+                                isExternal={true}
+                                fontWeight={400}
+                              >
+                                WPSuite Gatey
+                              </Link>
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+                  </>
+                )}
+              </div>
+            ))
+        }
+      </Flex>
     </View>
   );
 };

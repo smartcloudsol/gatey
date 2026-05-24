@@ -1,7 +1,7 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.3.0",
+  "version": "2.3.1",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -23,8 +23,7 @@
     "@smart-cloud/wpsuite-core": "^2.3.0",
     "cheerio": "^1.2.0",
     "he": "^1.2.0",
-    "html-react-parser": "^6.1.1",
-    "use-detector-hook": "^1.0.8"
+    "html-react-parser": "^6.1.1"
   },
   "peerDependencies": {
     "@smart-cloud/aws-amplify-ui-react": "^6.15.4",

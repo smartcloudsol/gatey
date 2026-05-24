@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -77,6 +77,9 @@ Only the basics. You’ll create a Cognito User Pool and App Client in the AWS c
 
 = How long does setup take? =
 Usually less than **five minutes**: install, drop the block, paste your User Pool ID, App Client ID, and region.
+
+= How do I embed a saved Authenticator pattern with a shortcode? =
+Use `[gatey id="123"]`, where `123` is the reusable block / pattern ID that contains a Gatey Authenticator block.
 
 = Can I show or hide content based on the logged‑in user? =
 **Yes.** You can use shortcodes or CSS variables like --gatey-account-group-admin or --gatey-account-attribute-email to control visibility.
@@ -203,6 +206,11 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.3.1 =
+* Fix: Gatey Patterns now lists only reusable blocks that actually contain the Gatey Authenticator block.
+* Fix: The copied Gatey shortcode now uses `[gatey id="..."]`, matching the shortcode handler.
+* Docs: Added a readme FAQ note clarifying the saved-pattern shortcode format.
 
 = 2.3.0 =
 * Maintenance: Moved the customized AWS Amplify UI React packages to the `@smart-cloud` npm scope.
@@ -535,6 +543,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.3.1 =
+Recommended update if you use Gatey Patterns or copy shortcodes from wp-admin; this release filters the list to real Gatey patterns and fixes the copied shortcode to use the required `id` attribute.
 
 = 2.3.0 =
 Recommended update. Gatey now uses Smart Cloud scoped Amplify UI packages for its customized Authenticator foundation and has been tested with WordPress 7.0. No configuration changes are required.

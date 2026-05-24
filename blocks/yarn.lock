@@ -15960,11 +15960,6 @@ use-callback-ref@^1.3.3:
   dependencies:
     tslib "^2.0.0"
 
-use-detector-hook@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.npmjs.org/use-detector-hook/-/use-detector-hook-1.0.8.tgz#53e82a2f99e0e289fafbad8e33d6f395736b39d6"
-  integrity sha512-MZO5XDVrdXRVnfNEllVAvh6vQoz9pd4415rJImOPpntkO2Oe+r3DzbgYQiRL1DmLyEdJa3NO0nmu1+G3vPssBA==
-
 use-isomorphic-layout-effect@^1.1.2:
   version "1.2.1"
   resolved "https://registry.npmjs.org/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.2.1.tgz#2f11a525628f56424521c748feabc2ffcc962fce"
