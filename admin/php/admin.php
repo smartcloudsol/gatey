@@ -350,9 +350,48 @@ class Admin
         );
     }
 
+    private function getRequestLogContext(WP_REST_Request $request): array
+    {
+        return array_filter(array(
+            'method' => $request->get_method(),
+            'route' => $request->get_route(),
+            'request_uri' => isset($_SERVER['REQUEST_URI']) ? sanitize_text_field((string) wp_unslash($_SERVER['REQUEST_URI'])) : '',
+            'http_referer' => isset($_SERVER['HTTP_REFERER']) ? esc_url_raw((string) wp_unslash($_SERVER['HTTP_REFERER'])) : '',
+            'remote_addr' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field((string) wp_unslash($_SERVER['REMOTE_ADDR'])) : '',
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field((string) wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '',
+        ), static fn($value) => '' !== $value);
+    }
+
+    private function getUserLogContext($user): array
+    {
+        if (!($user instanceof \WP_User)) {
+            return array();
+        }
+
+        return array(
+            'wp_user_id' => $user->ID,
+            'wp_user_login' => (string) $user->user_login,
+            'wp_user_email' => sanitize_email((string) $user->user_email),
+            'wp_roles' => array_values((array) $user->roles),
+        );
+    }
+
     public function login(WP_REST_Request $request)
     {
         $data = $request->get_body_params();
+        $request_context = array_merge(
+            $this->getRequestLogContext($request),
+            array(
+                'requested_email' => sanitize_email((string) ($data['email'] ?? '')),
+                'integrate_wp_login' => (bool) $this->settings->integrateWpLogin,
+                'configured_sign_in_page' => (string) $this->settings->signInPage,
+                'configured_redirect_sign_in' => (string) $this->settings->redirectSignIn,
+                'configured_redirect_sign_out' => (string) $this->settings->redirectSignOut,
+            )
+        );
+
+        Logger::info('Gatey login request received', $request_context);
+
         if (wp_get_current_user()->has_prop('user_email') && wp_get_current_user()->get('user_email') === $data['email']) {
             //return new WP_REST_Response(array('success' => true, 'message' => __('Already logged in.', 'gatey')), 200);
         }
@@ -360,11 +399,18 @@ class Admin
         $region = $this->settings->userPoolConfigurations->default->API->GraphQL->region;
         $poolId = $this->settings->userPoolConfigurations->default->Auth->Cognito->userPoolId;
         $clientId = $this->settings->userPoolConfigurations->default->Auth->Cognito->userPoolClientId;
-        $token = $request->get_header('Authorization');
+        $token = (string) $request->get_header('Authorization');
         if (
             strpos($token, 'Bearer ')
             !== 0
         ) {
+            Logger::warning('Gatey login rejected due to invalid Authorization header', array_merge(
+                $request_context,
+                array(
+                    'has_authorization_header' => '' !== $token,
+                    'authorization_prefix' => substr($token, 0, 16),
+                )
+            ));
             return new WP_REST_Response(array('success' => false, 'message' => __('Invalid token.', 'gatey')), 401);
         }
         $token = substr($token, 7);
@@ -377,16 +423,45 @@ class Admin
         try {
             $t = $verifier->verifyIdToken($token);
         } catch (Exception $e) {
+            Logger::warning('Gatey login token verification failed', array_merge(
+                $request_context,
+                array(
+                    'region' => $region,
+                    'pool_id' => $poolId,
+                    'client_id_present' => !empty($clientId),
+                    'verification_error' => $e->getMessage(),
+                )
+            ));
             return new WP_REST_Response(array('success' => false, 'message' => __('Invalid token.', 'gatey')), 401);
         }
 
         $updated = false;
+        $diff = array();
+        $cognito_groups = array_values((array) ($t['cognito:groups'] ?? array()));
+
+        Logger::info('Gatey login token verified', array_merge(
+            $request_context,
+            array(
+                'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                'token_email' => sanitize_email((string) ($t['email'] ?? '')),
+                'cognito_groups' => $cognito_groups,
+            )
+        ));
+
         $getByEmail = array_key_exists('email', $t);
         $user = $getByEmail ? get_user_by('email', $t['email']) : get_user_by('login', $t['cognito:username']);
         if ($getByEmail && !$user) {
             $user = get_user_by('login', $t['cognito:username']);
         }
         if (!$user) {
+            Logger::info('Gatey login creating WordPress user', array_merge(
+                $request_context,
+                array(
+                    'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                    'token_email' => sanitize_email((string) ($t['email'] ?? '')),
+                )
+            ));
+
             $userdata = array(
                 'user_login' => $t['cognito:username'],
                 'user_pass' => /*$data['password'] ? $data['password'] : */ wp_generate_password(),
@@ -397,6 +472,14 @@ class Admin
             );
             $user_id = wp_insert_user($userdata);
             if (is_wp_error($user_id)) {
+                Logger::warning('Gatey login user creation failed, retrying email lookup', array_merge(
+                    $request_context,
+                    array(
+                        'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                        'token_email' => sanitize_email((string) ($t['email'] ?? '')),
+                        'wp_error' => $user_id->get_error_message(),
+                    )
+                ));
                 $user = get_user_by('email', $t['email']);
             } else {
                 $user = get_user_by('id', $user_id);
@@ -407,11 +490,32 @@ class Admin
             (array_key_exists('family_name', $t) && $user->last_name != $t['family_name']) ||
             (array_key_exists('preferred_username', $t) && $user->nickname != $t['preferred_username'])
         ) {
+            Logger::info('Gatey login syncing existing WordPress user profile', array_merge(
+                $request_context,
+                $this->getUserLogContext($user),
+                array(
+                    'token_email' => sanitize_email((string) ($t['email'] ?? '')),
+                    'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                )
+            ));
+
             $user->user_email = array_key_exists('email', $t) ? $t['email'] : null;
             $user->first_name = array_key_exists('given_name', $t) ? $t['given_name'] : null;
             $user->last_name = array_key_exists('family_name', $t) ? $t['family_name'] : null;
             $user->nickname = array_key_exists('preferred_username', $t) ? $t['preferred_username'] : null;
             $updated = true;
+        }
+
+        if (!($user instanceof \WP_User)) {
+            Logger::error('Gatey login could not resolve a WordPress user after token verification', array_merge(
+                $request_context,
+                array(
+                    'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                    'token_email' => sanitize_email((string) ($t['email'] ?? '')),
+                )
+            ));
+
+            return new WP_REST_Response(array('success' => false, 'message' => __('Unable to complete sign in.', 'gatey')), 500);
         }
 
         if (!empty($this->settings->mappings)) {
@@ -427,11 +531,11 @@ class Admin
                 $updated = true;
             }
         }
-        if ($t['cognito:groups']) {
+        if (!empty($cognito_groups)) {
             // if $this->settings->mappings empty, than if the cognito groups contains admin, add the user to the administrator role, otherwise to the subscriber role
             if (empty($this->settings->mappings)) {
                 if (!empty($diff)) {
-                    if (in_array('admin', $t['cognito:groups'])) {
+                    if (in_array('admin', $cognito_groups, true)) {
                         $user->add_role('administrator');
                     } else {
                         $user->add_role('subscriber');
@@ -440,10 +544,10 @@ class Admin
                 }
             } else {
                 foreach ($this->settings->mappings as $mapping) {
-                    if (in_array($mapping->cognitoGroup, $t['cognito:groups']) && !in_array($mapping->wordpressRole, $user->roles)) {
+                    if (in_array($mapping->cognitoGroup, $cognito_groups, true) && !in_array($mapping->wordpressRole, $user->roles, true)) {
                         $user->add_role($mapping->wordpressRole);
                         $updated = true;
-                    } else if (!in_array($mapping->cognitoGroup, $t['cognito:groups']) && in_array($mapping->wordpressRole, $user->roles)) {
+                    } else if (!in_array($mapping->cognitoGroup, $cognito_groups, true) && in_array($mapping->wordpressRole, $user->roles, true)) {
                         $user->remove_role($mapping->wordpressRole);
                         $updated = true;
                     }
@@ -456,8 +560,25 @@ class Admin
         }
         if ($updated) {
             $user_id = wp_update_user($user);
-            if (!is_wp_error($user_id)) {
+            if (is_wp_error($user_id)) {
+                Logger::warning('Gatey login wp_update_user failed', array_merge(
+                    $request_context,
+                    $this->getUserLogContext($user),
+                    array(
+                        'wp_error' => $user_id->get_error_message(),
+                        'cognito_groups' => $cognito_groups,
+                    )
+                ));
+            } else {
                 $user = get_user_by('id', $user_id);
+
+                Logger::info('Gatey login updated WordPress user', array_merge(
+                    $request_context,
+                    $this->getUserLogContext($user),
+                    array(
+                        'cognito_groups' => $cognito_groups,
+                    )
+                ));
             }
         }
 
@@ -469,6 +590,18 @@ class Admin
 
         wp_set_current_user($user->ID, $user->user_login);
         wp_set_auth_cookie($user->ID, true);
+
+        Logger::info('Gatey login completed', array_merge(
+            $request_context,
+            $this->getUserLogContext($user),
+            array(
+                'updated_user' => $updated,
+                'cognito_username' => (string) ($t['cognito:username'] ?? ''),
+                'cognito_groups' => $cognito_groups,
+                'next_url' => $next_url,
+            )
+        ));
+
         //do_action('wp_login', $user->user_login, $user);
         return new WP_REST_Response(array('success' => true, 'message' => __('Logged in.', 'gatey'), 'redirect' => $next_url), 200);
     }
@@ -476,12 +609,33 @@ class Admin
     public function logout(WP_REST_Request $request)
     {
         $user = wp_get_current_user();
+        $request_context = array_merge(
+            $this->getRequestLogContext($request),
+            $this->getUserLogContext($user),
+            array(
+                'integrate_wp_login' => (bool) $this->settings->integrateWpLogin,
+                'configured_sign_in_page' => (string) $this->settings->signInPage,
+                'configured_redirect_sign_out' => (string) $this->settings->redirectSignOut,
+            )
+        );
+
+        Logger::info('Gatey logout request received', $request_context);
+
         if ($user && is_array($user->roles) && sizeof($user->roles) > 0 && in_array($user->roles[0], array('administrator'))) {
             $next_url = admin_url();
         } else {
             $next_url = home_url();
         }
+
         wp_logout();
+
+        Logger::info('Gatey logout completed', array_merge(
+            $request_context,
+            array(
+                'next_url' => $next_url,
+            )
+        ));
+
         return new WP_REST_Response(array('success' => true, 'message' => __('Logged out.', 'gatey'), 'redirect' => $next_url), 200);
     }
     public function getRoles(WP_REST_Request $request)

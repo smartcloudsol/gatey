@@ -209,6 +209,8 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 = 2.3.2 =
 * Fix: Restored the Authenticator frontend CSS rules that were missing from the block view script, including the `.sr-only` helper used to visually hide the optional "Powered by" attribution.
+* Fix: Improved sign-in redirect handling by normalizing current and target URLs before redirecting, preventing site-specific redirect loops after returning from sign-in.
+* Diagnostics: Added optional Gatey login/logout debug logging to help investigate WordPress login redirect issues on affected sites.
 
 = 2.3.1 =
 * Fix: Gatey Patterns now lists only reusable blocks that actually contain the Gatey Authenticator block.
@@ -548,7 +550,7 @@ Initial release.
 == Upgrade Notice ==
 
 = 2.3.2 =
-Recommended update. Restores missing Authenticator frontend CSS in the block view script, including the `.sr-only` helper used to visually hide the optional "Powered by" attribution.
+Recommended update. Restores missing Authenticator frontend CSS, fixes a site-specific post-login redirect loop, and adds optional login/logout diagnostics for troubleshooting affected setups.
 
 = 2.3.1 =
 Recommended update if you use Gatey Patterns or copy shortcodes from wp-admin; this release filters the list to real Gatey patterns and fixes the copied shortcode to use the required `id` attribute.

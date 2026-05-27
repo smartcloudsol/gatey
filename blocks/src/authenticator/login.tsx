@@ -74,6 +74,13 @@ export type DefaultComponentDescriptors = {
 const gatey = getGateyPlugin();
 const wpsuite = getWpSuite();
 
+const normalizeRedirectUrl = (url: string): string => {
+  const resolved = new URL(url, window.location.href);
+  const normalizedPath = resolved.pathname.replace(/\/+$/, "") || "/";
+
+  return `${resolved.origin}${normalizedPath}${resolved.search}`;
+};
+
 export const Login = (
   props: ThemeProps & {
     config: AuthenticatorConfig | null | undefined;
@@ -195,6 +202,29 @@ export const Login = (
     },
     [containerRef, screen],
   );
+
+  const redirectIfNeeded = useCallback((target: string | null | undefined) => {
+    if (!target) {
+      return false;
+    }
+
+    try {
+      if (
+        normalizeRedirectUrl(target) ===
+        normalizeRedirectUrl(window.location.href)
+      ) {
+        return false;
+      }
+    } catch {
+      if (target === window.location.href) {
+        return false;
+      }
+    }
+
+    setRedirecting(true);
+    window.location.assign(target);
+    return true;
+  }, []);
 
   const services: AuthContext["services"] = useMemo(
     () => ({
@@ -376,23 +406,13 @@ export const Login = (
         } else {
           dispatchEvent("signed-in");
 
-          let url =
+          const url =
             redirectTo ||
             nextUrl ||
             gatey.settings.redirectSignIn ||
             gatey.settings.signInPage;
-          // prevent redirect loop
-          if (url?.endsWith("/")) {
-            url = url.substring(0, url.length - 1);
-          }
-          let path = location.pathname;
-          if (path.endsWith("/")) {
-            path = path.substring(0, path.length - 1);
-          }
-          if (url && url !== path + location.search) {
-            setRedirecting(true);
-            window.location.assign(url);
-          } else {
+
+          if (!redirectIfNeeded(url)) {
             setLoginHandled(true);
           }
         }
@@ -408,6 +428,7 @@ export const Login = (
     setSignedIn,
     wasSignedIn,
     loginHandled,
+    redirectIfNeeded,
     nextUrl,
     signingInMessage,
   ]);
@@ -426,10 +447,7 @@ export const Login = (
               nextUrl ||
               gatey.settings.redirectSignIn ||
               gatey.settings.signInPage;
-            if (url) {
-              setRedirecting(true);
-              window.location.assign(url);
-            }
+            redirectIfNeeded(url);
           }
         } else if (route !== "transition") {
           setMessage(undefined);
@@ -443,10 +461,7 @@ export const Login = (
           nextUrl ||
           gatey.settings.redirectSignOut ||
           gatey.settings.signInPage;
-        if (url) {
-          setRedirecting(true);
-          window.location.assign(url);
-        }
+        redirectIfNeeded(url);
       }
     });
   }, [
@@ -456,6 +471,7 @@ export const Login = (
     loginHandled,
     logoutHandled,
     dispatchEvent,
+    redirectIfNeeded,
     screen,
   ]);
 
