@@ -584,6 +584,7 @@ export const Login = (
                             ? undefined
                             : "sr-only"
                         }
+                        marginTop="2px"
                       >
                         <View data-amplify-container>
                           <View

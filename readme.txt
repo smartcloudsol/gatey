@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -206,6 +206,9 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.3.2 =
+* Fix: Restored the Authenticator frontend CSS rules that were missing from the block view script, including the `.sr-only` helper used to visually hide the optional "Powered by" attribution.
 
 = 2.3.1 =
 * Fix: Gatey Patterns now lists only reusable blocks that actually contain the Gatey Authenticator block.
@@ -543,6 +546,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Recommended update. Restores missing Authenticator frontend CSS in the block view script, including the `.sr-only` helper used to visually hide the optional "Powered by" attribution.
 
 = 2.3.1 =
 Recommended update if you use Gatey Patterns or copy shortcodes from wp-admin; this release filters the list to real Gatey patterns and fixes the copied shortcode to use the required `id` attribute.

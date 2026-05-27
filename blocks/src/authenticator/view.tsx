@@ -8,6 +8,8 @@ import { getStore } from "@smart-cloud/gatey-core";
 import { beginMount, endMount, resetMount } from "../shared/mountGuard";
 import { ThemedApp } from "./theme";
 
+import "./index.css";
+
 const cache = new Map<string, string>();
 const roots = new Map<string, Root>();
 
