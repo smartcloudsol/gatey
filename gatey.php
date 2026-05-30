@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.3.2
+ * Version:           2.3.3
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.3.2';
+const VERSION = '2.3.3';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -75,6 +75,9 @@ final class Gatey
         $this->registerBlocks();
 
         // Assets
+
+        add_action('wp_head', array($this, 'addMainScript', ), 1);
+        add_action('admin_head', array($this, 'addMainScript'), 1);
 
         add_action('admin_init', array($this, 'enqueueAdminRuntimeAssets'), 20);
         add_action('wp_enqueue_scripts', array($this, 'enqueueFrontendAssets'), 20);
@@ -140,6 +143,46 @@ final class Gatey
         return $categories;
     }
 
+    /**
+     * Add inline scripts that expose PHP constants to JS.
+     */
+    public function addMainScript(): void
+    {
+        $settings = $this->admin->getSettings();
+        $data = array(
+            'key' => GATEY_SLUG,
+            'version' => GATEY_VERSION,
+            'status' => 'initializing',
+            'cognito' => array(),
+            'settings' => $settings,
+            'restUrl' => rest_url(GATEY_SLUG . '/v1'),
+            'nonce' => wp_create_nonce('wp_rest'),
+        );
+        $js = 'const __gateyGlobal = (typeof globalThis !== "undefined") ? globalThis : window;
+__gateyGlobal.WpSuite = __gateyGlobal.WpSuite ?? {};
+__gateyGlobal.WpSuite.plugins = __gateyGlobal.WpSuite.plugins ?? {};
+__gateyGlobal.WpSuite.events = __gateyGlobal.WpSuite.events ?? {
+    emit: function (type, detail) { window.dispatchEvent(new CustomEvent(type, { detail })); },
+    on: function (type, cb, opts) { window.addEventListener(type, cb, opts); },
+};
+__gateyGlobal.WpSuite.plugins.gatey = __gateyGlobal.WpSuite.plugins.gatey ?? {};
+Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . ');
+var WpSuite = __gateyGlobal.WpSuite;
+';
+        if ($settings->integrateWpLogin) {
+            $js = $js .
+                '__gateyGlobal.WpSuite.plugins.gatey.settings.integrateWpLogin = checkDomain();' .
+                'function checkDomain() {' .
+                '	return [...window.location.origin].reverse().join("")==="' . strrev(site_url()) . '"' .
+                '};
+                ';
+        }
+        $js = $js . '// backward compatibility
+__gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
+';
+        wp_print_inline_script_tag(wp_kses_post($js));
+    }
+
     private function enqueueMainRuntimeScript($args = false): void
     {
         $main_script_asset = array();
@@ -158,39 +201,7 @@ final class Gatey
         wp_enqueue_style('smartcloud-gatey-main-style', GATEY_URL . 'main/index.css', array(), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'main/index.css');
 
-        $settings = $this->admin->getSettings();
-        $data = array(
-            'key' => GATEY_SLUG,
-            'version' => GATEY_VERSION,
-            'status' => 'initializing',
-            'cognito' => array(),
-            'settings' => $settings,
-            'restUrl' => rest_url(GATEY_SLUG . '/v1'),
-            'nonce' => wp_create_nonce('wp_rest'),
-        );
-        $js = 'const __gateyGlobal = (typeof globalThis !== "undefined") ? globalThis : window;
-__gateyGlobal.WpSuite = __gateyGlobal.WpSuite ?? {};
-__gateyGlobal.WpSuite.plugins = __gateyGlobal.WpSuite.plugins ?? {};
-__gateyGlobal.WpSuite.events = __gateyGlobal.WpSuite.events ?? {
-    emit: (type, detail) => window.dispatchEvent(new CustomEvent(type, { detail })),
-    on: (type, cb, opts) => window.addEventListener(type, cb, opts),
-};
-__gateyGlobal.WpSuite.plugins.gatey = __gateyGlobal.WpSuite.plugins.gatey ?? {};
-Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . ');
-var WpSuite = __gateyGlobal.WpSuite;
-';
-        if ($settings->integrateWpLogin) {
-            $js = $js .
-                '__gateyGlobal.WpSuite.plugins.gatey.settings.integrateWpLogin = checkDomain();' .
-                'function checkDomain() {' .
-                '	return [...window.location.origin].reverse().join("")==="' . strrev(site_url()) . '"' .
-                '};
-                ';
-        }
-        $js = $js . '// backward compatibility
-__gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
-';
-        wp_add_inline_script('smartcloud-gatey-main-script', $js, 'before');
+        //wp_add_inline_script('smartcloud-gatey-main-script', $js, 'before');
     }
 
     private function enqueueViewAssets(): void
@@ -207,7 +218,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             $view_script_dependencies[] = 'smartcloud-gatey-main-script';
         }
         $view_script_asset['dependencies'] = array_values(array_unique($view_script_dependencies));
-        wp_enqueue_script('smartcloud-gatey-view-script', GATEY_URL . 'blocks/view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('strategy' => 'defer'));
+        wp_enqueue_script('smartcloud-gatey-view-script', GATEY_URL . 'blocks/view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
 
         if (file_exists(GATEY_PATH . 'blocks/view.css')) {
             wp_enqueue_style(
@@ -221,7 +232,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
 
     public function enqueueFrontendAssets(): void
     {
-        $this->enqueueMainRuntimeScript(array('strategy' => 'defer'));
+        $this->enqueueMainRuntimeScript(array('in_footer' => true, 'strategy' => 'defer'));
         $this->enqueueViewAssets();
     }
 
@@ -253,7 +264,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             $blocks_script_asset = require(GATEY_PATH . 'blocks/editor.asset.php');
         }
         $blocks_script_asset['dependencies'] = array_merge($blocks_script_asset['dependencies'], array('smartcloud-gatey-main-script'));
-        wp_enqueue_script('smartcloud-gatey-blocks-editor-script', GATEY_URL . 'blocks/editor.js', $blocks_script_asset['dependencies'], GATEY_VERSION, array('strategy' => 'defer'));
+        wp_enqueue_script('smartcloud-gatey-blocks-editor-script', GATEY_URL . 'blocks/editor.js', $blocks_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
         wp_enqueue_style('smartcloud-gatey-blocks-editor-style', GATEY_URL . 'blocks/editor.css', array(), GATEY_VERSION);
         add_editor_style(GATEY_URL . 'blocks/editor.css');
 

@@ -284,7 +284,7 @@ class Admin
             $script_asset = require_once(GATEY_PATH . 'admin/index.asset.php');
         }
         $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor', 'smartcloud-wpsuite-mantine-vendor'));
-        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, array('strategy' => 'defer'));
+        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {

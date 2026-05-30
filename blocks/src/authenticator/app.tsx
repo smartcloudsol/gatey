@@ -159,6 +159,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     }
   }, [screen, showOpenButton, openButtonTitle]);
 
+  const openButtonAccessibleLabel = title || translate("Open");
+
   useEffect(() => {
     if (isPreview && setPreviewZIndex) {
       setPreviewZIndex(show ? 1000 : undefined);
@@ -181,6 +183,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
                 className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener`}
                 disabled={show}
                 isFullWidth={true}
+                aria-label={openButtonAccessibleLabel}
                 onClick={() => {
                   setShow(true);
                 }}
