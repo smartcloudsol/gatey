@@ -4,6 +4,22 @@ declare const elementorFrontend: any;
 const AUTHENTICATOR_SELECTOR = "[smartcloud-gatey-authenticator]";
 const ACCOUNT_ATTRIBUTE_SELECTOR = "[smartcloud-gatey-account-attribute]";
 
+type MountTask = () => void;
+
+function scheduleAfterInitialPaint(task: MountTask, timeout = 1500) {
+  const runWhenIdle = () => {
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => task(), { timeout });
+    } else {
+      setTimeout(task, 300);
+    }
+  };
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(runWhenIdle);
+  });
+}
+
 function getScopeRoot(scope?: unknown): ParentNode {
   const jqueryScope = scope as { 0?: unknown; length?: number } | undefined;
   if (jqueryScope?.length && jqueryScope[0] instanceof HTMLElement) {
@@ -57,8 +73,11 @@ export const observe = () => {
   };
 
   jQuery(() => {
-    scanAuthenticator();
-    scanAccountAttribute();
+    const mount = () => {
+      scanAuthenticator();
+      scanAccountAttribute();
+    };
+    scheduleAfterInitialPaint(mount, 2000);
   });
 
   jQuery(window).on("elementor/frontend/init", function () {

@@ -43,6 +43,7 @@ export interface ThemeProps extends PropsWithChildren {
   signingOutMessage?: string;
   redirectingMessage?: string;
   totpIssuer?: string;
+  themeOverrides?: string;
   store: Store;
   isPreview: boolean;
   editorRef?: RefObject<HTMLDivElement>;
@@ -52,6 +53,7 @@ export interface ThemeProps extends PropsWithChildren {
   setPreviewZIndex?: Dispatch<SetStateAction<number | undefined>>;
   siteSettings?: AuthenticatorConfig | null;
   siteSubscriptionType?: string | null;
+  previewUsesShadowRoot?: boolean;
 }
 
 export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
@@ -72,6 +74,8 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     signingOutMessage,
     redirectingMessage,
     totpIssuer,
+    themeOverrides,
+    previewUsesShadowRoot,
   } = props;
 
   const theme: Theme = {
@@ -144,6 +148,8 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         signingOutMessage={signingOutMessage}
         redirectingMessage={redirectingMessage}
         totpIssuer={totpIssuer}
+        themeOverrides={themeOverrides}
+        previewUsesShadowRoot={previewUsesShadowRoot}
         isPreview={isPreview}
       >
         {children}

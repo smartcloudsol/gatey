@@ -9,8 +9,10 @@ module.exports = function (env = {}) {
     ...defaultConfig,
     entry: {
       editor: [path.resolve(process.cwd(), "src", "editor.tsx")],
-      view: [
+      "authenticator-view": [
         path.resolve(process.cwd(), "src", "authenticator", "view.tsx"),
+      ],
+      "account-attribute-view": [
         path.resolve(process.cwd(), "src", "account-attribute", "view.tsx"),
       ],
     },

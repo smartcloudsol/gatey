@@ -190,15 +190,21 @@ export const Login = (
 
   const dispatchEvent = useCallback(
     (name: string, details?: EventDetails) => {
-      if (containerRef.current) {
-        jQuery(containerRef.current).trigger(
-          name + ".smartcloud-gatey-authenticator",
-          {
-            screen: screen,
-            ...details,
-          },
-        );
+      const container = containerRef.current;
+
+      if (!container) {
+        return;
       }
+
+      const payload = {
+        screen: screen,
+        ...details,
+      };
+
+      jQuery(container).trigger(
+        name + ".smartcloud-gatey-authenticator",
+        payload,
+      );
     },
     [containerRef, screen],
   );

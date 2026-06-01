@@ -22,12 +22,49 @@ import {
   type CustomTranslations,
 } from "@smart-cloud/gatey-core";
 import { ConfigContext } from "../context/config";
+import { ThemeOverridesStyle } from "../shared/themeOverrides";
 import { Login } from "./login";
 import { type ThemeProps } from "./theme";
 
 I18n.putVocabularies(translations);
 
+type HostEventPayload = Record<string, unknown> | undefined;
+type HostEventName = "done" | "cancel";
+
+function getHostEventTarget(container: HTMLElement): HTMLElement {
+  const rootNode = container.getRootNode();
+
+  if (rootNode instanceof ShadowRoot && rootNode.host instanceof HTMLElement) {
+    return rootNode.host;
+  }
+
+  return container;
+}
+
+function getHostDomEventName(name: HostEventName): string {
+  return `smartcloud-gatey-authenticator-${name}`;
+}
+
+function dispatchHostEvent(
+  container: HTMLElement,
+  name: HostEventName,
+  details?: HostEventPayload,
+): void {
+  const hostTarget = getHostEventTarget(container);
+  const payload = details ?? {};
+
+  jQuery(hostTarget).trigger(name + ".smartcloud-gatey-authenticator", payload);
+  hostTarget.dispatchEvent(
+    new CustomEvent(getHostDomEventName(name), {
+      bubbles: true,
+      composed: true,
+      detail: payload,
+    }),
+  );
+}
+
 export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
+  const rootClassName = "smartcloud-gatey-authenticator-theme-root";
   const {
     id,
     isPreview,
@@ -43,6 +80,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     screen,
     language,
     variation,
+    themeOverrides,
+    previewUsesShadowRoot,
   } = props;
 
   const [show, setShow] = useState(false);
@@ -60,34 +99,51 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   );
 
   useEffect(() => {
-    if (containerRef.current) {
-      jQuery(containerRef.current).on(
-        "done.smartcloud-gatey-authenticator",
-        () => {
-          if (editorRef?.current) {
-            setShow(false);
-          } else {
-            jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
-              id,
-              true,
-            ]);
-          }
-        },
-      );
-      jQuery(containerRef.current).on(
-        "cancel.smartcloud-gatey-authenticator",
-        () => {
-          if (editorRef?.current) {
-            setShow(false);
-          } else {
-            jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
-              id,
-              true,
-            ]);
-          }
-        },
-      );
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
     }
+
+    const $container = jQuery(container);
+    const handleDone = (
+      _event: JQuery.TriggeredEvent,
+      details?: HostEventPayload,
+    ) => {
+      dispatchHostEvent(container, "done", details);
+
+      if (editorRef?.current) {
+        setShow(false);
+      } else {
+        jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
+          id,
+          true,
+        ]);
+      }
+    };
+    const handleCancel = (
+      _event: JQuery.TriggeredEvent,
+      details?: HostEventPayload,
+    ) => {
+      dispatchHostEvent(container, "cancel", details);
+
+      if (editorRef?.current) {
+        setShow(false);
+      } else {
+        jQuery(document).trigger("smartcloud-gatey-authenticator-block", [
+          id,
+          true,
+        ]);
+      }
+    };
+
+    $container.on("done.smartcloud-gatey-authenticator", handleDone);
+    $container.on("cancel.smartcloud-gatey-authenticator", handleCancel);
+
+    return () => {
+      $container.off("done.smartcloud-gatey-authenticator", handleDone);
+      $container.off("cancel.smartcloud-gatey-authenticator", handleCancel);
+    };
   }, [editorRef, containerRef, show, id]);
 
   useEffect(() => {
@@ -173,11 +229,18 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
           <div
+            className={rootClassName}
             style={{
               display: "flex",
               justifyContent: "center",
             }}
           >
+            <ThemeOverridesStyle
+              themeOverrides={themeOverrides}
+              isPreview={isPreview}
+              previewRootClassName={rootClassName}
+              previewUsesShadowRoot={previewUsesShadowRoot}
+            />
             {showOpenButton && (variation === "modal" || !show) && (
               <Button
                 className={`amplify-button amplify-field-group__control amplify-button--primary amplify-button--opener`}

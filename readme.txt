@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.3.3
+Stable tag: 2.4.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -206,6 +206,12 @@ This shared component handles WPSuite workspace linking, licence validation, and
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.0 =
+* Breaking change: Authenticator and Account Attribute now render inside the Shadow DOM, so any site-level CSS overrides must move into shared WPSuite Theme CSS or the block-level `themeOverride` attribute.
+* Performance: Added schedule-after-initial-paint mounting so frontend UI yields the main thread sooner and improves early paint metrics where supported.
+* Feature: Gatey now loads shared WPSuite Theme CSS inside supported shadow-root UI for reusable site-wide component styling.
+* Feature: Added pattern override support so synced patterns can override selected original block attributes without duplicating the whole block setup.
 
 = 2.3.3 =
 Performance: Moved frontend runtime scripts and shared vendor assets to the footer and enabled deferred loading where safe, reducing render-blocking work during initial page load.
@@ -552,6 +558,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+Breaking styling update. Authenticator and Account Attribute now render in the Shadow DOM; move any site CSS overrides into shared WPSuite Theme CSS or the block-level `themeOverride` setting.
 
 = 2.3.3 =
 Recommended performance update. Frontend scripts now load later and defer where safe, reducing render-blocking work while preserving existing plugin behavior.

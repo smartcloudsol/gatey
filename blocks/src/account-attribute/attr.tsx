@@ -14,11 +14,13 @@ import {
   type AuthenticatorConfig,
   type CustomTranslations,
 } from "@smart-cloud/gatey-core";
+import { ThemeOverridesStyle } from "../shared/themeOverrides";
 import { type ThemeProps } from "./theme";
 
 I18n.putVocabularies(translations);
 
 export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
+  const rootClassName = "smartcloud-gatey-account-attribute-theme-root";
   const {
     isPreview,
     store,
@@ -29,6 +31,8 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     link,
     prefix,
     postfix,
+    themeOverrides,
+    previewUsesShadowRoot,
   } = props;
 
   const decryptedConfig: AuthenticatorConfig | null = useSelect(
@@ -99,28 +103,39 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     }
   }, [language, customTranslations]);
 
-  return link?.url ? (
-    <a
-      href={link.url}
-      target={link.opensInNewTab ? "_blank" : undefined}
-      rel={rel}
-      onClick={(e) => {
-        if (isPreview) {
-          e.preventDefault();
-        }
-      }}
-    >
-      <View as={component}>
-        {prefix}
-        {value || <>&nbsp;</>}
-        {postfix}
-      </View>
-    </a>
-  ) : (
-    <View as={component}>
-      {prefix}
-      {value || <>&nbsp;</>}
-      {postfix}
-    </View>
+  return (
+    <>
+      <ThemeOverridesStyle
+        themeOverrides={themeOverrides}
+        isPreview={isPreview}
+        previewRootClassName={rootClassName}
+        previewUsesShadowRoot={previewUsesShadowRoot}
+      />
+      {link?.url ? (
+        <a
+          className={rootClassName}
+          href={link.url}
+          target={link.opensInNewTab ? "_blank" : undefined}
+          rel={rel}
+          onClick={(e) => {
+            if (isPreview) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <View as={component}>
+            {prefix}
+            {value || <>&nbsp;</>}
+            {postfix}
+          </View>
+        </a>
+      ) : (
+        <View className={rootClassName} as={component}>
+          {prefix}
+          {value || <>&nbsp;</>}
+          {postfix}
+        </View>
+      )}
+    </>
   );
 };

@@ -1,6 +1,8 @@
 import {
   BlockControls,
   InspectorControls,
+  store as blockEditorStore,
+  useBlockEditingMode,
   useBlockProps,
   useInnerBlocksProps,
 } from "@wordpress/block-editor";
@@ -11,13 +13,15 @@ import {
   PanelBody,
   RadioControl,
   TextControl,
+  TextareaControl,
   ToolbarButton,
   ToolbarDropdownMenu,
   ToolbarGroup,
 } from "@wordpress/components";
+import { useDispatch, useSelect } from "@wordpress/data";
 import { __ } from "@wordpress/i18n";
 import { check, close, currencyDollar, seen, settings } from "@wordpress/icons";
-import { createRef, useEffect, useState, type FunctionComponent } from "react";
+import { useEffect, useRef, useState, type FunctionComponent } from "react";
 
 import { translate } from "@smart-cloud/aws-amplify-ui";
 
@@ -47,6 +51,8 @@ import {
   languageOptions,
   type Language,
 } from "../index";
+import { ShadowPreviewPortal } from "../shared/shadowPreviewPortal";
+import { getAuthenticatorShadowStylesheets } from "../shared/shadowMount";
 import { App } from "./app";
 import { type Screen, type Variation } from "./index";
 import { type PreviewType } from "./theme";
@@ -65,6 +71,29 @@ export interface EditorBlock {
   innerBlocks: EditorBlock[];
 }
 
+type BlockBinding = {
+  source?: string;
+  args?: Record<string, unknown>;
+};
+
+type BlockMetadata = {
+  name?: string;
+  bindings?: Record<string, BlockBinding | undefined>;
+};
+
+type BlockEditorSelectors = {
+  getBlockParentsByBlockName: (
+    clientId: string,
+    blockName: string | string[],
+    ascending?: boolean,
+  ) => string[];
+  __unstableGetTemporarilyEditingAsBlocks?: () => string | undefined;
+};
+
+type BlockEditorDispatch = {
+  __unstableSetTemporarilyEditingAsBlocks?: (clientId?: string | null) => void;
+};
+
 export type EditorBlockProps = {
   screen?: Screen;
   variation?: Variation;
@@ -77,8 +106,14 @@ export type EditorBlockProps = {
   signingOutMessage?: string;
   redirectingMessage?: string;
   totpIssuer?: string;
+  themeOverrides?: string;
   uid?: string;
+  metadata?: BlockMetadata;
 } & Record<string, unknown>;
+
+type AuthenticatorEditProps = BlockEditProps<EditorBlockProps> & {
+  context?: Record<string, unknown>;
+};
 
 const currentPlan = __(" (your current plan)", TEXT_DOMAIN);
 
@@ -96,10 +131,10 @@ const apiUrl =
     ? "https://api.wpsuite.io/dev"
     : "https://api.wpsuite.io";
 
-export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
-  props: BlockEditProps<EditorBlockProps>,
+export const Edit: FunctionComponent<AuthenticatorEditProps> = (
+  props: AuthenticatorEditProps,
 ) => {
-  const { clientId, attributes, setAttributes } = props;
+  const { clientId, attributes, isSelected, setAttributes } = props;
   const {
     screen,
     variation,
@@ -112,8 +147,69 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     signingOutMessage,
     redirectingMessage,
     totpIssuer,
+    themeOverrides,
     uid,
+    metadata,
   } = attributes;
+
+  const hasPatternOverrideBindings = Object.values(
+    metadata?.bindings ?? {},
+  ).some((binding) => binding?.source === "core/pattern-overrides");
+  const isPatternOverrideInstance =
+    typeof metadata?.name === "string" && metadata.name.length > 0;
+
+  const { editedContentOnlySection, syncedPatternSectionClientId } = useSelect(
+    (select) => {
+      const blockEditorSelect = select(
+        blockEditorStore,
+      ) as unknown as BlockEditorSelectors;
+      const syncedPatternParents = blockEditorSelect.getBlockParentsByBlockName(
+        clientId,
+        "core/block",
+        true,
+      );
+
+      return {
+        editedContentOnlySection:
+          blockEditorSelect.__unstableGetTemporarilyEditingAsBlocks?.() ?? null,
+        syncedPatternSectionClientId: syncedPatternParents[0] ?? null,
+      };
+    },
+    [clientId],
+  );
+
+  const blockEditorDispatch = useDispatch(
+    "core/block-editor",
+  ) as unknown as BlockEditorDispatch;
+  const wasSelectedRef = useRef(false);
+
+  useBlockEditingMode(hasPatternOverrideBindings ? "default" : undefined);
+
+  useEffect(() => {
+    const didBecomeSelected = isSelected && !wasSelectedRef.current;
+    wasSelectedRef.current = isSelected;
+
+    if (
+      !didBecomeSelected ||
+      !isPatternOverrideInstance ||
+      !hasPatternOverrideBindings ||
+      !syncedPatternSectionClientId ||
+      editedContentOnlySection === syncedPatternSectionClientId
+    ) {
+      return;
+    }
+
+    blockEditorDispatch.__unstableSetTemporarilyEditingAsBlocks?.(
+      syncedPatternSectionClientId,
+    );
+  }, [
+    blockEditorDispatch,
+    editedContentOnlySection,
+    hasPatternOverrideBindings,
+    isPatternOverrideInstance,
+    isSelected,
+    syncedPatternSectionClientId,
+  ]);
 
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [siteSettings, setSiteSettings] =
@@ -133,9 +229,9 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
   const [showCustomization, setShowCustomization] = useState<boolean>(false);
   const [previewZIndex, setPreviewZIndex] = useState<number>();
 
-  const editorRef = createRef<HTMLDivElement>();
+  const editorRef = useRef<HTMLDivElement>(null);
 
-  const blockProps = useBlockProps();
+  const { style: previewHostStyle, ...blockProps } = useBlockProps();
   const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
   useEffect(() => {
@@ -413,6 +509,18 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 TEXT_DOMAIN,
               )}
             />
+            <TextareaControl
+              label={__("Theme Overrides", TEXT_DOMAIN)}
+              __nextHasNoMarginBottom
+              value={themeOverrides || ""}
+              onChange={(value) => {
+                setAttributes({ themeOverrides: value });
+              }}
+              help={__(
+                "Add scoped CSS for the authenticator. Frontend and editor preview both render inside a shadow root, so :host targets the block host directly.",
+                TEXT_DOMAIN,
+              )}
+            />
           </PanelBody>
         </InspectorControls>
         <BlockControls>
@@ -531,35 +639,45 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
           </ToolbarGroup>
         </BlockControls>
         <div style={{ position: "relative", zIndex: previewZIndex }}>
+          <div ref={editorRef} style={previewHostStyle} />
           {fulfilledStore && siteSettings !== undefined ? (
-            <ThemeProvider
-              theme={theme}
-              colorMode={colorMode}
-              direction={themeDirection}
+            <ShadowPreviewPortal
+              hostRef={editorRef}
+              rootClassName="smartcloud-gatey-authenticator-shadow-root"
+              stylesheets={getAuthenticatorShadowStylesheets()}
+              minHeight="48px"
             >
-              <App
-                id={`gatey-authenticator-block-${uid}`}
-                screen={previewScreen}
-                variation={variation}
-                language={currentLanguage as Language}
+              <ThemeProvider
+                theme={theme}
+                colorMode={colorMode}
                 direction={themeDirection}
-                showOpenButton={showOpenButton}
-                openButtonTitle={openButtonTitle}
-                signingInMessage={signingInMessage}
-                signingOutMessage={signingOutMessage}
-                redirectingMessage={redirectingMessage}
-                store={fulfilledStore}
-                editorRef={editorRef}
-                isPreview={true}
-                previewMode={previewMode}
-                setPreviewMode={setPreviewMode}
-                setPreviewZIndex={setPreviewZIndex}
-                siteSettings={siteSettings}
-                siteSubscriptionType={siteSubscriptionType}
               >
-                {children}
-              </App>
-            </ThemeProvider>
+                <App
+                  id={`gatey-authenticator-block-${uid}`}
+                  screen={previewScreen}
+                  variation={variation}
+                  language={currentLanguage as Language}
+                  direction={themeDirection}
+                  showOpenButton={showOpenButton}
+                  openButtonTitle={openButtonTitle}
+                  signingInMessage={signingInMessage}
+                  signingOutMessage={signingOutMessage}
+                  redirectingMessage={redirectingMessage}
+                  themeOverrides={themeOverrides}
+                  store={fulfilledStore}
+                  editorRef={editorRef}
+                  isPreview={true}
+                  previewMode={previewMode}
+                  setPreviewMode={setPreviewMode}
+                  setPreviewZIndex={setPreviewZIndex}
+                  siteSettings={siteSettings}
+                  siteSubscriptionType={siteSubscriptionType}
+                  previewUsesShadowRoot={true}
+                >
+                  {children}
+                </App>
+              </ThemeProvider>
+            </ShadowPreviewPortal>
           ) : (
             <>{__("Loading configuration...", TEXT_DOMAIN)}</>
           )}

@@ -38,6 +38,8 @@ export interface ThemeProps extends PropsWithChildren {
   };
   prefix?: string;
   postfix?: string;
+  themeOverrides?: string;
+  previewUsesShadowRoot?: boolean;
 }
 
 export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
@@ -54,6 +56,8 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     link = {},
     prefix,
     postfix,
+    themeOverrides,
+    previewUsesShadowRoot,
   } = props;
 
   const theme = {
@@ -117,6 +121,8 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         link={link}
         prefix={prefix}
         postfix={postfix}
+        themeOverrides={themeOverrides}
+        previewUsesShadowRoot={previewUsesShadowRoot}
       />
     </ThemeProvider>
   );

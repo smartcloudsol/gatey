@@ -7,29 +7,48 @@ if (!defined('ABSPATH')) {
 }
 
 if (!function_exists('smartcloud_gatey_do_shortcode')) {
-    function smartcloud_gatey_do_shortcode(string $tag, array $atts = [], string $link = '')
+    function smartcloud_gatey_do_shortcode(string $tag, array $atts = [], string $body = '', string $link = '')
     {
-        if (empty($link)) {
-            echo do_shortcode(sprintf(
-                '[%s %s]',
-                esc_attr($tag),
-                implode(' ', array_map(
-                    fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
-                    array_keys($atts),
-                    $atts
-                ))
-            ));
-        } else {
-            echo '<a' . wp_kses_post($link) . '>' . do_shortcode(sprintf(
-                '[%s %s]',
-                esc_attr($tag),
-                implode(' ', array_map(
-                    fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
-                    array_keys($atts),
-                    $atts
-                ))
-            )) . '</a>';
+        $shortcode = sprintf(
+            '[%s %s]',
+            esc_attr($tag),
+            implode(' ', array_map(
+                fn($k, $v) => sprintf('%s="%s"', esc_attr($k), esc_attr($v)),
+                array_keys($atts),
+                $atts
+            ))
+        );
+
+        if ($body !== '') {
+            $shortcode .= $body . '[/' . esc_attr($tag) . ']';
         }
+
+        $rendered = do_shortcode($shortcode);
+
+        if (empty($link)) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plugin-owned block HTML from render_block() must preserve Gatey wrapper attributes.
+            echo $rendered;
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plugin-owned block HTML from render_block() must preserve Gatey wrapper attributes.
+        echo '<a' . wp_kses_post($link) . '>' . $rendered . '</a>';
+    }
+}
+
+if (!function_exists('smartcloud_gatey_build_theme_overrides_body')) {
+    function smartcloud_gatey_build_theme_overrides_body(?string $theme_overrides): string
+    {
+        if (!is_string($theme_overrides) || trim($theme_overrides) === '') {
+            return '';
+        }
+
+        $yaml_parts = ['themeOverrides: |'];
+        foreach (explode("\n", str_replace("\r\n", "\n", trim($theme_overrides))) as $line) {
+            $yaml_parts[] = '  ' . $line;
+        }
+
+        return implode("\n", $yaml_parts);
     }
 }
 
@@ -199,6 +218,11 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $this->add_control('signingin', ['label' => __('Signing‑in message', 'gatey'), 'type' => \Elementor\Controls_Manager::TEXT]);
         $this->add_control('signingout', ['label' => __('Signing‑out message', 'gatey'), 'type' => \Elementor\Controls_Manager::TEXT]);
         $this->add_control('redirecting', ['label' => __('Redirecting message', 'gatey'), 'type' => \Elementor\Controls_Manager::TEXT]);
+        $this->add_control('themeOverrides', [
+            'label' => __('Theme Overrides (CSS)', 'gatey'),
+            'type' => \Elementor\Controls_Manager::TEXTAREA,
+            'description' => __('Scoped CSS applied to the authenticator root.', 'gatey'),
+        ]);
 
         $this->end_controls_section();
     }
@@ -212,7 +236,9 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v) && $v != '');
         $atts['id'] = $all['pattern'];
 
-        smartcloud_gatey_do_shortcode('gatey', $atts);
+        $body = smartcloud_gatey_build_theme_overrides_body($all['themeOverrides'] ?? null);
+
+        smartcloud_gatey_do_shortcode('gatey', $atts, $body);
     }
 }
 
@@ -280,6 +306,11 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
             'label' => __('Direction', 'gatey'),
             'type' => \Elementor\Controls_Manager::SELECT,
             'options' => self::$DIRECTIONS,
+        ]);
+        $this->add_control('themeOverrides', [
+            'label' => __('Theme Overrides (CSS)', 'gatey'),
+            'type' => \Elementor\Controls_Manager::TEXTAREA,
+            'description' => __('Scoped CSS applied to the account attribute root.', 'gatey'),
         ]);
         $this->add_control('link', ['label' => __('Link', 'gatey'), 'type' => \Elementor\Controls_Manager::URL, 'placeholder' => 'https://', 'show_external' => true]);
 
@@ -350,6 +381,7 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
         $atts = array_intersect_key($all, array_flip($allowed));
 
         $atts = array_filter($atts, fn($v) => !is_array($v) && !is_object($v));
+        $body = smartcloud_gatey_build_theme_overrides_body($all['themeOverrides'] ?? null);
 
         if (!empty($all['link']['url'])) {
             $lnk = $all['link'];
@@ -374,9 +406,9 @@ class Gatey_Account_Attribute_Widget extends Gatey_Base_Widget
             if ($rels) {
                 $link .= ' rel="' . esc_attr(implode(' ', $rels)) . '"';
             }
-            smartcloud_gatey_do_shortcode('gatey-account', $atts, $link);
+            smartcloud_gatey_do_shortcode('gatey-account', $atts, $body, $link);
         } else {
-            smartcloud_gatey_do_shortcode('gatey-account', $atts);
+            smartcloud_gatey_do_shortcode('gatey-account', $atts, $body);
         }
     }
 }

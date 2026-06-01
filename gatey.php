@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.3.3
+ * Version:           2.4.0
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.3.3';
+const VERSION = '2.4.0';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -72,6 +72,9 @@ final class Gatey
      */
     public function init(): void
     {
+        add_filter('block_bindings_supported_attributes', array($this, 'filterBlockBindingsSupportedAttributes'), 20, 2);
+        add_filter('block_bindings_supported_attributes_gatey/authenticator', array($this, 'filterAuthenticatorBlockBindingsSupportedAttributes'), 20, 1);
+
         $this->registerBlocks();
 
         // Assets
@@ -119,6 +122,56 @@ final class Gatey
     }
 
     /**
+     * Extend Block Bindings support for the Gatey authenticator block.
+     *
+     * Pattern Overrides uses the same supported-attributes registry.
+     * Marking these attributes as bindable allows synced patterns to override
+     * the authenticator's screen and presentation per instance.
+     *
+     * @param string[] $supported_attributes
+     * @return string[]
+     */
+    public function filterAuthenticatorBlockBindingsSupportedAttributes(array $supported_attributes): array
+    {
+        return array_values(array_unique(array_merge($supported_attributes, $this->getAuthenticatorBindableAttributes())));
+    }
+
+    /**
+     * Add Gatey authenticator binding support through the generic filter too.
+     *
+     * @param string[] $supported_attributes
+     * @param string|null $block_type_name
+     * @return string[]
+     */
+    public function filterBlockBindingsSupportedAttributes(array $supported_attributes, ?string $block_type_name = null): array
+    {
+        if ($block_type_name !== 'gatey/authenticator') {
+            return $supported_attributes;
+        }
+
+        return $this->filterAuthenticatorBlockBindingsSupportedAttributes($supported_attributes);
+    }
+
+    /**
+     * Authenticator attributes that should participate in block bindings and pattern overrides.
+     *
+     * @return string[]
+     */
+    private function getAuthenticatorBindableAttributes(): array
+    {
+        return array(
+            'style',
+            'screen',
+            'language',
+            'direction',
+            'variation',
+            'colorMode',
+            'showOpenButton',
+            'openButtonTitle',
+        );
+    }
+
+    /**
      * Include admin classes or additional files.
      */
     public function registerWidgets(): void
@@ -143,6 +196,25 @@ final class Gatey
         return $categories;
     }
 
+    private function getWpsuiteThemeCssHref(): ?string
+    {
+        if (!defined('SMARTCLOUD_WPSUITE_SLUG')) {
+            return null;
+        }
+
+        $upload_dir_info = wp_upload_dir();
+        $css_path = trailingslashit($upload_dir_info['basedir']) . SMARTCLOUD_WPSUITE_SLUG . '/wpsuite-theme.css';
+
+        if (!file_exists($css_path)) {
+            return null;
+        }
+
+        $css_url = trailingslashit($upload_dir_info['baseurl']) . SMARTCLOUD_WPSUITE_SLUG . '/wpsuite-theme.css';
+        $version = filemtime($css_path) ?: GATEY_VERSION;
+
+        return add_query_arg('ver', (string) $version, $css_url);
+    }
+
     /**
      * Add inline scripts that expose PHP constants to JS.
      */
@@ -158,6 +230,16 @@ final class Gatey
             'restUrl' => rest_url(GATEY_SLUG . '/v1'),
             'nonce' => wp_create_nonce('wp_rest'),
         );
+        $constants = array(
+            'authenticatorViewCssHref' => file_exists(GATEY_PATH . 'blocks/authenticator-view.css')
+                ? add_query_arg(
+                    'ver',
+                    GATEY_VERSION,
+                    GATEY_URL . 'blocks/authenticator-view.css'
+                )
+                : null,
+            'wpsuiteThemeCssHref' => $this->getWpsuiteThemeCssHref(),
+        );
         $js = 'const __gateyGlobal = (typeof globalThis !== "undefined") ? globalThis : window;
 __gateyGlobal.WpSuite = __gateyGlobal.WpSuite ?? {};
 __gateyGlobal.WpSuite.plugins = __gateyGlobal.WpSuite.plugins ?? {};
@@ -167,6 +249,8 @@ __gateyGlobal.WpSuite.events = __gateyGlobal.WpSuite.events ?? {
 };
 __gateyGlobal.WpSuite.plugins.gatey = __gateyGlobal.WpSuite.plugins.gatey ?? {};
 Object.assign(__gateyGlobal.WpSuite.plugins.gatey, ' . wp_json_encode($data) . ');
+__gateyGlobal.WpSuite.constants = __gateyGlobal.WpSuite.constants ?? {};
+__gateyGlobal.WpSuite.constants.gatey = ' . wp_json_encode($constants) . ';
 var WpSuite = __gateyGlobal.WpSuite;
 ';
         if ($settings->integrateWpLogin) {
@@ -207,8 +291,8 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
     private function enqueueViewAssets(): void
     {
         $view_script_asset = array();
-        if (file_exists(filename: GATEY_PATH . 'blocks/view.asset.php')) {
-            $view_script_asset = require(GATEY_PATH . 'blocks/view.asset.php');
+        if (file_exists(filename: GATEY_PATH . 'blocks/authenticator-view.asset.php')) {
+            $view_script_asset = require(GATEY_PATH . 'blocks/authenticator-view.asset.php');
         }
         $view_script_dependencies = array_merge(
             $view_script_asset['dependencies'] ?? array(),
@@ -218,16 +302,21 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             $view_script_dependencies[] = 'smartcloud-gatey-main-script';
         }
         $view_script_asset['dependencies'] = array_values(array_unique($view_script_dependencies));
-        wp_enqueue_script('smartcloud-gatey-view-script', GATEY_URL . 'blocks/view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
+        wp_enqueue_script('smartcloud-gatey-authenticator-view-script', GATEY_URL . 'blocks/authenticator-view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
 
-        if (file_exists(GATEY_PATH . 'blocks/view.css')) {
-            wp_enqueue_style(
-                'smartcloud-gatey-blocks-view-style',
-                GATEY_URL . 'blocks/view.css',
-                array(),
-                GATEY_VERSION
-            );
+        $view_script_asset = array();
+        if (file_exists(filename: GATEY_PATH . 'blocks/account-attribute-view.asset.php')) {
+            $view_script_asset = require(GATEY_PATH . 'blocks/account-attribute-view.asset.php');
         }
+        $account_view_script_dependencies = array_merge(
+            $view_script_asset['dependencies'] ?? array(),
+            array('smartcloud-gatey-main-script')
+        );
+        if (wp_script_is('smartcloud-gatey-main-script', 'registered')) {
+            $account_view_script_dependencies[] = 'smartcloud-gatey-main-script';
+        }
+        $view_script_asset['dependencies'] = array_values(array_unique($account_view_script_dependencies));
+        wp_enqueue_script('smartcloud-gatey-account-attribute-view-script', GATEY_URL . 'blocks/account-attribute-view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
     }
 
     public function enqueueFrontendAssets(): void
@@ -321,6 +410,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                 'signingin' => null,
                 'signingout' => null,
                 'redirecting' => null,
+                'themeoverrides' => null,
             ),
             $atts
         );
@@ -384,6 +474,14 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                     }
                 }
 
+                $theme_overrides = $a['themeoverrides'] ?? null;
+                if ((!is_string($theme_overrides) || trim($theme_overrides) === '') && is_string($content)) {
+                    $theme_overrides = $this->extractThemeOverridesFromShortcodeContent($content);
+                }
+                if (is_string($theme_overrides) && trim($theme_overrides) !== '') {
+                    $attrs['themeOverrides'] = $theme_overrides;
+                }
+
                 $attrs['uid'] = $attrs['uid'] ?? '';
                 $attrs['screen'] = $attrs['screen'] ?? 'signIn';
                 $attrs['variation'] = $attrs['variation'] ?? 'default';
@@ -427,6 +525,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                 'colormode' => null,
                 'language' => null,
                 'direction' => null,
+                'themeoverrides' => null,
             ),
             $atts
         );
@@ -449,6 +548,14 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             'direction' => $a['direction'] ?? 'auto',
         );
 
+        $theme_overrides = $a['themeoverrides'] ?? null;
+        if ((!is_string($theme_overrides) || trim($theme_overrides) === '') && is_string($content)) {
+            $theme_overrides = $this->extractThemeOverridesFromShortcodeContent($content);
+        }
+        if (is_string($theme_overrides) && trim($theme_overrides) !== '') {
+            $attrs['themeOverrides'] = $theme_overrides;
+        }
+
         $newBlock = [
             'blockName' => 'gatey/account-attribute',
             'attrs' => $attrs,
@@ -456,6 +563,85 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         $content = render_block($newBlock);
         $content = str_replace("smartcloud-gatey-is-preview", ($is_preview ? 'true' : 'false'), $content);
         return $content;
+    }
+
+    private function normalizeShortcodeContent(?string $content): string
+    {
+        if (!is_string($content) || $content === '') {
+            return '';
+        }
+
+        $text = html_entity_decode($content, ENT_QUOTES, get_bloginfo('charset'));
+        $text = str_replace("\r\n", "\n", $text);
+        $text = preg_replace('~</p>\s*<p[^>]*>~i', "\n", $text);
+        $text = preg_replace('~<br\s*/?>~i', "\n", $text);
+        $text = preg_replace('~</?p[^>]*>~i', '', $text);
+        $text = preg_replace('~</?div[^>]*>~i', '', $text);
+        $text = preg_replace('~</?span[^>]*>~i', '', $text);
+        $text = str_replace("\xC2\xA0", ' ', $text);
+
+        return trim($text);
+    }
+
+    private function extractThemeOverridesFromShortcodeContent(?string $content): ?string
+    {
+        $normalized_content = $this->normalizeShortcodeContent($content);
+        if ($normalized_content === '') {
+            return null;
+        }
+
+        $lines = explode("\n", $normalized_content);
+        $line_count = count($lines);
+
+        for ($index = 0; $index < $line_count; $index++) {
+            $line = $lines[$index];
+
+            if (preg_match('/^themeOverrides:\s*\|\s*$/', $line) === 1) {
+                $block_lines = array();
+                $base_indent = null;
+
+                for ($block_index = $index + 1; $block_index < $line_count; $block_index++) {
+                    $block_line = $lines[$block_index];
+                    if ($block_line === '') {
+                        $block_lines[] = '';
+                        continue;
+                    }
+
+                    if (preg_match('/^([ \t]+)(.*)$/', $block_line, $matches) !== 1) {
+                        break;
+                    }
+
+                    $indent_length = strlen($matches[1]);
+                    $base_indent = $base_indent === null
+                        ? $indent_length
+                        : min($base_indent, $indent_length);
+                    $block_lines[] = $block_line;
+                }
+
+                if (empty($block_lines)) {
+                    return null;
+                }
+
+                $dedented_lines = array_map(
+                    static function (string $block_line) use ($base_indent): string {
+                        if ($block_line === '' || $base_indent === null || $base_indent === 0) {
+                            return $block_line;
+                        }
+
+                        return preg_replace('/^[ \t]{0,' . $base_indent . '}/', '', $block_line) ?? $block_line;
+                    },
+                    $block_lines
+                );
+
+                return rtrim(implode("\n", $dedented_lines));
+            }
+
+            if (preg_match('/^themeOverrides:\s*(.+)\s*$/', $line, $matches) === 1) {
+                return trim($matches[1], " \t\n\r\0\x0B\"'");
+            }
+        }
+
+        return null;
     }
 
     /**

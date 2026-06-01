@@ -14,15 +14,16 @@ import {
   RadioControl,
   SelectControl,
   TextControl,
+  TextareaControl,
   ToolbarButton,
   ToolbarGroup,
 } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 import { linkOff, link as linkOn } from "@wordpress/icons";
 import {
-  createRef,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type FunctionComponent,
 } from "react";
@@ -43,6 +44,7 @@ import {
   languageOptions,
   type Language,
 } from "../index";
+import { ShadowPreviewPortal } from "../shared/shadowPreviewPortal";
 
 import { type Attribute, type Component } from "./index";
 
@@ -63,6 +65,7 @@ export type EditorBlockProps = {
   link?: LinkControlValue;
   prefix?: string;
   postfix?: string;
+  themeOverrides?: string;
 } & Record<string, unknown>;
 
 export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
@@ -79,15 +82,16 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
     link = {},
     prefix,
     postfix,
+    themeOverrides,
   } = attributes;
 
   const [isEditing, setIsEditing] = useState(false);
 
   const [fulfilledStore, setFulfilledStore] = useState<Store>();
 
-  const editorRef = createRef<HTMLDivElement>();
+  const previewHostRef = useRef<HTMLDivElement>(null);
 
-  const blockProps = useBlockProps();
+  const { style: previewHostStyle, ...blockProps } = useBlockProps();
   const { ...innerBlocksProps } = useInnerBlocksProps(blockProps);
 
   const themeDirection = useMemo(() => {
@@ -106,7 +110,7 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
 
   return (
     <div {...innerBlocksProps}>
-      <div ref={editorRef}>
+      <div>
         <InspectorControls>
           <PanelBody title={__("Settings", TEXT_DOMAIN)}>
             <SelectControl
@@ -226,6 +230,18 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
                 TEXT_DOMAIN,
               )}
             />
+            <TextareaControl
+              label={__("Theme Overrides", TEXT_DOMAIN)}
+              __nextHasNoMarginBottom
+              value={themeOverrides || ""}
+              onChange={(value) => {
+                setAttributes({ themeOverrides: value });
+              }}
+              help={__(
+                "Add scoped CSS for the account attribute. Frontend and editor preview both render inside a shadow root, so :host targets the block host directly.",
+                TEXT_DOMAIN,
+              )}
+            />
           </PanelBody>
         </InspectorControls>
         <BlockControls>
@@ -273,26 +289,34 @@ export const Edit: FunctionComponent<BlockEditProps<EditorBlockProps>> = (
             />
           </Popover>
         )}
+        <div ref={previewHostRef} style={previewHostStyle} />
         {fulfilledStore && (
-          <ThemeProvider
-            theme={theme}
-            colorMode={colorMode}
-            direction={themeDirection}
+          <ShadowPreviewPortal
+            hostRef={previewHostRef}
+            rootClassName="smartcloud-gatey-account-attribute-shadow-root"
           >
-            <Attr
-              id="gatey-account-attribute-block"
-              isPreview={true}
-              store={fulfilledStore}
-              component={component || "div"}
-              attribute={attribute || "sub"}
-              custom={custom}
-              language={language}
+            <ThemeProvider
+              theme={theme}
+              colorMode={colorMode}
               direction={themeDirection}
-              link={link}
-              prefix={prefix}
-              postfix={postfix}
-            />
-          </ThemeProvider>
+            >
+              <Attr
+                id="gatey-account-attribute-block"
+                isPreview={true}
+                store={fulfilledStore}
+                component={component || "div"}
+                attribute={attribute || "sub"}
+                custom={custom}
+                language={language}
+                direction={themeDirection}
+                link={link}
+                prefix={prefix}
+                postfix={postfix}
+                themeOverrides={themeOverrides}
+                previewUsesShadowRoot={true}
+              />
+            </ThemeProvider>
+          </ShadowPreviewPortal>
         )}
       </div>
     </div>

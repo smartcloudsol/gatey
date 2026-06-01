@@ -2,26 +2,31 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/authenticator",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "title": "Authenticator",
   "category": "smartcloud-gatey",
   "description": "Gatey Authenticator - add authentication screens to your site",
   "attributes": {
     "screen": {
       "type": "string",
+      "role": "content",
       "default": "signIn"
     },
     "variation": {
-      "type": "string"
+      "type": "string",
+      "role": "content"
     },
     "colorMode": {
-      "type": "string"
+      "type": "string",
+      "role": "content"
     },
     "showOpenButton": {
-      "type": "boolean"
+      "type": "boolean",
+      "role": "content"
     },
     "openButtonTitle": {
-      "type": "string"
+      "type": "string",
+      "role": "content"
     },
     "signingInMessage": {
       "type": "string"
@@ -33,12 +38,17 @@
       "type": "string"
     },
     "language": {
-      "type": "string"
+      "type": "string",
+      "role": "content"
     },
     "direction": {
-      "type": "string"
+      "type": "string",
+      "role": "content"
     },
     "totpIssuer": {
+      "type": "string"
+    },
+    "themeOverrides": {
       "type": "string"
     },
     "uid": {

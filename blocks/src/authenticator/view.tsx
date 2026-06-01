@@ -6,16 +6,21 @@ import "jquery";
 import { getStore } from "@smart-cloud/gatey-core";
 
 import { beginMount, endMount, resetMount } from "../shared/mountGuard";
+import {
+  clearShadowMount,
+  ensureShadowMount,
+  getAuthenticatorShadowStylesheets,
+} from "../shared/shadowMount";
 import { ThemedApp } from "./theme";
 
 import "./index.css";
 
-const cache = new Map<string, string>();
 const roots = new Map<string, Root>();
+const SHADOW_ROOT_CLASS = "smartcloud-gatey-authenticator-shadow-root";
 
 try {
   const call = async (id: string, forceRemount = false) => {
-    const el = document.querySelector("#" + id);
+    const el = document.getElementById(id);
     if (el) {
       if (forceRemount) {
         const existingRoot = roots.get(id);
@@ -23,10 +28,8 @@ try {
           existingRoot.unmount();
           roots.delete(id);
         }
+        clearShadowMount(el);
         resetMount(el);
-        if (cache.has(id)) {
-          el.innerHTML = cache.get(id) || "";
-        }
       }
 
       if (!beginMount(id, el)) {
@@ -39,15 +42,15 @@ try {
         const config = configAttr ? JSON.parse(atob(configAttr)) : {};
 
         const isPreview = el.getAttribute("data-is-preview") === "true";
+        const mountTarget = await ensureShadowMount(el, {
+          rootClassName: SHADOW_ROOT_CLASS,
+          stylesheets: getAuthenticatorShadowStylesheets(),
+          minHeight: "48px",
+        });
 
-        const root = createRoot(el);
+        const root = createRoot(mountTarget);
         roots.set(id, root);
         const fulfilledStore = await getStore();
-        if (cache.has(id)) {
-          el.innerHTML = cache.get(id) || "";
-        } else {
-          cache.set(id, el.innerHTML || "");
-        }
         root.render(
           <StrictMode>
             <ThemedApp
@@ -61,6 +64,12 @@ try {
           </StrictMode>,
         );
       } catch (error) {
+        const existingRoot = roots.get(id);
+        if (existingRoot) {
+          existingRoot.unmount();
+          roots.delete(id);
+        }
+        clearShadowMount(el);
         resetMount(el);
         throw error;
       } finally {
