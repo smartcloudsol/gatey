@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 use SmartCloud\WPSuite\Gatey\Logger;
 
-const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.5.2';
+const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.5.3';
 
 final class GateyHubLoader
 {
@@ -86,7 +86,7 @@ final class GateyHubLoader
 
         $connect_suffix = add_submenu_page(
             SMARTCLOUD_WPSUITE_SLUG,
-            __('Connect your Site to WPSuite', 'gatey'),
+            __('Connect your Site to WP Suite', 'gatey'),
             __('Connect your Site', 'gatey'),
             'manage_options',
             SMARTCLOUD_WPSUITE_SLUG,

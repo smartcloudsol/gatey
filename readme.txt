@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -14,6 +14,8 @@ Drag-and-drop Amazon Cognito integration: 22-language screens, Single Sign-on, M
 == Description ==
 
 Gatey provides a seamless integration with Amazon Cognito for secure, scalable authentication in WordPress. This plugin supports both dynamic WordPress sites and statically generated WordPress frontends.
+
+Gatey is part of the WP Suite product family by Smart Cloud Solutions, Inc. WP Suite keeps WordPress as the CMS and editing layer, while optional connected features can extend selected workflows into modular AWS-backed services for identity, AI, APIs, workflows, protected routes, and static delivery. The free Gatey features described here do not require a WP Suite account or subscription; AWS services are used only where you configure them directly, such as your own Amazon Cognito user pool, or where you enable optional connected features.
 
 https://www.youtube.com/watch?v=xFjEg-LbgHA
 
@@ -152,9 +154,9 @@ This plugin integrates with the following third-party services:
      - Google Terms of Service: https://policies.google.com/terms  
      - Google Privacy Policy: https://policies.google.com/privacy
 
-3. **WPSuite platform connection (optional; site/workspace linking & shared features)**
+3. **WP Suite platform connection (optional; site/workspace linking & shared features)**
    - **When it applies:**
-     When you use **WP Admin → SmartCloud → Connect your Site to WPSuite** to link this WordPress site to a WPSuite workspace, or to switch/disconnect later.
+     When you use **WP Admin → SmartCloud → Connect your Site to WP Suite** to link this WordPress site to a WP Suite workspace, or to switch/disconnect later.
    - **What it’s used for:**
      Storing and retrieving Pro feature configuration (e.g., API/chatbot/feature settings) and enabling an admin-side preview experience so you can try Pro features in WP Admin before enabling them on the live site.
    - **What data may be sent:**
@@ -166,7 +168,7 @@ This plugin integrates with the following third-party services:
      - WPSuite.io Terms of Use: https://wpsuite.io/terms-of-use
 
 4. **Stripe (optional; subscription/purchase flow)**
-   - **When it applies:** Only when the user opens the optional WPSuite subscription / purchase flow in the shared admin component.
+   - **When it applies:** Only when the user opens the optional WP Suite subscription / purchase flow in the shared admin component.
    - **What it’s used for:** Displaying hosted pricing/subscription UI for optional paid features.
    - **What data may be sent:** Browser/session data required by Stripe to render the hosted purchase UI and process the purchase flow.
    - **Links:**
@@ -198,19 +200,22 @@ All references to “Amazon Cognito” are made purely to describe this plugin�
 **Public (free) source code:**  
 All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/gatey
 
-**WPSuite Admin source code:**  
+**WP Suite Admin source code:**  
 The `wpsuite-admin/` directory contains modules originating from the Hub for WPSuite.io project: https://github.com/smartcloudsol/hub-for-wpsuiteio  
-This shared component handles WPSuite workspace linking, licence validation, and subscription management, and will be included in all upcoming WPSuite plugins.
+This shared component handles WP Suite workspace linking, licence validation, and subscription management, and will be included in all upcoming WP Suite plugins.
 
 **Premium-only features:**
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
 
+= 2.4.1 =
+* Docs: Updated WP Suite brand wording and platform positioning across the readme.
+
 = 2.4.0 =
-* Breaking change: Authenticator and Account Attribute now render inside the Shadow DOM, so any site-level CSS overrides must move into shared WPSuite Theme CSS or the block-level `themeOverride` attribute.
+* Breaking change: Authenticator and Account Attribute now render inside the Shadow DOM, so any site-level CSS overrides must move into shared WP Suite Theme CSS or the block-level `themeOverride` attribute.
 * Performance: Added schedule-after-initial-paint mounting so frontend UI yields the main thread sooner and improves early paint metrics where supported.
-* Feature: Gatey now loads shared WPSuite Theme CSS inside supported shadow-root UI for reusable site-wide component styling.
+* Feature: Gatey now loads shared WP Suite Theme CSS inside supported shadow-root UI for reusable site-wide component styling.
 * Feature: Added pattern override support so synced patterns can override selected original block attributes without duplicating the whole block setup.
 
 = 2.3.3 =
@@ -381,7 +386,7 @@ BREAKING: Introduced a unified WP Suite global registry and event-based initiali
 = 1.10.0 =
 * Refactored the admin codebase behind the WPSuite.io / Connect your Site menu
 * Improved site connection and license management internals
-* Prepared the foundation for upcoming WPSuite plugin integrations
+* Prepared the foundation for upcoming WP Suite plugin integrations
 
 = 1.9.2 =
 * Pro features are now enabled again in the admin interface once a site is registered and connected to wpsuite.io
@@ -414,7 +419,7 @@ Removed an unnecessary debug log entry from the authentication flow to keep brow
 
 = 1.8.0 =
 - New integration with the **Hub for WPSuite.io** plugin: licence validation and site connection have been moved into a shared component.
-- Gatey’s admin pages (Settings and Patterns) now appear under the central **WPSuite.io** menu in wp-admin, alongside other WPSuite plugins.
+- Gatey’s admin pages (Settings and Patterns) now appear under the central **WPSuite.io** menu in wp-admin, alongside other WP Suite plugins.
 - Minor UI refinements and code clean-up to support the new menu structure.
 
 = 1.7.3 =
@@ -535,7 +540,7 @@ Added the JavaScript chunks that were accidentally left out of 1.1.0; all blocks
 
 = 1.1.0 =
 New on-disk configuration system eliminates all front-end config downloads. Config + weekly licence file now live in the WordPress uploads folder (static exports still refresh the licence weekly). Because downloads are gone, **all plans are now flat-priced—there is no longer any “Additional Usage” charge**.
-The admin screen makes it clear whether the site is linked to a WPSuite workspace and whose workspace it is. 
+The admin screen makes it clear whether the site is linked to a WP Suite workspace and whose workspace it is. 
 
 = 1.0.5 =
 Added new style controls (typography, spacing, colours, etc.) to the Account Attribute block and fixed a configuration-loading bug that could prevent the admin UI from appearing.
@@ -559,8 +564,11 @@ Initial release.
 
 == Upgrade Notice ==
 
+= 2.4.1 =
+No urgent update required; this is a documentation-only readme update.
+
 = 2.4.0 =
-Breaking styling update. Authenticator and Account Attribute now render in the Shadow DOM; move any site CSS overrides into shared WPSuite Theme CSS or the block-level `themeOverride` setting.
+Breaking styling update. Authenticator and Account Attribute now render in the Shadow DOM; move any site CSS overrides into shared WP Suite Theme CSS or the block-level `themeOverride` setting.
 
 = 2.3.3 =
 Recommended performance update. Frontend scripts now load later and defer where safe, reducing render-blocking work while preserving existing plugin behavior.
@@ -675,7 +683,7 @@ No action is required after updating.
 
 = 1.10.0 =
 This update refactors the internal admin code for WPSuite.io site connection and license handling.
-No action is required after updating. Recommended for compatibility with upcoming WPSuite plugins.
+No action is required after updating. Recommended for compatibility with upcoming WP Suite plugins.
 
 = 1.9.2 =
 This update restores access to Pro features in the admin interface for sites that are registered and connected to wpsuite.io.
@@ -828,4 +836,3 @@ You can now customise the messages shown while users are signing in, signing out
 
 = 1.0.0 =
 Initial stable release.
-
