@@ -631,7 +631,7 @@ const pages = {
         radius="xs"
         mt="sm"
       >
-        Social provider editing is available in PROFESSIONAL plan. In free mode
+        Social provider editing is available with a paid WP Suite plan. In free mode
         your settings are saved, but the UI won’t generate the controls.
       </Alert>
     </>

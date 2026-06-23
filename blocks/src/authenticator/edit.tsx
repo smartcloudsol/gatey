@@ -540,9 +540,7 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
                   icon: previewMode === "PAID" ? check : null,
                   title:
                     __("Paid", TEXT_DOMAIN) +
-                    (siteSubscriptionType === "PROFESSIONAL"
-                      ? currentPlan
-                      : ""),
+                    (siteSubscriptionType ? currentPlan : ""),
                   onClick: () => setPreviewMode("PAID"),
                 },
               ]}

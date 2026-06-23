@@ -1928,8 +1928,7 @@ const Main = (props: MainProps) => {
                 then configure sign-in and sign-up hooks.
               </Text>
 
-              {(formConfig ?? decryptedConfig)?.subscriptionType !==
-                "PROFESSIONAL" && (
+              {!(formConfig ?? decryptedConfig)?.subscriptionType && (
                 <Alert
                   variant="light"
                   color="yellow"
@@ -2017,8 +2016,7 @@ const Main = (props: MainProps) => {
                 sign-up screens.
               </Text>
 
-              {(formConfig ?? decryptedConfig)?.subscriptionType !==
-                "PROFESSIONAL" && (
+              {!(formConfig ?? decryptedConfig)?.subscriptionType && (
                 <Alert
                   variant="light"
                   color="yellow"

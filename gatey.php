@@ -6,7 +6,7 @@
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.4.1
+ * Version:           2.4.2
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.1';
+const VERSION = '2.4.2';
 
 if (!defined('ABSPATH')) {
     exit;
