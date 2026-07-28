@@ -1,10 +1,10 @@
 === Gatey - Login & SSO with Amazon Cognito ===
 Contributors: smartcloud
 Tags: aws, cognito, login, sso, mfa
-Requires at least: 6.7
+Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.2
+Stable tag: 2.4.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,11 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.3 =
+* Feature: Added an optional native WordPress Abilities API provider for Gatey component discovery, schema inspection, validation, materialization, runtime capability reporting, and safe site-settings inspection.
+* Compatibility: The provider loads only when the WordPress Abilities API and the shared WP Suite Hub abilities layer are available, so existing Gatey behavior is unchanged on older WordPress runtimes.
+* Integration: Added a private provider profile for SmartCloud Agent Composer without adding a product-level MCP server or public MCP exposure.
 
 = 2.4.2 =
 * Compatibility: Refined paid-feature handling in preparation for upcoming WP Suite Agency subscriptions.
@@ -566,6 +571,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.3 =
+Recommended update for SmartCloud Agent Composer provider integration testing. No configuration changes are required, and the new Abilities provider remains inactive when the WordPress Abilities API is unavailable.
 
 = 2.4.2 =
 Recommended compatibility update in preparation for upcoming WP Suite Agency subscriptions. No configuration changes are required.

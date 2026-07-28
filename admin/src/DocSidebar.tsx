@@ -16,6 +16,7 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import classes from "./main.module.css";
+import "./doc-sidebar.css";
 
 const pages = {
   "user-pools": (
@@ -819,6 +820,7 @@ export default function DocSidebar({
 
   return (
     <Drawer
+      classNames={{ content: "wpsuite-doc-sidebar" }}
       opened={opened}
       onClose={close}
       position="right"
