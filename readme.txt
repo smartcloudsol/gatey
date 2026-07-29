@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,10 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.4 =
+* Fix: Made the shared WP Suite Abilities foundation safe to load from multiple product plugin paths without redeclaring its base provider class.
+* Compatibility: Updated the bundled shared Hub runtime to 2.5.5 so existing sites re-elect a current Hub owner after upgrading.
 
 = 2.4.3 =
 * Feature: Added an optional native WordPress Abilities API provider for Gatey component discovery, schema inspection, validation, materialization, runtime capability reporting, and safe site-settings inspection.
@@ -571,6 +575,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.4 =
+Recommended compatibility update for sites running multiple WP Suite plugins. It prevents a shared Abilities class redeclaration during plugin loading or updates.
 
 = 2.4.3 =
 Recommended update for SmartCloud Agent Composer provider integration testing. No configuration changes are required, and the new Abilities provider remains inactive when the WordPress Abilities API is unavailable.
