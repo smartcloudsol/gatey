@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.4
+Stable tag: 2.4.5
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,11 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.5 =
+* Feature: Improved the Sign In Page and post-authentication redirect selectors with searchable published pages, explicit WordPress Homepage and Posts page targets, and safe clearing.
+* Shared Hub: Added ownership-safe WP Suite Theme CSS fragment updates and hardened the frontend settings bootstrap for CSS-rich configuration values.
+* Compatibility: Updated the bundled shared Hub runtime to 2.5.6.
 
 = 2.4.4 =
 * Fix: Made the shared WP Suite Abilities foundation safe to load from multiple product plugin paths without redeclaring its base provider class.
@@ -575,6 +580,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.5 =
+Recommended update for clearer authentication redirect configuration and safe shared WP Suite Theme CSS handling. Existing redirect values remain compatible.
 
 = 2.4.4 =
 Recommended compatibility update for sites running multiple WP Suite plugins. It prevents a shared Abilities class redeclaration during plugin loading or updates.

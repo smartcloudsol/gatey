@@ -234,8 +234,15 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
 };
 
 interface WpPage {
+  id: number;
   slug: string;
   title: { rendered: string };
+}
+
+interface WpReadingSettings {
+  page_on_front?: number;
+  page_for_posts?: number;
+  show_on_front?: "page" | "posts";
 }
 
 interface NavigationOption {
@@ -686,15 +693,34 @@ const Main = (props: MainProps) => {
   }, [accountId, isSiteError, site, siteId]);
 
   useEffect(() => {
-    apiFetch<WpPage[]>({
-      path: "/wp/v2/pages?status=publish&per_page=100&context=embed",
-    })
-      .then((pages) => {
+    Promise.all([
+      apiFetch<WpPage[]>({
+        path: "/wp/v2/pages?status=publish&per_page=100&context=embed",
+      }),
+      apiFetch<WpReadingSettings>({ path: "/wp/v2/settings" }),
+    ])
+      .then(([wpPages, reading]) => {
+        const homeId = Number(reading.page_on_front ?? 0);
+        const postsId = Number(reading.page_for_posts ?? 0);
         setPages(
-          pages.map((p: { slug: string; title: { rendered: string } }) => ({
-            path: "/" + p.slug,
-            title: p.title.rendered,
-          })) as Page[],
+          [
+            {
+              path: "/",
+              title:
+                reading.show_on_front === "posts"
+                  ? "Homepage / Posts page"
+                  : "Homepage",
+            },
+            ...wpPages.map((p) => ({
+              path: "/" + p.slug,
+              title:
+                p.id === postsId
+                  ? `${p.title.rendered} (Posts page)`
+                  : p.id === homeId
+                    ? `${p.title.rendered} (Homepage page)`
+                    : p.title.rendered,
+            })),
+          ] as Page[],
         );
       })
       .catch((error) => console.error("Error loading form:", error));
@@ -1611,6 +1637,8 @@ const Main = (props: MainProps) => {
 
                 <Select
                   disabled={savingSettings}
+                  searchable
+                  clearable
                   label={
                     <InfoLabel
                       text="Sign In Page"
@@ -1623,13 +1651,15 @@ const Main = (props: MainProps) => {
                   onChange={(value) =>
                     setSettingsFormData({
                       ...settingsFormData,
-                      signInPage: value!,
+                      signInPage: value ?? "",
                     })
                   }
                   data={pageOptions}
                 />
                 <Select
                   disabled={savingSettings}
+                  searchable
+                  clearable
                   label={
                     <InfoLabel
                       text="Default redirect after signing in"
@@ -1642,13 +1672,15 @@ const Main = (props: MainProps) => {
                   onChange={(value) =>
                     setSettingsFormData({
                       ...settingsFormData,
-                      redirectSignIn: value!,
+                      redirectSignIn: value ?? "",
                     })
                   }
                   data={pageOptions}
                 />
                 <Select
                   disabled={savingSettings}
+                  searchable
+                  clearable
                   label={
                     <InfoLabel
                       text="Default redirect after signing out"
@@ -1661,7 +1693,7 @@ const Main = (props: MainProps) => {
                   onChange={(value) =>
                     setSettingsFormData({
                       ...settingsFormData,
-                      redirectSignOut: value!,
+                      redirectSignOut: value ?? "",
                     })
                   }
                   data={pageOptions}
