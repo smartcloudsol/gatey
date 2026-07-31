@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.5
+Stable tag: 2.4.6
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,11 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.6 =
+* Feature: Added Passkey Settings and Remembered Devices as supported Authenticator screens across blocks, custom areas, Elementor widgets, shortcodes, JavaScript navigation helpers, and the WordPress Abilities contract.
+* Dependencies: Updated the Gatey block toolchain and SmartCloud packages, and removed all known production dependency vulnerabilities.
+* Compatibility: Updated the bundled shared Hub runtime to 2.5.7.
 
 = 2.4.5 =
 * Feature: Improved the Sign In Page and post-authentication redirect selectors with searchable published pages, explicit WordPress Homepage and Posts page targets, and safe clearing.
@@ -580,6 +585,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.6 =
+Recommended update for sites using passkeys or remembered Cognito devices. Existing Authenticator blocks and shortcodes remain compatible.
 
 = 2.4.5 =
 Recommended update for clearer authentication redirect configuration and safe shared WP Suite Theme CSS handling. Existing redirect values remain compatible.

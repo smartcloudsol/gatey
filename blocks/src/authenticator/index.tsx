@@ -1,4 +1,7 @@
-import { TEXT_DOMAIN } from "@smart-cloud/gatey-core";
+import {
+  TEXT_DOMAIN,
+  type AuthenticatorScreen,
+} from "@smart-cloud/gatey-core";
 import { registerBlockType, type BlockAttribute } from "@wordpress/blocks";
 import metadata from "./block.json";
 import { Edit } from "./edit";
@@ -6,13 +9,7 @@ import { Save } from "./save";
 
 import "./index.css";
 
-export type Screen =
-  | "signIn"
-  | "signUp"
-  | "forgotPassword"
-  | "setupTotp"
-  | "editAccount"
-  | "changePassword";
+export type Screen = AuthenticatorScreen;
 
 export type Variation = "default" | "modal";
 

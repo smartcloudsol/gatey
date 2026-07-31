@@ -1,4 +1,4 @@
-import { PasswordlessSettings, type LoginMechanism, type SignUpAttribute, type SocialProvider } from "@smart-cloud/aws-amplify-ui";
+import { PasswordlessSettings, type InitialRoute, type LoginMechanism, type SignUpAttribute, type SocialProvider } from "@smart-cloud/aws-amplify-ui";
 import { type ResourcesConfig } from "aws-amplify";
 import { del, get, head, patch, post, put } from "aws-amplify/api";
 import { getGateyPlugin, getStore, waitForGateyReady, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent } from "./runtime";
@@ -8,6 +8,7 @@ export interface RoleMapping {
     cognitoGroup?: string;
     wordpressRole?: string;
 }
+export type AuthenticatorScreen = InitialRoute | "changePassword";
 export interface Settings {
     userPoolConfigurations: {
         default: ResourcesConfig;
@@ -58,6 +59,8 @@ export interface Cognito {
     toSignIn?: () => void;
     toSignUp?: () => void;
     toForgotPassword?: () => void;
+    toPasskeySettings?: () => void;
+    toRememberedDevices?: () => void;
 }
 export interface Gatey {
     cognito: Cognito;

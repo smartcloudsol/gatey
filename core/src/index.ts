@@ -1,5 +1,6 @@
 import {
   PasswordlessSettings,
+  type InitialRoute,
   type LoginMechanism,
   type SignUpAttribute,
   type SocialProvider,
@@ -42,6 +43,8 @@ export interface RoleMapping {
   cognitoGroup?: string;
   wordpressRole?: string;
 }
+
+export type AuthenticatorScreen = InitialRoute | "changePassword";
 
 export interface Settings {
   userPoolConfigurations: {
@@ -130,6 +133,8 @@ export interface Cognito {
   toSignIn?: () => void;
   toSignUp?: () => void;
   toForgotPassword?: () => void;
+  toPasskeySettings?: () => void;
+  toRememberedDevices?: () => void;
 }
 
 export interface Gatey {

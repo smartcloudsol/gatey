@@ -314,6 +314,12 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
           case "editAccount":
             title = translate("Edit Account");
             break;
+          case "passkeySettings":
+            title = translate("Passkey Settings");
+            break;
+          case "rememberedDevices":
+            title = translate("Remembered Devices");
+            break;
           case "setupTotp":
             title = translate("Setup TOTP");
             break;
@@ -366,6 +372,14 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
                       {
                         label: __("Change Password", TEXT_DOMAIN),
                         value: "changePassword",
+                      },
+                      {
+                        label: __("Passkey Settings", TEXT_DOMAIN),
+                        value: "passkeySettings",
+                      },
+                      {
+                        label: __("Remembered Devices", TEXT_DOMAIN),
+                        value: "rememberedDevices",
                       },
                       {
                         label: __("Setup TOTP", TEXT_DOMAIN),
@@ -590,6 +604,24 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
                         title: __("Change Password", TEXT_DOMAIN),
                         onClick: () => {
                           setNextPreviewScreen("changePassword");
+                          setPreviewScreen(undefined);
+                        },
+                      },
+                      {
+                        icon:
+                          previewScreen === "passkeySettings" ? check : null,
+                        title: __("Passkey Settings", TEXT_DOMAIN),
+                        onClick: () => {
+                          setNextPreviewScreen("passkeySettings");
+                          setPreviewScreen(undefined);
+                        },
+                      },
+                      {
+                        icon:
+                          previewScreen === "rememberedDevices" ? check : null,
+                        title: __("Remembered Devices", TEXT_DOMAIN),
+                        onClick: () => {
+                          setNextPreviewScreen("rememberedDevices");
                           setPreviewScreen(undefined);
                         },
                       },

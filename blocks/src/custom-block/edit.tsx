@@ -163,6 +163,14 @@ export const Edit: FunctionComponent<BlockEditProps<ComponentAttributes>> = (
                 label: __("Forgot Password", TEXT_DOMAIN),
                 value: "ForgotPassword",
               },
+              {
+                label: __("Passkey Settings", TEXT_DOMAIN),
+                value: "PasskeySettings",
+              },
+              {
+                label: __("Remembered Devices", TEXT_DOMAIN),
+                value: "RememberedDevices",
+              },
               { label: __("Setup TOTP", TEXT_DOMAIN), value: "SetupTotp" },
               { label: __("Sign In", TEXT_DOMAIN), value: "SignIn" },
               { label: __("Sign Up", TEXT_DOMAIN), value: "SignUp" },

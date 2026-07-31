@@ -6,7 +6,7 @@
  * Requires at least: 6.9
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.4.5
+ * Version:           2.4.6
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.5';
+const VERSION = '2.4.6';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -38,6 +38,17 @@ if (version_compare(PHP_VERSION, '8.1', '<')) {
  */
 final class Gatey
 {
+
+    public const AUTHENTICATOR_SCREENS = array(
+        'signIn',
+        'signUp',
+        'forgotPassword',
+        'setupTotp',
+        'editAccount',
+        'changePassword',
+        'passkeySettings',
+        'rememberedDevices',
+    );
 
     /** Singleton instance */
     private static ?Gatey $instance = null;
@@ -198,21 +209,8 @@ final class Gatey
 
     private function getWpsuiteThemeCssHref(): ?string
     {
-        if (!defined('SMARTCLOUD_WPSUITE_SLUG')) {
-            return null;
-        }
-
-        $upload_dir_info = wp_upload_dir();
-        $css_path = trailingslashit($upload_dir_info['basedir']) . SMARTCLOUD_WPSUITE_SLUG . '/wpsuite-theme.css';
-
-        if (!file_exists($css_path)) {
-            return null;
-        }
-
-        $css_url = trailingslashit($upload_dir_info['baseurl']) . SMARTCLOUD_WPSUITE_SLUG . '/wpsuite-theme.css';
-        $version = filemtime($css_path) ?: GATEY_VERSION;
-
-        return add_query_arg('ver', (string) $version, $css_url);
+        $url = apply_filters('smartcloud_wpsuite_theme_css_url', null);
+        return is_string($url) && $url !== '' ? $url : null;
     }
 
     /**
@@ -483,7 +481,10 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                 }
 
                 $attrs['uid'] = $attrs['uid'] ?? '';
-                $attrs['screen'] = $attrs['screen'] ?? 'signIn';
+                $screen = $attrs['screen'] ?? 'signIn';
+                $attrs['screen'] = is_string($screen) && in_array($screen, self::AUTHENTICATOR_SCREENS, true)
+                    ? $screen
+                    : 'signIn';
                 $attrs['variation'] = $attrs['variation'] ?? 'default';
                 $attrs['colorMode'] = $attrs['colorMode'] ?? 'system';
                 $attrs['language'] = $attrs['language'] ?? 'en';

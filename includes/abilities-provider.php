@@ -385,8 +385,8 @@ final class Provider extends Product_Provider_Base
             'hide_sign_up' => is_object($settings) && !empty($settings->hideSignUp),
             'enabled_social_provider_names' => is_object($settings) && isset($settings->socialProviders) ? array_values(array_map('strval', (array) $settings->socialProviders)) : array(),
             'passwordless_modes' => is_object($settings) && isset($settings->passwordlessSettings) ? array_values(array_map('strval', (array) $settings->passwordlessSettings)) : array(),
-            'supported_authenticator_screens' => array('signIn', 'signUp', 'forgotPassword', 'setupTotp', 'editAccount', 'changePassword'),
-            'supported_custom_components' => array('Global', 'ChangePassword', 'ConfirmSignIn', 'ConfirmSignUp', 'ConfirmResetPassword', 'ConfirmVerifyUser', 'EditAccount', 'ForceNewPassword', 'ForgotPassword', 'SetupTotp', 'SignIn', 'SignUp', 'VerifyUser'),
+            'supported_authenticator_screens' => array('signIn', 'signUp', 'forgotPassword', 'setupTotp', 'editAccount', 'changePassword', 'passkeySettings', 'rememberedDevices'),
+            'supported_custom_components' => array('Global', 'ChangePassword', 'ConfirmSignIn', 'ConfirmSignUp', 'ConfirmResetPassword', 'ConfirmVerifyUser', 'EditAccount', 'ForceNewPassword', 'ForgotPassword', 'PasskeySettings', 'RememberedDevices', 'SetupTotp', 'SignIn', 'SignUp', 'VerifyUser'),
             'supported_custom_parts' => array('Header', 'Footer', 'FormFields'),
             'client_only_configuration_unavailable_to_php' => true,
         );

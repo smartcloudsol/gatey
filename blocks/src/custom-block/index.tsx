@@ -8,6 +8,7 @@ import { Save } from "./save";
 export type ComponentAttributes = {
   component?:
     | "Global"
+    | "ChangePassword"
     | "ConfirmSignIn"
     | "ConfirmSignUp"
     | "ConfirmResetPassword"
@@ -15,6 +16,8 @@ export type ComponentAttributes = {
     | "EditAccount"
     | "ForceNewPassword"
     | "ForgotPassword"
+    | "PasskeySettings"
+    | "RememberedDevices"
     | "SetupTotp"
     | "SignIn"
     | "SignUp"

@@ -135,6 +135,8 @@ class Gatey_Authenticator_Widget extends Gatey_Base_Widget
             'setupTotp' => __('Setup TOTP', 'gatey'),
             'editAccount' => __('Edit Account', 'gatey'),
             'changePassword' => __('Change Password', 'gatey'),
+            'passkeySettings' => __('Passkey Settings', 'gatey'),
+            'rememberedDevices' => __('Remembered Devices', 'gatey'),
         ];
         self::$VARIATIONS = [
             '' => '',

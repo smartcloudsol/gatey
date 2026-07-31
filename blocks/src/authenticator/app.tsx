@@ -206,6 +206,10 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
             break;
           case "editAccount":
             return translate("Edit Account");
+          case "passkeySettings":
+            return translate("Passkey Settings");
+          case "rememberedDevices":
+            return translate("Remembered Devices");
           case "setupTotp":
             return translate("Setup TOTP");
         }

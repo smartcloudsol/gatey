@@ -58,6 +58,8 @@ export type DefaultComponentDescriptorKeys =
   | "SignUp"
   | "ForgotPassword"
   | "EditAccount"
+  | "PasskeySettings"
+  | "RememberedDevices"
   | "SetupTotp"
   | "ConfirmSignIn"
   | "ConfirmSignUp"
@@ -158,6 +160,8 @@ export const Login = (
     toForgotPassword,
     toSetupTotp,
     toEditAccount,
+    toPasskeySettings,
+    toRememberedDevices,
   } = useAuthenticator((context) => [
     context.user,
     context.authStatus,
@@ -328,6 +332,12 @@ export const Login = (
         case "editAccount":
           toEditAccount();
           break;
+        case "passkeySettings":
+          toPasskeySettings();
+          break;
+        case "rememberedDevices":
+          toRememberedDevices();
+          break;
         case "signIn":
           toSignIn();
           break;
@@ -341,6 +351,8 @@ export const Login = (
     toSignUp,
     toSetupTotp,
     toEditAccount,
+    toPasskeySettings,
+    toRememberedDevices,
   ]);
 
   useEffect(() => {
@@ -355,7 +367,15 @@ export const Login = (
     gatey.cognito.toSignIn = toSignIn;
     gatey.cognito.toSignUp = toSignUp;
     gatey.cognito.toForgotPassword = toForgotPassword;
-  }, [toForgotPassword, toSignIn, toSignUp]);
+    gatey.cognito.toPasskeySettings = toPasskeySettings;
+    gatey.cognito.toRememberedDevices = toRememberedDevices;
+  }, [
+    toForgotPassword,
+    toPasskeySettings,
+    toRememberedDevices,
+    toSignIn,
+    toSignUp,
+  ]);
 
   useEffect(() => {
     if (screen !== "signIn" || isPreview || logoutHandled || !loggingOut) {
