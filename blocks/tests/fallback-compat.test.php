@@ -70,12 +70,13 @@ function expect(bool $condition, string $message): void
     }
 }
 
-$fallback = new TestInnerBlock('wpsuite/react-fallback', '<div data-wpsuite-react-fallback>Loading account</div>');
+$fallback = new TestInnerBlock('wpsuite/react-fallback', '<div data-wpsuite-react-fallback><fallback-placeholder data-fallback-marker></fallback-placeholder></div>');
 $config = new TestInnerBlock('gatey/custom-block', '<p>configuration child</p>');
 $withFallback = renderAuthenticator([$fallback, $config]);
 $withoutFallback = renderAuthenticator([$config]);
 
 expect(str_contains($withFallback, 'data-wpsuite-react-fallback'), 'Authenticator must render its authored fallback.');
+expect(str_contains($withFallback, 'data-fallback-marker'), 'Authenticator must preserve native rendered child-block markup without a second allowlist.');
 expect(str_contains($withFallback, 'smartcloud-gatey-authenticator__mount'), 'Authenticator must expose a dedicated React mount.');
 expect(str_contains($withFallback, 'smartcloud-gatey-authenticator__config'), 'Authenticator must preserve its hidden configuration.');
 expect(str_contains($withoutFallback, 'smartcloud-gatey-authenticator__mount'), 'Authenticator must remain mountable without a fallback.');

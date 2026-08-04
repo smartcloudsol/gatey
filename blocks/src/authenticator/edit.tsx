@@ -1,5 +1,6 @@
 import {
   BlockControls,
+  InnerBlocks,
   InspectorControls,
   store as blockEditorStore,
   useBlockEditingMode,
@@ -233,9 +234,16 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
   const editorRef = useRef<HTMLDivElement>(null);
 
   const { style: previewHostStyle, ...blockProps } = useBlockProps();
-  const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps, {
-    allowedBlocks: ["gatey/custom-block", REACT_FALLBACK_BLOCK_NAME],
-  });
+  const innerBlocksProps = useInnerBlocksProps(
+    {
+      style: { display: showCustomization ? "block" : "none" },
+    },
+    {
+      allowedBlocks: ["gatey/custom-block", REACT_FALLBACK_BLOCK_NAME],
+      renderAppender: InnerBlocks.ButtonBlockAppender,
+    },
+  );
+  const { children } = innerBlocksProps;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -349,7 +357,7 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
   }, [clientId, setAttributes, uid]);
 
   return (
-    <div {...innerBlocksProps}>
+    <div {...blockProps}>
       <div ref={editorRef}>
         <InspectorControls>
           <PanelBody title={__("Settings", TEXT_DOMAIN)}>
@@ -714,9 +722,7 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
           ) : (
             <>{__("Loading configuration...", TEXT_DOMAIN)}</>
           )}
-          <div style={{ display: showCustomization ? "block" : "none" }}>
-            {children}
-          </div>
+          <div {...innerBlocksProps} />
         </div>
       </div>
     </div>

@@ -212,6 +212,8 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 = 2.4.7 =
 * Feature: Added native, server-rendered Gutenberg fallback content for Authenticator while its React interface and authentication store initialize.
 * Performance: Mounted Authenticator into a dedicated child root so authored fallback content remains visible until React commits.
+* Editor: Added a visible inner-block inserter for Authenticator fallback and customization blocks.
+* Fix: Preserved native rendered Gutenberg child markup inside server-rendered Authenticator fallback content.
 * Compatibility: Preserved pattern-ID shortcode and Elementor rendering, including the selected pattern's nested configuration blocks.
 * Fix: Normalized nested passwordless settings in the WordPress Abilities discovery response without array-to-string warnings.
 * Safety: Exposed only allowlisted passwordless methods and passkey prompt values while preserving the existing passwordless modes field.

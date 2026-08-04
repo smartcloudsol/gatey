@@ -16,10 +16,15 @@ if (isset($block) && is_object($block) && !empty($block->inner_blocks)) {
         }
     }
 }
+
 ?>
 <div smartcloud-gatey-authenticator id="<?php echo esc_html($gatey_bid) ?>"
     data-is-preview="smartcloud-gatey-is-preview" data-config="<?php echo esc_attr($gatey_config) ?>" <?php echo wp_kses_data(get_block_wrapper_attributes()) ?>>
-    <?php echo wp_kses_post($gatey_fallback) ?>
+    <?php
+    // WP_Block::render() returns display-ready markup for the authored fallback block and its children.
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    echo $gatey_fallback;
+    ?>
     <div class="smartcloud-gatey-authenticator__mount"></div>
     <div class="smartcloud-gatey-authenticator__config" hidden>
         <?php echo esc_html($content) ?>
