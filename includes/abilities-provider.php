@@ -16,6 +16,8 @@ if (!defined('ABSPATH')) {
 
 final class Provider extends Product_Provider_Base
 {
+    private const REACT_FALLBACK_BLOCK = 'wpsuite/react-fallback';
+
     /** @var string[] */
     private array $components = array(
         'authenticator',
@@ -299,6 +301,12 @@ final class Provider extends Product_Provider_Base
             }
 
             $name = (string) ($block['blockName'] ?? '');
+            if ($name === self::REACT_FALLBACK_BLOCK) {
+                if ($parent !== 'gatey/authenticator') {
+                    $errors[] = $this->validation_issue('gatey_fallback_parent_invalid', 'The React fallback block is accepted only as a direct Authenticator child.', $current_path);
+                }
+                continue;
+            }
             if (!in_array($name, $this->blocks, true)) {
                 $errors[] = $this->validation_issue('gatey_unknown_block', 'Only current Gatey blocks are accepted.', $current_path);
                 continue;
@@ -379,12 +387,20 @@ final class Provider extends Product_Provider_Base
     private function safe_settings(): array
     {
         $settings = $this->settings_object();
+        $passwordless_settings = is_object($settings) && isset($settings->passwordlessSettings)
+            ? $this->safe_passwordless_settings($settings->passwordlessSettings)
+            : array();
+        $passwordless_modes = array_values(array_unique(array_merge(
+            $passwordless_settings['hiddenAuthMethods'] ?? array(),
+            isset($passwordless_settings['preferredAuthMethod']) ? array($passwordless_settings['preferredAuthMethod']) : array()
+        )));
         $configuration = array(
-            'login_mechanisms' => is_object($settings) && isset($settings->loginMechanisms) ? array_values(array_map('strval', (array) $settings->loginMechanisms)) : array(),
-            'sign_up_attributes' => is_object($settings) && isset($settings->signUpAttributes) ? array_values(array_map('strval', (array) $settings->signUpAttributes)) : array(),
+            'login_mechanisms' => is_object($settings) && isset($settings->loginMechanisms) ? $this->safe_string_list($settings->loginMechanisms) : array(),
+            'sign_up_attributes' => is_object($settings) && isset($settings->signUpAttributes) ? $this->safe_string_list($settings->signUpAttributes) : array(),
             'hide_sign_up' => is_object($settings) && !empty($settings->hideSignUp),
-            'enabled_social_provider_names' => is_object($settings) && isset($settings->socialProviders) ? array_values(array_map('strval', (array) $settings->socialProviders)) : array(),
-            'passwordless_modes' => is_object($settings) && isset($settings->passwordlessSettings) ? array_values(array_map('strval', (array) $settings->passwordlessSettings)) : array(),
+            'enabled_social_provider_names' => is_object($settings) && isset($settings->socialProviders) ? $this->safe_string_list($settings->socialProviders) : array(),
+            'passwordless_modes' => $passwordless_modes,
+            'passwordless_settings' => $passwordless_settings,
             'supported_authenticator_screens' => array('signIn', 'signUp', 'forgotPassword', 'setupTotp', 'editAccount', 'changePassword', 'passkeySettings', 'rememberedDevices'),
             'supported_custom_components' => array('Global', 'ChangePassword', 'ConfirmSignIn', 'ConfirmSignUp', 'ConfirmResetPassword', 'ConfirmVerifyUser', 'EditAccount', 'ForceNewPassword', 'ForgotPassword', 'PasskeySettings', 'RememberedDevices', 'SetupTotp', 'SignIn', 'SignUp', 'VerifyUser'),
             'supported_custom_parts' => array('Header', 'Footer', 'FormFields'),
@@ -396,6 +412,60 @@ final class Provider extends Product_Provider_Base
             'block_registration' => $this->block_registration_status($this->blocks),
             'missing_requirements' => array(),
         );
+    }
+
+    private function safe_string_list(mixed $value): array
+    {
+        $values = is_array($value) ? $value : (is_object($value) ? get_object_vars($value) : array($value));
+        $strings = array();
+
+        foreach ($values as $item) {
+            if (is_string($item) || is_int($item) || is_float($item)) {
+                $strings[] = (string) $item;
+            }
+        }
+
+        return array_values(array_unique($strings));
+    }
+
+    private function safe_passwordless_settings(mixed $value): array
+    {
+        $raw = is_array($value) ? $value : (is_object($value) ? get_object_vars($value) : array());
+        $allowed_methods = array('PASSWORD', 'EMAIL_OTP', 'SMS_OTP', 'WEB_AUTHN');
+        $allowed_prompt_modes = array('ALWAYS', 'NEVER');
+        $normalized = array();
+
+        $hidden_methods = array_values(array_filter(
+            $this->safe_string_list($raw['hiddenAuthMethods'] ?? array()),
+            static fn(string $method): bool => in_array($method, $allowed_methods, true)
+        ));
+        if (!empty($hidden_methods)) {
+            $normalized['hiddenAuthMethods'] = $hidden_methods;
+        }
+
+        $preferred_method = $raw['preferredAuthMethod'] ?? null;
+        if (is_string($preferred_method) && in_array($preferred_method, $allowed_methods, true)) {
+            $normalized['preferredAuthMethod'] = $preferred_method;
+        }
+
+        $prompts = $raw['passkeyRegistrationPrompts'] ?? null;
+        if (is_bool($prompts)) {
+            $normalized['passkeyRegistrationPrompts'] = $prompts;
+        } elseif (is_array($prompts) || is_object($prompts)) {
+            $prompt_values = is_array($prompts) ? $prompts : get_object_vars($prompts);
+            $normalized_prompts = array();
+            foreach (array('afterSignin', 'afterSignup') as $prompt_key) {
+                $prompt_mode = $prompt_values[$prompt_key] ?? null;
+                if (is_string($prompt_mode) && in_array($prompt_mode, $allowed_prompt_modes, true)) {
+                    $normalized_prompts[$prompt_key] = $prompt_mode;
+                }
+            }
+            if (!empty($normalized_prompts)) {
+                $normalized['passkeyRegistrationPrompts'] = $normalized_prompts;
+            }
+        }
+
+        return $normalized;
     }
 
     private function settings_object(): mixed

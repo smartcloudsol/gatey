@@ -76,7 +76,7 @@ class Admin
     public function addMenu()
     {
         $generate_suffix = add_submenu_page(
-            SMARTCLOUD_WPSUITE_SLUG,
+            SMARTCLOUD_WPSUITE_CANONICAL_SLUG,
             __('Gatey Settings', 'gatey'),
             __('Gatey Settings', 'gatey'),
             'manage_options',
@@ -85,7 +85,7 @@ class Admin
         );
 
         add_submenu_page(
-            SMARTCLOUD_WPSUITE_SLUG,
+            SMARTCLOUD_WPSUITE_CANONICAL_SLUG,
             __('Gatey Patterns', 'gatey'),
             __('Gatey Patterns', 'gatey'),
             'edit_posts',
@@ -262,7 +262,7 @@ class Admin
     public function highlightMenu($parent_file)
     {
         if ($this->isGateyPatternsRequest((string) get_query_var('post_type'), (string) get_query_var('s'))) {
-            return SMARTCLOUD_WPSUITE_SLUG;
+            return SMARTCLOUD_WPSUITE_CANONICAL_SLUG;
         }
         return $parent_file;
     }

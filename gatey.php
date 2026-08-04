@@ -6,7 +6,7 @@
  * Requires at least: 6.9
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.4.6
+ * Version:           2.4.7
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.6';
+const VERSION = '2.4.7';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -710,8 +710,8 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             require_once GATEY_PATH . 'hub-loader.php';
         }
 
-        if (!class_exists('\SmartCloud\WPSuite\Hub\Abilities\Product_Provider_Base') && file_exists(GATEY_PATH . 'hub-for-wpsuiteio/abilities.php')) {
-            require_once GATEY_PATH . 'hub-for-wpsuiteio/abilities.php';
+        if (!class_exists('\SmartCloud\WPSuite\Hub\Abilities\Product_Provider_Base') && file_exists(GATEY_PATH . 'smartcloud-wpsuite/abilities.php')) {
+            require_once GATEY_PATH . 'smartcloud-wpsuite/abilities.php';
         }
         if (class_exists('\SmartCloud\WPSuite\Hub\Abilities\Product_Provider_Base') && file_exists(GATEY_PATH . 'includes/abilities-provider.php')) {
             require_once GATEY_PATH . 'includes/abilities-provider.php';

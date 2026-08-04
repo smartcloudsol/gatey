@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.6
+Stable tag: 2.4.7
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -201,13 +201,23 @@ All references to “Amazon Cognito” are made purely to describe this plugin�
 All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/gatey
 
 **WP Suite Admin source code:**  
-The `wpsuite-admin/` directory contains modules originating from the Hub for WPSuite.io project: https://github.com/smartcloudsol/hub-for-wpsuiteio  
+The `wpsuite-admin/` directory contains modules originating from the SmartCloud WP Suite project: https://github.com/smartcloudsol/smartcloud-wpsuite
 This shared component handles WP Suite workspace linking, licence validation, and subscription management, and will be included in all upcoming WP Suite plugins.
 
 **Premium-only features:**
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.7 =
+* Feature: Added native, server-rendered Gutenberg fallback content for Authenticator while its React interface and authentication store initialize.
+* Performance: Mounted Authenticator into a dedicated child root so authored fallback content remains visible until React commits.
+* Compatibility: Preserved pattern-ID shortcode and Elementor rendering, including the selected pattern's nested configuration blocks.
+* Fix: Normalized nested passwordless settings in the WordPress Abilities discovery response without array-to-string warnings.
+* Safety: Exposed only allowlisted passwordless methods and passkey prompt values while preserving the existing passwordless modes field.
+* Packaging: Renamed the bundled shared runtime directory to `smartcloud-wpsuite`.
+* Migration: Made `smartcloud-wpsuite` the canonical admin, option, and REST namespace while retaining legacy aliases for rolling upgrades.
+* Cleanup: Added multisite-aware uninstall removal for Gatey settings and Cognito JWKS transients without touching shared WP Suite licences.
 
 = 2.4.6 =
 * Feature: Added Passkey Settings and Remembered Devices as supported Authenticator screens across blocks, custom areas, Elementor widgets, shortcodes, JavaScript navigation helpers, and the WordPress Abilities contract.
@@ -323,7 +333,7 @@ Internal: Improved script loading order so lightweight bootstrap data can be ava
 * Improvement: updated the shortcode column rendering/behavior.
 
 = 2.1.0 =
-* Moved reCAPTCHA handling and script loading to the shared hub-for-wpsuiteio package.
+* Moved reCAPTCHA handling and script loading to the shared smartcloud-wpsuite package.
 * Added admin-configurable debug logging for monitoring plugin PHP execution when needed. Requires both WP_DEBUG and WP_DEBUG_LOG to be enabled.
 * Fixed a redirection issue.
 * Simplified attribute handling across all block rendering flows.
@@ -431,7 +441,7 @@ The previous release escaped `get_block_wrapper_attributes()` incorrectly, which
 prevented proper rendering of class names, inline styles, and data attributes.
 
 = 1.8.2 =
-Re-enabled the **Hub for WPSuite.io** functionality directly inside Gatey.  
+Re-enabled the **SmartCloud WP Suite** functionality directly inside Gatey.
 This component reconnects your WordPress instance with wpsuite.io for subscription and licence management — previously released as a separate plugin, but re-integrated here following WordPress.org review guidelines.  
 Also improved wp-login synchronization: changing an email address in Cognito no longer prevents successful WordPress login when the WP-login integration is enabled.
 text
@@ -440,7 +450,7 @@ text
 Removed an unnecessary debug log entry from the authentication flow to keep browser and server logs clean.
 
 = 1.8.0 =
-- New integration with the **Hub for WPSuite.io** plugin: licence validation and site connection have been moved into a shared component.
+- New integration with the **SmartCloud WP Suite** plugin: licence validation and site connection have been moved into a shared component.
 - Gatey’s admin pages (Settings and Patterns) now appear under the central **WPSuite.io** menu in wp-admin, alongside other WP Suite plugins.
 - Minor UI refinements and code clean-up to support the new menu structure.
 
@@ -585,6 +595,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.7 =
+Recommended feature and compatibility update. Adds crawler-visible Authenticator fallbacks, fixes nested passwordless discovery, migrates the shared runtime namespace, and adds plugin-owned uninstall cleanup while preserving shortcode, Elementor, and shared licence behavior.
 
 = 2.4.6 =
 Recommended update for sites using passkeys or remembered Cognito devices. Existing Authenticator blocks and shortcodes remain compatible.
@@ -736,13 +749,13 @@ No configuration changes are required. Updating is recommended for improved perf
 Important fix — update immediately if your Gatey blocks (Authenticator, Account Attribute, or Form Field) lost styling or alignment. The previous version escaped wrapper attributes incorrectly; this update restores proper class, style, and data-* handling while keeping the output secure.
 
 = 1.8.2 =
-Update to restore the built-in Hub for WPSuite.io component (site connection, subscription, and licence management) and to fix a wp-login sync issue where Cognito email changes blocked login.
+Update to restore the built-in SmartCloud WP Suite component (site connection, subscription, and licence management) and to fix a wp-login sync issue where Cognito email changes blocked login.
 
 = 1.8.1 =
 Update to remove an obsolete log line — no functional change, but results in cleaner logs during sign-in and sign-up operations.
 
 = 1.8.0 =
-Update to migrate licence and site-connection handling into the shared **Hub for WPSuite.io** plugin. 
+Update to migrate licence and site-connection handling into the shared **SmartCloud WP Suite** plugin.
 Gatey now appears under the central SmartCloud menu in wp-admin, and will show clear guidance if the Hub plugin is missing or not connected. 
 Install the Hub plugin to continue using Pro features.
 

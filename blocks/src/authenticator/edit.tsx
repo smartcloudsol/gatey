@@ -38,6 +38,7 @@ import {
   TEXT_DOMAIN,
   type Store,
 } from "@smart-cloud/gatey-core";
+import { REACT_FALLBACK_BLOCK_NAME } from "@smart-cloud/wpsuite-blocks";
 
 import {
   getWpSuite,
@@ -232,7 +233,9 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
   const editorRef = useRef<HTMLDivElement>(null);
 
   const { style: previewHostStyle, ...blockProps } = useBlockProps();
-  const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps);
+  const { children, ...innerBlocksProps } = useInnerBlocksProps(blockProps, {
+    allowedBlocks: ["gatey/custom-block", REACT_FALLBACK_BLOCK_NAME],
+  });
 
   useEffect(() => {
     queueMicrotask(() => {

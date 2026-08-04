@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "gatey/authenticator",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "title": "Authenticator",
   "category": "smartcloud-gatey",
   "description": "Gatey Authenticator - add authentication screens to your site",
@@ -62,7 +62,7 @@
     "shadow": true,
     "spacing": { "margin": true, "padding": true }
   },
-  "allowedBlocks": ["gatey/custom-block"],
+  "allowedBlocks": ["gatey/custom-block", "wpsuite/react-fallback"],
   "textdomain": "gatey",
   "editorScript": "smartcloud-gatey-blocks-editor-script",
   "editorStyle": "smartcloud-gatey-blocks-editor-style",

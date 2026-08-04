@@ -1,4 +1,8 @@
+import { registerReactFallbackBlock } from "@smart-cloud/wpsuite-blocks/editor";
+
 import "./index";
+
+registerReactFallbackBlock();
 
 import "./account-attribute/index";
 import "./authenticator/index";
