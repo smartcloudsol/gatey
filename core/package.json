@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-core",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Login & SSO with Amazon Cognito",
   "author": "Smart Cloud Solutions Inc.",
   "license": "MIT",
@@ -44,16 +44,16 @@
   },
   "peerDependencies": {
     "@aws-amplify/core": "^6.18.0",
-    "@smart-cloud/aws-amplify-ui": "^6.16.0",
-    "@smart-cloud/aws-amplify-ui-react": "^6.16.0",
+    "@smart-cloud/aws-amplify-ui": "6.15.5",
+    "@smart-cloud/aws-amplify-ui-react": "6.15.5",
     "@wordpress/data": "^10.52.0",
     "aws-amplify": "^6.20.0",
     "jose": "^6.2.5"
   },
   "devDependencies": {
     "@aws-amplify/core": "^6.18.0",
-    "@smart-cloud/aws-amplify-ui": "^6.16.0",
-    "@smart-cloud/aws-amplify-ui-react": "^6.16.0",
+    "@smart-cloud/aws-amplify-ui": "6.15.5",
+    "@smart-cloud/aws-amplify-ui-react": "6.15.5",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.1.2",
     "@types/react": "^18.3.28",

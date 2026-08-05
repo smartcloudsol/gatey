@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.8
+Stable tag: 2.4.9
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,9 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.9 =
+* Dependency: Replaced the deprecated SmartCloud Amplify UI 6.16.0 package line with exact supported 6.15.5/3.6.5/6.15.5 versions and rebuilt the shared vendor runtime.
 
 = 2.4.8 =
 * Compatibility: Restored ownership-safe WP Suite Theme CSS fragment updates on WordPress-managed Custom CSS storage.
@@ -600,6 +603,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.9 =
+Recommended dependency refresh away from deprecated SmartCloud Amplify UI releases.
 
 = 2.4.8 =
 Recommended compatibility update for Starter-managed WP Suite Theme CSS.
