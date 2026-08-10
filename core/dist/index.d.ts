@@ -1,7 +1,7 @@
 import { PasswordlessSettings, type InitialRoute, type LoginMechanism, type SignUpAttribute, type SocialProvider } from "@smart-cloud/aws-amplify-ui";
 import { type ResourcesConfig } from "aws-amplify";
 import { del, get, head, patch, post, put } from "aws-amplify/api";
-import { getGateyPlugin, getStore, waitForGateyReady, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent } from "./runtime";
+import { getGateyPlugin, getStore, resolveGateyTarget, waitForGateyReady, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent } from "./runtime";
 import { clearMfaPreferences, getAmplifyConfig, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, getUsername, isAuthenticated, isInGroup } from "./auth";
 import { observeStore, type Store } from "./store";
 export interface RoleMapping {
@@ -68,7 +68,11 @@ export interface Gatey {
     nonce: string;
     restUrl: string;
 }
-export { getGateyPlugin, getStore, waitForGateyReady, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent, };
+export interface GateySiteRuntime {
+    /** Current WordPress site's canonical URL, including a Multisite path. */
+    siteUrl?: string;
+}
+export { getGateyPlugin, getStore, resolveGateyTarget, waitForGateyReady, type GateyErrorEvent, type GateyPlugin, type GateyReadyEvent, };
 export { clearMfaPreferences, getGroups, getMfaPreferences, getPreferredRole, getRoles, getScopes, getUserAttributes, isAuthenticated, isInGroup, };
 export { configureAmplify, getAmplifyConfig, loadAuthSession, loadMFAPreferences, loadUserAttributes, login, logout, type Account, } from "./auth";
 export { getStoreDispatch, getStoreSelect, observeStore, sanitizeAuthenticatorConfig, type AuthenticatorConfig, type CustomTranslations, type FormField, type State, type Store, } from "./store";

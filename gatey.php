@@ -6,7 +6,7 @@
  * Requires at least: 6.9
  * Tested up to:      7.0
  * Requires PHP:      8.1
- * Version:           2.4.10
+ * Version:           2.4.11
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.10';
+const VERSION = '2.4.11';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -225,6 +225,10 @@ final class Gatey
             'status' => 'initializing',
             'cognito' => array(),
             'settings' => $settings,
+            // home_url() retains the active blog path on a subdirectory
+            // Multisite. The browser runtime uses it to resolve Gatey's
+            // portable /page settings without escaping to the root site.
+            'siteUrl' => home_url( '/' ),
             'restUrl' => rest_url(GATEY_SLUG . '/v1'),
             'nonce' => wp_create_nonce('wp_rest'),
         );

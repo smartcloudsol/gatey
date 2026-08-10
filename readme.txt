@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.10
+Stable tag: 2.4.11
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,10 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.11 =
+* Multisite: Resolve selected Gatey pages against the active subsite in browser redirects and Cognito callback configuration, rather than treating `/` and `/slug` as network-root paths.
+* Multisite: Expose the active site URL to the frontend runtime so WordPress-login integration, Sign In, and sign-out flows use one site-local destination.
 
 = 2.4.10 =
 * Multisite: Store shared Hub ownership per site and recognize network-activated owners.

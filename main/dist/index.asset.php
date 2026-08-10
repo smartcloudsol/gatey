@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('jquery', 'wp-data'), 'version' => 'a7279d62ca0c2be4d51a');
+<?php return array('dependencies' => array('jquery', 'wp-data'), 'version' => 'a9741600ee0bc657b08b');

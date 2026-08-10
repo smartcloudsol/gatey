@@ -29,7 +29,7 @@ import {
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
-import { getGateyPlugin, getStore } from "./runtime";
+import { getGateyPlugin, getStore, resolveGateyTarget } from "./runtime";
 
 let siteSettings: SiteSettings;
 if (typeof WpSuite !== "undefined") {
@@ -96,6 +96,8 @@ const initAmplify = async (
   if (!gatey) {
     throw new Error("Gatey plugin is not available");
   }
+  const signInCallbackUrl =
+    resolveGateyTarget(gatey.settings?.signInPage) ?? window.location.origin;
   const rc =
     gatey.settings?.secondaryUserPoolDomains &&
     hostname
@@ -117,12 +119,8 @@ const initAmplify = async (
             scopes: [],
             responseType: "code",
             ...rc.Auth?.Cognito?.loginWith?.oauth,
-            redirectSignIn: [
-              window.location.origin + gatey.settings?.signInPage,
-            ],
-            redirectSignOut: [
-              window.location.origin + gatey.settings?.signInPage,
-            ],
+            redirectSignIn: [signInCallbackUrl],
+            redirectSignOut: [signInCallbackUrl],
           },
         },
       },

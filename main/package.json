@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -18,7 +18,7 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.3.3",
+    "@smart-cloud/gatey-core": "^2.3.4",
     "@smart-cloud/wpsuite-core": "^2.3.2"
   },
   "peerDependencies": {
@@ -33,9 +33,9 @@
   },
   "devDependencies": {
     "@aws-amplify/core": "^6.18.0",
+    "@eslint/js": "^10.0.1",
     "@smart-cloud/aws-amplify-ui": "6.15.5",
     "@smart-cloud/aws-amplify-ui-react": "6.15.5",
-    "@eslint/js": "^10.0.1",
     "@types/jquery": "^4.0.1",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
@@ -48,8 +48,8 @@
     "country-data-list": "^1.6.3",
     "eslint": "^10.8.0",
     "globals": "^17.8.0",
-    "jquery": "^4.0.0",
     "jose": "^6.2.5",
+    "jquery": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tsup": "^8.5.1",

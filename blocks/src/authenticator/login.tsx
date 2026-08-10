@@ -21,6 +21,7 @@ import { useSelect } from "@wordpress/data";
 
 import {
   getGateyPlugin,
+  resolveGateyTarget,
   getStoreDispatch,
   getStoreSelect,
   type Account,
@@ -214,25 +215,26 @@ export const Login = (
   );
 
   const redirectIfNeeded = useCallback((target: string | null | undefined) => {
-    if (!target) {
+    const resolvedTarget = resolveGateyTarget(target);
+    if (!resolvedTarget) {
       return false;
     }
 
     try {
       if (
-        normalizeRedirectUrl(target) ===
+        normalizeRedirectUrl(resolvedTarget) ===
         normalizeRedirectUrl(window.location.href)
       ) {
         return false;
       }
     } catch {
-      if (target === window.location.href) {
+      if (resolvedTarget === window.location.href) {
         return false;
       }
     }
 
     setRedirecting(true);
-    window.location.assign(target);
+    window.location.assign(resolvedTarget);
     return true;
   }, []);
 

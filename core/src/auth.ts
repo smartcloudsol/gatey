@@ -12,7 +12,7 @@ import {
   type FetchUserAttributesOutput,
 } from "aws-amplify/auth";
 
-import { getGateyPlugin } from "./runtime";
+import { getGateyPlugin, resolveGateyTarget } from "./runtime";
 import { getAccountFromStorage, type ApiConfiguration } from "./store";
 
 export interface Account {
@@ -284,7 +284,7 @@ export const login = async (signInHook: ApiConfiguration["signInHook"]) => {
       })
       .response.catch((err) => console.error(err));
   }
-  return gatey.settings.redirectSignIn ?? nextUrl;
+  return resolveGateyTarget(gatey.settings.redirectSignIn) ?? nextUrl;
 };
 
 export const logout = async (
@@ -336,9 +336,9 @@ export const logout = async (
     /* ts-ignore */
   }
   return (
-    gatey.settings.redirectSignOut ??
+    resolveGateyTarget(gatey.settings.redirectSignOut) ??
     nextUrl ??
-    gatey.settings.signInPage ??
+    resolveGateyTarget(gatey.settings.signInPage) ??
     "/"
   );
 };

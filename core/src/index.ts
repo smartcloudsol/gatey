@@ -11,6 +11,7 @@ import { del, get, head, patch, post, put } from "aws-amplify/api";
 import {
   getGateyPlugin,
   getStore,
+  resolveGateyTarget,
   waitForGateyReady,
   type GateyErrorEvent,
   type GateyPlugin,
@@ -144,9 +145,15 @@ export interface Gatey {
   restUrl: string;
 }
 
+export interface GateySiteRuntime {
+  /** Current WordPress site's canonical URL, including a Multisite path. */
+  siteUrl?: string;
+}
+
 export {
   getGateyPlugin,
   getStore,
+  resolveGateyTarget,
   waitForGateyReady,
   type GateyErrorEvent,
   type GateyPlugin,
