@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { resolveGateyTarget } from "../src/runtime.ts";
+import {
+  resolveGateyRedirectTarget,
+  resolveGateyTarget,
+} from "../src/runtime.ts";
 
 const globalWithGatey = globalThis as typeof globalThis & {
   WpSuite?: { plugins?: { gatey?: { siteUrl?: string } } };
@@ -28,11 +31,36 @@ test("resolves portable page settings inside a subdirectory Multisite site", () 
   );
 });
 
-test("preserves an explicit WordPress redirect target", () => {
+test("resolves explicit same-origin redirect targets without duplicating a Multisite path", () => {
+  globalWithGatey.WpSuite = {
+    plugins: {
+      gatey: { siteUrl: "https://preview.wpsuite.io/saas-launch/" },
+    },
+  };
+  globalWithGatey.window = {
+    location: { href: "https://preview.wpsuite.io/saas-launch/sign-in/" },
+  } as Window;
+
   assert.equal(
-    resolveGateyTarget(
-      "https://preview.wpsuite.io/saas-launch/wp-admin/?reauth=1",
-    ),
-    "https://preview.wpsuite.io/saas-launch/wp-admin/?reauth=1",
+    resolveGateyRedirectTarget("/saas-launch/profile?from=signin#security"),
+    "https://preview.wpsuite.io/saas-launch/profile?from=signin#security",
   );
+  assert.equal(
+    resolveGateyRedirectTarget(
+      "https://preview.wpsuite.io/knowledge-hub/getting-started/",
+    ),
+    "https://preview.wpsuite.io/knowledge-hub/getting-started/",
+  );
+  assert.equal(
+    resolveGateyRedirectTarget("profile"),
+    "https://preview.wpsuite.io/saas-launch/profile",
+  );
+});
+
+test("rejects cross-origin redirect targets", () => {
+  assert.equal(
+    resolveGateyRedirectTarget("https://untrusted.example/redirect"),
+    undefined,
+  );
+  assert.equal(resolveGateyRedirectTarget("//untrusted.example/"), undefined);
 });

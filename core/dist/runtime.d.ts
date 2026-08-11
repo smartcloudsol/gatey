@@ -15,5 +15,19 @@ export declare function getGateyPlugin(): GateyPlugin;
  * example the WordPress `redirect_to` return URL).
  */
 export declare function resolveGateyTarget(target: string | null | undefined): string | undefined;
+/**
+ * Resolve an explicit return URL supplied by a `redirect_to` query parameter.
+ *
+ * This has deliberately different semantics from a saved Gatey page setting:
+ * `/sign-in` in settings is portable and site-relative, whereas a return URL
+ * such as `/saas-launch/profile` already names an origin-relative request.
+ * Do not rebase the latter on the current Multisite blog path.
+ *
+ * Absolute return URLs are accepted only when they remain on the current
+ * browser origin. This prevents an untrusted query parameter becoming an open
+ * redirect after a successful sign-in. Bare legacy values keep the normal
+ * site-relative resolution behaviour.
+ */
+export declare function resolveGateyRedirectTarget(target: string | null | undefined): string | undefined;
 export declare function waitForGateyReady(timeoutMs?: number): Promise<void>;
 export declare function getStore(timeoutMs?: number): Promise<import("./store").Store>;

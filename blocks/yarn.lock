@@ -4388,10 +4388,10 @@
     lodash "4.18.1"
     tslib "^2.5.2"
 
-"@smart-cloud/gatey-core@^2.3.4":
-  version "2.3.4"
-  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-2.3.4.tgz#b465f44dd7fa8d1299b75b11e47f86fdd888cf03"
-  integrity sha512-Fdx3NZThXaZjqIB/n0zalvLVmTbJ7j9TMApbaR69yVjn+4o/kUJC1nKWSUvLVH/ONyXjJxoB5MXvR632hNzsIQ==
+"@smart-cloud/gatey-core@^2.3.5":
+  version "2.3.5"
+  resolved "https://registry.npmjs.org/@smart-cloud/gatey-core/-/gatey-core-2.3.5.tgz#e0e065a2ea1f81ef137ab676ea29a03a3602e187"
+  integrity sha512-W2jhWjLLURUIL08S7J530rncYaQyX6lbwMFWI60v+pAHfGp0s3NqBN7Z3JWDvPz7dOUbJwgKvp6oBKrXojLKaw==
   dependencies:
     "@smart-cloud/wpsuite-core" "^2.3.2"
 

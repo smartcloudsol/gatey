@@ -21,6 +21,7 @@ import { useSelect } from "@wordpress/data";
 
 import {
   getGateyPlugin,
+  resolveGateyRedirectTarget,
   resolveGateyTarget,
   getStoreDispatch,
   getStoreSelect,
@@ -174,6 +175,10 @@ export const Login = (
     wasSignedIn && params.get("loggedout") === "true",
   );
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
+  const resolvedRedirectTo = useMemo(
+    () => resolveGateyRedirectTarget(redirectTo),
+    [redirectTo],
+  );
 
   const handleReCaptchaVerify = useCallback(async () => {
     if (!wpsuite?.siteSettings?.reCaptchaPublicKey) {
@@ -435,7 +440,7 @@ export const Login = (
           dispatchEvent("signed-in");
 
           const url =
-            redirectTo ||
+            resolvedRedirectTo ||
             nextUrl ||
             gatey.settings.redirectSignIn ||
             gatey.settings.signInPage;
@@ -448,7 +453,7 @@ export const Login = (
     }
   }, [
     authStatus,
-    redirectTo,
+    resolvedRedirectTo,
     isPreview,
     loggingOut,
     dispatchEvent,
@@ -471,7 +476,7 @@ export const Login = (
           dispatchEvent("signed-in");
           if (nextUrl !== undefined) {
             const url =
-              redirectTo ||
+              resolvedRedirectTo ||
               nextUrl ||
               gatey.settings.redirectSignIn ||
               gatey.settings.signInPage;
@@ -485,7 +490,7 @@ export const Login = (
       if (logoutHandled && nextUrl !== undefined) {
         dispatchEvent("signed-out");
         const url =
-          redirectTo ||
+          resolvedRedirectTo ||
           nextUrl ||
           gatey.settings.redirectSignOut ||
           gatey.settings.signInPage;
@@ -493,7 +498,7 @@ export const Login = (
       }
     });
   }, [
-    redirectTo,
+    resolvedRedirectTo,
     route,
     nextUrl,
     loginHandled,

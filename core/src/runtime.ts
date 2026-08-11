@@ -18,8 +18,9 @@ export function getGateyPlugin(): GateyPlugin {
  * browser navigation interprets that path from the domain root. On a
  * subdirectory Multisite that would escape `/saas-launch/`. PHP's `site_url()`
  * already uses the current blog; this helper gives the browser runtime the
- * same current-site behavior while preserving explicit absolute URLs (for
- * example the WordPress `redirect_to` return URL).
+ * same current-site behavior while preserving explicitly configured absolute
+ * URLs. Query-string `redirect_to` return URLs use
+ * `resolveGateyRedirectTarget()` instead.
  */
 export function resolveGateyTarget(
   target: string | null | undefined,
@@ -45,6 +46,46 @@ export function resolveGateyTarget(
     // Let the caller retain its previous navigation behavior if a host
     // supplied a malformed legacy setting.
     return value;
+  }
+}
+
+/**
+ * Resolve an explicit return URL supplied by a `redirect_to` query parameter.
+ *
+ * This has deliberately different semantics from a saved Gatey page setting:
+ * `/sign-in` in settings is portable and site-relative, whereas a return URL
+ * such as `/saas-launch/profile` already names an origin-relative request.
+ * Do not rebase the latter on the current Multisite blog path.
+ *
+ * Absolute return URLs are accepted only when they remain on the current
+ * browser origin. This prevents an untrusted query parameter becoming an open
+ * redirect after a successful sign-in. Bare legacy values keep the normal
+ * site-relative resolution behaviour.
+ */
+export function resolveGateyRedirectTarget(
+  target: string | null | undefined,
+): string | undefined {
+  const value = target?.trim();
+  if (!value) {
+    return undefined;
+  }
+
+  const isAbsolute = /^[a-z][a-z\d+.-]*:/i.test(value);
+  const isOriginRelative = value.startsWith("/");
+
+  if (!isAbsolute && !isOriginRelative) {
+    return resolveGateyTarget(value);
+  }
+
+  try {
+    const currentUrl = new URL(window.location.href);
+    const returnUrl = new URL(value, currentUrl.origin);
+
+    return returnUrl.origin === currentUrl.origin
+      ? returnUrl.toString()
+      : undefined;
+  } catch {
+    return undefined;
   }
 }
 

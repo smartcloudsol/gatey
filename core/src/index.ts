@@ -11,6 +11,7 @@ import { del, get, head, patch, post, put } from "aws-amplify/api";
 import {
   getGateyPlugin,
   getStore,
+  resolveGateyRedirectTarget,
   resolveGateyTarget,
   waitForGateyReady,
   type GateyErrorEvent,
@@ -153,6 +154,7 @@ export interface GateySiteRuntime {
 export {
   getGateyPlugin,
   getStore,
+  resolveGateyRedirectTarget,
   resolveGateyTarget,
   waitForGateyReady,
   type GateyErrorEvent,
