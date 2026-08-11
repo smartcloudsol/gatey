@@ -406,6 +406,24 @@ const pages = {
       </Text>
 
       <Title order={3} mt="md">
+        Backend API session without WordPress login integration
+      </Title>
+      <Text>
+        If you leave WordPress Login integration disabled, Gatey still offers a
+        separate Cognito session card after you save a User Pool ID and App
+        Client ID. Use it when AI-Kit, Flow, or another configured backend API
+        returns <Code>Unauthorized</Code> because its Cognito JWT is missing or
+        expired.
+      </Text>
+      <Text mt="xs">
+        That card signs in only to this site&apos;s configured Cognito user pool.
+        It does not connect the site to a WP Suite workspace and does not alter
+        the normal WordPress administrator session. An Identity Pool is not
+        required for ordinary Cognito JWT API authorization unless the backend
+        specifically needs temporary AWS credentials.
+      </Text>
+
+      <Title order={3} mt="md">
         Enable Integration
       </Title>
       <List size="sm" spacing="sm" mt="xs">

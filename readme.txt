@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 2.4.11
+Stable tag: 2.4.12
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,11 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.12 =
+* Feature: Added a clearly separated Cognito sign-in and sign-out card to Gatey Settings -> WordPress Login for sites that keep WordPress login integration disabled.
+* Security: The admin card signs in only to the configured site Cognito user pool for protected backend API calls. It does not connect a site to a WP Suite workspace or alter the WordPress administrator session.
+* Guidance: Clarified that an Identity Pool is optional for ordinary Cognito JWT authorization, and documented the missing or expired Cognito session cause of protected API `Unauthorized` responses.
 
 = 2.4.11 =
 * Multisite: Resolve selected Gatey pages against the active subsite in browser redirects and Cognito callback configuration, rather than treating `/` and `/slug` as network-root paths.
@@ -610,6 +615,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.12 =
+Recommended when AI Kit or Flow admin APIs use your own Cognito user pool: Gatey Settings -> WordPress Login now offers a separate protected-backend session without replacing the standard WordPress login.
 
 = 2.4.10 =
 Recommended for multisite installations using the shared WP Suite Hub.

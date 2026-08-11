@@ -68,6 +68,7 @@ import { __ } from "@wordpress/i18n";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DocSidebar from "./DocSidebar";
 import { signUpAttributes } from "./index";
+import { CognitoAdminSession } from "./CognitoAdminSession";
 import { NoRegistrationRequiredBanner } from "./noregistration";
 import { OnboardingBanner } from "./onboarding";
 
@@ -1799,6 +1800,7 @@ const Main = (props: MainProps) => {
             </form>
           )}
           {activePage === "wordpress-login" && (
+            <>
             <form name="wordpress-login" onSubmit={handleUpdateSettings}>
               <Title order={2} mb="md">
                 WordPress Login
@@ -1943,6 +1945,8 @@ const Main = (props: MainProps) => {
                 </Button>
               </Group>
             </form>
+            <CognitoAdminSession store={store} />
+            </>
           )}
           {activePage === "api-settings" && (
             <>
