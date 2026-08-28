@@ -2,9 +2,9 @@
 Contributors: smartcloud
 Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.4.13
+Stable tag: 2.4.14
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,9 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.14 =
+* Compatibility: Declared compatibility with WordPress 7.1.
 
 = 2.4.13 =
 * Security and Multisite: Treat the `redirect_to` return URL as a same-origin browser target instead of rebasing an already prefixed path onto the active subsite. This prevents duplicate path redirects such as `/saas-launch/saas-launch/profile` after sign-in on static or dynamic path-based Multisite sites.
@@ -619,6 +622,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.4.14 =
+Declares compatibility with WordPress 7.1.
 
 = 2.4.12 =
 Recommended when AI Kit or Flow admin APIs use your own Cognito user pool: Gatey Settings -> WordPress Login now offers a separate protected-backend session without replacing the standard WordPress login.
