@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 use SmartCloud\WPSuite\Gatey\Logger;
 
-const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.5.11';
+const SMARTCLOUD_WPSUITE_GATEY_HUB_VERSION = '2.5.12';
 
 final class GateyHubLoader
 {
