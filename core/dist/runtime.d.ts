@@ -11,8 +11,9 @@ export declare function getGateyPlugin(): GateyPlugin;
  * browser navigation interprets that path from the domain root. On a
  * subdirectory Multisite that would escape `/saas-launch/`. PHP's `site_url()`
  * already uses the current blog; this helper gives the browser runtime the
- * same current-site behavior while preserving explicit absolute URLs (for
- * example the WordPress `redirect_to` return URL).
+ * same current-site behavior while preserving explicitly configured absolute
+ * URLs. Query-string `redirect_to` return URLs use
+ * `resolveGateyRedirectTarget()` instead.
  */
 export declare function resolveGateyTarget(target: string | null | undefined): string | undefined;
 /**

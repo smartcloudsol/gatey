@@ -1,3 +1,4 @@
+import { CustomPartDirectionContext } from "./custom-part-direction";
 import {
   useEffect,
   useMemo,
@@ -6,13 +7,13 @@ import {
   type FunctionComponent,
 } from "react";
 
-import { translate } from "@smart-cloud/aws-amplify-ui";
+import { createTranslator } from "@smart-cloud/wpsuite-core";
 import {
   Authenticator,
+  AuthenticatorI18nProvider,
   Button,
   translations,
 } from "@smart-cloud/aws-amplify-ui-react";
-import { I18n } from "aws-amplify/utils";
 
 import { useSelect } from "@wordpress/data";
 
@@ -26,7 +27,6 @@ import { ThemeOverridesStyle } from "../shared/themeOverrides";
 import { Login } from "./login";
 import { type ThemeProps } from "./theme";
 
-I18n.putVocabularies(translations);
 
 type HostEventPayload = Record<string, unknown> | undefined;
 type HostEventName = "done" | "cancel";
@@ -181,15 +181,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     return isPreview && previewMode ? previewFilteredConfig : decryptedConfig;
   }, [decryptedConfig, isPreview, previewFilteredConfig, previewMode]);
 
-  const currentLanguage = useMemo(() => {
-    I18n.putVocabularies(customTranslations || {});
-    if (!language || language === "system") {
-      I18n.setLanguage("");
-      return undefined;
-    }
-    I18n.setLanguage(language);
-    return language;
-  }, [language, customTranslations]);
+  const currentLanguage = language || "en";
+  const translate = useMemo(() => createTranslator(currentLanguage, translations, customTranslations), [currentLanguage, customTranslations]);
 
   const title = useMemo(() => {
     if (showOpenButton) {
@@ -217,7 +210,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
         return translate(openButtonTitle);
       }
     }
-  }, [screen, showOpenButton, openButtonTitle]);
+  }, [translate, screen, showOpenButton, openButtonTitle]);
 
   const openButtonAccessibleLabel = title || translate("Open");
 
@@ -230,6 +223,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   return (
     filteredConfig !== undefined &&
     screen !== undefined && (
+      <AuthenticatorI18nProvider language={currentLanguage} vocabularies={translations} translations={customTranslations ?? undefined}>
+      <CustomPartDirectionContext.Provider value={props.direction === "rtl" ? "rtl" : "ltr"}>
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>
           <div
@@ -269,6 +264,8 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
           </div>
         </Authenticator.Provider>
       </ConfigContext.Provider>
+      </CustomPartDirectionContext.Provider>
+      </AuthenticatorI18nProvider>
     )
   );
 };

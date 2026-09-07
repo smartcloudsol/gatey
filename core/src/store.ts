@@ -1,3 +1,4 @@
+import { loadTranslationCatalogs } from "@smart-cloud/wpsuite-core";
 import { type APIConfig } from "@aws-amplify/core";
 import { type FormFieldOptionValue } from "@smart-cloud/aws-amplify-ui";
 import { type CustomProvider } from "@smart-cloud/aws-amplify-ui-react";
@@ -202,21 +203,7 @@ const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
   if (!gatey) {
     throw new Error("Gatey plugin is not available");
   }
-  let translations: CustomTranslations | null = null;
-  if (gatey.settings.customTranslationsUrl) {
-    translations = await fetch(
-      gatey.settings.customTranslationsUrl +
-        (gatey.settings.customTranslationsUrl.includes("?") ? "&" : "?") +
-        "t=" +
-        siteSettings.lastUpdate,
-    )
-      .then((response) => (response.ok ? response.text() : null))
-      .then((response) =>
-        response ? (JSON.parse(response) as CustomTranslations) : null,
-      )
-      .catch(() => null);
-  }
-  return translations ?? null;
+  return loadTranslationCatalogs(gatey.settings.customTranslationsUrl, { cacheVersion: siteSettings.lastUpdate });
 };
 
 /**

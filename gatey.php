@@ -6,7 +6,7 @@
  * Requires at least: 6.9
  * Tested up to:      7.1
  * Requires PHP:      8.1
- * Version:           2.4.15
+ * Version:           2.4.16
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.15';
+const VERSION = '2.4.16';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -491,7 +491,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
                     : 'signIn';
                 $attrs['variation'] = $attrs['variation'] ?? 'default';
                 $attrs['colorMode'] = $attrs['colorMode'] ?? 'system';
-                $attrs['language'] = $attrs['language'] ?? 'en';
+                $attrs['language'] = $attrs['language'] ?? 'system';
                 $attrs['direction'] = $attrs['direction'] ?? 'auto';
                 $attrs['showOpenButton'] = $attrs['showOpenButton'] ?? false;
                 $attrs['openButtonTitle'] = $attrs['openButtonTitle'] ?? '';
@@ -549,7 +549,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             'prefix' => $a['prefix'] ?? '',
             'postfix' => $a['postfix'] ?? '',
             'colorMode' => $a['colormode'] ?? 'system',
-            'language' => $a['language'] ?? 'en',
+            'language' => $a['language'] ?? 'system',
             'direction' => $a['direction'] ?? 'auto',
         );
 

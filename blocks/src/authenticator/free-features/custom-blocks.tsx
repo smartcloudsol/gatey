@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Direction } from "@smart-cloud/aws-amplify-ui-react";
 import {
   type Account,
   type AuthenticatorConfig,
@@ -13,7 +12,6 @@ export default function parseCustomBlocks(
   _account: Account | null,
   _children: ReactNode,
   _content: string | null,
-  _direction: Direction,
 ): DefaultComponents {
   return {};
 }

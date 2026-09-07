@@ -1,3 +1,5 @@
+import { resolveComponentLocale, getLocaleDirection } from "@smart-cloud/wpsuite-core";
+import { useSiteLocale } from "../shared/site-locale";
 import {
   useMemo,
   useState,
@@ -75,29 +77,17 @@ export const Theme: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     [],
   );
 
-  const [languageOverride] = useState<string>(
-    new URLSearchParams(window.location.search).get("language") ?? "",
-  );
-
+  const site = useSiteLocale();
   const [directionOverride] = useState<string>(
     new URLSearchParams(window.location.search).get("direction") ?? "",
   );
 
-  const currentLanguage = useMemo(() => {
-    const lang = languageInStore || languageOverride || language;
-    if (!lang || lang === "system") {
-      return "";
-    } else {
-      return lang;
-    }
-  }, [language, languageOverride, languageInStore]);
+  const currentLanguage = resolveComponentLocale(language, languageInStore, site.locale);
 
   const currentDirection = useMemo(() => {
     const dir = directionInStore || directionOverride || direction;
     if (!dir || dir === "auto") {
-      return currentLanguage === "ar" || currentLanguage === "he"
-        ? "rtl"
-        : "ltr";
+      return getLocaleDirection(currentLanguage);
     } else {
       return dir as Direction;
     }

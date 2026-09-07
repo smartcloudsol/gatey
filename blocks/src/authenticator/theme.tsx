@@ -1,5 +1,6 @@
+import { resolveComponentLocale, getLocaleDirection } from "@smart-cloud/wpsuite-core";
+import { useSiteLocale } from "../shared/site-locale";
 import {
-  useEffect,
   useState,
   type Dispatch,
   type FunctionComponent,
@@ -83,8 +84,6 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     overrides: [defaultDarkModeOverride],
   };
 
-  const [currentLanguage, setCurrentLanguage] = useState<string>();
-  const [currentDirection, setCurrentDirection] = useState<Direction>();
 
   const languageInStore: string | undefined | null = useSelect(
     () => getStoreSelect(store).getLanguage(),
@@ -96,37 +95,14 @@ export const ThemedApp: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     [],
   );
 
-  const [languageOverride] = useState<string>(
-    new URLSearchParams(window.location.search).get("language") ?? "",
-  );
-
+  const site = useSiteLocale();
   const [directionOverride] = useState<string>(
     new URLSearchParams(window.location.search).get("direction") ?? "",
   );
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      const lang = languageInStore || languageOverride || language;
-      if (!lang || lang === "system") {
-        setCurrentLanguage("");
-      } else {
-        setCurrentLanguage(lang);
-      }
-    });
-  }, [language, languageOverride, languageInStore]);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      const dir = directionInStore || directionOverride || direction;
-      if (!dir || dir === "auto") {
-        setCurrentDirection(
-          currentLanguage === "ar" || currentLanguage === "he" ? "rtl" : "ltr",
-        );
-      } else {
-        setCurrentDirection(dir as Direction);
-      }
-    });
-  }, [currentLanguage, direction, directionInStore, directionOverride]);
+  const currentLanguage = resolveComponentLocale(language, languageInStore, site.locale);
+  const dir = direction || directionInStore || directionOverride;
+  const currentDirection = !dir || dir === "auto" ? getLocaleDirection(currentLanguage) : dir as Direction;
 
   return (
     <ThemeProvider

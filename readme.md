@@ -22,17 +22,17 @@ You can find the plugin’s continuously expanding, detailed documentation at: [
 - `main/`: Base JavaScript (`Gatey.cognito` namespace) and CSS features, loaded on every page; build here and copy the generated assets from `main/dist/` into the final plugin layout
 - `admin/`: Logic for the WordPress admin interface; build here and copy the generated assets from `admin/dist/` and `admin/php/` into the final plugin layout
 - `blocks/`: Authenticator screens and Gutenberg blocks; build here and copy the generated assets from `blocks/dist/` into the final plugin layout
-- `wpsuite-main/` (in the Hub repository): Shared frontend bundle that is copied into `hub-for-wpsuiteio/`; its `dist/` output provides the script loaded on every page to initialize WPSuite reCAPTCHA v3 when needed
+- `wpsuite-main/` (in the Hub repository): Shared frontend bundle that is copied into `smartcloud-wpsuite/`; its `dist/` output provides the script loaded on every page to initialize WPSuite reCAPTCHA v3 when needed
 - `dist/` folders under `main/`, `admin/`, and `blocks/`: Contain compiled and minified frontend output that should be copied into the distributable plugin layout
 - Plugin PHP code and metadata (e.g. `composer.json`, `readme.txt`) are located in the **project root**
 
 ⚠️ **Note:**  
 The `wpsuite-core/` package is not part of this repository.  
-It lives in the separate [Hub for WPSuite.io](https://github.com/smartcloudsol/hub-for-wpsuiteio) repository and must be built and linked before building Gatey.
+It lives in the separate [SmartCloud WP Suite](https://github.com/smartcloudsol/smartcloud-wpsuite) repository and must be built and linked before building Gatey.
 
 ### Source of Shared WPSuite Hub Code
 
-The shared WordPress Hub code lives in the `wpsuite-admin/` and `wpsuite-main/` directories of the [Hub for WPSuite.io](https://github.com/smartcloudsol/hub-for-wpsuiteio) repository.  
+The shared WordPress Hub code lives in the `wpsuite-admin/` and `wpsuite-main/` directories of the [SmartCloud WP Suite](https://github.com/smartcloudsol/smartcloud-wpsuite) repository.
 That repository hosts the shared administrative interface and global frontend assets used across WPSuite plugins, including Gatey.
 
 ## Installation and Build Guide
@@ -48,14 +48,14 @@ That repository hosts the shared administrative interface and global frontend as
 You need both Gatey and Hub (for `wpsuite-core`). Place them side by side:
 
 ```bash
-git clone https://github.com/smartcloudsol/hub-for-wpsuiteio.git
+git clone https://github.com/smartcloudsol/smartcloud-wpsuite.git
 git clone https://github.com/smartcloudsol/gatey.git
 ```
 
 Your folder structure should look like:
 ```
 /projects/
-  hub-for-wpsuiteio/
+  smartcloud-wpsuite/
     wpsuite-core/
     wpsuite-admin/
   gatey/
@@ -68,7 +68,7 @@ Your folder structure should look like:
 ### 2. Install JavaScript Dependencies
 ```bash
 # Hub repo
-cd hub-for-wpsuiteio/wpsuite-core
+cd smartcloud-wpsuite/wpsuite-core
 yarn install
 
 cd ../wpsuite-admin
@@ -92,7 +92,7 @@ yarn install
 First, build and link `wpsuite-core` from the Hub repo:
 
 ```bash
-cd ../hub-for-wpsuiteio/wpsuite-core
+cd ../smartcloud-wpsuite/wpsuite-core
 yarn run build
 npm link
 ```
@@ -156,12 +156,12 @@ Ensure the built assets are copied into the simplified plugin layout:
 - `blocks/dist/*` → `blocks/`
 - `admin/php/*` and `admin/dist/*` → `admin/`
 
-If you rebuild the shared Hub assets in the separate Hub repository, copy the following outputs into the plugin's `hub-for-wpsuiteio/` directory according to that repository's instructions:
+If you rebuild the shared Hub assets in the separate Hub repository, copy the following outputs into the plugin's `smartcloud-wpsuite/` directory according to that repository's instructions:
 
-- `wpsuite-main/dist/*` → `hub-for-wpsuiteio/`
-- `wpsuite-admin/php/*` and `wpsuite-admin/dist/*` → `hub-for-wpsuiteio/`
-- `wpsuite-*-vendor/dist/*.js` → `hub-for-wpsuiteio/assets/js/`
-- `wpsuite-*-vendor/dist/*.css` → `hub-for-wpsuiteio/assets/css/`
+- `wpsuite-main/dist/*` → `smartcloud-wpsuite/`
+- `wpsuite-admin/php/*` and `wpsuite-admin/dist/*` → `smartcloud-wpsuite/`
+- `wpsuite-*-vendor/dist/*.js` → `smartcloud-wpsuite/assets/js/`
+- `wpsuite-*-vendor/dist/*.css` → `smartcloud-wpsuite/assets/css/`
 
 The `wpsuite-main/dist/` bundle provides the script that loads on every page and initializes the reCAPTCHA v3 flow used by WPSuite plugins whenever it is needed.
 
@@ -175,7 +175,7 @@ This uses rules defined in the `.gitattributes` file to include only required `d
 
 ## Dependencies
 
-- **wpsuite-core** (from Hub for WPSuite.io repo; must be built locally)
+- **wpsuite-core** (from SmartCloud WP Suite repo; must be built locally)
 - **gatey-core** (built locally from the `core/` workspace)
 - **Node.js / Yarn or NPM**: For building frontend assets
 - **Composer**: For PHP dependency management

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { translate, type AuthContext } from "@smart-cloud/aws-amplify-ui";
+import { type AuthContext } from "@smart-cloud/aws-amplify-ui";
 import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
 
 import {
@@ -11,6 +11,7 @@ import {
   Link,
   Text,
   useAuthenticator,
+  useAuthenticatorI18n,
   View,
   type Direction,
 } from "@smart-cloud/aws-amplify-ui-react";
@@ -108,6 +109,7 @@ export const Login = (
     containerRef,
   } = props;
 
+  const { translate } = useAuthenticatorI18n();
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [message, setMessage] = useState<string>();
@@ -121,7 +123,6 @@ export const Login = (
         account: Account | undefined,
         children: React.ReactNode,
         editorContent: string | undefined,
-        direction: string | Direction | "auto" | undefined,
       ) => DefaultComponents
     >();
 
@@ -309,7 +310,6 @@ export const Login = (
         account,
         children,
         editorContent,
-        direction,
       );
     }
     return {};
@@ -319,7 +319,6 @@ export const Login = (
     isPreview,
     account,
     editorContent,
-    direction,
     customBlockParser,
   ]);
 

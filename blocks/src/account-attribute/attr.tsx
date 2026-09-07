@@ -1,8 +1,7 @@
-import { useEffect, useMemo, type FunctionComponent } from "react";
+import { useMemo, type FunctionComponent } from "react";
 
-import { translate } from "@smart-cloud/aws-amplify-ui";
+import { createTranslator } from "@smart-cloud/wpsuite-core";
 import { translations, View } from "@smart-cloud/aws-amplify-ui-react";
-import { I18n } from "aws-amplify/utils";
 
 import { useSelect } from "@wordpress/data";
 
@@ -17,7 +16,6 @@ import {
 import { ThemeOverridesStyle } from "../shared/themeOverrides";
 import { type ThemeProps } from "./theme";
 
-I18n.putVocabularies(translations);
 
 export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   const rootClassName = "smartcloud-gatey-account-attribute-theme-root";
@@ -49,6 +47,8 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     () => getStoreSelect(store).getCustomTranslations(),
     [],
   );
+
+  const translate = useMemo(() => createTranslator(language || "en", translations, customTranslations), [language, customTranslations]);
 
   const value = useMemo(() => {
     const attributeName =
@@ -87,21 +87,12 @@ export const Attr: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
     } else {
       return "";
     }
-  }, [decryptedConfig, isPreview, account, attribute, custom]);
+  }, [translate, decryptedConfig, isPreview, account, attribute, custom]);
 
   const rel =
     "" +
     (link?.nofollow ? "nofollow " : "") +
     (link?.opensInNewTab ? "noopener noreferrer" : "");
-
-  useEffect(() => {
-    I18n.putVocabularies(customTranslations || {});
-    if (!language || language === "system") {
-      I18n.setLanguage("");
-    } else {
-      I18n.setLanguage(language);
-    }
-  }, [language, customTranslations]);
 
   return (
     <>
