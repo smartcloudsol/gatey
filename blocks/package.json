@@ -1,14 +1,14 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.4.7",
+  "version": "2.4.8",
   "type": "module",
   "license": "ISC",
   "scripts": {
     "dev": "vite --port 3000",
     "build": "tsc && vite build",
     "lint": "eslint 'src/**/*.ts' 'src/**/*.tsx' 'src/index.tsx' --report-unused-disable-directives --max-warnings 0",
-    "test": "php tests/fallback-compat.test.php",
+    "test": "php tests/fallback-compat.test.php && node tests/authored-content-translation.test.ts && node tests/scoped-authenticator-translations.test.ts",
     "preview": "vite preview",
     "build-wp": "wp-scripts build --config=webpack.config.cjs --webpack-copy-php --stats-error-details --output-path",
     "format": "wp-scripts format",
@@ -20,9 +20,9 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.3.6",
+    "@smart-cloud/gatey-core": "^2.3.7",
     "@smart-cloud/wpsuite-blocks": "^1.0.0",
-    "@smart-cloud/wpsuite-core": "^2.4.0",
+    "@smart-cloud/wpsuite-core": "^2.4.2",
     "cheerio": "^1.2.0",
     "country-data-list": "^1.6.3",
     "domhandler": "^5.0.3",

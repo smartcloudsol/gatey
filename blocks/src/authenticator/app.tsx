@@ -7,7 +7,7 @@ import {
   type FunctionComponent,
 } from "react";
 
-import { createTranslator } from "@smart-cloud/wpsuite-core";
+import { createTranslator, getWpSuite } from "@smart-cloud/wpsuite-core";
 import {
   Authenticator,
   AuthenticatorI18nProvider,
@@ -25,6 +25,7 @@ import {
 import { ConfigContext } from "../context/config";
 import { ThemeOverridesStyle } from "../shared/themeOverrides";
 import { Login } from "./login";
+import { createScopedAuthenticatorTranslations } from "./scoped-translations";
 import { type ThemeProps } from "./theme";
 
 
@@ -182,7 +183,33 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   }, [decryptedConfig, isPreview, previewFilteredConfig, previewMode]);
 
   const currentLanguage = language || "en";
-  const translate = useMemo(() => createTranslator(currentLanguage, translations, customTranslations), [currentLanguage, customTranslations]);
+  const customTranslationsDefaultLocale =
+    (
+      getWpSuite()?.siteSettings as
+        | ({ customTranslationsDefaultLocale?: string } & Record<
+            string,
+            unknown
+          >)
+        | undefined
+    )?.customTranslationsDefaultLocale;
+  const scopedTranslations = useMemo(
+    () =>
+      createScopedAuthenticatorTranslations(
+        currentLanguage,
+        translations,
+        customTranslations,
+        customTranslationsDefaultLocale,
+      ),
+    [
+      currentLanguage,
+      customTranslations,
+      customTranslationsDefaultLocale,
+    ],
+  );
+  const translate = useMemo(
+    () => createTranslator(currentLanguage, {}, scopedTranslations),
+    [currentLanguage, scopedTranslations],
+  );
 
   const title = useMemo(() => {
     if (showOpenButton) {
@@ -223,7 +250,10 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   return (
     filteredConfig !== undefined &&
     screen !== undefined && (
-      <AuthenticatorI18nProvider language={currentLanguage} vocabularies={translations} translations={customTranslations ?? undefined}>
+      <AuthenticatorI18nProvider
+        language={currentLanguage}
+        translations={scopedTranslations}
+      >
       <CustomPartDirectionContext.Provider value={props.direction === "rtl" ? "rtl" : "ltr"}>
       <ConfigContext.Provider value={filteredConfig}>
         <Authenticator.Provider>

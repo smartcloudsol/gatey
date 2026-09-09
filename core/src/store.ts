@@ -1,4 +1,6 @@
-import { loadTranslationCatalogs } from "@smart-cloud/wpsuite-core";
+import {
+  getCustomTranslations as loadCustomTranslations,
+} from "@smart-cloud/wpsuite-core";
 import { type APIConfig } from "@aws-amplify/core";
 import { type FormFieldOptionValue } from "@smart-cloud/aws-amplify-ui";
 import { type CustomProvider } from "@smart-cloud/aws-amplify-ui-react";
@@ -17,7 +19,6 @@ import {
 
 import {
   getConfig,
-  type SiteSettings,
   type SubscriptionType,
 } from "@smart-cloud/wpsuite-core";
 
@@ -31,13 +32,6 @@ import {
 
 import { ACCOUNT } from "./constants";
 import { getGateyPlugin, getStore, resolveGateyTarget } from "./runtime";
-
-let siteSettings: SiteSettings;
-if (typeof WpSuite !== "undefined") {
-  siteSettings = WpSuite.siteSettings;
-} else {
-  siteSettings = {} as SiteSettings;
-}
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -203,7 +197,9 @@ const getCustomTranslations = async (): Promise<CustomTranslations | null> => {
   if (!gatey) {
     throw new Error("Gatey plugin is not available");
   }
-  return loadTranslationCatalogs(gatey.settings.customTranslationsUrl, { cacheVersion: siteSettings.lastUpdate });
+  return loadCustomTranslations({
+    legacyUrl: gatey.settings.customTranslationsUrl,
+  });
 };
 
 /**

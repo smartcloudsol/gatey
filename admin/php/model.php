@@ -91,6 +91,10 @@ class Settings
         public string $signInPage = "",
         public string $redirectSignIn = "",
         public string $redirectSignOut = "",
+        /**
+         * @deprecated Configure customTranslationsUrl in the shared WP Suite
+         * site settings. Retained to preserve legacy values during upgrades.
+         */
         public string $customTranslationsUrl = "",
         public array $signUpAttributes = [],
         public array $socialProviders = [],

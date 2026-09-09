@@ -1,6 +1,6 @@
 {
   "name": "@smart-cloud/gatey-main",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "type": "module",
   "license": "ISC",
   "scripts": {
@@ -18,8 +18,8 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.3.6",
-    "@smart-cloud/wpsuite-core": "^2.4.0"
+    "@smart-cloud/gatey-core": "^2.3.7",
+    "@smart-cloud/wpsuite-core": "^2.4.2"
   },
   "peerDependencies": {
     "@aws-amplify/core": "^6.18.0",

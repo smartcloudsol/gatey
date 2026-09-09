@@ -24,6 +24,10 @@ export interface Settings {
     signInPage?: string;
     redirectSignIn?: string;
     redirectSignOut?: string;
+    /**
+     * @deprecated Configure `siteSettings.customTranslationsUrl` in the shared
+     * WP Suite settings. This field remains as a rolling-upgrade fallback.
+     */
     customTranslationsUrl?: string;
     enablePoweredBy?: boolean;
     debugLoggingEnabled?: boolean;
