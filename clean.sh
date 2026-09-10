@@ -8,5 +8,5 @@ find vendor -type d \( -iname docs -o -iname test* -o -iname tests \) -prune -ex
 # 3) removing script files
 find vendor -type f \
   \( -iname '*.exe' -o -iname '*.bash' -o -iname '*.fish' -o -iname '*.zsh' \
-     -o -iname '*.py' -o -iname '*.base64' \) \
+     -o -iname '*.py' -o -iname '*.base64' -o -iname '*.git*' \) \
   -delete

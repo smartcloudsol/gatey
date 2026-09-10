@@ -94,6 +94,9 @@ namespace SmartCloud\WPSuite\Gatey\Abilities {
     expect(str_contains($loaderSource, "SMARTCLOUD_WPSUITE_RUNTIME_DIRECTORY"), 'Gatey Hub loader must separate the runtime directory from stable identifiers.');
     expect(str_contains($loaderSource, "'smartcloud-wpsuite'"), 'Gatey Hub loader must target the renamed runtime directory.');
     expect(str_contains($loaderSource, "'hub-for-wpsuiteio'"), 'Gatey must retain the legacy WP Suite slug alias during migration.');
+    foreach (array('SMARTCLOUD_WPSUITE_VERSION', 'SMARTCLOUD_WPSUITE_PATH', 'SMARTCLOUD_WPSUITE_URL', 'SMARTCLOUD_WPSUITE_READY_HOOK') as $sharedConstant) {
+        expect(str_contains($loaderSource, "if (!defined('{$sharedConstant}'))"), "Gatey must guard the shared {$sharedConstant} declaration when another Hub owner already loaded it.");
+    }
     $uninstallSource = file_get_contents(dirname(__DIR__) . '/uninstall.php');
     expect(is_string($uninstallSource), 'Gatey uninstall cleanup must be packaged.');
     expect(str_contains($uninstallSource, '_transient_gatey_cognito_jwks_'), 'Gatey uninstall must remove its Cognito JWKS transients.');

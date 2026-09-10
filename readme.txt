@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.4.17
+Stable tag: 2.4.18
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -208,6 +208,10 @@ This shared component handles WP Suite workspace linking, licence validation, an
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.18 =
+* Dependencies: Bundled WP Suite Hub 2.5.15 with the Amplify preview.3 runtime that supplies the corrected Authenticator translations.
+* Compatibility: Guard shared Hub constants when another WP Suite plugin already owns the runtime, avoiding duplicate-constant warnings during updates and CLI operations.
 
 = 2.4.17 =
 * Localization: Added the shared site translation catalog so custom strings resolve consistently across WP Suite plugins and site locales.
