@@ -1,6 +1,8 @@
 # Gatey Plugin Suite
 
-Gatey is a WordPress plugin that connects Amazon Cognito to your site in minutes — providing secure login, SSO, and MFA without any PHP backend. Built for Gutenberg and Elementor with native AWS Amplify support.
+Gatey is a WordPress plugin that connects Amazon Cognito to your site in minutes — providing secure login, SSO, and MFA without any PHP backend. Its frontend Authenticator includes 22 built-in languages and follows the active WordPress or multilingual-provider locale. Built for Gutenberg and Elementor with native AWS Amplify support.
+
+Gatey also uses the shared WP Suite localization catalog. Site owners can override matching strings once for Gatey, AI-Kit, and Flow, set a site-wide fallback locale, or add further locales under **SmartCloud → Global Settings → Custom Translations** without editing plugin files.
 
 This repository contains the complete source code and frontend modules for the free version of [Gatey WordPress plugin](https://wordpress.org/plugins/gatey/). 
 
@@ -33,7 +35,7 @@ It lives in the separate [SmartCloud WP Suite](https://github.com/smartcloudsol/
 ### Source of Shared WPSuite Hub Code
 
 The shared WordPress Hub code lives in the `wpsuite-admin/` and `wpsuite-main/` directories of the [SmartCloud WP Suite](https://github.com/smartcloudsol/smartcloud-wpsuite) repository.
-That repository hosts the shared administrative interface and global frontend assets used across WPSuite plugins, including Gatey.
+That repository hosts the shared administrative interface, site-wide localization catalog, and global frontend assets used across WP Suite plugins, including Gatey, AI-Kit, and Flow.
 
 ## Installation and Build Guide
 

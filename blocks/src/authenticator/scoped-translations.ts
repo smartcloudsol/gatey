@@ -1,4 +1,5 @@
 import { normalizeLocale } from "@smart-cloud/wpsuite-core";
+import { gateyAuthenticatorTranslations } from "./gatey-translations.ts";
 
 export type TranslationDictionary = Record<string, string>;
 export type TranslationCatalog = Record<string, TranslationDictionary>;
@@ -74,6 +75,15 @@ function languageFamilyDictionary(
   ) as TranslationDictionary;
 }
 
+function supportedOverrides(
+  dictionary: TranslationDictionary,
+  supportedKeys: TranslationDictionary,
+): TranslationDictionary {
+  return Object.fromEntries(
+    Object.entries(dictionary).filter(([key]) => key in supportedKeys),
+  );
+}
+
 /**
  * Materialize the Authenticator's effective catalog for its active locale.
  * Amplify can then keep its scoped provider API while Gatey supplies the same
@@ -89,24 +99,37 @@ export function createScopedAuthenticatorTranslations(
   const activeLanguage = active.split("-")[0];
   const englishLanguage = normalizeLocale("en")?.split("-")[0] ?? "en";
   const base = normalizeCatalog(baseCatalog);
+  const gatey = normalizeCatalog(gateyAuthenticatorTranslations);
   const custom = normalizeCatalog(customCatalog);
+  const englishBase = languageFamilyDictionary(base, englishLanguage);
 
   const effective: TranslationDictionary = {
-    ...languageFamilyDictionary(base, englishLanguage),
+    ...englishBase,
+    ...supportedOverrides(
+      languageFamilyDictionary(gatey, englishLanguage),
+      englishBase,
+    ),
     ...languageFamilyDictionary(custom, englishLanguage),
   };
 
   if (activeLanguage !== englishLanguage) {
+    const defaultBase = localeDictionary(base, siteDefaultLocale);
     Object.assign(
       effective,
-      localeDictionary(base, siteDefaultLocale),
+      defaultBase,
+      supportedOverrides(
+        localeDictionary(gatey, siteDefaultLocale),
+        defaultBase,
+      ),
       localeDictionary(custom, siteDefaultLocale),
     );
   }
 
+  const activeBase = localeDictionary(base, active);
   Object.assign(
     effective,
-    localeDictionary(base, active),
+    activeBase,
+    supportedOverrides(localeDictionary(gatey, active), activeBase),
     localeDictionary(custom, active),
   );
 

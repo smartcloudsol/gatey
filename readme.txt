@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.4.18
+Stable tag: 2.4.19
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -21,7 +21,7 @@ https://www.youtube.com/watch?v=xFjEg-LbgHA
 
 Key features include:
   - Amazon Cognito user pool **login** and **registration**
-  - Fully translatable Authenticator screens — **22 built-in languages** plus a custom-JSON option for overriding any string or **adding new languages**
+  - Fully localized front-end Authenticator screens in **22 built-in languages**, plus the shared WP Suite localization catalog, with JSON import/export for overriding matching text or adding languages site-wide
   - Single Sign-On (**SSO**) integration with Social login, SAML, and OIDC providers
   - **Gutenberg block**, Elementor **widget**, and **shortcode** support
   - Multi-factor authentication (**MFA**)
@@ -200,14 +200,16 @@ All references to “Amazon Cognito” are made purely to describe this plugin�
 **Public (free) source code:**  
 All of the code that ships in this public ZIP (the “free” version) is published here: https://github.com/smartcloudsol/gatey
 
-**WP Suite Admin source code:**  
-The `wpsuite-admin/` directory contains modules originating from the SmartCloud WP Suite project: https://github.com/smartcloudsol/smartcloud-wpsuite
-This shared component handles WP Suite workspace linking, licence validation, and subscription management, and will be included in all upcoming WP Suite plugins.
+**Shared WP Suite admin and localization:**
+The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in https://github.com/smartcloudsol/smartcloud-wpsuite and is packaged under `smartcloud-wpsuite/`. It owns the site-wide custom translation catalog used by Gatey, AI-Kit, and Flow, alongside shared workspace linking, licence validation, and subscription management.
 
 **Premium-only features:**
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.19 =
+* Localization: Added Gatey-owned formal Spanish Authenticator corrections and fixed the Hungarian “Lost your code?” prompt while keeping site-authored translation-catalog overrides authoritative.
 
 = 2.4.18 =
 * Dependencies: Bundled WP Suite Hub 2.5.15 with the Amplify preview.3 runtime that supplies the corrected Authenticator translations.

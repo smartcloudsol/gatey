@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { translations } from "@smart-cloud/aws-amplify-ui-react";
+
 import { createScopedAuthenticatorTranslations } from "../src/authenticator/scoped-translations.ts";
 
 test("uses active, site-default and English custom/base catalogs in order", () => {
@@ -103,4 +105,45 @@ test("normalizes regional locale keys and does not mutate source catalogs", () =
   });
   assert.deepEqual(base, baseSnapshot);
   assert.deepEqual(custom, customSnapshot);
+});
+
+test("uses formal customer address in Gatey's supported customer locales", () => {
+  const informalAddressPatterns: Record<string, RegExp> = {
+    de: /(?<!\p{L})(?:du|dich|dir|dein(?:e|en|em|er|es)?|füge|fülle|gib|stelle|versuche|fahre|prüfe|überprüfe|speichere|melde|erstelle|starte|warte|kontaktiere|kannst|bist|hast|möchtest|willst|musst)(?!\p{L})/iu,
+    es: /(?<!\p{L})(?:tú|tu|tus|te|ti|agrega|autentícate|comunícate|copia|ingresa|inténtalo|administra|inicia|perderás|puedes|tienes|perdiste|solicita|usas|inicies)(?!\p{L})/iu,
+    fr: /(?<!\p{L})(?:tu|toi|ton|ta|tes|tiens|vérifie|essaie|continue|saisis|connecte|crée|peux)(?!\p{L})/iu,
+    hu: /(?<!\p{L})(?:add meg|adj meg|töltsd|ellenőrizd|próbáld|folytasd|nézd át|mentsd|jelentkezz|regisztrálj|várj|indíts|jogosultságod|folytathatod|fiókoddal|hozzászólásod|ember vagy|elvesztetted|kódod)(?!\p{L})/iu,
+  };
+
+  for (const [locale, pattern] of Object.entries(informalAddressPatterns)) {
+    const effective = createScopedAuthenticatorTranslations(
+      locale,
+      translations,
+    )[locale];
+
+    for (const [key, value] of Object.entries(effective)) {
+      assert.equal(
+        pattern.test(value),
+        false,
+        `${locale} uses informal address for ${key}: ${value}`,
+      );
+    }
+  }
+});
+
+test("keeps site-authored translations above Gatey's built-in corrections", () => {
+  const scoped = createScopedAuthenticatorTranslations(
+    "es",
+    translations,
+    {
+      es: {
+        "Lost your code?": "Texto personalizado del sitio",
+      },
+    },
+  );
+
+  assert.equal(
+    scoped.es["Lost your code?"],
+    "Texto personalizado del sitio",
+  );
 });
