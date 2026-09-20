@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.4.19
+Stable tag: 2.4.20
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -207,6 +207,9 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.4.20 =
+* Dependencies: Bundle WP Suite Hub 2.5.16 so Static Publisher is notified when the shared translation catalog changes.
 
 = 2.4.19 =
 * Localization: Added Gatey-owned formal Spanish Authenticator corrections and fixed the Hungarian “Lost your code?” prompt while keeping site-authored translation-catalog overrides authoritative.
