@@ -2,6 +2,7 @@
 /admin/public
 /**/node_modules
 /**/paid-features
+/**/protected
 /**/scripts
 /**/publish
 /**/index.html
