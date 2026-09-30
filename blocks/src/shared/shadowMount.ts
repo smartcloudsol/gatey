@@ -1,6 +1,7 @@
 type GateyRuntimeConstants = {
   authenticatorViewCssHref?: string | null;
   wpsuiteThemeCssHref?: string | null;
+  wpsuiteThemeCssHrefs?: string[];
 };
 
 type ShadowMountOptions = {
@@ -49,18 +50,20 @@ function ensureStylesheets(
 }
 
 export function getAuthenticatorShadowStylesheets(): string[] {
-  const { authenticatorViewCssHref, wpsuiteThemeCssHref } =
-    getGateyRuntimeConstants();
-
-  return [authenticatorViewCssHref, wpsuiteThemeCssHref].filter(
+  const { authenticatorViewCssHref } = getGateyRuntimeConstants();
+  return [authenticatorViewCssHref, ...getGateySharedShadowStylesheets()].filter(
     (href): href is string => typeof href === "string" && href.length > 0,
   );
 }
 
 export function getGateySharedShadowStylesheets(): string[] {
-  const href = getGateyRuntimeConstants().wpsuiteThemeCssHref;
-
-  return typeof href === "string" && href.length > 0 ? [href] : [];
+  const { wpsuiteThemeCssHref, wpsuiteThemeCssHrefs } = getGateyRuntimeConstants();
+  const urls = Array.isArray(wpsuiteThemeCssHrefs) && wpsuiteThemeCssHrefs.length > 0
+    ? wpsuiteThemeCssHrefs
+    : [wpsuiteThemeCssHref];
+  return Array.from(new Set(urls.filter(
+    (href): href is string => typeof href === "string" && href.length > 0,
+  )));
 }
 
 export async function ensureShadowMount(

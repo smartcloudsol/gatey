@@ -6,7 +6,7 @@
  * Requires at least: 6.9
  * Tested up to:      7.1
  * Requires PHP:      8.1
- * Version:           2.4.20
+ * Version:           2.4.21
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -18,7 +18,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.4.20';
+const VERSION = '2.4.21';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -213,6 +213,13 @@ final class Gatey
         return is_string($url) && $url !== '' ? $url : null;
     }
 
+    /** @return string[] */
+    private function getWpsuiteThemeCssHrefs(): array
+    {
+        $urls = apply_filters('smartcloud_wpsuite_theme_css_urls', array());
+        return is_array($urls) ? array_values(array_filter($urls, 'is_string')) : array();
+    }
+
     /**
      * Add inline scripts that expose PHP constants to JS.
      */
@@ -241,6 +248,7 @@ final class Gatey
                 )
                 : null,
             'wpsuiteThemeCssHref' => $this->getWpsuiteThemeCssHref(),
+            'wpsuiteThemeCssHrefs' => $this->getWpsuiteThemeCssHrefs(),
         );
         $js = 'const __gateyGlobal = (typeof globalThis !== "undefined") ? globalThis : window;
 __gateyGlobal.WpSuite = __gateyGlobal.WpSuite ?? {};
