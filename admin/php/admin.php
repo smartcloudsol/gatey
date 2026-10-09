@@ -20,6 +20,8 @@ if (!defined('ABSPATH')) {
 if (file_exists(filename: GATEY_PATH . 'admin/model.php')) {
     require_once GATEY_PATH . 'admin/model.php';
 }
+require_once __DIR__ . '/placement-inspection.php';
+PlacementInspection::registerHooks();
 
 class Admin
 {
@@ -65,9 +67,56 @@ class Admin
 
         $this->settings = Settings::fromMixed($merged);
         $this->registerRestRoutes();
+        add_filter('smartcloud_wpsuite_admin_capabilities', array($this, 'registerHubCapabilities'));
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
         add_action('pre_get_posts', array($this, 'filterPatternListQuery'));
     }
+    /** Register navigation without depending on a particular hub generation. */
+    public function registerHubCapabilities(array $capabilities): array
+    {
+        require_once __DIR__ . '/surface.php';
+        $capabilities[] = array(
+            'schema_version' => 1,
+            'id' => 'login-access',
+            'configuration_reset' => array(
+                'options' => array(GATEY_SLUG),
+                'title' => __('Reset all Gatey settings?', 'gatey'),
+                'consequences' => array(
+                    __('Removes both user pool configurations, app clients, Identity Pools, OAuth settings and the secondary-pool domain expression.', 'gatey'),
+                    __('Disables WordPress login integration and removes role mappings, sign-in routes, passwordless preferences, translations and every other saved Gatey setting. Cognito sign-in will need to be configured again.', 'gatey'),
+                ),
+                'preserved' => array(__('WordPress users, roles, content and patterns; existing AWS resources; the shared site connection and cloud-managed Pro API/provider settings are preserved. Existing WordPress and Cognito sessions are not revoked.', 'gatey')),
+            ),
+            'surface_provider' => array(AdminSurface::class, 'read'),
+            'detail_page' => GATEY_SLUG,
+            'detail_enqueue' => array(self::class, 'addScripts'),
+            'surface_save' => array(AdminSurface::class, 'save'),
+            'surface_capability' => 'manage_options',
+            'product_id' => 'gatey',
+            'label' => __('Login & Access', 'gatey'),
+            'product' => __('Gatey', 'gatey'),
+            'description' => __('Manage sign-in, SSO and protected content.', 'gatey'),
+            'order' => 55,
+            'primary_url' => admin_url('admin.php?page=' . GATEY_SLUG),
+            'primary_label' => __('Configure Login & Access', 'gatey'),
+            'required_capability' => 'manage_options',
+            'advanced_links' => array(
+                array('label' => __('Gatey Settings', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG), 'required_capability' => 'manage_options'),
+                array('label' => __('User pools', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG . '&section=user-pools'), 'required_capability' => 'manage_options'),
+                array('label' => __('WordPress login', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG . '&section=wordpress-login'), 'required_capability' => 'manage_options'),
+                array('label' => __('API settings', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG . '&section=api-settings'), 'required_capability' => 'manage_options'),
+                array('label' => __('Custom fields', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG . '&section=custom-fields'), 'required_capability' => 'manage_options'),
+                array('label' => __('Custom providers', 'gatey'), 'url' => admin_url('admin.php?page=' . GATEY_SLUG . '&section=custom-providers'), 'required_capability' => 'manage_options'),
+                array('label' => __('Gatey Patterns', 'gatey'), 'url' => admin_url('edit.php?post_type=wp_block&s=gatey'), 'required_capability' => 'edit_posts'),
+            ),
+            'quick_links' => array(
+                array('label' => __('Gatey Patterns', 'gatey'), 'url' => admin_url('edit.php?post_type=wp_block&s=gatey'), 'required_capability' => 'edit_posts'),
+            ),
+            'legacy_menu_slugs' => array(GATEY_SLUG, admin_url('edit.php?post_type=wp_block&s=gatey')),
+        );
+        return $capabilities;
+    }
+
     public function getSettings(): Settings
     {
         return $this->settings;
@@ -275,7 +324,7 @@ class Admin
         return $submenu_file;
     }
 
-    public function addScripts()
+    public static function addScripts()
     {
         $screen = get_current_screen();
 
@@ -283,15 +332,16 @@ class Admin
         if (file_exists(filename: GATEY_PATH . 'admin/index.asset.php')) {
             $script_asset = require_once(GATEY_PATH . 'admin/index.asset.php');
         }
+        $asset_version = $script_asset['version'] ?? GATEY_VERSION;
         $script_asset['dependencies'] = array_merge($script_asset['dependencies'], array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor', 'smartcloud-wpsuite-mantine-vendor'));
-        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
+        wp_enqueue_script('smartcloud-gatey-admin-script', GATEY_URL . 'admin/index.js', $script_asset['dependencies'], $asset_version, array('in_footer' => true, 'strategy' => 'defer'));
 
         // Make the blocks translatable.
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('smartcloud-gatey-admin-script', 'gatey', GATEY_PATH . 'languages');
         }
 
-        wp_enqueue_style('smartcloud-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), GATEY_VERSION);
+        wp_enqueue_style('smartcloud-gatey-admin-style', GATEY_URL . 'admin/index.css', array('wp-components'), $asset_version);
         wp_enqueue_style('smartcloud-wpsuite-mantine-vendor-style', SMARTCLOUD_WPSUITE_URL . 'assets/css/mantine-vendor.css', array(), \SmartCloud\WPSuite\Hub\VERSION_MANTINE);
     }
 
@@ -302,6 +352,23 @@ class Admin
 
     public function initRestApi()
     {
+        require_once __DIR__ . '/page-suggestions.php';
+        register_rest_route(
+            GATEY_SLUG . '/v1',
+            '/admin/page-suggestions',
+            array(
+                'methods' => 'GET',
+                'callback' => array(PageSuggestions::class, 'read'),
+                'permission_callback' => static function () {
+                    return current_user_can('manage_options') ? true : new WP_Error('rest_forbidden', __('Forbidden', 'gatey'), array('status' => 403));
+                },
+                'args' => array('q' => array(
+                    'default' => '',
+                    'validate_callback' => static fn($value) => is_string($value) && strlen($value) <= 200,
+                    'sanitize_callback' => 'sanitize_text_field',
+                )),
+            )
+        );
         register_rest_route(
             GATEY_SLUG . '/v1',
             '/login',
@@ -396,8 +463,8 @@ class Admin
             //return new WP_REST_Response(array('success' => true, 'message' => __('Already logged in.', 'gatey')), 200);
         }
 
-        $region = $this->settings->userPoolConfigurations->default->API->GraphQL->region;
         $poolId = $this->settings->userPoolConfigurations->default->Auth->Cognito->userPoolId;
+        $region = Configuration::regionFromUserPoolId($poolId);
         $clientId = $this->settings->userPoolConfigurations->default->Auth->Cognito->userPoolClientId;
         $token = (string) $request->get_header('Authorization');
         if (
@@ -671,7 +738,7 @@ class Admin
                     ),
                     new ApiConfiguration(
                         new RestConfiguration(
-                            $settings_param?->userPoolConfigurations?->default?->API?->GraphQL?->region,
+                            Configuration::regionFromUserPoolId((string) ($settings_param?->userPoolConfigurations?->default?->Auth?->Cognito?->userPoolId ?? '')),
                         ),
                     ),
                 ),
@@ -691,7 +758,7 @@ class Admin
                     ),
                     new ApiConfiguration(
                         new RestConfiguration(
-                            $settings_param?->userPoolConfigurations?->secondary?->API?->GraphQL?->region,
+                            Configuration::regionFromUserPoolId((string) ($settings_param?->userPoolConfigurations?->secondary?->Auth?->Cognito?->userPoolId ?? '')),
                         ),
                     ),
                 ),

@@ -81,6 +81,9 @@ import {
 import "jquery";
 
 import classes from "./main.module.css";
+import { guardGateyAdminPage, resolveGateyAdminPage, type GateyAdminPage } from "./admin-page";
+import { useAdminSectionHistory } from "./admin-section-history";
+import { serializeGateySettings } from "./settings-payload";
 
 interface Account {
   accountId: string;
@@ -163,9 +166,6 @@ const CustomProvidersEditor = lazy(
 );
 
 const SettingsTitle = ({ settings }: { settings: Settings }) => {
-  const isMobile = useMediaQuery(
-    `(max-width: ${DEFAULT_THEME.breakpoints.sm})`,
-  );
   return (
     <Card p="sm" withBorder mt="md" maw={1280}>
       <Group
@@ -185,7 +185,7 @@ const SettingsTitle = ({ settings }: { settings: Settings }) => {
           }}
         >
           {__(
-            isMobile ? "Gatey" : "Gatey - Login & SSO with Amazon Cognito",
+            "Login & Access",
             TEXT_DOMAIN,
           )}
         </Title>
@@ -411,14 +411,8 @@ const Main = (props: MainProps) => {
   const [formConfig, setFormConfig] = useState<AuthenticatorConfig>();
 
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
-  const [activePage, setActivePage] = useState<
-    | "user-pools"
-    | "general"
-    | "wordpress-login"
-    | "custom-fields"
-    | "custom-providers"
-    | "api-settings"
-  >("general");
+  const [requestedPage, setRequestedPage] = useState<GateyAdminPage>(() => resolveGateyAdminPage(window.location.search));
+  const [activePage, setActivePage] = useState<GateyAdminPage>(requestedPage);
 
   // Add media query for responsive design
   const isMobile = useMediaQuery(
@@ -591,10 +585,11 @@ const Main = (props: MainProps) => {
             "Content-Type": "application/json",
             "X-WP-Nonce": nonce,
           },
-          body: JSON.stringify(settingsFormData),
+          body: serializeGateySettings(settingsFormData),
           credentials: "same-origin",
         });
         if (response.ok) {
+          window.dispatchEvent(new Event("wpsuite-backend-session-changed"));
           let message: string = __("Settings saved successfully.", TEXT_DOMAIN);
           const target = e.target as typeof e.target & {
             name: string;
@@ -794,9 +789,7 @@ const Main = (props: MainProps) => {
           disabled: paidSettingsDisabled,
         },
       ]);
-      if (paidSettingsDisabled) {
-        setActivePage("general");
-      }
+      setActivePage(page => guardGateyAdminPage(page, resolvedConfig !== undefined, !paidSettingsDisabled));
     });
   }, [accountId, decryptedConfig, resolvedConfig, siteId, siteKey]);
 
@@ -824,6 +817,16 @@ const Main = (props: MainProps) => {
     }
   }, [clearCache, resolvedConfig]);
 
+  const navigatePage = useAdminSectionHistory(activePage, resolveGateyAdminPage, next => {
+    const accepted = guardGateyAdminPage(next, resolvedConfig !== undefined,
+      !!resolvedConfig || !!(decryptedConfig && accountId && siteId && siteKey));
+    setRequestedPage(next);
+    setActivePage(accepted);
+    return accepted;
+  });
+  const requestedPageUnavailable = activePage === "general" && requestedPage !== "general"
+    && guardGateyAdminPage(requestedPage, resolvedConfig !== undefined, !!resolvedConfig || !!(decryptedConfig && accountId && siteId && siteKey)) !== requestedPage;
+
   return (
     <div className={classes["wpc-container"]}>
       <DocSidebar
@@ -832,7 +835,10 @@ const Main = (props: MainProps) => {
         page={activePage as never}
         scrollToId={scrollToId}
       />
-      <SettingsTitle settings={settingsFormData} />
+      {!document.querySelector('#wpsuite-product-details[data-wpsuite-product="login-access"]') && <SettingsTitle settings={settingsFormData} />}
+      {requestedPageUnavailable && <Alert color="blue" mt="md" title={__("Requested section is unavailable", TEXT_DOMAIN)}>
+        {__("This section needs configuration from a connected WP Suite site. Local user pools and WordPress login settings remain available in the menu.", TEXT_DOMAIN)}
+      </Alert>}
       <Group
         align="flex-start"
         mt="lg"
@@ -866,7 +872,7 @@ const Main = (props: MainProps) => {
                       }
                       active={activePage === item.value}
                       onClick={() => {
-                        setActivePage(
+                        navigatePage(
                           item.value as
                             | "general"
                             | "user-pools"
@@ -904,7 +910,7 @@ const Main = (props: MainProps) => {
                       active={activePage === item.value}
                       onClick={() => {
                         if (!item.disabled) {
-                          setActivePage(
+                          navigatePage(
                             item.value as
                               | "general"
                               | "user-pools"
@@ -944,7 +950,7 @@ const Main = (props: MainProps) => {
                         }
                         active={activePage === item.value}
                         onClick={() =>
-                          setActivePage(
+                          navigatePage(
                             item.value as
                               | "general"
                               | "user-pools"
@@ -980,7 +986,7 @@ const Main = (props: MainProps) => {
                       active={activePage === item.value}
                       onClick={() => {
                         if (!item.disabled) {
-                          setActivePage(
+                          navigatePage(
                             item.value as
                               | "general"
                               | "user-pools"
@@ -1078,7 +1084,7 @@ const Main = (props: MainProps) => {
                       onOpen={openInfo}
                     />
                   }
-                  description="The ID of the AWS Cognito user pool to use"
+                  description="The ID of your AWS Cognito user pool. Its AWS region is detected automatically."
                   value={
                     (currentConfig === "default"
                       ? settingsFormData.userPoolConfigurations.default
@@ -1107,29 +1113,6 @@ const Main = (props: MainProps) => {
                       ? settingsFormData.userPoolConfigurations.default
                       : settingsFormData.userPoolConfigurations.secondary
                     )?.Auth?.Cognito?.userPoolClientId ?? ""
-                  }
-                  onChange={handleConfigChange}
-                />
-
-                <TextInput
-                  disabled={savingSettings}
-                  label={
-                    <InfoLabel
-                      text="Region"
-                      scrollToId="region"
-                      onOpen={openInfo}
-                    />
-                  }
-                  description="AWS region"
-                  name={
-                    (currentConfig === "default" ? "default" : "secondary") +
-                    ".API.GraphQL.region"
-                  }
-                  value={
-                    (currentConfig === "default"
-                      ? settingsFormData.userPoolConfigurations.default
-                      : settingsFormData.userPoolConfigurations.secondary
-                    )?.API?.GraphQL?.region ?? ""
                   }
                   onChange={handleConfigChange}
                 />
@@ -1237,75 +1220,77 @@ const Main = (props: MainProps) => {
                   }
                   fw={500}
                 >
-                  <Checkbox
-                    disabled={savingSettings}
-                    label="Username"
-                    checked={settingsFormData.loginMechanisms?.includes(
-                      "username",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      // remove the current value from the array
-                      const loginMechanisms = [
-                        ...settingsFormData.loginMechanisms,
-                      ];
-                      const index = loginMechanisms.indexOf("username");
-                      if (!e.currentTarget.checked && index > -1) {
-                        loginMechanisms.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        loginMechanisms.push("username");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        loginMechanisms,
-                      });
-                    }}
-                  />
-                  <Checkbox
-                    disabled={savingSettings}
-                    label="Email"
-                    checked={settingsFormData.loginMechanisms?.includes(
-                      "email",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      // remove the current value from the array
-                      const loginMechanisms = [
-                        ...settingsFormData.loginMechanisms,
-                      ];
-                      const index = loginMechanisms.indexOf("email");
-                      if (!e.currentTarget.checked && index > -1) {
-                        loginMechanisms.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        loginMechanisms.push("email");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        loginMechanisms,
-                      });
-                    }}
-                  />
-                  <Checkbox
-                    disabled={savingSettings}
-                    label="Phone Number"
-                    checked={settingsFormData.loginMechanisms?.includes(
-                      "phone_number",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      // remove the current value from the array
-                      const loginMechanisms = [
-                        ...settingsFormData.loginMechanisms,
-                      ];
-                      const index = loginMechanisms.indexOf("phone_number");
-                      if (!e.currentTarget.checked && index > -1) {
-                        loginMechanisms.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        loginMechanisms.push("phone_number");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        loginMechanisms,
-                      });
-                    }}
-                  />
+                  <Stack gap="xs">
+                    <Checkbox
+                      disabled={savingSettings}
+                      label="Username"
+                      checked={settingsFormData.loginMechanisms?.includes(
+                        "username",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        // remove the current value from the array
+                        const loginMechanisms = [
+                          ...settingsFormData.loginMechanisms,
+                        ];
+                        const index = loginMechanisms.indexOf("username");
+                        if (!e.currentTarget.checked && index > -1) {
+                          loginMechanisms.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          loginMechanisms.push("username");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          loginMechanisms,
+                        });
+                      }}
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label="Email"
+                      checked={settingsFormData.loginMechanisms?.includes(
+                        "email",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        // remove the current value from the array
+                        const loginMechanisms = [
+                          ...settingsFormData.loginMechanisms,
+                        ];
+                        const index = loginMechanisms.indexOf("email");
+                        if (!e.currentTarget.checked && index > -1) {
+                          loginMechanisms.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          loginMechanisms.push("email");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          loginMechanisms,
+                        });
+                      }}
+                    />
+                    <Checkbox
+                      disabled={savingSettings}
+                      label="Phone Number"
+                      checked={settingsFormData.loginMechanisms?.includes(
+                        "phone_number",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        // remove the current value from the array
+                        const loginMechanisms = [
+                          ...settingsFormData.loginMechanisms,
+                        ];
+                        const index = loginMechanisms.indexOf("phone_number");
+                        if (!e.currentTarget.checked && index > -1) {
+                          loginMechanisms.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          loginMechanisms.push("phone_number");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          loginMechanisms,
+                        });
+                      }}
+                    />
+                  </Stack>
                 </Fieldset>
                 <MultiSelect
                   label={
@@ -1337,90 +1322,92 @@ const Main = (props: MainProps) => {
                   }
                   fw={500}
                 >
-                  <Checkbox
-                    label="Google"
-                    checked={settingsFormData.socialProviders?.includes(
-                      "google",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const socialProviders = settingsFormData.socialProviders
-                        ? [...settingsFormData.socialProviders]
-                        : [];
-                      const index = socialProviders.indexOf("google");
-                      if (!e.currentTarget.checked && index > -1) {
-                        socialProviders.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        socialProviders.push("google");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        socialProviders,
-                      });
-                    }}
-                  />
-                  <Checkbox
-                    label="Facebook"
-                    checked={settingsFormData.socialProviders?.includes(
-                      "facebook",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const socialProviders = settingsFormData.socialProviders
-                        ? [...settingsFormData.socialProviders]
-                        : [];
-                      const index = socialProviders.indexOf("facebook");
-                      if (!e.currentTarget.checked && index > -1) {
-                        socialProviders.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        socialProviders.push("facebook");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        socialProviders,
-                      });
-                    }}
-                  />
-                  <Checkbox
-                    label="Apple"
-                    checked={settingsFormData.socialProviders?.includes(
-                      "apple",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const socialProviders = settingsFormData.socialProviders
-                        ? [...settingsFormData.socialProviders]
-                        : [];
-                      const index = socialProviders.indexOf("apple");
-                      if (!e.currentTarget.checked && index > -1) {
-                        socialProviders.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        socialProviders.push("apple");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        socialProviders,
-                      });
-                    }}
-                  />
-                  <Checkbox
-                    label="Amazon"
-                    checked={settingsFormData.socialProviders?.includes(
-                      "amazon",
-                    )}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const socialProviders = settingsFormData.socialProviders
-                        ? [...settingsFormData.socialProviders]
-                        : [];
-                      const index = socialProviders.indexOf("amazon");
-                      if (!e.currentTarget.checked && index > -1) {
-                        socialProviders.splice(index, 1);
-                      } else if (e.currentTarget.checked && index === -1) {
-                        socialProviders.push("amazon");
-                      }
-                      setSettingsFormData({
-                        ...settingsFormData,
-                        socialProviders,
-                      });
-                    }}
-                  />
+                  <Stack gap="xs">
+                    <Checkbox
+                      label="Google"
+                      checked={settingsFormData.socialProviders?.includes(
+                        "google",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const socialProviders = settingsFormData.socialProviders
+                          ? [...settingsFormData.socialProviders]
+                          : [];
+                        const index = socialProviders.indexOf("google");
+                        if (!e.currentTarget.checked && index > -1) {
+                          socialProviders.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          socialProviders.push("google");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          socialProviders,
+                        });
+                      }}
+                    />
+                    <Checkbox
+                      label="Facebook"
+                      checked={settingsFormData.socialProviders?.includes(
+                        "facebook",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const socialProviders = settingsFormData.socialProviders
+                          ? [...settingsFormData.socialProviders]
+                          : [];
+                        const index = socialProviders.indexOf("facebook");
+                        if (!e.currentTarget.checked && index > -1) {
+                          socialProviders.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          socialProviders.push("facebook");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          socialProviders,
+                        });
+                      }}
+                    />
+                    <Checkbox
+                      label="Apple"
+                      checked={settingsFormData.socialProviders?.includes(
+                        "apple",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const socialProviders = settingsFormData.socialProviders
+                          ? [...settingsFormData.socialProviders]
+                          : [];
+                        const index = socialProviders.indexOf("apple");
+                        if (!e.currentTarget.checked && index > -1) {
+                          socialProviders.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          socialProviders.push("apple");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          socialProviders,
+                        });
+                      }}
+                    />
+                    <Checkbox
+                      label="Amazon"
+                      checked={settingsFormData.socialProviders?.includes(
+                        "amazon",
+                      )}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const socialProviders = settingsFormData.socialProviders
+                          ? [...settingsFormData.socialProviders]
+                          : [];
+                        const index = socialProviders.indexOf("amazon");
+                        if (!e.currentTarget.checked && index > -1) {
+                          socialProviders.splice(index, 1);
+                        } else if (e.currentTarget.checked && index === -1) {
+                          socialProviders.push("amazon");
+                        }
+                        setSettingsFormData({
+                          ...settingsFormData,
+                          socialProviders,
+                        });
+                      }}
+                    />
+                  </Stack>
                 </Fieldset>
                 <Fieldset
                   legend={

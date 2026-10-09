@@ -114,7 +114,8 @@ const pages = {
           </Text>
           The unique identifier for your Cognito User Pool (e.g.,{" "}
           <Code>us-east-1_abcdef123</Code>). Find this on the User Pool overview
-          page in the AWS console.
+          page in the AWS console. Gatey automatically detects the AWS region
+          from the beginning of this ID; no separate region setting is needed.
         </List.Item>
         <List.Item id="app-client-id">
           <Text fw={500}>
@@ -129,16 +130,20 @@ const pages = {
           <Text fw={500}>
             <span className="highlightable">Region</span>
           </Text>
-          The AWS region where your User Pool and Identity Pool are located
-          (e.g., <Code>us-east-1</Code>, <Code>eu-west-2</Code>).
+          The AWS region is detected automatically from your User Pool ID and
+          used to verify WordPress sign-in (e.g., <Code>us-east-1</Code>,
+          <Code>eu-west-2</Code>). An Identity Pool uses
+          the region in its own ID and can be in a different region.
         </List.Item>
         <List.Item id="identity-pool-id">
           <Text fw={500}>
             <span className="highlightable">Identity Pool ID</span>
           </Text>
           (Optional) The unique identifier for your Cognito Identity Pool (e.g.,{" "}
-          <Code>us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee</Code>). Required
-          if you need to grant users access to other AWS resources.
+          <Code>us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee</Code>). Supplies
+          temporary AWS credentials when your integration needs IAM-authorized
+          access to AWS resources. It is not required to obtain a User Pool
+          sign-in token or call an API that accepts that token.
         </List.Item>
         <List.Item id="oauth-domain">
           <Text fw={500}>

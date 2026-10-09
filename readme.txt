@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.4.21
+Stable tag: 2.5.0
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -105,21 +105,10 @@ If you run a static export, you’ll still need that weekly refresh (a short tut
 
 == Screenshots ==
 
-Drag‑and‑drop Sign‑in block in the Gutenberg editor
-
-Drag-and-drop **Sign-in** block in the Gutenberg editor (Arabic, RTL view)
-
-Account attribute shown for a logged‑in user
-
-User profile form with attribute editing
-
-Custom Sign‑up screen overridden with Custom Blocks and Form Fields
-
-Custom Sign‑up form rendered on a live page
-
-Custom Setup TOTP device form rendered on a live page
-
-Admin settings page showing the Gatey configuration wizard
+1. A frontend Authenticator for signing in to the configured user pool.
+2. General settings for sign-in methods and authentication preferences.
+3. User pool configuration with deployment identifiers hidden.
+4. Optional WordPress login integration and protected-backend sign-in guidance.
 
 == External Services ==
 
@@ -207,6 +196,15 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.5.0 =
+* Fold connected service information into the Status card instead of a separate Pro-information box.
+* Fix duplicate admin checkbox marks and detect the user pool region automatically and add optional Identity Pool setup with clear guidance for protected backend sign-in.
+* Improve shared navigation alignment, connection details, inline help and setup field guidance.
+* Keep Login & Access setup, status and detailed settings together, with replayable setup using saved values.
+* Add contextual sign-in and account-block usage guidance, Patterns links and integrated help.
+* Add shared product navigation and separate Platform Settings with reCAPTCHA, Styling and Translations tabs.
+* Preserve existing admin links, permissions and compatibility with older plugin menus.
 
 = 2.4.21 =
 * Styling: Load the shared WP Suite Theme CSS and any additional stylesheet URLs configured in WP Suite General Settings, in order, inside the Authenticator shadow root.
@@ -647,6 +645,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.5.0 =
+WP Suite admin navigation now groups everyday tasks with setup and detailed settings on the same product page. Existing settings and bookmarked admin URLs remain available. The Cognito user pool region is now determined from its ID, including for existing WordPress login settings. Login & Access setup also supports an optional Identity Pool for IAM-based access; existing WordPress login integration and role mappings remain unchanged.
 
 = 2.4.16 =
 Recommended for multilingual sites and sites using per-block custom Authenticator translations.

@@ -26,6 +26,14 @@ class LoginWithOAuthConfiguration
 }
 class Configuration
 {
+    /** The Cognito pool identifier is the authority, including for legacy settings. */
+    public static function regionFromUserPoolId(string $userPoolId): string
+    {
+        return strlen($userPoolId) <= 128
+            && preg_match('/^([a-z]{2}(?:-[a-z0-9]+)+-\d+)_[A-Za-z0-9]+$/D', $userPoolId, $matches)
+            ? $matches[1] : '';
+    }
+
     public function __construct(
         public string $userPoolId,
         public string $identityPoolId,

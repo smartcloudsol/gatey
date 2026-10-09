@@ -7,6 +7,21 @@ input[readonly].mantine-Select-input {
   background-color: #fff;
 }
 
+/* WordPress adds its own checkmark and offsets inputs; Mantine owns both here. */
+:global(#smartcloud-gatey-admin input.mantine-Checkbox-input[type="checkbox"]) {
+  display: block;
+  width: var(--checkbox-size);
+  min-width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  margin: 0;
+}
+
+:global(#smartcloud-gatey-admin input.mantine-Checkbox-input[type="checkbox"]::before),
+:global(#smartcloud-gatey-admin input.mantine-Checkbox-input[type="checkbox"]::after) {
+  content: none;
+  display: none;
+}
+
 .wpc-container {
   padding: 1rem;
 }
