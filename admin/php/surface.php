@@ -28,6 +28,7 @@ final class AdminSurface
         foreach ($methods as $method) {
             if (!is_string($method) || !isset($labels[$method])) { return __('Keep existing advanced configuration', 'gatey'); }
         }
+        /* translators: %s: Comma-separated list of the currently configured sign-in identifiers. */
         return sprintf(__('Keep current: %s', 'gatey'), implode(', ', array_map(static fn(string $method): string => $labels[$method], $methods)));
     }
 
@@ -142,14 +143,18 @@ final class AdminSurface
             if (current_user_can('edit_post', $id)) {
                 $editUrl = get_edit_post_link($id, 'raw');
                 if (is_string($editUrl) && $editUrl !== '') {
+                    /* translators: %s: Path of the page containing the account information block. */
                     $accountLinks[] = array('label' => sprintf(__('Edit account information on %s', 'gatey'), get_page_uri($id)), 'url' => $editUrl);
                     if (count($accountLinks) >= 5) { break; }
                 }
             }
         }
-        $accountStatus = $usage['matches']
-            ? sprintf(__('Account Attribute found in %d inspected published pages or posts', 'gatey'), count($usage['matches']))
-            : __('No Account Attribute block found in the inspected published pages or posts', 'gatey');
+        if ($usage['matches']) {
+            /* translators: %d: Number of inspected published pages or posts containing an Account Attribute block. */
+            $accountStatus = sprintf(__('Account Attribute found in %d inspected published pages or posts', 'gatey'), count($usage['matches']));
+        } else {
+            $accountStatus = __('No Account Attribute block found in the inspected published pages or posts', 'gatey');
+        }
         if ($usage['partial']) { $accountStatus .= ' · ' . __('Partial inspection', 'gatey'); }
         if (current_user_can('edit_posts')) {
             $links[] = array('label' => __('Manage login patterns', 'gatey'), 'url' => admin_url('edit.php?post_type=wp_block&s=gatey'));

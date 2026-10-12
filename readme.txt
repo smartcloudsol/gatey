@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,11 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.5.1 =
+* Static export: Declare Authenticator and shared theme styles safely before runtime initialization without applying them outside shadow roots.
+* Verification: Cover bounded public Cognito signing-key retrieval, caching, rotation refresh and invalid responses.
+* Compatibility: Bundle shared Hub 2.6.1 with improved translation-domain scoping and translator guidance.
 
 = 2.5.0 =
 * Fold connected service information into the Status card instead of a separate Pro-information box.
@@ -646,8 +651,11 @@ Initial release.
 
 == Upgrade Notice ==
 
+= 2.5.1 =
+For static publishing, update exporter and delegated workers to 1.1.84 or later, purge stale source page caches and recrawl affected pages. Shared Hub 2.6.1 retains existing settings and ownership safeguards.
+
 = 2.5.0 =
-WP Suite admin navigation now groups everyday tasks with setup and detailed settings on the same product page. Existing settings and bookmarked admin URLs remain available. The Cognito user pool region is now determined from its ID, including for existing WordPress login settings. Login & Access setup also supports an optional Identity Pool for IAM-based access; existing WordPress login integration and role mappings remain unchanged.
+Admin tasks, setup and Advanced settings share a product page; existing settings and URLs remain. Cognito region is derived from the user pool ID. Setup accepts an optional Identity Pool for IAM access. Existing WordPress login integration and role mappings are unchanged.
 
 = 2.4.16 =
 Recommended for multilingual sites and sites using per-block custom Authenticator translations.

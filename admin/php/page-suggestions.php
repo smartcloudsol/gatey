@@ -50,6 +50,7 @@ final class PageSuggestions
                 if (stripos($haystack, $needle) !== false) { $textMatch = true; break; }
             }
             if (!$textMatch && !(ctype_digit($query) && (int) $query === $id)) { continue; }
+            /* translators: 1: Page title, 2: Page path, 3: WordPress page ID. */
             $label = sprintf(__('%1$s · %2$s · #%3$d', 'gatey'), $title, $uri, $id);
             if (strlen($label) > 1024) {
                 $label = (function_exists('mb_strcut') ? mb_strcut($label, 0, 1021, 'UTF-8') : wp_html_excerpt($label, 255, '')) . '…';

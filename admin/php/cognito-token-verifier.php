@@ -206,6 +206,8 @@ final class CognitoTokenVerifier
     private function issuer(): string
     {
         return sprintf(
+            // Public Cognito issuer for JWT claim validation and JSON signing-key retrieval, never executable assets.
+            // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Cognito authentication API URL, not offloaded plugin content.
             'https://cognito-idp.%s.amazonaws.com/%s',
             rawurlencode($this->region),
             rawurlencode($this->userPoolId)
