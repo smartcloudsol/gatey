@@ -21,6 +21,7 @@ if (file_exists(filename: GATEY_PATH . 'admin/model.php')) {
     require_once GATEY_PATH . 'admin/model.php';
 }
 require_once __DIR__ . '/placement-inspection.php';
+require_once __DIR__ . '/backend-profile-settings.php';
 PlacementInspection::registerHooks();
 
 class Admin
@@ -28,44 +29,7 @@ class Admin
     private Settings $settings;
     public function __construct()
     {
-        $defaultSettings = new Settings(
-            userPoolConfigurations: new UserPoolConfigurations(
-                default: new ResourceConfiguration(
-                    new AuthConfiguration(new Configuration('', '', '', new LoginWithOAuthConfiguration(new OAuthConfiguration('', array())))),
-                    new ApiConfiguration(new RestConfiguration(''))
-                ),
-                secondary: new ResourceConfiguration(
-                    new AuthConfiguration(new Configuration('', '', '', new LoginWithOAuthConfiguration(new OAuthConfiguration('', array())))),
-                    new ApiConfiguration(new RestConfiguration(''))
-                )
-            ),
-            secondaryUserPoolDomains: '',
-            mappings: [],
-            loginMechanisms: [],
-            integrateWpLogin: false,
-            cookieExpiration: 43200,
-            signInPage: '',
-            redirectSignIn: '',
-            redirectSignOut: '',
-            customTranslationsUrl: '',
-            signUpAttributes: [],
-            socialProviders: [],
-            passwordlessSettings: [],
-            hideSignUp: false,
-            enablePoweredBy: false,
-            debugLoggingEnabled: false,
-        );
-
-        // WP can return array/object depending on previous versions / serialization.
-        $raw = get_option(GATEY_SLUG);
-
-        // Merge missing properties from defaultSettings
-        $merged = array_merge(
-            (array) $defaultSettings,
-            is_object($raw) ? (array) $raw : (is_array($raw) ? $raw : [])
-        );
-
-        $this->settings = Settings::fromMixed($merged);
+        $this->settings = BackendProfileSettings::settings();
         $this->registerRestRoutes();
         add_filter('smartcloud_wpsuite_admin_capabilities', array($this, 'registerHubCapabilities'));
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
@@ -79,7 +43,7 @@ class Admin
             'schema_version' => 1,
             'id' => 'login-access',
             'configuration_reset' => array(
-                'options' => array(GATEY_SLUG),
+                'options' => array(BackendProfileSettings::optionName()),
                 'title' => __('Reset all Gatey settings?', 'gatey'),
                 'consequences' => array(
                     __('Removes both user pool configurations, app clients, Identity Pools, OAuth settings and the secondary-pool domain expression.', 'gatey'),
@@ -119,7 +83,7 @@ class Admin
 
     public function getSettings(): Settings
     {
-        return $this->settings;
+        return BackendProfileSettings::settings();
     }
 
     public function addMenu()
@@ -445,6 +409,10 @@ class Admin
 
     public function login(WP_REST_Request $request)
     {
+        if ((BackendProfileSettings::context()['id'] ?? '') === 'development') {
+            return new WP_REST_Response(array('success' => false, 'message' => __('Use your WordPress login for the shared CMS. Development Cognito sign-in is for backend access only.', 'gatey')), 403);
+        }
+        $this->settings = $this->getSettings();
         $data = $request->get_body_params();
         $request_context = array_merge(
             $this->getRequestLogContext($request),
@@ -675,6 +643,10 @@ class Admin
 
     public function logout(WP_REST_Request $request)
     {
+        if ((BackendProfileSettings::context()['id'] ?? '') === 'development') {
+            return new WP_REST_Response(array('success' => false, 'message' => __('Development Cognito sign-out does not end your shared WordPress session.', 'gatey')), 403);
+        }
+        $this->settings = $this->getSettings();
         $user = wp_get_current_user();
         $request_context = array_merge(
             $this->getRequestLogContext($request),
@@ -781,7 +753,7 @@ class Admin
         );
 
         // Frissített beállítások mentése
-        update_option(GATEY_SLUG, $this->settings);
+        update_option(BackendProfileSettings::optionName(), $this->settings);
 
         Logger::info('Gatey settings updated', [
             'debugLoggingEnabled' => $debugLoggingEnabled,
@@ -799,7 +771,7 @@ class Admin
 
     public function setAuthCookieExpiration($length, $user_id, $remember)
     {
-        return $this->settings->cookieExpiration;
+        return $this->getSettings()->cookieExpiration;
     }
 
     private function registerRestRoutes()

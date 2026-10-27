@@ -12,6 +12,8 @@ import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Amplify } from "aws-amplify";
+import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
+import { createBackendProfileStorage, getBackendProfileContext } from "@smart-cloud/wpsuite-core";
 
 import Main from "./main";
 
@@ -70,6 +72,8 @@ getStore()
     // configuration for this site. The admin bundle has its own aws-amplify
     // module instance, so copy that configuration before mounting any
     // Authenticator provider or issuing an auth call from this bundle.
+    const storage = getBackendProfileContext() ? createBackendProfileStorage(window.localStorage) : undefined;
+    if (storage) cognitoUserPoolsTokenProvider.setKeyValueStorage(storage);
     Amplify.configure(gatey.cognito.getAmplifyConfig());
 
     const root = createRoot(document.getElementById("smartcloud-gatey-admin")!);

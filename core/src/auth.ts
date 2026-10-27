@@ -1,4 +1,6 @@
 import { Amplify, type ResourcesConfig } from "aws-amplify";
+import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
+import { createBackendProfileStorage, getBackendProfileContext } from "@smart-cloud/wpsuite-core";
 import {
   fetchAuthSession,
   fetchMFAPreference,
@@ -30,6 +32,8 @@ export const configureAmplify = (
   resourcesConfig: ResourcesConfig,
   libraryOptions?: Record<string, unknown>,
 ) => {
+  const storage = getBackendProfileContext() ? createBackendProfileStorage(window.localStorage) : undefined;
+  if (storage) cognitoUserPoolsTokenProvider.setKeyValueStorage(storage);
   Amplify.configure(resourcesConfig, libraryOptions);
 };
 

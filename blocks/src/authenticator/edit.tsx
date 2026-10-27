@@ -43,6 +43,7 @@ import { REACT_FALLBACK_BLOCK_NAME } from "@smart-cloud/wpsuite-blocks";
 
 import {
   getWpSuite,
+  getSitePluginSettings,
   type SiteSettings,
   type SubscriptionType,
 } from "@smart-cloud/wpsuite-core";
@@ -130,7 +131,7 @@ if (wpsuite) {
 
 const apiUrl =
   window.location.host === "dev.wpsuite.io"
-    ? "https://api.wpsuite.io/dev"
+    ? "https://api-dev.wpsuite.io"
     : "https://api.wpsuite.io";
 
 export const Edit: FunctionComponent<AuthenticatorEditProps> = (
@@ -232,6 +233,7 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
   const [previewZIndex, setPreviewZIndex] = useState<number>();
 
   const editorRef = useRef<HTMLDivElement>(null);
+  const previewHostRef = useRef<HTMLDivElement>(null);
 
   const { style: previewHostStyle, ...blockProps } = useBlockProps();
   const innerBlocksProps = useInnerBlocksProps(
@@ -255,25 +257,20 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
     queueMicrotask(() => {
       if (!loadingSubscription) {
         setLoadingSubscription(true);
-        if (wpSuiteSiteSettings.accountId && wpSuiteSiteSettings.siteId) {
-          fetch(
-            apiUrl +
-              "/account/" +
-              wpSuiteSiteSettings.accountId +
-              "/site/" +
-              wpSuiteSiteSettings.siteId +
-              (wpSuiteSiteSettings.siteKey ? "/settings" : ""),
-            {
-              headers: wpSuiteSiteSettings.siteKey
-                ? {
-                    "X-Site-Key": wpSuiteSiteSettings.siteKey,
-                  }
-                : {},
-            },
-          )
-            .then((response) =>
-              response.ok ? response.json() : Promise.reject(response),
-            )
+        const workspaceId = wpSuiteSiteSettings.workspaceId ?? wpSuiteSiteSettings.accountId;
+        if (
+          workspaceId &&
+          wpSuiteSiteSettings.siteId &&
+          wpSuiteSiteSettings.siteKey
+        ) {
+          getSitePluginSettings<AuthenticatorConfig>({
+            legacyApiBaseUrl: apiUrl,
+            workspaceId,
+            siteId: wpSuiteSiteSettings.siteId,
+            siteKey: wpSuiteSiteSettings.siteKey,
+            pluginKey: "gatey",
+            connection: wpSuiteSiteSettings,
+          })
             .then((response) => {
               const site = response as unknown as {
                 settings: AuthenticatorConfig;
@@ -680,10 +677,10 @@ export const Edit: FunctionComponent<AuthenticatorEditProps> = (
           </ToolbarGroup>
         </BlockControls>
         <div style={{ position: "relative", zIndex: previewZIndex }}>
-          <div ref={editorRef} style={previewHostStyle} />
+          <div ref={previewHostRef} style={previewHostStyle} />
           {fulfilledStore && siteSettings !== undefined ? (
             <ShadowPreviewPortal
-              hostRef={editorRef}
+              hostRef={previewHostRef}
               rootClassName="smartcloud-gatey-authenticator-shadow-root"
               stylesheets={getAuthenticatorShadowStylesheets()}
               minHeight="48px"

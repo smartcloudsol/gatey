@@ -3,6 +3,7 @@ namespace SmartCloud\WPSuite\Gatey;
 
 if (!defined('ABSPATH')) { exit; }
 require_once __DIR__ . '/placement-inspection.php';
+require_once __DIR__ . '/backend-profile-settings.php';
 
 /** Plugin-owned local setup. Never reads or writes the Pro configuration. */
 final class AdminSurface
@@ -32,7 +33,7 @@ final class AdminSurface
         return sprintf(__('Keep current: %s', 'gatey'), implode(', ', array_map(static fn(string $method): string => $labels[$method], $methods)));
     }
 
-    private static function raw(): mixed { return get_option(GATEY_SLUG, false); }
+    private static function raw(): mixed { return BackendProfileSettings::raw(); }
     private static function revision(mixed $raw): string { return hash('sha256', serialize($raw)); }
     private static function error(string $message, int $status = 400): \WP_Error
     {
@@ -43,7 +44,7 @@ final class AdminSurface
     {
         if (!current_user_can('manage_options')) { return self::error(__('Forbidden', 'gatey'), 403); }
         $raw = self::raw();
-        $settings = Settings::fromMixed($raw);
+        $settings = BackendProfileSettings::settings();
         $pool = $settings->userPoolConfigurations->default->Auth->Cognito;
         $configured = $pool->userPoolId !== '' && $pool->userPoolClientId !== '';
         $mechanism = count($settings->loginMechanisms) === 1 && in_array($settings->loginMechanisms[0], array('email', 'username', 'phone_number'), true) ? $settings->loginMechanisms[0] : 'existing';
@@ -207,7 +208,7 @@ final class AdminSurface
             return self::error(__('The existing user pool configuration needs review in Advanced before this setup can update it.', 'gatey'), 409);
         }
         // Clone the typed tree, preserving all nested fields and secondary pools.
-        $settings = unserialize(serialize(Settings::fromMixed($raw)));
+        $settings = unserialize(serialize(BackendProfileSettings::settings()));
         foreach ($values as $key => $value) {
             if (in_array($key, array('userPoolId', 'userPoolClientId', 'identityPoolId'), true)) {
                 $settings->userPoolConfigurations->default->Auth->Cognito->{$key} = $value;
@@ -229,7 +230,7 @@ final class AdminSurface
         foreach (array_unique($changed) as $key) {
             if (is_array($updated)) { $updated[$key] = $settings->{$key}; } else { $updated->{$key} = $settings->{$key}; }
         }
-        update_option(GATEY_SLUG, $updated);
+        update_option(BackendProfileSettings::optionName(), $updated);
         return self::read();
     }
 }

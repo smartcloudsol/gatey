@@ -19,6 +19,7 @@ import {
 
 import {
   getConfig,
+  backendProfileStorageKey,
   type SubscriptionType,
 } from "@smart-cloud/wpsuite-core";
 
@@ -35,9 +36,9 @@ import { getGateyPlugin, getStore, resolveGateyTarget } from "./runtime";
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
-    window.localStorage.setItem(ACCOUNT, JSON.stringify(account));
+    window.localStorage.setItem(backendProfileStorageKey(ACCOUNT), JSON.stringify(account));
   } else {
-    window.localStorage.removeItem(ACCOUNT);
+    window.localStorage.removeItem(backendProfileStorageKey(ACCOUNT));
   }
 };
 
@@ -45,7 +46,7 @@ export const getAccountFromStorage = async (
   apiConfiguration?: ApiConfiguration,
 ): Promise<Account> => {
   let account: Account = JSON.parse(
-    window.localStorage.getItem(ACCOUNT) ?? "{}",
+    window.localStorage.getItem(backendProfileStorageKey(ACCOUNT)) ?? "{}",
   );
   let saved = false;
   if (!account?.username) {

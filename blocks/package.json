@@ -1,14 +1,14 @@
 {
   "name": "@smart-cloud/gatey-blocks",
   "private": true,
-  "version": "2.4.9",
+  "version": "2.4.10",
   "type": "module",
   "license": "ISC",
   "scripts": {
     "dev": "vite --port 3000",
     "build": "tsc && vite build",
     "lint": "eslint 'src/**/*.ts' 'src/**/*.tsx' 'src/index.tsx' --report-unused-disable-directives --max-warnings 0",
-    "test": "php tests/fallback-compat.test.php && node tests/authored-content-translation.test.ts && node tests/scoped-authenticator-translations.test.ts",
+    "test": "php tests/fallback-compat.test.php && node tests/authored-content-translation.test.ts && node tests/scoped-authenticator-translations.test.ts && node tests/site-settings-binding.test.ts",
     "preview": "vite preview",
     "build-wp": "wp-scripts build --config=webpack.config.cjs --webpack-copy-php --stats-error-details --output-path",
     "format": "wp-scripts format",
@@ -20,9 +20,9 @@
     "check-licenses": "wp-scripts check-licenses --prod"
   },
   "dependencies": {
-    "@smart-cloud/gatey-core": "^2.3.8",
+    "@smart-cloud/gatey-core": "^2.4.0",
     "@smart-cloud/wpsuite-blocks": "^1.0.0",
-    "@smart-cloud/wpsuite-core": "^2.4.3",
+    "@smart-cloud/wpsuite-core": "^2.5.0",
     "cheerio": "^1.2.0",
     "country-data-list": "^1.6.3",
     "domhandler": "^5.0.3",
@@ -65,7 +65,7 @@
     "serialize-javascript": "^7.1.1",
     "uuid": "^11.1.1",
     "websocket-driver": "^0.7.5",
-    "undici": "^7.29.1"
+    "undici": "^7.30.1"
   },
   "devDependencies": {
     "@aws-amplify/core": "^6.18.0",
@@ -125,6 +125,6 @@
     "serialize-javascript": "^7.1.1",
     "uuid": "^11.1.1",
     "websocket-driver": "^0.7.5",
-    "undici": "^7.29.1"
+    "undici": "^7.30.1"
   }
 }

@@ -23,10 +23,11 @@ export function ShadowPreviewPortal({
   children,
 }: ShadowPreviewPortalProps) {
   const [mountTarget, setMountTarget] = useState<HTMLDivElement | null>(null);
-  const normalizedStylesheets = stylesheets.filter(
-    (href): href is string => typeof href === "string" && href.length > 0,
+  const stylesheetsKey = JSON.stringify(
+    stylesheets.filter(
+      (href): href is string => typeof href === "string" && href.length > 0,
+    ),
   );
-  const stylesheetsKey = normalizedStylesheets.join("|");
 
   useEffect(() => {
     const host = hostRef.current;
@@ -39,7 +40,7 @@ export function ShadowPreviewPortal({
 
     ensureShadowMount(host, {
       rootClassName,
-      stylesheets: normalizedStylesheets,
+      stylesheets: JSON.parse(stylesheetsKey) as string[],
       minHeight,
     })
       .then((rootElement) => {
@@ -62,7 +63,6 @@ export function ShadowPreviewPortal({
   }, [
     hostRef,
     minHeight,
-    normalizedStylesheets,
     rootClassName,
     stylesheetsKey,
   ]);
