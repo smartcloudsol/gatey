@@ -33,6 +33,7 @@ import {
 
 import { ACCOUNT } from "./constants";
 import { getGateyPlugin, getStore, resolveGateyTarget } from "./runtime";
+import { verifyStoredSession } from "./stored-session";
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -50,28 +51,14 @@ export const getAccountFromStorage = async (
   );
   let saved = false;
   if (!account?.username) {
-    try {
-      account = await loadUser(false);
-      if (account?.username) {
-        storeAccountInStorage(account);
-        account.loaded = true;
-        saved = true;
-      }
-    } catch (err) {
-      console.error(err);
+    account = await loadUser(false);
+    if (account?.username) {
+      storeAccountInStorage(account);
+      account.loaded = true;
+      saved = true;
     }
   } else {
-    try {
-      const authSession = await fetchAuthSession();
-      if (
-        authSession?.tokens?.accessToken?.payload?.exp &&
-        authSession.tokens.accessToken.payload.exp > new Date().getTime() / 1000
-      ) {
-        saved = true;
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    saved = await verifyStoredSession(fetchAuthSession);
   }
   if (!saved && account?.username) {
     storeAccountInStorage({});

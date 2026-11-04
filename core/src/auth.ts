@@ -1,6 +1,7 @@
 import { Amplify, type ResourcesConfig } from "aws-amplify";
 import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
 import { createBackendProfileStorage, getBackendProfileContext } from "@smart-cloud/wpsuite-core";
+import { lookupUserOrAnonymous } from "./stored-session";
 import {
   fetchAuthSession,
   fetchMFAPreference,
@@ -58,7 +59,7 @@ export const loadUser = async (
   if (account?.username) {
     return account;
   }
-  try {
+  return lookupUserOrAnonymous(async () => {
     const authSession = await fetchAuthSession();
     if (authSession.tokens) {
       const acc: Account = {
@@ -68,16 +69,8 @@ export const loadUser = async (
       };
       return acc;
     }
-  } catch (err) {
-    console.error(err);
-    try {
-      await signOut();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err0) {
-      // ignore
-    }
-  }
-  return {};
+    return {};
+  }, signOut, {});
 };
 
 export const clearMfaPreferences = async () => {

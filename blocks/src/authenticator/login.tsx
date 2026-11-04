@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { type AuthContext } from "@smart-cloud/aws-amplify-ui";
-import { signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
+import { confirmSignIn, forgetDevice, rememberDevice, signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
+import { confirmSignInWithDevicePreference } from "./confirm-sign-in";
 
 import {
   AccountSettings,
@@ -258,6 +259,7 @@ export const Login = (
       async handleCancel(): Promise<void> {
         dispatchEvent("cancel");
       },
+      handleConfirmSignIn: (input) => confirmSignInWithDevicePreference(input, { confirm: confirmSignIn, remember: rememberDevice, forget: forgetDevice }),
       async handleSignUp(input: SignUpInput): Promise<SignUpOutput> {
         if (wpsuite?.siteSettings?.reCaptchaPublicKey) {
           const recaptchaToken = await handleReCaptchaVerify();

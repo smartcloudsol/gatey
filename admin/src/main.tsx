@@ -1,3 +1,4 @@
+import { gateyPlatformTargets } from "./platform-targets";
 import {
   type AuthMethod,
   type PasswordlessSettings,
@@ -279,7 +280,10 @@ const legacyConfigUrl =
     ? "https://wpsuite.io/static/config/dev.json"
     : "https://wpsuite.io/static/config/prod.json";
 
-const { apiBaseUrl: apiUrl, configUrl } = resolveBackendProfileLegacyTargets(legacyApiUrl, legacyConfigUrl);
+const { apiBaseUrl: apiUrl, configUrl } = gateyPlatformTargets(
+  wpSuiteSiteSettings,
+  resolveBackendProfileLegacyTargets(legacyApiUrl, legacyConfigUrl),
+);
 
 const gatey = getGateyPlugin();
 
