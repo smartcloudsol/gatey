@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.2
+Stable tag: 2.6.3
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,10 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.3 =
+* Improve account connection reliability and recovery in WP Suite Hub.
+* Improve the reliability of Gatey account settings.
 
 = 2.6.2 =
 * Improve reliability and compatibility with WP Suite Hub 2.7.2.
@@ -664,6 +668,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.6.3 =
+Update your WP Suite plugins together, then reload the administration page. If prompted, reconnect your existing site.
 
 = 2.6.1 =
 Update the WP Suite plugins together to use the revised shared admin. Saving a profile preserves the active backend; select Active backend explicitly to switch it.

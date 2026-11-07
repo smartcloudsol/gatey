@@ -1,4 +1,4 @@
-import { gateyPlatformTargets } from "./platform-targets";
+import { gateyPlatformTargets, loadGateyPlatformConfiguration, PRODUCTION_PLATFORM_CONFIG, DEVELOPMENT_PLATFORM_CONFIG } from "./platform-targets";
 import {
   type AuthMethod,
   type PasswordlessSettings,
@@ -76,7 +76,7 @@ import { OnboardingBanner } from "./onboarding";
 import {
   getWpSuite,
   getSitePluginSettings,
-  getBackendProfileContext, assertBackendProfileConfiguration,
+  assertBackendProfileConfiguration,
   resolveBackendProfileLegacyTargets,
   type SiteSettings,
   type SubscriptionType,
@@ -277,8 +277,8 @@ const legacyApiUrl =
 
 const legacyConfigUrl =
   !production || window.location.host === "dev.wpsuite.io"
-    ? "https://wpsuite.io/static/config/dev.json"
-    : "https://wpsuite.io/static/config/prod.json";
+    ? DEVELOPMENT_PLATFORM_CONFIG
+    : PRODUCTION_PLATFORM_CONFIG;
 
 const { apiBaseUrl: apiUrl, configUrl } = gateyPlatformTargets(
   wpSuiteSiteSettings,
@@ -438,47 +438,8 @@ const Main = (props: MainProps) => {
   useQuery({
     queryKey: ["config"],
     queryFn: async () => {
-      const response = await fetch(configUrl).catch((err) => {
-        if (getBackendProfileContext()) throw err;
-        return {
-          ok: true,
-          statusText: err.message,
-          json: async () => ({
-            config: "prod",
-            baseUrl: "https://wpsuite.io",
-            userPoolId: "us-east-1_G0wEwK9tt",
-            identityPoolId: "us-east-1:11e55c9a-b768-48a2-8a0c-c51f1e99c129",
-            appClientPlugin: "5e6fs3pk1k1ju7cgpnp7o7si8u",
-            awsRegion: "us-east-1",
-            pricingTable: "prctbl_1QA6TQFjw5MDUzy6c3fBSPGL",
-            stripePublicKey:
-              "pk_live_51OVeJwFjw5MDUzy6pwTbsMjcBZjZioihzLAtxQsF91u4lYJC4mtqrJddSskhz6OPbWS0tr8XL2G1AwJaXEpv9Rgn008dAz5TEr",
-            permissions: {
-              owner: [
-                "transfer-account",
-                "manage-account",
-                "manage-sites",
-                "manage-subscriptions",
-                "manage-billing",
-              ],
-              admin: [
-                "manage-account",
-                "manage-sites",
-                "manage-subscriptions",
-                "manage-billing",
-              ],
-              accountant: ["manage-billing"],
-            },
-          }),
-        };
-      });
-
-      if (!response.ok) {
-        console.error("Error loading configuration:", await response.json());
-        throw new Error(response.statusText);
-      }
-
-      const result = await response.json();
+      const result = await loadGateyPlatformConfiguration(configUrl, apiUrl,
+        configUrl === PRODUCTION_PLATFORM_CONFIG || configUrl === DEVELOPMENT_PLATFORM_CONFIG || wpSuiteSiteSettings.workspaceApiMode === "workspace");
       assertBackendProfileConfiguration(result);
       return result;
     },
