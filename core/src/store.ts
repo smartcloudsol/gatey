@@ -27,13 +27,12 @@ import {
   configureAmplify,
   loadAuthSession,
   loadUser,
-  logout,
   type Account,
 } from "./auth";
 
 import { ACCOUNT } from "./constants";
 import { getGateyPlugin, getStore, resolveGateyTarget } from "./runtime";
-import { verifyStoredSession } from "./stored-session";
+import { resolveCachedAccount, verifyStoredSession } from "./stored-session";
 
 const storeAccountInStorage = (account: Account): void => {
   if (account?.username) {
@@ -43,30 +42,22 @@ const storeAccountInStorage = (account: Account): void => {
   }
 };
 
-export const getAccountFromStorage = async (
-  apiConfiguration?: ApiConfiguration,
-): Promise<Account> => {
+export const getAccountFromStorage = async (): Promise<Account> => {
   let account: Account = JSON.parse(
     window.localStorage.getItem(backendProfileStorageKey(ACCOUNT)) ?? "{}",
   );
-  let saved = false;
   if (!account?.username) {
     account = await loadUser(false);
     if (account?.username) {
       storeAccountInStorage(account);
       account.loaded = true;
-      saved = true;
     }
   } else {
-    saved = await verifyStoredSession(fetchAuthSession);
-  }
-  if (!saved && account?.username) {
-    storeAccountInStorage({});
-    getStore().then(async (store) => {
-      await logout(apiConfiguration?.signOutHook);
-      getStoreDispatch(store).clearAccount();
-      //window.location.assign("");
-    });
+    return resolveCachedAccount(
+      account,
+      () => verifyStoredSession(fetchAuthSession),
+      () => storeAccountInStorage({}),
+    );
   }
   return account;
 };
@@ -228,16 +219,7 @@ export const sanitizeAuthenticatorConfig = (
 const getDefaultState = async (): Promise<State> => {
   const config = sanitizeAuthenticatorConfig(await getConfig("gatey"));
   initAmplify(config);
-  const hostname = window.location.hostname.toLowerCase().split(":")[0];
-  const apiConfiguration =
-    config?.apiConfigurations?.secondary?.domains &&
-    hostname
-      .toLowerCase()
-      .match(config.apiConfigurations.secondary?.domains.toLowerCase()) &&
-    config.apiConfigurations?.secondary?.apis?.length
-      ? config.apiConfigurations.secondary
-      : config?.apiConfigurations?.default;
-  const account = await getAccountFromStorage(apiConfiguration);
+  const account = await getAccountFromStorage();
   const customTranslations = await getCustomTranslations();
 
   return {

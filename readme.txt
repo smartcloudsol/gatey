@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,12 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.4 =
+* Fix sign-in initialization when a cached account no longer has an active authentication session.
+* Clear outdated account display information without running sign-out actions during anonymous startup.
+* Refresh compatible authentication UI and PHP token-validation dependencies.
+* Update the shared WP Suite Hub and its UI dependencies.
 
 = 2.6.3 =
 * Improve account connection reliability and recovery in WP Suite Hub.
@@ -668,6 +674,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.6.4 =
+When using multiple WP Suite plugins, update them together and reload open pages before signing in again. Existing sign-in settings are preserved.
 
 = 2.6.3 =
 Update your WP Suite plugins together, then reload the administration page. If prompted, reconnect your existing site.

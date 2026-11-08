@@ -11,3 +11,5 @@ export declare function verifyStoredSession(fetchSession: () => Promise<{
         };
     };
 }>): Promise<boolean>;
+/** Discard only the cached display account when the session is absent. */
+export declare function resolveCachedAccount<T extends object>(account: T, verify: () => Promise<boolean>, clear: () => void): Promise<T>;

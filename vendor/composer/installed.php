@@ -3,7 +3,7 @@
         'name' => 'wpsuite/gatey',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'ce20aa907ee1cb467ae0a00fe605b60125e2dff9',
+        'reference' => '8020ad71245f6d2f08386ab7629b441c1af3a455',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'firebase/php-jwt' => array(
-            'pretty_version' => 'v7.0.5',
-            'version' => '7.0.5.0',
-            'reference' => '47ad26bab5e7c70ae8a6f08ed25ff83631121380',
+            'pretty_version' => 'v7.2.1',
+            'version' => '7.2.1.0',
+            'reference' => '0501f5729b9e2448516674aff07c7d1727869b8e',
             'type' => 'library',
             'install_path' => __DIR__ . '/../firebase/php-jwt',
             'aliases' => array(),
@@ -22,7 +22,7 @@
         'wpsuite/gatey' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'ce20aa907ee1cb467ae0a00fe605b60125e2dff9',
+            'reference' => '8020ad71245f6d2f08386ab7629b441c1af3a455',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

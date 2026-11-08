@@ -19,9 +19,10 @@ export async function verifyStoredSession(
 ): Promise<boolean> {
   try {
     const session = await fetchSession();
+    if (session.tokens === undefined) return false;
     const expiry = session.tokens?.accessToken?.payload.exp;
     if (typeof expiry === "number" && expiry > Date.now() / 1000) return true;
-    // An empty or expired result does not establish why verification failed.
+    // Malformed or expired tokens do not establish why verification failed.
     throw new Error("The stored session could not be verified.");
   } catch (error) {
     // Amplify exposes this error when the user is explicitly unauthenticated.
@@ -30,4 +31,15 @@ export async function verifyStoredSession(
     if (isExplicitlyUnauthenticated(error)) return false;
     throw error;
   }
+}
+
+/** Discard only the cached display account when the session is absent. */
+export async function resolveCachedAccount<T extends object>(
+  account: T,
+  verify: () => Promise<boolean>,
+  clear: () => void,
+): Promise<T> {
+  if (await verify()) return account;
+  clear();
+  return {} as T;
 }

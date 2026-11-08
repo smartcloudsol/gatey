@@ -4,7 +4,7 @@ import { type ResourcesConfig } from "aws-amplify";
 import { StoreDescriptor } from "@wordpress/data";
 import { type SubscriptionType } from "@smart-cloud/wpsuite-core";
 import { type Account } from "./auth";
-export declare const getAccountFromStorage: (apiConfiguration?: ApiConfiguration) => Promise<Account>;
+export declare const getAccountFromStorage: () => Promise<Account>;
 /**
  * Ensures we only keep runtime keys that are part of AuthenticatorConfig.
  *
