@@ -4,7 +4,7 @@ define('ABSPATH', __DIR__ . '/');
 define('OBJECT', 'OBJECT');
 define('GATEY_SLUG', 'gatey');
 define('GATEY_PATH', __DIR__ . '/');
-$allowed = true; $checks = 0; $queries = 0; $pages = []; $routes = [];
+$allowed = true; $checks = 0; $queries = 0; $pages = []; $routes = []; $cache = []; $postsChanged = 1;
 function add_action(string $hook, callable $callback, int $priority = 10, int $arguments = 1): void {}
 function __(string $text, string $domain = ''): string { return $text; }
 function current_user_can(string $cap): bool { return $cap === 'manage_options' && $GLOBALS['allowed']; }
@@ -18,6 +18,9 @@ function get_page_by_path(string $path, string $output, string $type): ?object {
     foreach ($GLOBALS['pages'] as $post) { if ($post->post_type === $type && $post->uri === $path) { return $post; } }
     return null;
 }
+function wp_cache_get_last_changed(string $group): string { return (string) $GLOBALS['postsChanged']; }
+function wp_cache_get(string $key, string $group): mixed { return $GLOBALS['cache'][$group][$key] ?? false; }
+function wp_cache_set(string $key, mixed $value, string $group, int $expiration): bool { $GLOBALS['cache'][$group][$key] = $value; return true; }
 function register_rest_route(string $namespace, string $route, array $args): void { $GLOBALS['routes'][$namespace . $route] = $args; }
 class WP_Error { public function __construct(public string $code, public string $message, public array $data) {} }
 class WP_REST_Request { public function __construct(private mixed $query = '') {} public function get_param(string $name): mixed { return $name === 'q' ? $this->query : null; } }
@@ -91,6 +94,8 @@ $before = $queries; $allowed = false;
 check(search('sign-in') instanceof WP_Error, 'Callback independently rejects unauthorized users.');
 check($queries === $before, 'Unauthorized search never queries the database.');
 $allowed = true;
+$before = $queries; search('sign-in'); check($queries === $before, 'Repeated query reuses the WordPress object cache.');
+$postsChanged++; search('sign-in'); check($queries === $before + 1, 'Changed posts invalidate the candidate cache.');
 for ($id = 30; $id < 60; $id++) { page($id, 'Bounded ' . $id, 'bounded-' . $id); }
 check(count(search('bounded')) === 20, 'Result count cannot exceed twenty.');
 check(count(search('')) === 20, 'Empty search is bounded too.');

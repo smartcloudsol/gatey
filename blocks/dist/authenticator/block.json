@@ -73,6 +73,6 @@
   "editorScript": "smartcloud-gatey-blocks-editor-script",
   "editorStyle": "smartcloud-gatey-blocks-editor-style",
   "render": "file:./render.php",
-  "viewScript": "smartcloud-gatey-view-script",
+  "viewScript": "smartcloud-gatey-authenticator-view-script",
   "viewStyle": "smartcloud-gatey-view-style"
 }

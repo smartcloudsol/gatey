@@ -25,14 +25,23 @@ final class PageSuggestions
             if ($exact && $exact->post_status === 'publish') { $ids[] = (int) $exact->ID; }
         }
         if ($query !== '' && ctype_digit($query)) { $ids[] = (int) $query; }
-        $like = '%' . $wpdb->esc_like($query) . '%';
-        $leaf = '%' . $wpdb->esc_like(basename($path)) . '%';
-        $candidateIds = $wpdb->get_col($wpdb->prepare(
-            "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish'
-             AND (post_title LIKE %s OR post_name LIKE %s OR post_name LIKE %s)
-             ORDER BY post_title ASC, ID ASC LIMIT 100",
-            $like, $like, str_contains($path, '/') ? $leaf : $like
-        ));
+        // WP_Query does not support substring search of post_name. Keep this
+        // bounded query so slug and hierarchical-path suggestions stay accurate.
+        // The posts last-changed token invalidates results when content changes.
+        $cacheKey = 'candidates:' . md5($query . "\0" . $path . "\0" . wp_cache_get_last_changed('posts'));
+        $candidateIds = wp_cache_get($cacheKey, 'gatey_page_suggestions');
+        if (!is_array($candidateIds)) {
+            $like = '%' . $wpdb->esc_like($query) . '%';
+            $leaf = '%' . $wpdb->esc_like(basename($path)) . '%';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- WP_Query cannot search slug substrings; this read is bounded and cached.
+            $candidateIds = $wpdb->get_col($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish'
+                 AND (post_title LIKE %s OR post_name LIKE %s OR post_name LIKE %s)
+                 ORDER BY post_title ASC, ID ASC LIMIT 100",
+                $like, $like, str_contains($path, '/') ? $leaf : $like
+            ));
+            wp_cache_set($cacheKey, $candidateIds, 'gatey_page_suggestions', 300);
+        }
         $matches = array();
         foreach (array_unique(array_merge($ids, array_map('intval', $candidateIds))) as $id) {
             $page = get_post($id);

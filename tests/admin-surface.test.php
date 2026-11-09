@@ -213,6 +213,7 @@ $transients = []; $postsChanged = 'profile-generation'; $queryCount = count($pos
 $placement = AdminSurface::read()['use_on_site'];
 check(str_contains($placement['items'][1]['status'], '2 inspected published pages or posts'), 'Account usage includes published page/post direct and synced blocks, excluding drafts and standalone pattern definitions.');
 check(count($postQueries) === $queryCount + 1 && end($postQueries)['posts_per_page'] === 201 && end($postQueries)['fields'] === 'ids' && end($postQueries)['no_found_rows'] === true, 'Native candidate query has an explicit bound and avoids unbounded row counts.');
+check(end($postQueries)['suppress_filters'] === false && end($postQueries)['lang'] === '', 'Placement inspection allows WordPress filters and explicitly requests all Polylang languages.');
 check($placement['items'][1]['links'][0]['url'] === admin_url('post.php?post=60&action=edit'), 'Real usage leads to a native edit destination.');
 $permissions = ['edit_post:60' => false];
 $restrictedPlacement = AdminSurface::read()['use_on_site'];

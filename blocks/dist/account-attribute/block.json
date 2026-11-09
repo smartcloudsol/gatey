@@ -47,7 +47,7 @@
   "editorScript": "smartcloud-gatey-blocks-editor-script",
   "editorStyle": "smartcloud-gatey-blocks-editor-style",
   "render": "file:./render.php",
-  "viewScript": "smartcloud-gatey-view-script",
+  "viewScript": "smartcloud-gatey-account-attribute-view-script",
   "viewStyle": "smartcloud-gatey-view-style",
   "supports": {
     "align": true,
