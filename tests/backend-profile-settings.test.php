@@ -14,6 +14,8 @@ function apply_filters(string $name, mixed $value): mixed {
 function get_option(string $key, mixed $default = false): mixed { return $GLOBALS['options'][$key] ?? $default; }
 function update_option(string $key, mixed $value): bool { $GLOBALS['options'][$key] = $value; return true; }
 function add_action(mixed ...$args): void {}
+function get_current_blog_id(): int { return 1; }
+function get_role(string $role): ?object { return in_array($role, ['administrator', 'editor', 'author'], true) ? (object)['name'=>$role] : null; }
 function admin_url(string $path): string { return 'https://dev.wpsuite.io/wp-admin/' . $path; }
 function __(string $text, string $domain = ''): string { return $text; }
 function get_user_by(mixed ...$args): never { throw new RuntimeException('Development identity reached shared CMS user lookup'); }
@@ -62,3 +64,18 @@ check($descriptor['options'] === ['gatey'], 'Original owner reset remains origin
 $context = ['enabled' => true, 'id' => 'production', 'namespace' => 'production'];
 check($admin->registerHubCapabilities([])[0]['configuration_reset']['options'] === ['wpsuite-profile/production/gatey'], 'Other profile reset clears only its Gatey option.');
 echo "Gatey backend profile settings: {$checks} checks PASS.\n";
+
+$issuer = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Prod';
+$production->mappings = [(object)['cognitoGroup'=>'editors','wordpressRole'=>'editor'], ['cognitoGroup'=>'admins','wordpressRole'=>'administrator'], ['cognitoGroup'=>'removed','wordpressRole'=>'missing-role']];
+update_option(BackendProfileSettings::optionName(), $production);
+check(BackendProfileSettings::composerRoles(null, $issuer, ['editors'])['roles'] === ['editor'], 'An enabled production bridge resolves explicit object role mappings.');
+check(BackendProfileSettings::composerRoles(null, $issuer, ['admins'])['roles'] === ['administrator'], 'Array-form mappings resolve identically.');
+check(BackendProfileSettings::composerRoles(null, $issuer, ['admin'])['roles'] === [], 'Unmapped admin group has no implicit administrator fallback.');
+check(BackendProfileSettings::composerRoles(null, $issuer, ['removed'])['roles'] === [], 'Deleted WordPress roles cannot grant rights.');
+check(BackendProfileSettings::composerRoles(null, $issuer, ['Editors'])['roles'] === [], 'Group matching is case-sensitive.');
+check(BackendProfileSettings::composerRoles(null, 'https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_Dev', ['admins']) === null, 'A different issuer must not inherit production mappings.');
+$production->integrateWpLogin = false; update_option(BackendProfileSettings::optionName(), $production);
+check(BackendProfileSettings::composerRoles(null, $issuer, ['admins']) === null, 'Disabling integration revokes the mapping without a stale cache.');
+$context = ['enabled'=>true, 'id'=>'development', 'namespace'=>''];
+check(BackendProfileSettings::composerRoles(null, 'https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_Dev', ['admins']) === null, 'Development identity cannot inherit CMS roles even when its stored integration is enabled.');
+echo "Gatey explicit MCP role mapping: 8 checks PASS.\n";

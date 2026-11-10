@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.6
+Stable tag: 2.6.7
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,10 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.7 =
+* Support explicitly mapped WordPress editor permissions in Composer when WordPress login integration is enabled.
+* Preserve assigned-draft ownership, OAuth restrictions and human publication approval.
 
 = 2.6.6 =
 * Load authenticator and account block renderers when used while preserving the global frontend API.
@@ -682,6 +686,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.6.7 =
+Use Gatey with the updated Agent Composer to apply configured WordPress editor mappings. WordPress login integration must be enabled; existing sign-in settings are preserved.
 
 = 2.6.6 =
 Update WP Suite plugins together and reload open administration pages. Existing site connections and settings are preserved.

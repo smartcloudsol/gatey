@@ -30,6 +30,7 @@ class Admin
     public function __construct()
     {
         $this->settings = BackendProfileSettings::settings();
+        add_filter('smartcloud_agent_composer_wordpress_roles', array(BackendProfileSettings::class, 'composerRoles'), 10, 3);
         $this->registerRestRoutes();
         add_filter('smartcloud_wpsuite_admin_capabilities', array($this, 'registerHubCapabilities'));
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);
