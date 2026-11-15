@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { type AuthContext } from "@smart-cloud/aws-amplify-ui";
 import { confirmSignIn, forgetDevice, rememberDevice, signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
@@ -22,6 +22,8 @@ import "@smart-cloud/aws-amplify-ui-react/styles.css";
 import { useSelect } from "@wordpress/data";
 
 import {
+  createGateyWebAuthnMfaServices,
+  getGateyAuthenticatorBindingKey,
   getGateyPlugin,
   resolveGateyRedirectTarget,
   resolveGateyTarget,
@@ -89,6 +91,7 @@ const normalizeRedirectUrl = (url: string): string => {
 
 export const Login = (
   props: ThemeProps & {
+    bindingKey: string;
     config: AuthenticatorConfig | null | undefined;
     containerRef: React.RefObject<HTMLDivElement>;
   },
@@ -108,7 +111,35 @@ export const Login = (
     editorRef,
     config,
     containerRef,
+    bindingKey,
   } = props;
+
+  const lifecycle = useRef({ mounted: true, generation: 0 });
+  useEffect(() => {
+    lifecycle.current.mounted = true;
+    const invalidate = () => {
+      lifecycle.current.mounted = false;
+      lifecycle.current.generation += 1;
+    };
+    window.addEventListener("wpsuite:backend-profile-changed", invalidate);
+    return () => {
+      invalidate();
+      window.removeEventListener("wpsuite:backend-profile-changed", invalidate);
+    };
+  }, []);
+  const mfaServices = useMemo(
+    () => ({
+      handleGetWebAuthnMfaCapability: async () => {
+        const generation = lifecycle.current.generation;
+        const isCurrent = () =>
+          lifecycle.current.mounted &&
+          lifecycle.current.generation === generation &&
+          getGateyAuthenticatorBindingKey() === bindingKey;
+        return createGateyWebAuthnMfaServices(isCurrent).handleGetWebAuthnMfaCapability();
+      },
+    }),
+    [bindingKey],
+  );
 
   const { translate } = useAuthenticatorI18n();
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
@@ -247,6 +278,7 @@ export const Login = (
 
   const services: AuthContext["services"] = useMemo(
     () => ({
+      ...mfaServices,
       async done(): Promise<void> {
         if (screen === "editAccount") {
           reloadUserAttributes();
@@ -276,6 +308,7 @@ export const Login = (
       },
     }),
     [
+      mfaServices,
       screen,
       dispatchEvent,
       reloadUserAttributes,
@@ -580,6 +613,7 @@ export const Login = (
                 ) : (
                   <>
                     <Authenticator
+                      key={bindingKey}
                       loginMechanisms={gatey.settings?.loginMechanisms}
                       language={language}
                       textDirection={direction as Direction}

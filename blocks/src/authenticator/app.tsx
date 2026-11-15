@@ -18,6 +18,7 @@ import {
 import { useSelect } from "@wordpress/data";
 
 import {
+  getGateyAuthenticatorBindingKey,
   getStoreSelect,
   type AuthenticatorConfig,
   type CustomTranslations,
@@ -65,6 +66,14 @@ function dispatchHostEvent(
 }
 
 export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
+  const binding = getGateyAuthenticatorBindingKey();
+  const [profileChanged, setProfileChanged] = useState(false);
+  useEffect(() => {
+    const invalidate = () => setProfileChanged(true);
+    window.addEventListener("wpsuite:backend-profile-changed", invalidate);
+    return () => window.removeEventListener("wpsuite:backend-profile-changed", invalidate);
+  }, []);
+
   const rootClassName = "smartcloud-gatey-authenticator-theme-root";
   const {
     id,
@@ -248,6 +257,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
   }, [isPreview, setPreviewZIndex, show]);
 
   return (
+    !profileChanged &&
     filteredConfig !== undefined &&
     screen !== undefined && (
       <AuthenticatorI18nProvider
@@ -256,7 +266,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
       >
       <CustomPartDirectionContext.Provider value={props.direction === "rtl" ? "rtl" : "ltr"}>
       <ConfigContext.Provider value={filteredConfig}>
-        <Authenticator.Provider>
+        <Authenticator.Provider key={binding}>
           <div
             className={rootClassName}
             style={{
@@ -287,6 +297,7 @@ export const App: FunctionComponent<ThemeProps> = (props: ThemeProps) => {
               <Login
                 containerRef={containerRef}
                 {...props}
+                bindingKey={binding}
                 config={filteredConfig}
                 language={currentLanguage}
               />

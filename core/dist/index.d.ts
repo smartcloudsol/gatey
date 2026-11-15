@@ -85,4 +85,5 @@ export { getStoreDispatch, getStoreSelect, observeStore, sanitizeAuthenticatorCo
  */
 export declare const store: () => Promise<Store>;
 export { TEXT_DOMAIN } from "./constants";
+export { createGateyWebAuthnMfaServices, getGateyAuthenticatorBindingKey } from "./web-authn-mfa";
 export declare const initializeGatey: () => GateyPlugin;

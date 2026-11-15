@@ -210,6 +210,8 @@ export const store = async (): Promise<Store> => {
 
 export { TEXT_DOMAIN } from "./constants";
 
+export { createGateyWebAuthnMfaServices, getGateyAuthenticatorBindingKey } from "./web-authn-mfa";
+
 export const initializeGatey = (): GateyPlugin => {
   const wp = globalThis.WpSuite;
   const gatey = getGateyPlugin();

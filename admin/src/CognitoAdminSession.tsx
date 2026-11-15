@@ -16,6 +16,8 @@ import { I18n } from "aws-amplify/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  createGateyWebAuthnMfaServices,
+  getGateyAuthenticatorBindingKey,
   getGateyPlugin,
   getStoreDispatch,
   getStoreSelect,
@@ -50,6 +52,7 @@ const sessionIdentity = (account: Account): string | undefined =>
 
 type SignInFormProps = {
   settings: Settings;
+  bindingKey: string;
   onSignedIn: () => void;
   onClose: () => void;
 };
@@ -93,9 +96,37 @@ const SignInConfirmation = ({
   );
 };
 
-const SignInForm = ({ settings, onSignedIn, onClose }: SignInFormProps) => {
+const SignInForm = ({ settings, bindingKey, onSignedIn, onClose }: SignInFormProps) => {
+  const lifecycle = useRef({ mounted: true, generation: 0 });
+  useEffect(() => {
+    lifecycle.current.mounted = true;
+    const invalidate = () => {
+      lifecycle.current.mounted = false;
+      lifecycle.current.generation += 1;
+    };
+    window.addEventListener("wpsuite:backend-profile-changed", invalidate);
+    return () => {
+      invalidate();
+      window.removeEventListener("wpsuite:backend-profile-changed", invalidate);
+    };
+  }, []);
+  const services = useMemo(
+    () => ({
+      handleGetWebAuthnMfaCapability: async () => {
+        const generation = lifecycle.current.generation;
+        const isCurrent = () =>
+          lifecycle.current.mounted &&
+          lifecycle.current.generation === generation &&
+          getGateyAuthenticatorBindingKey() === bindingKey;
+        return createGateyWebAuthnMfaServices(isCurrent).handleGetWebAuthnMfaCapability();
+      },
+    }),
+    [bindingKey],
+  );
   return (
     <Authenticator
+      key={bindingKey}
+      services={services}
       initialState="signIn"
       hideSignUp={true}
       loginMechanisms={settings.loginMechanisms}
@@ -106,7 +137,7 @@ const SignInForm = ({ settings, onSignedIn, onClose }: SignInFormProps) => {
   );
 };
 
-const CognitoAdminSessionContent = ({ store }: { store: Store }) => {
+const CognitoAdminSessionContent = ({ store, bindingKey }: { store: Store; bindingKey: string }) => {
   const gatey = getGateyPlugin();
   const settings = gatey?.settings;
   const { authStatus, user } = useAuthenticator((context) => [
@@ -267,18 +298,29 @@ const CognitoAdminSessionContent = ({ store }: { store: Store }) => {
           backend APIs in this browser. It does not sign you in to WordPress or
           to a WP Suite workspace.
         </Text>
-        <SignInForm
+        {opened && <SignInForm
+          bindingKey={bindingKey}
           settings={settings}
           onSignedIn={handleSignedIn}
           onClose={() => setOpened(false)}
-        />
+        />}
       </Modal>
     </Card>
   );
 };
 
-export const CognitoAdminSession = ({ store }: { store: Store }) => (
-  <Authenticator.Provider>
-    <CognitoAdminSessionContent store={store} />
-  </Authenticator.Provider>
-);
+export const CognitoAdminSession = ({ store }: { store: Store }) => {
+  const binding = getGateyAuthenticatorBindingKey();
+  const [profileChanged, setProfileChanged] = useState(false);
+  useEffect(() => {
+    const invalidate = () => setProfileChanged(true);
+    window.addEventListener("wpsuite:backend-profile-changed", invalidate);
+    return () => window.removeEventListener("wpsuite:backend-profile-changed", invalidate);
+  }, []);
+  if (profileChanged) return null;
+  return (
+    <Authenticator.Provider key={binding}>
+      <CognitoAdminSessionContent store={store} bindingKey={binding} />
+    </Authenticator.Provider>
+  );
+};
