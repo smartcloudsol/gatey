@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.9
+Stable tag: 2.6.10
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,9 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.10 =
+* Fixes passkey MFA activation and status reporting while preserving existing MFA preferences.
 
 = 2.6.9 =
 * Support explicit passkey MFA opt-in with supported Cognito pools, a registered passkey, and an alternative MFA method.
@@ -693,6 +696,9 @@ Authenticator block: added optional “Signing in”, “Signing out” and “R
 Initial release.
 
 == Upgrade Notice ==
+
+= 2.6.10 =
+Important update for sites using passkey MFA: fixes activation failures and status reporting while preserving existing MFA preferences. Update WP Suite plugins together, then rebuild and republish static exports.
 
 = 2.6.9 =
 Passkey MFA requires WP Suite Cloud 1.1.13 IAM read access or equivalent permissions. Update WP Suite plugins together, then rebuild and republish static exports.
