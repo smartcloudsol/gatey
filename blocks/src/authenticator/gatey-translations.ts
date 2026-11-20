@@ -1,5 +1,48 @@
 import type { TranslationCatalog } from "./scoped-translations";
 
+export const guardianReturnMessages = {
+  checking: "Checking access to this page…",
+  cookieMissing:
+    "This page could not verify the access cookie. Check that cookies are enabled, then open the page again in a new tab.",
+  denied: "Your account does not have access to this page.",
+  unavailable: "Access could not be verified. Try opening the protected page again.",
+} as const;
+
+export const guardianReturnTranslations: TranslationCatalog = {
+  de: {
+    [guardianReturnMessages.checking]: "Zugriff auf diese Seite wird geprüft …",
+    [guardianReturnMessages.cookieMissing]:
+      "Das Zugriffs-Cookie konnte nicht bestätigt werden. Prüfen Sie, ob Cookies aktiviert sind, und öffnen Sie die Seite erneut in einem neuen Tab.",
+    [guardianReturnMessages.denied]: "Ihr Konto hat keinen Zugriff auf diese Seite.",
+    [guardianReturnMessages.unavailable]:
+      "Der Zugriff konnte nicht bestätigt werden. Öffnen Sie die geschützte Seite bitte erneut.",
+  },
+  es: {
+    [guardianReturnMessages.checking]: "Comprobando el acceso a esta página…",
+    [guardianReturnMessages.cookieMissing]:
+      "No se pudo verificar la cookie de acceso. Compruebe que las cookies estén habilitadas y vuelva a abrir la página en una pestaña nueva.",
+    [guardianReturnMessages.denied]: "Su cuenta no tiene acceso a esta página.",
+    [guardianReturnMessages.unavailable]:
+      "No se pudo verificar el acceso. Vuelva a abrir la página protegida.",
+  },
+  fr: {
+    [guardianReturnMessages.checking]: "Vérification de l’accès à cette page…",
+    [guardianReturnMessages.cookieMissing]:
+      "Impossible de vérifier le cookie d’accès. Vérifiez que les cookies sont activés, puis rouvrez la page dans un nouvel onglet.",
+    [guardianReturnMessages.denied]: "Votre compte n’a pas accès à cette page.",
+    [guardianReturnMessages.unavailable]:
+      "Impossible de vérifier l’accès. Veuillez rouvrir la page protégée.",
+  },
+  hu: {
+    [guardianReturnMessages.checking]: "Az oldalhoz való hozzáférés ellenőrzése…",
+    [guardianReturnMessages.cookieMissing]:
+      "A hozzáférési sütit nem sikerült ellenőrizni. Ellenőrizze, hogy a sütik engedélyezve vannak-e, majd nyissa meg újra az oldalt egy új lapon.",
+    [guardianReturnMessages.denied]: "A fiókja nem jogosult az oldal megtekintésére.",
+    [guardianReturnMessages.unavailable]:
+      "A hozzáférést nem sikerült ellenőrizni. Nyissa meg újra a védett oldalt.",
+  },
+};
+
 /**
  * Gatey-owned corrections layered over the upstream Authenticator catalog.
  * Site-authored custom translations are applied after these values and remain

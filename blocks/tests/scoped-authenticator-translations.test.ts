@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { translations } from "@smart-cloud/aws-amplify-ui-react";
 
+import { guardianReturnMessages, guardianReturnTranslations } from "../src/authenticator/gatey-translations.ts";
 import { createScopedAuthenticatorTranslations } from "../src/authenticator/scoped-translations.ts";
 
 test("uses active, site-default and English custom/base catalogs in order", () => {
@@ -47,6 +48,7 @@ test("uses active, site-default and English custom/base catalogs in order", () =
   );
 
   assert.deepEqual(scoped["hu-HU"], {
+    ...guardianReturnTranslations.hu,
     activeCustom: "Hungarian custom",
     activeBase: "Hungarian base",
     defaultCustom: "German custom",
@@ -99,6 +101,7 @@ test("normalizes regional locale keys and does not mutate source catalogs", () =
   );
 
   assert.deepEqual(scoped["hu-HU"], {
+    ...guardianReturnTranslations.hu,
     save: "Változtatások mentése",
     customOnly: "English custom",
     cancel: "Mégse",
@@ -146,4 +149,16 @@ test("keeps site-authored translations above Gatey's built-in corrections", () =
     scoped.es["Lost your code?"],
     "Texto personalizado del sitio",
   );
+});
+
+test("localizes each protected-return status in the four translated WP Suite locales", () => {
+  for (const locale of ["de-DE", "es-ES", "fr-FR", "hu-HU"]) {
+    const effective = createScopedAuthenticatorTranslations(locale, translations)[locale];
+    for (const key of Object.values(guardianReturnMessages)) {
+      assert.ok(effective[key] && effective[key] !== key, `${locale} is missing ${key}`);
+    }
+  }
+  const key = guardianReturnMessages.checking;
+  const scoped = createScopedAuthenticatorTranslations("hu-HU", translations, { hu: { [key]: "Egyéni ellenőrzési üzenet…" } });
+  assert.equal(scoped["hu-HU"][key], "Egyéni ellenőrzési üzenet…");
 });

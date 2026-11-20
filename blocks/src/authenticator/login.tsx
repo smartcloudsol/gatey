@@ -20,6 +20,7 @@ import {
 import "@smart-cloud/aws-amplify-ui-react/styles.css";
 
 import { useSelect } from "@wordpress/data";
+import { guardianReturnMessages } from "./gatey-translations";
 
 import {
   createGateyWebAuthnMfaServices,
@@ -27,6 +28,7 @@ import {
   getGateyPlugin,
   resolveGateyRedirectTarget,
   resolveGateyTarget,
+  waitForGateyReady,
   getStoreDispatch,
   getStoreSelect,
   type Account,
@@ -208,6 +210,9 @@ export const Login = (
     wasSignedIn && params.get("loggedout") === "true",
   );
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
+  const [guardianReturn] = useState(() => params.get("wpsuite_guardian") === "1");
+  const returnStarted = useRef(false);
+  const [returnStatus, setReturnStatus] = useState("");
   const resolvedRedirectTo = useMemo(
     () => resolveGateyRedirectTarget(redirectTo),
     [redirectTo],
@@ -252,7 +257,43 @@ export const Login = (
     [containerRef, screen],
   );
 
-  const redirectIfNeeded = useCallback((target: string | null | undefined) => {
+  const redirectIfNeeded = useCallback((target: string | null | undefined, afterSignIn = false) => {
+    if (guardianReturn && afterSignIn) {
+      if (returnStarted.current) return true;
+      returnStarted.current = true;
+      setMessage(undefined);
+      setReturnStatus(guardianReturnMessages.checking);
+      void (async () => {
+        try {
+          if (!resolvedRedirectTo || normalizeRedirectUrl(resolvedRedirectTo) === normalizeRedirectUrl(window.location.href)) {
+            throw new Error("Invalid return URL");
+          }
+          const destination = new URL(resolvedRedirectTo);
+          const key = "wpsuite:guardian:return";
+          const previous = JSON.parse(window.sessionStorage.getItem(key) || "null");
+          if (previous?.path === destination.pathname && previous.until > Date.now()) {
+            setReturnStatus(guardianReturnMessages.cookieMissing);
+            return;
+          }
+          await waitForGateyReady();
+          const cognito = gatey.cognito as typeof gatey.cognito & {
+            prepareProtectedReturn?: (url: string) => Promise<"ready" | "denied" | "unavailable">;
+          };
+          const result = await cognito.prepareProtectedReturn?.(destination.href);
+          if (result === "denied") {
+            setReturnStatus(guardianReturnMessages.denied);
+            return;
+          }
+          if (result !== "ready") throw new Error("Protected return unavailable");
+          window.sessionStorage.setItem(key, JSON.stringify({ path: destination.pathname, until: Date.now() + 120_000 }));
+          setRedirecting(true);
+          window.location.assign(destination.href);
+        } catch {
+          setReturnStatus(guardianReturnMessages.unavailable);
+        }
+      })();
+      return true;
+    }
     const resolvedTarget = resolveGateyTarget(target);
     if (!resolvedTarget) {
       return false;
@@ -274,7 +315,7 @@ export const Login = (
     setRedirecting(true);
     window.location.assign(resolvedTarget);
     return true;
-  }, []);
+  }, [guardianReturn, resolvedRedirectTo]);
 
   const services: AuthContext["services"] = useMemo(
     () => ({
@@ -479,7 +520,7 @@ export const Login = (
             gatey.settings.redirectSignIn ||
             gatey.settings.signInPage;
 
-          if (!redirectIfNeeded(url)) {
+          if (!redirectIfNeeded(url, true)) {
             setLoginHandled(true);
           }
         }
@@ -514,7 +555,7 @@ export const Login = (
               nextUrl ||
               gatey.settings.redirectSignIn ||
               gatey.settings.signInPage;
-            redirectIfNeeded(url);
+            redirectIfNeeded(url, true);
           }
         } else if (route !== "transition") {
           setMessage(undefined);
@@ -612,6 +653,7 @@ export const Login = (
                   </View>
                 ) : (
                   <>
+                    {returnStatus && <Text role="status">{translate(returnStatus)}</Text>}
                     <Authenticator
                       key={bindingKey}
                       loginMechanisms={gatey.settings?.loginMechanisms}

@@ -43,6 +43,14 @@ onDomReady(async () => {
   const gatey = initializeGatey();
   observe();
 
+  try {
+    const key = "wpsuite:guardian:return";
+    const previous = JSON.parse(window.sessionStorage.getItem(key) || "null");
+    if (previous?.path === window.location.pathname) window.sessionStorage.removeItem(key);
+  } catch {
+    // A protected return will report an unavailable session store on the sign-in page.
+  }
+
   const store = gatey.cognito.store;
 
   let decryptedConfig: AuthenticatorConfig | undefined | null;
@@ -242,6 +250,54 @@ onDomReady(async () => {
       decryptedConfig.apiConfigurations?.secondary?.apis?.length
         ? decryptedConfig.apiConfigurations.secondary
         : decryptedConfig?.apiConfigurations?.default;
+    const signInHook = apiConfiguration?.signInHook;
+    const hookApi = apiConfiguration?.apis.find((api) => api.name === signInHook?.apiName);
+    const guardianUrl = (() => {
+      if (!signInHook || !hookApi) return;
+      try {
+        const url = new URL(hookApi.endpoint.replace(/\/$/, "") + signInHook.path);
+        if (
+          url.origin === window.location.origin &&
+          url.protocol === "https:" &&
+          url.pathname === "/issue-cookie" &&
+          !url.username && !url.password &&
+          (url.searchParams.get("action") ?? "signin") === "signin" &&
+          (signInHook.options?.queryParams?.action ?? "signin") === "signin"
+        ) return url;
+      } catch {
+        return;
+      }
+    })();
+    Object.assign(gatey.cognito, {
+      async prepareProtectedReturn(target: string): Promise<"ready" | "denied" | "unavailable"> {
+        if (!guardianUrl) return "unavailable";
+        try {
+          const destination = new URL(target);
+          if (destination.origin !== guardianUrl.origin || destination.username || destination.password) {
+            return "unavailable";
+          }
+          const session = await loadAuthSession({ forceRefresh: true });
+          const token = session.tokens?.accessToken;
+          if (!token) return "unavailable";
+          const url = new URL(guardianUrl);
+          url.searchParams.set("action", "signin");
+          url.searchParams.set("return_path", destination.pathname);
+          const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${token.toString()}` },
+            credentials: "same-origin",
+            cache: "no-store",
+            redirect: "error",
+            signal: AbortSignal.timeout(8000),
+          });
+          if (response.status === 403) return "denied";
+          return response.status === 204 && response.headers.get("X-WPSuite-Guardian-Return") === "ready"
+            ? "ready"
+            : "unavailable";
+        } catch {
+          return "unavailable";
+        }
+      },
+    });
     const allAttrs = [];
     if (decryptedConfig?.formFields) {
       allAttrs.push(...Object.keys(decryptedConfig.formFields));
@@ -262,7 +318,9 @@ onDomReady(async () => {
         if (wasSignedIn !== undefined) {
           try {
             if (signedIn && (await isAuthenticated())) {
-              login(apiConfiguration?.signInHook).then((nextUrl) => {
+              const guardianReturn = guardianUrl &&
+                new URLSearchParams(window.location.search).get("wpsuite_guardian") === "1";
+              login(guardianReturn ? undefined : signInHook).then((nextUrl) => {
                 dispatch(store).setNextUrl(nextUrl ?? null);
               });
             } else {
