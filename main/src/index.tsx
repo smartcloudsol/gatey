@@ -1,9 +1,4 @@
-import {
-  defaultFormFieldOptions,
-  translate,
-  type AuthFieldsWithDefaults,
-} from "@smart-cloud/aws-amplify-ui";
-import { translations } from "@smart-cloud/aws-amplify-ui-react";
+import type { AuthFieldsWithDefaults } from "@smart-cloud/aws-amplify-ui";
 import {
   getAmplifyConfig,
   getStoreSelect,
@@ -20,7 +15,6 @@ import {
 } from "@smart-cloud/gatey-core";
 import { dispatch } from "@wordpress/data";
 import { I18n } from "aws-amplify/utils";
-import { countries } from "country-data-list";
 
 import "jquery";
 import { observe } from "./observer";
@@ -37,6 +31,44 @@ function onDomReady(fn: () => void) {
   } else {
     fn();
   }
+}
+
+type AccountUi = Pick<
+  typeof import("@smart-cloud/aws-amplify-ui"),
+  "defaultFormFieldOptions" | "translate" | "translations"
+> & Pick<typeof import("@smart-cloud/aws-amplify-ui-react"), "countries">;
+
+function accountUi(): AccountUi | undefined {
+  const vendor = (globalThis as unknown as { WpSuiteAmplify?: Partial<AccountUi> }).WpSuiteAmplify;
+  if (vendor?.defaultFormFieldOptions && vendor.translate && vendor.translations && vendor.countries) {
+    return vendor as AccountUi;
+  }
+  return undefined;
+}
+
+let accountUiRequest: Promise<AccountUi | undefined> | undefined;
+function loadAccountUi(): Promise<AccountUi | undefined> {
+  const loaded = accountUi();
+  if (loaded) return Promise.resolve(loaded);
+  const runtime = globalThis as unknown as {
+    WpSuite?: { constants?: { gatey?: { amplifyUiHref?: string } } };
+  };
+  const url = runtime.WpSuite?.constants?.gatey?.amplifyUiHref;
+  if (!url) return Promise.resolve(undefined);
+  accountUiRequest ??= new Promise<AccountUi | undefined>((resolve) => {
+    const script = document.createElement("script");
+    script.src = url;
+    script.addEventListener("load", () => resolve(accountUi()), { once: true });
+    script.addEventListener("error", () => {
+      script.remove();
+      resolve(undefined);
+    }, { once: true });
+    document.head.append(script);
+  }).then((ui) => {
+    if (!ui) accountUiRequest = undefined;
+    return ui;
+  });
+  return accountUiRequest;
 }
 
 onDomReady(async () => {
@@ -117,24 +149,36 @@ onDomReady(async () => {
     jQuery("." + key + " *:not(:has(*))").html(valueToDisplay);
   };
 
+  let accountRefresh = 0;
   const refresh = async (signedIn: boolean) => {
+    const revision = ++accountRefresh;
     if (signedIn) {
       if (gatey.cognito.getUserAttributes) {
         const attrs = await gatey.cognito.getUserAttributes();
+        if (revision !== accountRefresh) return;
         const processedAttrs: string[] = [];
         if (attrs) {
+          const formFields = decryptedConfig?.formFields ?? [];
+          const needsLabels = formFields.some((field) =>
+            !!attrs[field.name] &&
+            (field.type === "country" || field.type === "select" || field.type === "radio"),
+          );
+          const ui = needsLabels ? await loadAccountUi() : undefined;
+          if (revision !== accountRefresh) return;
+          if (ui) {
+            const customTranslations = getStoreSelect(await store).getCustomTranslations();
+            if (revision !== accountRefresh) return;
+            I18n.putVocabularies(ui.translations);
+            I18n.putVocabularies(customTranslations || {});
+          }
           Object.keys(attrs).forEach((attr) => {
             const field =
-              ((attr as AuthFieldsWithDefaults) &&
-                defaultFormFieldOptions[attr as AuthFieldsWithDefaults]) ??
-              (decryptedConfig?.formFields &&
-                decryptedConfig?.formFields?.find(
-                  (field) => field.name === attr,
-                ));
+              ui?.defaultFormFieldOptions[attr as AuthFieldsWithDefaults] ??
+              formFields.find((field) => field.name === attr);
             let value = attrs[attr] as string;
             if (value) {
-              if (field?.type === "country") {
-                const country = countries.all.find(
+              if (ui && field?.type === "country") {
+                const country = ui.countries.all.find(
                   (country) =>
                     country.alpha3?.toLocaleLowerCase() ===
                       value.toLocaleLowerCase() ||
@@ -142,13 +186,13 @@ onDomReady(async () => {
                       value.toLocaleLowerCase(),
                 );
                 if (country) {
-                  value = translate(country.name);
+                  value = ui.translate(country.name);
                 }
-              } else if (field?.type === "select" || field?.type === "radio") {
+              } else if (ui && (field?.type === "select" || field?.type === "radio")) {
                 const options = field?.values ?? [];
                 const option = options.find((option) => option.value === value);
                 if (option) {
-                  value = translate(option.label);
+                  value = ui.translate(option.label);
                 }
               }
             }
@@ -182,6 +226,7 @@ onDomReady(async () => {
       }
       if (gatey.cognito.getMfaPreferences) {
         const mfaPreferences = await gatey.cognito.getMfaPreferences();
+        if (revision !== accountRefresh) return;
         root.style.setProperty(
           "--gatey-account-mfa-enabled",
           mfaPreferences?.enabled?.includes("TOTP") ? "flex" : "none",
@@ -197,6 +242,7 @@ onDomReady(async () => {
       signedIn && gatey.cognito.isAuthenticated
         ? await gatey.cognito.isAuthenticated()
         : false;
+    if (revision !== accountRefresh) return;
     root.style.setProperty(
       "--gatey-account-authenticated",
       authenticated ? "flex" : "none",
@@ -402,7 +448,8 @@ onDomReady(async () => {
       store,
       (state) => state.language,
       () => {
-        I18n.putVocabularies(translations);
+        const ui = accountUi();
+        if (ui) I18n.putVocabularies(ui.translations);
         I18n.putVocabularies(
           getStoreSelect(store).getCustomTranslations() || {},
         );

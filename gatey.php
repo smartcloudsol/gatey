@@ -5,7 +5,7 @@
  * Description:       Easily integrate Amazon Cognito for secure authentication, SSO, and advanced user management in WordPress or static sites generated from WordPress.
  * Requires at least: 6.9
  * Requires PHP:      8.1
- * Version:           2.6.11
+ * Version:           2.6.12
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -17,7 +17,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.6.11';
+const VERSION = '2.6.12';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -240,6 +240,9 @@ final class Gatey
             'nonce' => wp_create_nonce('wp_rest'),
         );
         $constants = array(
+            'amplifyUiHref' => !is_admin() && function_exists('\\SmartCloud\\WPSuite\\Hub\\amplifyFrontendUiUrl')
+                ? \SmartCloud\WPSuite\Hub\amplifyFrontendUiUrl()
+                : null,
             'authenticatorViewCssHref' => file_exists(GATEY_PATH . 'blocks/authenticator-view.css')
                 ? add_query_arg(
                     'ver',
@@ -258,7 +261,7 @@ final class Gatey
                 ? $constants['wpsuiteThemeCssHrefs']
                 : array($constants['wpsuiteThemeCssHref']);
             $assets = array_merge(
-                array($constants['authenticatorViewCssHref']),
+                array($constants['authenticatorViewCssHref'], $constants['amplifyUiHref']),
                 $shared_stylesheets
             );
             $assets = array_values(array_unique(array_filter($assets, static function ($url) {
@@ -299,21 +302,24 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         wp_print_inline_script_tag(wp_kses_post($js));
     }
 
-    private function enqueueMainRuntimeScript($args = false): void
+    private function enqueueMainRuntimeScript($args = false, bool $frontend = false): void
     {
         $main_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'main/index.asset.php')) {
             $main_script_asset = require(GATEY_PATH . 'main/index.asset.php');
         }
+        $amplify = $frontend && wp_script_is('smartcloud-wpsuite-amplify-sdk', 'registered')
+            ? 'smartcloud-wpsuite-amplify-sdk'
+            : 'smartcloud-wpsuite-amplify-vendor';
         $main_script_dependencies = array_merge(
             $main_script_asset['dependencies'] ?? array(),
-            array('smartcloud-wpsuite-webcrypto-vendor', 'smartcloud-wpsuite-amplify-vendor')
+            array('smartcloud-wpsuite-webcrypto-vendor', $amplify)
         );
         if (wp_script_is('smartcloud-wpsuite-main-script', 'registered')) {
             $main_script_dependencies[] = 'smartcloud-wpsuite-main-script';
         }
         $main_script_asset['dependencies'] = array_values(array_unique($main_script_dependencies));
-        wp_enqueue_script('smartcloud-gatey-main-script', GATEY_URL . 'main/index.js', $main_script_asset['dependencies'], GATEY_VERSION, $args);
+        wp_enqueue_script('smartcloud-gatey-main-script', GATEY_URL . 'main/index.js', $main_script_asset['dependencies'], $main_script_asset['version'] ?? GATEY_VERSION, $args);
         // This stylesheet only sets the editor/preview --gatey-in-editor variable.
         if (is_admin() || did_action('elementor/preview/after_enqueue_scripts')) {
             wp_enqueue_style('smartcloud-gatey-main-style', GATEY_URL . 'main/index.css', array(), GATEY_VERSION);
@@ -331,7 +337,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         }
         $view_script_dependencies = array_merge(
             $view_script_asset['dependencies'] ?? array(),
-            array('smartcloud-gatey-main-script')
+            array('smartcloud-gatey-main-script', 'smartcloud-wpsuite-amplify-vendor')
         );
         if (wp_script_is('smartcloud-gatey-main-script', 'registered')) {
             $view_script_dependencies[] = 'smartcloud-gatey-main-script';
@@ -345,7 +351,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
         }
         $account_view_script_dependencies = array_merge(
             $view_script_asset['dependencies'] ?? array(),
-            array('smartcloud-gatey-main-script')
+            array('smartcloud-gatey-main-script', 'smartcloud-wpsuite-amplify-vendor')
         );
         if (wp_script_is('smartcloud-gatey-main-script', 'registered')) {
             $account_view_script_dependencies[] = 'smartcloud-gatey-main-script';
@@ -356,7 +362,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
 
     public function enqueueFrontendAssets(): void
     {
-        $this->enqueueMainRuntimeScript(array('in_footer' => true, 'strategy' => 'defer'));
+        $this->enqueueMainRuntimeScript(array('in_footer' => true, 'strategy' => 'defer'), true);
         $this->registerViewAssets();
         // Existing page-builder previews can insert shortcode markup after the initial render.
         if (class_exists('\\Elementor\\Plugin')) {

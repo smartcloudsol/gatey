@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.11
+Stable tag: 2.6.12
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -197,8 +197,9 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
-= 2.6.11 =
+= 2.6.12 =
 
+* Load the smaller authentication SDK on regular pages and the full sign-in interface when needed.
 * Renew Site Guardian signed cookies before returning to a protected page. Update the shared WP Suite Hub.
 
 = 2.6.10 =
