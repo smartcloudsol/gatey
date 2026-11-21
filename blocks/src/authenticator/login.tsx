@@ -20,7 +20,7 @@ import {
 import "@smart-cloud/aws-amplify-ui-react/styles.css";
 
 import { useSelect } from "@wordpress/data";
-import { guardianReturnMessages } from "./gatey-translations";
+import { guardianReturnMessages, signInMessages } from "./gatey-translations";
 
 import {
   createGateyWebAuthnMfaServices,
@@ -147,7 +147,7 @@ export const Login = (
   const [logoutHandled, setLogoutHandled] = useState<boolean>(false);
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [message, setMessage] = useState<string>();
-  const [redirecting, setRedirecting] = useState<boolean>(false);
+  const [navigationTarget, setNavigationTarget] = useState<string>();
   const [editorContent, setEditorContent] = useState<string | undefined>();
   const [customBlockParser, setCustomBlockParser] =
     useState<
@@ -191,6 +191,7 @@ export const Login = (
 
   const {
     authStatus,
+    isPending,
     route,
     toSignIn,
     toSignUp,
@@ -202,6 +203,7 @@ export const Login = (
   } = useAuthenticator((context) => [
     context.user,
     context.authStatus,
+    context.isPending,
     context.route,
   ]);
 
@@ -211,12 +213,29 @@ export const Login = (
   );
   const [redirectTo] = useState<string | null>(params.get("redirect_to"));
   const [guardianReturn] = useState(() => params.get("wpsuite_guardian") === "1");
+  const [wordpressReauth] = useState(() => params.get("reauth") === "1");
+  const reauthStarted = useRef(false);
   const returnStarted = useRef(false);
   const [returnStatus, setReturnStatus] = useState("");
   const resolvedRedirectTo = useMemo(
     () => resolveGateyRedirectTarget(redirectTo),
     [redirectTo],
   );
+
+  useEffect(() => {
+    if (!navigationTarget) return;
+    // Let the redirect status paint before leaving the page.
+    let navigationFrame = 0;
+    const statusFrame = window.requestAnimationFrame(() => {
+      navigationFrame = window.requestAnimationFrame(() => {
+        if (lifecycle.current.mounted) window.location.assign(navigationTarget);
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(statusFrame);
+      window.cancelAnimationFrame(navigationFrame);
+    };
+  }, [navigationTarget]);
 
   const handleReCaptchaVerify = useCallback(async () => {
     if (!wpsuite?.siteSettings?.reCaptchaPublicKey) {
@@ -286,8 +305,7 @@ export const Login = (
           }
           if (result !== "ready") throw new Error("Protected return unavailable");
           window.sessionStorage.setItem(key, JSON.stringify({ path: destination.pathname, until: Date.now() + 120_000 }));
-          setRedirecting(true);
-          window.location.assign(destination.href);
+          setNavigationTarget(destination.href);
         } catch {
           setReturnStatus(guardianReturnMessages.unavailable);
         }
@@ -312,10 +330,52 @@ export const Login = (
       }
     }
 
-    setRedirecting(true);
-    window.location.assign(resolvedTarget);
+    if (
+      afterSignIn &&
+      wasSignedIn &&
+      wordpressReauth &&
+      resolvedRedirectTo &&
+      gatey.settings.integrateWpLogin &&
+      gatey.restUrl?.startsWith("http")
+    ) {
+      if (reauthStarted.current) return true;
+      reauthStarted.current = true;
+      setReturnStatus(signingInMessage ?? signInMessages.signingIn);
+      const generation = lifecycle.current.generation;
+      const isCurrent = () =>
+        lifecycle.current.mounted && lifecycle.current.generation === generation;
+
+      void (async () => {
+        try {
+          const key = "wpsuite:gatey:wordpress-return";
+          const target = normalizeRedirectUrl(resolvedTarget);
+          const previous = JSON.parse(window.sessionStorage.getItem(key) || "null");
+          if (previous?.target === target && previous.until > Date.now()) {
+            setReturnStatus(signInMessages.wordpressSessionFailed);
+            return;
+          }
+
+          await waitForGateyReady();
+          if (!isCurrent()) return;
+          const response = await gatey.cognito.post({ apiName: "admin", path: "/login" }).response;
+          const result = await response.body.json();
+          if (!isCurrent()) return;
+          if (!result || typeof result !== "object" || !("success" in result) || result.success !== true) {
+            throw new Error("WordPress session was not restored");
+          }
+
+          window.sessionStorage.setItem(key, JSON.stringify({ target, until: Date.now() + 10_000 }));
+          setNavigationTarget(resolvedTarget);
+        } catch {
+          if (isCurrent()) setReturnStatus(signInMessages.wordpressSessionFailed);
+        }
+      })();
+      return true;
+    }
+
+    setNavigationTarget(resolvedTarget);
     return true;
-  }, [guardianReturn, resolvedRedirectTo]);
+  }, [guardianReturn, resolvedRedirectTo, signingInMessage, wasSignedIn, wordpressReauth]);
 
   const services: AuthContext["services"] = useMemo(
     () => ({
@@ -464,35 +524,17 @@ export const Login = (
       return;
     }
     queueMicrotask(() => {
-      if (wasSignedIn) {
-        clearAccount();
-      } /* else if (nextUrl !== undefined) {
-        dispatchEvent("signed-out");
-        const url =
-          redirectTo ||
-          nextUrl ||
-          gatey.settings.redirectSignOut ||
-          gatey.settings.signInPage;
-        if (url) {
-          setRedirecting(true);
-          window.location.assign(url);
-        }
-      }*/
-      setMessage(signingOutMessage);
+      clearAccount();
+      setMessage(signingOutMessage ?? signInMessages.signingOut);
       dispatchEvent("signing-out");
-      setRedirecting(true);
       setLogoutHandled(true);
     });
   }, [
-    redirectTo,
     loggingOut,
     isPreview,
     logoutHandled,
     screen,
     dispatchEvent,
-    store,
-    wasSignedIn,
-    nextUrl,
     clearAccount,
     signingOutMessage,
   ]);
@@ -509,7 +551,7 @@ export const Login = (
         if (!wasSignedIn) {
           setLoginHandled(true);
           setSignedIn(true);
-          setMessage(signingInMessage);
+          setMessage(signingInMessage ?? signInMessages.signingIn);
           dispatchEvent("signing-in");
         } else {
           dispatchEvent("signed-in");
@@ -547,7 +589,7 @@ export const Login = (
     }
     queueMicrotask(() => {
       if (loginHandled) {
-        if (route === "authenticated") {
+        if (authStatus === "authenticated") {
           dispatchEvent("signed-in");
           if (nextUrl !== undefined) {
             const url =
@@ -557,7 +599,7 @@ export const Login = (
               gatey.settings.signInPage;
             redirectIfNeeded(url, true);
           }
-        } else if (route !== "transition") {
+        } else if (authStatus === "unauthenticated" && route !== "transition") {
           setMessage(undefined);
           dispatchEvent("reset");
         }
@@ -573,6 +615,7 @@ export const Login = (
       }
     });
   }, [
+    authStatus,
     resolvedRedirectTo,
     route,
     nextUrl,
@@ -594,6 +637,14 @@ export const Login = (
       ? account?.userAttributes?.email
       : account?.userAttributes?.phone_number;
   }
+
+  const statusMessage = navigationTarget
+    ? redirectingMessage ?? signInMessages.redirecting
+    : returnStatus || message || (
+      !isPreview && screen === "signIn" && (authStatus === "configuring" || isPending)
+        ? signInMessages.checking
+        : undefined
+    );
 
   return (
     <View
@@ -633,7 +684,7 @@ export const Login = (
                   width: "100%",
                 }}
               >
-                {redirecting && redirectingMessage ? (
+                {statusMessage && (
                   <View data-amplify-authenticator data-variation={variation}>
                     <View data-amplify-container>
                       <View data-amplify-router>
@@ -644,16 +695,16 @@ export const Login = (
                             textAlign: "center",
                           }}
                         >
-                          <Heading level={4}>
-                            {translate(redirectingMessage!)}
+                          <Heading level={4} role="status">
+                            {translate(statusMessage)}
                           </Heading>
                         </View>
                       </View>
                     </View>
                   </View>
-                ) : (
+                )}
+                {!navigationTarget && !loggingOut && (
                   <>
-                    {returnStatus && <Text role="status">{translate(returnStatus)}</Text>}
                     <Authenticator
                       key={bindingKey}
                       loginMechanisms={gatey.settings?.loginMechanisms}
@@ -671,36 +722,7 @@ export const Login = (
                       variation={variation}
                       totpIssuer={totpIssuer}
                       totpUsername={totpUsername}
-                    >
-                      {!redirecting && message && (
-                        <View
-                          data-amplify-authenticator
-                          data-variation={variation}
-                        >
-                          <View data-amplify-container>
-                            <View data-amplify-router>
-                              <View
-                                data-amplify-form
-                                data-amplify-authenticator-message
-                                style={{
-                                  textAlign: "center",
-                                }}
-                              >
-                                {redirecting ? (
-                                  <Heading level={4}>
-                                    {translate(redirectingMessage!)}
-                                  </Heading>
-                                ) : (
-                                  <Heading level={4}>
-                                    {translate(message!)}
-                                  </Heading>
-                                )}
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                      )}
-                    </Authenticator>
+                    />
                     {(route === "signIn" || route === "signUp") && (
                       <View
                         data-amplify-authenticator

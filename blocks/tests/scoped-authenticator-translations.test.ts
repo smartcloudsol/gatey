@@ -3,8 +3,27 @@ import test from "node:test";
 
 import { translations } from "@smart-cloud/aws-amplify-ui-react";
 
-import { guardianReturnMessages, guardianReturnTranslations } from "../src/authenticator/gatey-translations.ts";
+import {
+  guardianReturnMessages,
+  guardianReturnTranslations,
+  signInMessages,
+  signInStatusTranslations,
+} from "../src/authenticator/gatey-translations.ts";
 import { createScopedAuthenticatorTranslations } from "../src/authenticator/scoped-translations.ts";
+
+test("localizes sign-in statuses and respects site wording", () => {
+  for (const locale of ["de", "es", "fr", "hu"]) {
+    const catalog = createScopedAuthenticatorTranslations(locale, {})[locale];
+    for (const message of Object.values(signInMessages)) {
+      assert.ok(catalog[message] && catalog[message] !== message);
+    }
+  }
+  const custom = { fr: { [signInMessages.signingIn]: "Connexion au site…" } };
+  assert.equal(
+    createScopedAuthenticatorTranslations("fr", {}, custom).fr[signInMessages.signingIn],
+    custom.fr[signInMessages.signingIn],
+  );
+});
 
 test("uses active, site-default and English custom/base catalogs in order", () => {
   const scoped = createScopedAuthenticatorTranslations(
@@ -49,6 +68,7 @@ test("uses active, site-default and English custom/base catalogs in order", () =
 
   assert.deepEqual(scoped["hu-HU"], {
     ...guardianReturnTranslations.hu,
+    ...signInStatusTranslations.hu,
     activeCustom: "Hungarian custom",
     activeBase: "Hungarian base",
     defaultCustom: "German custom",
@@ -102,6 +122,7 @@ test("normalizes regional locale keys and does not mutate source catalogs", () =
 
   assert.deepEqual(scoped["hu-HU"], {
     ...guardianReturnTranslations.hu,
+    ...signInStatusTranslations.hu,
     save: "Változtatások mentése",
     customOnly: "English custom",
     cancel: "Mégse",

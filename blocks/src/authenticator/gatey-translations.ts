@@ -1,5 +1,49 @@
 import type { TranslationCatalog } from "./scoped-translations";
 
+export const signInMessages = {
+  checking: "Checking credentials…",
+  signingIn: "Signing in…",
+  signingOut: "Signing out…",
+  redirecting: "Redirecting…",
+  wordpressSessionFailed:
+    "The WordPress session could not be restored. Check that cookies are enabled, then open the page again in a new tab.",
+} as const;
+
+export const signInStatusTranslations: TranslationCatalog = {
+  de: {
+    [signInMessages.checking]: "Anmeldedaten werden geprüft …",
+    [signInMessages.signingIn]: "Anmeldung läuft …",
+    [signInMessages.signingOut]: "Abmeldung läuft …",
+    [signInMessages.redirecting]: "Weiterleitung läuft …",
+    [signInMessages.wordpressSessionFailed]:
+      "Die WordPress-Sitzung konnte nicht wiederhergestellt werden. Prüfen Sie, ob Cookies aktiviert sind, und öffnen Sie die Seite erneut in einem neuen Tab.",
+  },
+  es: {
+    [signInMessages.checking]: "Comprobando las credenciales…",
+    [signInMessages.signingIn]: "Iniciando sesión…",
+    [signInMessages.signingOut]: "Cerrando sesión…",
+    [signInMessages.redirecting]: "Redirigiendo…",
+    [signInMessages.wordpressSessionFailed]:
+      "No se pudo restablecer la sesión de WordPress. Compruebe que las cookies estén habilitadas y vuelva a abrir la página en una pestaña nueva.",
+  },
+  fr: {
+    [signInMessages.checking]: "Vérification des identifiants…",
+    [signInMessages.signingIn]: "Connexion en cours…",
+    [signInMessages.signingOut]: "Déconnexion en cours…",
+    [signInMessages.redirecting]: "Redirection en cours…",
+    [signInMessages.wordpressSessionFailed]:
+      "La session WordPress n’a pas pu être rétablie. Vérifiez que les cookies sont activés, puis rouvrez la page dans un nouvel onglet.",
+  },
+  hu: {
+    [signInMessages.checking]: "A bejelentkezési adatok ellenőrzése…",
+    [signInMessages.signingIn]: "Bejelentkezés…",
+    [signInMessages.signingOut]: "Kijelentkezés…",
+    [signInMessages.redirecting]: "Átirányítás…",
+    [signInMessages.wordpressSessionFailed]:
+      "A WordPress-munkamenetet nem sikerült helyreállítani. Ellenőrizze, hogy a sütik engedélyezve vannak-e, majd nyissa meg újra az oldalt egy új lapon.",
+  },
+};
+
 export const guardianReturnMessages = {
   checking: "Checking access to this page…",
   cookieMissing:

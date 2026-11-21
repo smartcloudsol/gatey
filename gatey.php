@@ -343,7 +343,7 @@ __gateyGlobal.Gatey = __gateyGlobal.WpSuite.plugins.gatey;
             $view_script_dependencies[] = 'smartcloud-gatey-main-script';
         }
         $view_script_asset['dependencies'] = array_values(array_unique($view_script_dependencies));
-        wp_register_script('smartcloud-gatey-authenticator-view-script', GATEY_URL . 'blocks/authenticator-view.js', $view_script_asset['dependencies'], GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
+        wp_register_script('smartcloud-gatey-authenticator-view-script', GATEY_URL . 'blocks/authenticator-view.js', $view_script_asset['dependencies'], $view_script_asset['version'] ?? GATEY_VERSION, array('in_footer' => true, 'strategy' => 'defer'));
 
         $view_script_asset = array();
         if (file_exists(filename: GATEY_PATH . 'blocks/account-attribute-view.asset.php')) {

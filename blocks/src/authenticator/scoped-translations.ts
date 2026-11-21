@@ -1,5 +1,9 @@
 import { normalizeLocale } from "@smart-cloud/wpsuite-core";
-import { gateyAuthenticatorTranslations, guardianReturnTranslations } from "./gatey-translations.ts";
+import {
+  gateyAuthenticatorTranslations,
+  guardianReturnTranslations,
+  signInStatusTranslations,
+} from "./gatey-translations.ts";
 
 export type TranslationDictionary = Record<string, string>;
 export type TranslationCatalog = Record<string, TranslationDictionary>;
@@ -122,6 +126,7 @@ export function createScopedAuthenticatorTranslations(
         defaultBase,
       ),
       localeDictionary(guardianReturnTranslations, siteDefaultLocale),
+      localeDictionary(signInStatusTranslations, siteDefaultLocale),
       localeDictionary(custom, siteDefaultLocale),
     );
   }
@@ -132,6 +137,7 @@ export function createScopedAuthenticatorTranslations(
     activeBase,
     supportedOverrides(localeDictionary(gatey, active), activeBase),
     localeDictionary(guardianReturnTranslations, active),
+    localeDictionary(signInStatusTranslations, active),
     localeDictionary(custom, active),
   );
 
