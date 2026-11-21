@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { type AuthContext } from "@smart-cloud/aws-amplify-ui";
-import { confirmSignIn, forgetDevice, rememberDevice, signUp, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
+import { useAuthenticatorServices } from "@smart-cloud/aws-amplify-ui-react-core";
+import { confirmSignIn, forgetDevice, rememberDevice, signUp, type SignInOutput, type SignUpInput, type SignUpOutput } from "aws-amplify/auth";
 import { confirmSignInWithDevicePreference } from "./confirm-sign-in";
 
 import {
@@ -148,6 +149,11 @@ export const Login = (
   const [loginHandled, setLoginHandled] = useState<boolean>(false);
   const [message, setMessage] = useState<string>();
   const [navigationTarget, setNavigationTarget] = useState<string>();
+  const authenticatorServices = useAuthenticatorServices();
+  // Capture the original service before the Authenticator installs our overrides.
+  const [defaultSignIn] = useState(() => authenticatorServices.handleSignIn);
+  const signInRequest = useRef<Promise<SignInOutput>>();
+  const [signInPending, setSignInPending] = useState(false);
   const [editorContent, setEditorContent] = useState<string | undefined>();
   const [customBlockParser, setCustomBlockParser] =
     useState<
@@ -392,6 +398,19 @@ export const Login = (
       async handleCancel(): Promise<void> {
         dispatchEvent("cancel");
       },
+      ...(!isPreview && {
+        handleSignIn(input: Parameters<typeof defaultSignIn>[0]) {
+          // The SDK call spans both Cognito challenge discovery and the passkey prompt.
+          if (signInRequest.current) return signInRequest.current;
+          setSignInPending(true);
+          const request = defaultSignIn(input).finally(() => {
+            signInRequest.current = undefined;
+            if (lifecycle.current.mounted) setSignInPending(false);
+          });
+          signInRequest.current = request;
+          return request;
+        },
+      }),
       handleConfirmSignIn: (input) => confirmSignInWithDevicePreference(input, { confirm: confirmSignIn, remember: rememberDevice, forget: forgetDevice }),
       async handleSignUp(input: SignUpInput): Promise<SignUpOutput> {
         if (wpsuite?.siteSettings?.reCaptchaPublicKey) {
@@ -409,6 +428,8 @@ export const Login = (
       },
     }),
     [
+      defaultSignIn,
+      isPreview,
       mfaServices,
       screen,
       dispatchEvent,
@@ -638,13 +659,11 @@ export const Login = (
       : account?.userAttributes?.phone_number;
   }
 
+  const checkingCredentials = !isPreview && screen === "signIn" &&
+    (authStatus === "configuring" || isPending || signInPending);
   const statusMessage = navigationTarget
     ? redirectingMessage ?? signInMessages.redirecting
-    : returnStatus || message || (
-      !isPreview && screen === "signIn" && (authStatus === "configuring" || isPending)
-        ? signInMessages.checking
-        : undefined
-    );
+    : returnStatus || message || (checkingCredentials ? signInMessages.checking : undefined);
 
   return (
     <View
@@ -704,7 +723,8 @@ export const Login = (
                   </View>
                 )}
                 {!navigationTarget && !loggingOut && (
-                  <>
+                  // Keep the Authenticator machine mounted while hiding its controls.
+                  <div hidden={checkingCredentials}>
                     <Authenticator
                       key={bindingKey}
                       loginMechanisms={gatey.settings?.loginMechanisms}
@@ -759,7 +779,7 @@ export const Login = (
                         </View>
                       </View>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             ))

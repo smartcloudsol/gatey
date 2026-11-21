@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.12
+Stable tag: 2.6.13
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -197,20 +197,23 @@ We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TO
 
 == Changelog ==
 
+= 2.6.13 =
+* Show passkey sign-in progress immediately and prevent duplicate submissions.
+
 = 2.6.12 =
 
 * Load the smaller authentication SDK on regular pages and the full sign-in interface when needed.
 * Renew Site Guardian signed cookies before returning to a protected page. Update the shared WP Suite Hub.
 
 = 2.6.10 =
-* Fixes passkey MFA activation and status reporting while preserving existing MFA preferences.
+* Fix passkey MFA activation and status reporting. Keep existing preferences.
 
 = 2.6.9 =
-* Support explicit passkey MFA opt-in with supported Cognito pools, a registered passkey, and an alternative MFA method.
+* Add passkey MFA opt-in for compatible pools with a passkey and another MFA method.
 
 = 2.6.8 =
-* Fix the MFA code-confirmation error (e.confirm is not a function) and update the shared WP Suite Hub authentication bundle.
-* Improve shared Hub ownership when WP Suite plugins are installed together.
+* Fix MFA code confirmation and update the Hub authentication bundle.
+* Improve Hub ownership across WP Suite plugins.
 
 = 2.6.7 =
 * Support explicitly mapped WordPress editor permissions in Composer when WordPress login integration is enabled.
