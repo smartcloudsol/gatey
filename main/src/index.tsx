@@ -14,7 +14,7 @@ import {
   type AuthenticatorConfig,
 } from "@smart-cloud/gatey-core";
 import { dispatch } from "@wordpress/data";
-import { I18n } from "aws-amplify/utils";
+import { Hub, I18n } from "aws-amplify/utils";
 
 import "jquery";
 import { observe } from "./observer";
@@ -72,6 +72,35 @@ function loadAccountUi(): Promise<AccountUi | undefined> {
 }
 
 onDomReady(async () => {
+  const isGuardianReturn = new URLSearchParams(window.location.search).get("wpsuite_guardian") === "1";
+  let renewGuardianCookies: (() => void) | undefined;
+  let refreshedBeforeSetup = false;
+  let renewal: AbortController | undefined;
+  let signingOut = false;
+  let profileChanged = false;
+  let lastRenewedAccessToken: string | undefined;
+
+  // Register before Gatey's initial session check, which can itself refresh a token.
+  const stopListening = isGuardianReturn ? undefined : Hub.listen("auth", ({ payload }) => {
+    if (payload.event === "tokenRefresh" && !signingOut) {
+      if (renewGuardianCookies) renewGuardianCookies();
+      else refreshedBeforeSetup = true;
+    } else if (payload.event === "signedIn") {
+      signingOut = false;
+    } else if (payload.event === "signedOut") {
+      signingOut = true;
+      refreshedBeforeSetup = false;
+      lastRenewedAccessToken = undefined;
+      renewal?.abort();
+    }
+  });
+  window.addEventListener("wpsuite:backend-profile-changed", () => {
+    profileChanged = true;
+    lastRenewedAccessToken = undefined;
+    stopListening?.();
+    renewal?.abort();
+  }, { once: true });
+
   const gatey = initializeGatey();
   observe();
 
@@ -314,6 +343,50 @@ onDomReady(async () => {
         return;
       }
     })();
+    // Legacy Guardian sign-in hooks use ID tokens. Renewal uses the refreshed access token.
+    const guardianTokenAuth = hookApi?.authorization === "ACCESS_TOKEN" || hookApi?.authorization === "ID_TOKEN";
+    if (guardianUrl && guardianTokenAuth && !isGuardianReturn) {
+      const cognito = getAmplifyConfig().Auth?.Cognito;
+      renewGuardianCookies = () => {
+        if (!cognito || renewal || signingOut || profileChanged) return;
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 8000);
+        renewal = controller;
+        void loadAuthSession().then(async ({ tokens }) => {
+          const token = tokens?.accessToken;
+          const current = getAmplifyConfig().Auth?.Cognito;
+          if (
+            controller.signal.aborted || !token ||
+            current?.userPoolId !== cognito.userPoolId ||
+            current?.userPoolClientId !== cognito.userPoolClientId ||
+            token.payload.token_use !== "access" ||
+            token.payload.client_id !== cognito.userPoolClientId ||
+            typeof token.payload.iss !== "string" ||
+            !token.payload.iss.endsWith("/" + cognito.userPoolId)
+          ) return;
+          const accessToken = token.toString();
+          if (accessToken === lastRenewedAccessToken) return;
+          lastRenewedAccessToken = accessToken;
+          const url = new URL(guardianUrl);
+          url.searchParams.set("action", "signin");
+          await fetch(url, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            credentials: "same-origin",
+            cache: "no-store",
+            redirect: "error",
+            signal: controller.signal,
+          });
+        }).catch(() => {
+          // Protected navigation can still use the existing Guardian return flow.
+        }).finally(() => {
+          window.clearTimeout(timeout);
+          renewal = undefined;
+        });
+      };
+      if (refreshedBeforeSetup) renewGuardianCookies();
+    } else {
+      stopListening?.();
+    }
     Object.assign(gatey.cognito, {
       async prepareProtectedReturn(target: string): Promise<"ready" | "denied" | "unavailable"> {
         if (!guardianUrl) return "unavailable";
@@ -363,9 +436,13 @@ onDomReady(async () => {
       async (signedIn, wasSignedIn) => {
         if (wasSignedIn !== undefined) {
           try {
+            signingOut = !signedIn;
+            if (!signedIn) {
+              lastRenewedAccessToken = undefined;
+              renewal?.abort();
+            }
             if (signedIn && (await isAuthenticated())) {
-              const guardianReturn = guardianUrl &&
-                new URLSearchParams(window.location.search).get("wpsuite_guardian") === "1";
+              const guardianReturn = guardianUrl && isGuardianReturn;
               login(guardianReturn ? undefined : signInHook).then((nextUrl) => {
                 dispatch(store).setNextUrl(nextUrl ?? null);
               });

@@ -3,5 +3,5 @@
 		'jquery',
 		'wp-data'
 	),
-	'version' => 'b71dd5b1f0fa320b35a8'
+	'version' => '65a563acffef92391789'
 );

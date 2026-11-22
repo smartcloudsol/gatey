@@ -85,6 +85,16 @@ export type DefaultComponentDescriptors = {
 const gatey = getGateyPlugin();
 const wpsuite = getWpSuite();
 
+const authProgressMessages = {
+  checking: signInMessages.checking,
+  "checking-access": guardianReturnMessages.checking,
+  "signing-in": signInMessages.signingIn,
+  "signing-out": signInMessages.signingOut,
+  redirecting: signInMessages.redirecting,
+};
+
+type AuthProgress = keyof typeof authProgressMessages;
+
 const normalizeRedirectUrl = (url: string): string => {
   const resolved = new URL(url, window.location.href);
   const normalizedPath = resolved.pathname.replace(/\/+$/, "") || "/";
@@ -222,7 +232,10 @@ export const Login = (
   const [wordpressReauth] = useState(() => params.get("reauth") === "1");
   const reauthStarted = useRef(false);
   const returnStarted = useRef(false);
-  const [returnStatus, setReturnStatus] = useState("");
+  const [returnStatus, setReturnStatus] = useState<{
+    message: string;
+    progress?: AuthProgress;
+  }>();
   const resolvedRedirectTo = useMemo(
     () => resolveGateyRedirectTarget(redirectTo),
     [redirectTo],
@@ -287,7 +300,7 @@ export const Login = (
       if (returnStarted.current) return true;
       returnStarted.current = true;
       setMessage(undefined);
-      setReturnStatus(guardianReturnMessages.checking);
+      setReturnStatus({ message: guardianReturnMessages.checking, progress: "checking-access" });
       void (async () => {
         try {
           if (!resolvedRedirectTo || normalizeRedirectUrl(resolvedRedirectTo) === normalizeRedirectUrl(window.location.href)) {
@@ -297,7 +310,7 @@ export const Login = (
           const key = "wpsuite:guardian:return";
           const previous = JSON.parse(window.sessionStorage.getItem(key) || "null");
           if (previous?.path === destination.pathname && previous.until > Date.now()) {
-            setReturnStatus(guardianReturnMessages.cookieMissing);
+            setReturnStatus({ message: guardianReturnMessages.cookieMissing });
             return;
           }
           await waitForGateyReady();
@@ -306,14 +319,14 @@ export const Login = (
           };
           const result = await cognito.prepareProtectedReturn?.(destination.href);
           if (result === "denied") {
-            setReturnStatus(guardianReturnMessages.denied);
+            setReturnStatus({ message: guardianReturnMessages.denied });
             return;
           }
           if (result !== "ready") throw new Error("Protected return unavailable");
           window.sessionStorage.setItem(key, JSON.stringify({ path: destination.pathname, until: Date.now() + 120_000 }));
           setNavigationTarget(destination.href);
         } catch {
-          setReturnStatus(guardianReturnMessages.unavailable);
+          setReturnStatus({ message: guardianReturnMessages.unavailable });
         }
       })();
       return true;
@@ -346,7 +359,7 @@ export const Login = (
     ) {
       if (reauthStarted.current) return true;
       reauthStarted.current = true;
-      setReturnStatus(signingInMessage ?? signInMessages.signingIn);
+      setReturnStatus({ message: signingInMessage ?? signInMessages.signingIn, progress: "signing-in" });
       const generation = lifecycle.current.generation;
       const isCurrent = () =>
         lifecycle.current.mounted && lifecycle.current.generation === generation;
@@ -357,7 +370,7 @@ export const Login = (
           const target = normalizeRedirectUrl(resolvedTarget);
           const previous = JSON.parse(window.sessionStorage.getItem(key) || "null");
           if (previous?.target === target && previous.until > Date.now()) {
-            setReturnStatus(signInMessages.wordpressSessionFailed);
+            setReturnStatus({ message: signInMessages.wordpressSessionFailed });
             return;
           }
 
@@ -373,7 +386,7 @@ export const Login = (
           window.sessionStorage.setItem(key, JSON.stringify({ target, until: Date.now() + 10_000 }));
           setNavigationTarget(resolvedTarget);
         } catch {
-          if (isCurrent()) setReturnStatus(signInMessages.wordpressSessionFailed);
+          if (isCurrent()) setReturnStatus({ message: signInMessages.wordpressSessionFailed });
         }
       })();
       return true;
@@ -403,9 +416,16 @@ export const Login = (
           // The SDK call spans both Cognito challenge discovery and the passkey prompt.
           if (signInRequest.current) return signInRequest.current;
           setSignInPending(true);
-          const request = defaultSignIn(input).finally(() => {
-            signInRequest.current = undefined;
+          const request = defaultSignIn(input).then((result) => {
+            // Keep the form hidden while the Authenticator loads the signed-in user.
+            // An additional challenge still needs to be displayed.
+            if (!result.isSignedIn && lifecycle.current.mounted) setSignInPending(false);
+            return result;
+          }, (error: unknown) => {
             if (lifecycle.current.mounted) setSignInPending(false);
+            throw error;
+          }).finally(() => {
+            signInRequest.current = undefined;
           });
           signInRequest.current = request;
           return request;
@@ -438,6 +458,10 @@ export const Login = (
       handleReCaptchaVerify,
     ],
   );
+
+  useEffect(() => {
+    if (!signInRequest.current && route !== "signIn") setSignInPending(false);
+  }, [route]);
 
   useEffect(() => {
     if (editorRef?.current) {
@@ -659,11 +683,33 @@ export const Login = (
       : account?.userAttributes?.phone_number;
   }
 
-  const checkingCredentials = !isPreview && screen === "signIn" &&
-    (authStatus === "configuring" || isPending || signInPending);
-  const statusMessage = navigationTarget
-    ? redirectingMessage ?? signInMessages.redirecting
-    : returnStatus || message || (checkingCredentials ? signInMessages.checking : undefined);
+  const handlingSignIn = !isPreview && screen === "signIn";
+  const checkingCredentials = handlingSignIn &&
+    (authStatus === "configuring" || route === "transition" || isPending ||
+      (route === "signIn" && signInPending));
+  const hideAuthenticator = checkingCredentials ||
+    (handlingSignIn && authStatus === "authenticated");
+  let progress: AuthProgress | undefined;
+  let statusMessage = message;
+  if (navigationTarget) {
+    progress = "redirecting";
+    statusMessage = redirectingMessage ?? signInMessages.redirecting;
+  } else if (returnStatus) {
+    ({ progress, message: statusMessage } = returnStatus);
+  } else if (handlingSignIn) {
+    if (loggingOut && (!logoutHandled || nextUrl === undefined)) {
+      progress = "signing-out";
+      statusMessage = signingOutMessage ?? signInMessages.signingOut;
+    } else if (!loggingOut && !wasSignedIn && authStatus === "authenticated" &&
+      (!loginHandled || nextUrl === undefined)) {
+      progress = "signing-in";
+      statusMessage = signingInMessage ?? signInMessages.signingIn;
+    } else if (!logoutHandled && checkingCredentials) {
+      progress = "checking";
+      statusMessage ??= signInMessages.checking;
+    }
+  }
+  const visibleStatus = statusMessage?.trim();
 
   return (
     <View
@@ -703,20 +749,26 @@ export const Login = (
                   width: "100%",
                 }}
               >
-                {statusMessage && (
+                {(visibleStatus || progress) && (
                   <View data-amplify-authenticator data-variation={variation}>
                     <View data-amplify-container>
                       <View data-amplify-router>
                         <View
                           data-amplify-form
                           data-amplify-authenticator-message
-                          style={{
-                            textAlign: "center",
-                          }}
+                          className={progress ? `gatey-auth-status gatey-auth-status--${progress}` : "gatey-auth-status"}
+                          role="status"
                         >
-                          <Heading level={4} role="status">
-                            {translate(statusMessage)}
-                          </Heading>
+                          {visibleStatus ? (
+                            <Heading level={4} className="gatey-auth-status__message">
+                              {translate(visibleStatus)}
+                            </Heading>
+                          ) : progress && (
+                            <span className="gatey-auth-status__announcement">
+                              {translate(authProgressMessages[progress])}
+                            </span>
+                          )}
+                          {progress && <span className="gatey-auth-status__loader" aria-hidden="true" />}
                         </View>
                       </View>
                     </View>
@@ -724,7 +776,7 @@ export const Login = (
                 )}
                 {!navigationTarget && !loggingOut && (
                   // Keep the Authenticator machine mounted while hiding its controls.
-                  <div hidden={checkingCredentials}>
+                  <div hidden={hideAuthenticator}>
                     <Authenticator
                       key={bindingKey}
                       loginMechanisms={gatey.settings?.loginMechanisms}

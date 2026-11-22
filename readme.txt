@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.13
+Stable tag: 2.6.14
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,10 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.14 =
+* Show an accessible loading indicator during sign-in, sign-out and redirects.
+* Fix passkey MFA status and renew Site Guardian cookies after Cognito refreshes the access token.
 
 = 2.6.13 =
 * Show passkey sign-in progress immediately and prevent duplicate submissions.
@@ -683,27 +687,12 @@ Added the JavaScript chunks that were accidentally left out of 1.1.0; all blocks
 New on-disk configuration system eliminates all front-end config downloads. Config + weekly licence file now live in the WordPress uploads folder (static exports still refresh the licence weekly). Because downloads are gone, **all plans are now flat-priced—there is no longer any “Additional Usage” charge**.
 The admin screen makes it clear whether the site is linked to a WP Suite workspace and whose workspace it is. 
 
-= 1.0.5 =
-Added new style controls (typography, spacing, colours, etc.) to the Account Attribute block and fixed a configuration-loading bug that could prevent the admin UI from appearing.
-
-= 1.0.4 =
-Authenticator block: added optional trigger‑button properties — render a button first, and open the Authenticator only after users click it. Perfect for building lean profile pages (see updated Get Started guide).
-Account block: now supports full Gutenberg styling controls — alignment, custom HTML tag, box‑shadow, spacing (margin/padding), min‑height, typography (font‑size, line‑height, text‑align) and color (background & text).
-
-= 1.0.3 =
-Bumped the Authenticator block version to invalidate cached frontend assets—ensures the updated view.js is loaded. No functional changes.
-
-= 1.0.2 =
-Pro features for an already‑connected site can now be edited even if the WordPress administrator is not logged in to wpsuite.io.
-Fixed [gatey] shortcode: the screen, variation, and colormode attributes are now honoured (previously only the pattern defaults were shown).
-
-= 1.0.1 =
-Authenticator block: added optional “Signing in”, “Signing out” and “Redirecting” message fields, so you no longer need to listen for gatey‑authenticator events for basic feedback. Defaults are empty.
-
-= 1.0.0 =
-Initial release.
+[Earlier Gatey changelog entries](https://github.com/smartcloudsol/gatey/blob/2.6.13/readme.txt#changelog)
 
 == Upgrade Notice ==
+
+= 2.6.14 =
+Republish static exports to load the updated sign-in scripts and styles.
 
 = 2.6.10 =
 Important update for sites using passkey MFA: fixes activation failures and status reporting while preserving existing MFA preferences. Update WP Suite plugins together, then rebuild and republish static exports.

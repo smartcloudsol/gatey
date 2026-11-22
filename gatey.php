@@ -5,7 +5,7 @@
  * Description:       Easily integrate Amazon Cognito for secure authentication, SSO, and advanced user management in WordPress or static sites generated from WordPress.
  * Requires at least: 6.9
  * Requires PHP:      8.1
- * Version:           2.6.13
+ * Version:           2.6.14
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -17,7 +17,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.6.13';
+const VERSION = '2.6.14';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -226,6 +226,8 @@ final class Gatey
     public function addMainScript(): void
     {
         $settings = $this->admin->getSettings();
+        $authenticator_asset_path = GATEY_PATH . 'blocks/authenticator-view.asset.php';
+        $authenticator_asset = is_file($authenticator_asset_path) ? require $authenticator_asset_path : array();
         $data = array(
             'key' => GATEY_SLUG,
             'version' => GATEY_VERSION,
@@ -246,7 +248,7 @@ final class Gatey
             'authenticatorViewCssHref' => file_exists(GATEY_PATH . 'blocks/authenticator-view.css')
                 ? add_query_arg(
                     'ver',
-                    GATEY_VERSION,
+                    $authenticator_asset['version'] ?? GATEY_VERSION,
                     GATEY_URL . 'blocks/authenticator-view.css'
                 )
                 : null,
