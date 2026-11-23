@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.14
+Stable tag: 2.6.15
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,9 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.15 =
+* Restore the sign-in form and account actions when the browser has cached an older authentication module.
 
 = 2.6.14 =
 * Show an accessible loading indicator during sign-in, sign-out and redirects.
@@ -690,6 +693,9 @@ The admin screen makes it clear whether the site is linked to a WP Suite workspa
 [Earlier Gatey changelog entries](https://github.com/smartcloudsol/gatey/blob/2.6.13/readme.txt#changelog)
 
 == Upgrade Notice ==
+
+= 2.6.15 =
+Update promptly if your sign-in form is blank. Republish static exports so the sign-in page can load its updated authentication module.
 
 = 2.6.14 =
 Republish static exports to load the updated sign-in scripts and styles.
