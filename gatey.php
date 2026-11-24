@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       Gatey - Login & SSO with Amazon Cognito
- * Plugin URI:        https://wpsuite.io/gatey/
+ * Plugin URI:        https://wpsuite.io/login-and-access/
  * Description:       Easily integrate Amazon Cognito for secure authentication, SSO, and advanced user management in WordPress or static sites generated from WordPress.
  * Requires at least: 6.9
  * Requires PHP:      8.1
- * Version:           2.6.15
+ * Version:           2.6.16
  * Author:            Smart Cloud Solutions Inc.
  * Author URI:        https://smart-cloud-solutions.com
  * License:           MIT
@@ -17,7 +17,7 @@
 
 namespace SmartCloud\WPSuite\Gatey;
 
-const VERSION = '2.6.15';
+const VERSION = '2.6.16';
 
 if (!defined('ABSPATH')) {
     exit;
