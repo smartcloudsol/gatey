@@ -31,6 +31,8 @@ class Admin
     {
         $this->settings = BackendProfileSettings::settings();
         add_filter('smartcloud_agent_composer_wordpress_roles', array(BackendProfileSettings::class, 'composerRoles'), 10, 3);
+        require_once __DIR__ . '/deployment-candidate.php';
+        add_filter('smartcloud_wpsuite_deployment_candidate_adapters', array(DeploymentCandidate::class, 'register'));
         $this->registerRestRoutes();
         add_filter('smartcloud_wpsuite_admin_capabilities', array($this, 'registerHubCapabilities'));
         add_filter('auth_cookie_expiration', array($this, 'setAuthCookieExpiration'), 10, 3);

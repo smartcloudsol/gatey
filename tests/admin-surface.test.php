@@ -29,7 +29,7 @@ function parse_blocks(string $content): array {
 }
 function has_block(string $name, object $post): bool { return str_contains($post->post_content, '<!-- wp:' . $name . ' '); }
 function rest_url(string $path): string { return 'https://example.test/wp-json/' . $path; }
-class WP_Error { public function __construct(public string $code, public string $message, public array $data) {} }
+class WP_Error { public function __construct(public string $code, public string $message, public array $data = []) {} }
 function check(bool $condition, string $message): void { $GLOBALS['checks']++; if (!$condition) { throw new RuntimeException($message); } }
 require __DIR__ . '/../admin/php/model.php';
 require __DIR__ . '/../admin/php/surface.php';
@@ -244,6 +244,51 @@ $pages = ['many-block-page' => (object) ['ID' => 1, 'post_type' => 'page', 'post
 $transients = []; $postsChanged = 'many-block-page';
 check(str_contains(AdminSurface::read()['use_on_site']['items'][1]['status'], 'Partial inspection'), 'Node budget bounds broad trees independently of depth and byte limits.');
 check(count($writes) === $count, 'Usage caching never changes Gatey, Pro or shared settings.');
+require __DIR__ . '/../admin/php/deployment-candidate.php';
+function is_wp_error(mixed $value): bool { return $value instanceof WP_Error; }
+$options['gatey'] = Settings::fromMixed([]);
+$candidate = ['userPoolId' => 'eu-west-1_NewPool', 'userPoolClientId' => 'newclient', 'loginMechanisms' => ['email']];
+$sections = SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($candidate);
+check(isset($sections['identity'], $sections['login']), 'Candidate separates identity and sign-in identifier.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('identity', $candidate) === true, 'Candidate applies validated identity using native save.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('login', $candidate) === true, 'A single identifier applies without secondary pool.');
+$options['gatey']->userPoolConfigurations->secondary->Auth->Cognito->userPoolId = 'eu-west-1_Secondary';
+$candidate['loginMechanisms'] = ['username'];
+check(isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($candidate)['login']['blocked']), 'Secondary pool blocks shared identifier changes.');
+$options['gatey'] = Settings::fromMixed([]);
+$options['gatey']->signUpAttributes = ['name'];
+$expanded = ['userPoolId' => 'eu-west-1_NewPool', 'userPoolClientId' => 'newclient', 'loginMechanisms' => ['email', 'phone_number'], 'signUpAttributes' => ['given_name', 'family_name']];
+$beforeLogin = SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($expanded)['login'];
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('login', $expanded) instanceof WP_Error, 'Login settings require matching identity.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('identity', $expanded) === true, 'Identity can be adopted separately.');
+check($beforeLogin === SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($expanded)['login'], 'Identity adoption does not alter the reviewed login section.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('login', $expanded) === true, 'Multiple supported identifiers and required attributes apply.');
+check($options['gatey']->loginMechanisms === ['email', 'phone_number'] && $options['gatey']->signUpAttributes === ['name', 'given_name', 'family_name'], 'Required attributes append without removing existing attributes.');
+$invalid = $expanded; $invalid['loginMechanisms'] = [['bad']];
+check(isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($invalid)['login']['blocked']), 'Malformed identifiers are blocked safely.');
+$unsupported = $expanded; $unsupported['signUpAttributes'] = ['custom:unsupported'];
+check(isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($unsupported)['login']['blocked']), 'Unsupported required attributes are not silently dropped.');
+$options['gatey'] = Settings::fromMixed([]);
+$options['gatey']->passwordlessSettings = ['hiddenAuthMethods' => ['SMS_OTP'], 'preferredAuthMethod' => 'WEB_AUTHN', 'passkeyRegistrationPrompts' => ['afterSignin' => 'ALWAYS']];
+$passwordless = ['userPoolId' => 'eu-west-1_NewPool', 'userPoolClientId' => 'newclient', 'capabilities' => ['emailOtpSignIn' => false, 'passkeySignIn' => false, 'mfaMode' => 'required', 'firstFactorsSource' => 'deployment-policy']];
+$unmarked = $passwordless; unset($unmarked['capabilities']['firstFactorsSource']);
+check(isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($unmarked)['passwordless']['blocked']) && SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('passwordless', $unmarked) instanceof WP_Error, 'Unverified parameter selections cannot change presentation.');
+$preview = SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($passwordless)['passwordless'];
+$experience = SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($passwordless)['experience'];
+$cloudValues = array_column($experience['rows'], 'proposed', 'key');
+check(isset($experience['blocked']) && $cloudValues === ['emailOtpSignIn' => false, 'passkeySignIn' => false, 'mfaMode' => 'Required'], 'Cognito cloud capability values are rendered as separate read-only rows.');
+check($preview['defaultSelected'] === false, 'Passwordless presentation requires explicit selection.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('passwordless', $passwordless) instanceof WP_Error, 'Passwordless changes require matching primary identity.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('identity', $passwordless) === true, 'Identity applied for passwordless test.');
+check($preview === SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($passwordless)['passwordless'], 'Identity adoption leaves passwordless preview stable.');
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('passwordless', $passwordless) === true, 'Unavailable first factors can be hidden explicitly.');
+check($options['gatey']->passwordlessSettings === ['hiddenAuthMethods' => ['SMS_OTP', 'EMAIL_OTP', 'WEB_AUTHN'], 'passkeyRegistrationPrompts' => ['afterSignin' => 'ALWAYS']], 'Manual hidden factors and registration prompts survive; unavailable preference removed.');
+check(!isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($passwordless)['passwordless']), 'Passwordless changes converge.');
+$options['gatey']->passwordlessSettings = ['preferredAuthMethod' => 'PASSWORD'];
+$options['gatey']->userPoolConfigurations->secondary->Auth->Cognito->userPoolId = 'eu-west-1_Other';
+check(isset(SmartCloud\WPSuite\Gatey\DeploymentCandidate::sections($passwordless)['passwordless']['blocked']), 'Secondary pool blocks passwordless change.');
+$options['gatey']->userPoolConfigurations->secondary->Auth->Cognito->userPoolId = '';
+check(SmartCloud\WPSuite\Gatey\DeploymentCandidate::apply('passwordless', $passwordless) === true && $options['gatey']->passwordlessSettings['preferredAuthMethod'] === 'PASSWORD', 'Compatible preferred method is preserved.');
 $allowed = false;
 check(AdminSurface::read() instanceof WP_Error, 'Read requires manage_options.');
 check(AdminSurface::save(['hideSignUp' => true], $revision) instanceof WP_Error, 'Write independently requires manage_options.');

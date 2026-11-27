@@ -4,7 +4,7 @@ Tags: aws, cognito, login, sso, mfa
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 2.6.16
+Stable tag: 2.6.17
 License: MIT
 License URI: https://mit-license.org/
 Text Domain: gatey
@@ -196,6 +196,10 @@ The bundled WP Suite Hub admin originates from the `wpsuite-admin/` module in ht
 We maintain a fork of the AWS Amplify Authenticator (with Edit Account, Setup TOTP, etc.) and any additional paid-only screens and services in a private repository. Those files are not part of this public source.
 
 == Changelog ==
+
+= 2.6.17 =
+* Review and adopt Cognito settings recommended by a linked cloud deployment.
+* Highlight pending deployment recommendations in the WP Suite overview and Tools menu.
 
 = 2.6.16 =
 * Update the shared WP Suite Hub with WordPress asset enqueueing and translatable validation messages.

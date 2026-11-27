@@ -179,12 +179,39 @@ final class AdminSurface
         return $value === '' || (!str_starts_with($value, '//') && !preg_match('/[\\\\\x00-\x20?#:]/', $value));
     }
 
+    /** Hide only verified unavailable first factors; preserve every other local preference. */
+    public static function hideUnavailableFirstFactors(array $unavailable, string $revision): bool|\WP_Error
+    {
+        if (!current_user_can('manage_options')) { return self::error(__('Forbidden', 'gatey'), 403); }
+        $raw = self::raw();
+        if (!hash_equals(self::revision($raw), $revision)) { return self::error(__('Settings changed. Reload before saving.', 'gatey'), 409); }
+        if (!self::validList($unavailable, array('EMAIL_OTP', 'WEB_AUTHN'), false)) { return self::error(__('Invalid sign-in method.', 'gatey')); }
+        $settings = BackendProfileSettings::settings();
+        $passwordless = $settings->passwordlessSettings;
+        if (isset($passwordless['hiddenAuthMethods']) && !self::validList($passwordless['hiddenAuthMethods'], array('PASSWORD', 'EMAIL_OTP', 'SMS_OTP', 'WEB_AUTHN'), true)) {
+            return self::error(__('Review existing passwordless settings in Gatey Advanced.', 'gatey'), 409);
+        }
+        $passwordless['hiddenAuthMethods'] = array_values(array_unique(array_merge($passwordless['hiddenAuthMethods'] ?? array(), $unavailable)));
+        if (in_array($passwordless['preferredAuthMethod'] ?? null, $unavailable, true)) { unset($passwordless['preferredAuthMethod']); }
+        $updated = is_object($raw) ? clone $raw : (is_array($raw) ? $raw : $settings);
+        if (is_array($updated)) { $updated['passwordlessSettings'] = $passwordless; } else { $updated->passwordlessSettings = $passwordless; }
+        update_option(BackendProfileSettings::optionName(), $updated);
+        return true;
+    }
+
+    private static function validList(mixed $value, array $allowed, bool $allowEmpty): bool
+    {
+        if (!is_array($value) || (!$allowEmpty && !$value) || count($value) > count($allowed)) { return false; }
+        foreach ($value as $item) { if (!is_string($item) || !in_array($item, $allowed, true)) { return false; } }
+        return count(array_unique($value)) === count($value);
+    }
+
     public static function save(array $values, string $revision): array|\WP_Error
     {
         if (!current_user_can('manage_options')) { return self::error(__('Forbidden', 'gatey'), 403); }
         $raw = self::raw();
         if (!hash_equals(self::revision($raw), $revision)) { return self::error(__('Settings changed. Reload before saving.', 'gatey'), 409); }
-        if (!$values || array_diff(array_keys($values), array('userPoolId', 'userPoolClientId', 'identityPoolId', 'loginMechanism', 'signInPage', 'hideSignUp'))) {
+        if (!$values || array_diff(array_keys($values), array('userPoolId', 'userPoolClientId', 'identityPoolId', 'loginMechanism', 'loginMechanisms', 'signUpAttributes', 'signInPage', 'hideSignUp'))) {
             return self::error(__('Unsupported setting.', 'gatey'));
         }
         foreach ($values as $key => $value) {
@@ -192,6 +219,8 @@ final class AdminSurface
                 'userPoolId' => is_string($value) && Configuration::regionFromUserPoolId($value) !== '',
                 'userPoolClientId' => is_string($value) && preg_match('/^[a-z0-9]{1,128}$/D', $value),
                 'identityPoolId' => is_string($value) && ($value === '' || preg_match('/^[a-z]{2}(?:-[a-z0-9]+)+-\d+:[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$/D', $value)),
+                'loginMechanisms' => self::validList($value, array('email', 'username', 'phone_number'), false),
+                'signUpAttributes' => self::validList($value, array('name', 'family_name', 'given_name', 'middle_name', 'nickname', 'preferred_username', 'birthdate', 'email', 'phone_number', 'profile', 'website'), true),
                 'loginMechanism' => is_string($value) && in_array($value, array('existing', 'email', 'username', 'phone_number'), true),
                 'signInPage' => is_string($value) && strlen($value) <= 512 && self::validPath($value),
                 'hideSignUp' => is_bool($value),
